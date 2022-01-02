@@ -6,8 +6,8 @@ library(showtext)
 showtext_auto()
 
 
-start <- as.Date('2021-12-11')
-today <- as.Date('2021-12-17')
+start <- as.Date('2021-12-20')
+today <- as.Date('2021-12-27')
 all_days <- seq(start, today, by = 'day')
 year <- as.POSIXlt(all_days)$year + 1900
 urls <- paste0('http://cran-logs.rstudio.com/', year, '/', all_days, '.csv.gz')
@@ -52,10 +52,12 @@ d1 <- dat[, length(day), by=package]
 d1 <- d1[order(V1), ]
 d1[package=="readxl", ]
 d1[package=="openxlsx", ]
+d1[package=="readr", ]
+
 # plot 1: Compare downloads of selected packages on a weekly basis
-agg1 <- dat[J(c("readxl", "openxlsx")), length(unique(ip_id)), by=c("day", "package")]
+agg1 <- dat[J(c("readxl", "openxlsx", 'readr')), length(unique(ip_id)), by=c("day", "package")]
 ggplot(agg1, aes(x=day, y=V1, color=package, group=package)) + geom_line() + ylab("Downloads") + theme_bw() + theme(axis.text.x  = element_text(angle=0, size=8, vjust=0.5)) + 
-  scale_x_discrete(labels = c('12월11일', '12월12일', '12월13일', '12월14일', '12월15일', '12월16일'))
+  scale_x_discrete(labels = c('12월20일', '12월21일', '12월22일', '12월23일', '12월24일', '12월25일', '12월26일'))
 agg1 <- dat[J(c("psych", "TripleR", "RSA")), length(unique(ip_id)), by=c("week", "package")]
 ggplot(agg1, aes(x=week, y=V1, color=package, group=package)) + geom_line() + ylab("Downloads") + theme_bw() + theme(axis.text.x  = element_text(angle=90, size=8, vjust=0.5))
 
@@ -91,6 +93,11 @@ for (n in nn) {
     l <- append(l, list(df))
     
     elapsed <- system.time( x <- readxl::read_xlsx(file) )["elapsed"]
+    df <- data.frame(fun = "readxl::read_xlsx", n = n, p = p, 
+                     elapsed = elapsed, stringsAsFactors = F, row.names = NULL)
+    l <- append(l, list(df))
+
+    elapsed <- system.time( x <- readr::read_excel(file) )["elapsed"]
     df <- data.frame(fun = "readxl::read_xlsx", n = n, p = p, 
                      elapsed = elapsed, stringsAsFactors = F, row.names = NULL)
     l <- append(l, list(df))
@@ -131,7 +138,7 @@ as_tibble(df)
 library(readxl)
 
 ## `read_excel()`을 사용하여 엑셀파일을 읽어옴
-df <- read_excel('./chap2/주요-06 (유초)지역규모별 개황(1999-2021)_211214y.xlsx', 
+df <- read_excel('./주요-06 (유초)지역규모별 개황(1999-2021)_211214y.xlsx', 
                  ## '학과별 주요 현황' 시트의 데이터를 불러오는데,
                  sheet = 'data', 
                  skip = 10, 
@@ -143,7 +150,7 @@ View(df.1)
 head(df)
 getwd()
 library(tidyverse)
-df <- read.xlsx(xlsxFile = './chap2/주요-06 (유초)지역규모별 개황(1999-2021)_211214y.xlsx', 
+df <- read.xlsx(xlsxFile = './주요-06 (유초)지역규모별 개황(1999-2021)_211214y.xlsx', 
                 sheet = 'data',  ## 불러오는 데이터가 저장된 sheet는 '학과별 주요현황'
                 startRow = 11,   ##시작하는 열은 13번쨰열
                 na.string = '-', ## NA값은 '-'로 표기
@@ -152,3 +159,16 @@ df <- read.xlsx(xlsxFile = './chap2/주요-06 (유초)지역규모별 개황(199
 
 glimpse(df)
 glimpse(df.1)
+
+filter
+
+
+df <- read_excel('2021_연도별 입학자수.xlsx', 
+                 ## 'data' 시트의 데이터를 불러오는데,
+                 sheet = 'Sheet0',
+                 ## 앞의 10행을 제외하고
+                 skip = 3, 
+                 ## 첫번째 행은 열 이름을 설정
+                 col_names = FALSE, 
+                 ## 열의 타입을 설정, 처음 8개는 문자형으로 다음 56개는 수치형으로 설정
+                 col_types = c(rep('text', 2), rep('numeric', 30)))
