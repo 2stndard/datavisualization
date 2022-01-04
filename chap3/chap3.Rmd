@@ -111,19 +111,180 @@ aes(x, y, ...)
 ggplot(df_입학자)
 ```
 
-### 2.2 기하요소
+### 2.2 심미요소
 
-기하요소는 `ggplot()` 로 생성된 초기화 `ggplot` 객체에 데이터를 표현하는 방법을 지정하는 요소이다. 기하요소에는 여러가지가 있지만 우리가 흔히 생각하는 것은 점(Point), 선(Line), 막대(Bar, Col) 등이 대표적이다.
+심미요소는 데이터를 표현하는데 사용되는 필요한 요소들을 통칭한다. 즉 심미요소로 지정할 수 있는 모든 요인은 `ggplot` 객체의 X, Y 좌표내에 표현되는 기하요소의 표현을 위한 요소들로 시각적 요소와 데이터 변수간의 매핑을 통해서 구현된다.
+
+심미요소는 `aes()` 를 사용하여 매핑할 수 있고 고정값을 설정할 수 있다. 이 부분은 심미요인의 사용에 가장 혼동을 유발하는 부분이다. 심미요소를 매핑한다는 것은 심미요소가 데이터 변수에 의해 변경되어야 하는 경우 사용한다. 즉 심미요소가 변수에 대응됨으로써 변수의 변량에 따라 해당 심미요소들이 바뀌어서 표현된다. 그러나 고정값을 설정한다는 것은 변수에 대응되는 것이 아닌 특정값에 고정되도록 설정하기 때문에 고정값으로 설정된 기하요소들은 변수의 변량이 변경되어도 같은 심미요소로 표현된다. 심미요소는 사용하고자 하는 기하요소 함수(`geom_*()`) 내에서 사용되지만 매핑할때는 반드시 `aes()` 함수를 사용하여 데이터 열이나 매핑 변수를 설정하여야 하고 고정값을 설정할 때는 반드시 `aes()` 함수 바깥에서 선언되어야 한다. 다음의 예를 살펴보자.
+
+```{r}
+df_입학자 |> ggplot(aes(x = 연도, y = 전문대학)) +
+  geom_point(aes(color = 지역))
+
+df_입학자 |> ggplot(aes(x = 연도, y = 전문대학)) +
+  geom_point(color = 'red')
+
+```
+
+위의 코드에서 차이는 `color` 심미요인이 `aes()` 내에 df_입학자의 열이 매핑된 것과 `aes()` 밖에서 고정값(red)로 설정된 것이다. 결과에서 보이듯이 매핑된 `color` 는 지역 변수의 변량에 따라 `color` 가 자동적으로 바뀌어 데이터의 구분이 확연히 보인다. 반면 `aes()` 밖에서 고정값인 red값으로 설정된 코드는 전체 값들이 모두 red 값으로 표현되어 지역적으로 구분되지 않는다.
+
+설정이 가능한 심미요인들은 다음과 같다.
+
+#### 2.2.1 위치(x , y, xend, yend)
+
+x와 y는 기하요소가 표시될 X축의 위치와 Y축의 위치 설정에 필요한 데이터 열의 매핑을 설정한다. 일부 선을 그리거나 사각형을 그리는 `geom_segment()` 나 `geom_rect()` 와 같은 기하요소 함수에서는 x, y 부터 시작하여 xend, yend까지 기하요소를 그린다. 다른 심미요소와는 달리 x, y, xend, yend는 매핑과 고정값 설정시 모두 반드시 `aes()` 함수안에서 사용되야 한다.
+
+#### 2.2.2 color
+
+기하요인의 외곽선 색상을 설정한다. R에서 사용되는 색상은 색상 이름으로 설정하거나 RGB코드값으로 설정할 수 있다.
+
+R에서 미리 정의된 색상 이름은 총 657개로 `colors()` 를 사용하면 확인이 가능하다.
+
+```{r}
+## R에서 미리 정의된 색상 이름 출력, 지면 관계상 10개만 출력
+colors() |> head(10)
+```
+
+RGB 색상 코드는 HTML/CSS에서와 같이 RGB 코드를 16진수 값(00에서 FF)을 사용하여 2자리씩 정의하는데 "#" 접두사로 붙은 문자열로 설정한다. 예를 들어 red는은 "#FF0000"으로 표현된다.
+
+```{r}
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 막대의 외곽선 색상을 빨강으로 설정
+df_입학자 |> filter(지역 == '전체') |>
+  ggplot(aes(x = 연도, y = 전문대학)) +
+  geom_col(color = '#ff0000')
+
+```
+
+#### 2.2.3 fill
+
+기하요인의 내부 색상의 설정을 설정한다. 색상의 설정은 `color` 설정과 동일하다.
+
+```{r}
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 막대의 내부 색상을 빨강으로 설정
+df_입학자 |> filter(지역 == '전체') |>
+  ggplot(aes(x = 연도, y = 전문대학)) +
+  geom_col(fill = '#ff0000')
+
+```
+
+#### 2.2.4 alpha
+
+기하요인의 투명도를 설정한다. `alpha` 는 정수형 수치로 설정하는데 0부터 1사이의 값을 가진다. 0에 가까울수록 투명해지고 1에 가까울 수록 불투명해진다.
+
+```{r}
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 막대의 투명도를 0.3으로 설정
+df_입학자 |> filter(지역 == '전체') |>
+  ggplot(aes(x = 연도, y = 전문대학)) +
+  geom_col(alpha = 0.3)
+
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 막대의 투명도를 0.7로 설정
+df_입학자 |> filter(지역 == '전체') |>
+  ggplot(aes(x = 연도, y = 전문대학)) +
+  geom_col(alpha = 0.7)
+
+```
+
+####  2.2.5 linetype
+
+기하요인 중 선으로 그려지는 기하 요인의 선 타입을 결정한다. R에서는 총 7가지의 선 타입을 제공하는데 0부터 6까지의 숫자나 선 타입의 이름을 사용하여 설정할 수 있다.
+
+```{r echo=FALSE}
+ggplot() +
+  geom_segment(aes(x = 10, xend = 100, y = 1, yend = 1), linetype = 0) +
+  geom_segment(aes(x = 10, xend = 100, y = 2, yend = 2), linetype = 1) +
+  geom_segment(aes(x = 10, xend = 100, y = 3, yend = 3), linetype = 2) +
+  geom_segment(aes(x = 10, xend = 100, y = 4, yend = 4), linetype = 3) +
+  geom_segment(aes(x = 10, xend = 100, y = 5, yend = 5), linetype = 4) +
+  geom_segment(aes(x = 10, xend = 100, y = 6, yend = 6), linetype = 5) +
+  geom_segment(aes(x = 10, xend = 100, y = 7, yend = 7), linetype = 6) +
+  geom_text(aes(x = 0, y = 1), label = 'blank, 0') +
+  geom_text(aes(x = 0, y = 2), label = 'solid, 1') +
+  geom_text(aes(x = 0, y = 3), label = 'dashed, 2') +
+  geom_text(aes(x = 0, y = 4), label = 'dotted, 3') +
+  geom_text(aes(x = 0, y = 5), label = 'dotdash, 4') +
+  geom_text(aes(x = 0, y = 6), label = 'longdash, 5') +
+  geom_text(aes(x = 0, y = 7), label = 'twodash, 6') +
+  theme_void()
+
+```
+
+```{r}
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 선의 타입을 'dashed'로 설정
+df_입학자 |> filter(지역 == '전체') |>
+  ggplot(aes(x = 연도, y = 전문대학)) +
+  geom_line(aes(group = 1), linetype = 'dotted')
+
+```
+
+#### 2.2.6 size
+
+`size` 는 기하요소의 크기를 설정한다. 기하요소가 점이면 점의 크기, 선이면 선의 굵기를 설정한다. 점의 크기를 결정할 때는 반지름의 길이를 밀리미터 단위로 지정한다. 또 선의 굵기도 밀리미터 단위로 지정할 수 있다.
+
+```{r}
+df_입학자 |> filter(지역 == '전체') |>
+  ggplot(aes(x = 연도, y = 전문대학)) +
+  geom_line(aes(group = 1), size = 3)
+
+df_입학자 |> filter(지역 == '전체') |>
+  ggplot(aes(x = 연도, y = 전문대학)) +
+  geom_point(size = 3)
+
+```
+
+#### 2.2.7 shape
+
+```{r echo=FALSE}
+shapes <- data.frame(
+  shape_name = c('square open, 0', 
+            'circle open, 1', 
+            'triangle open, 2', 
+            'plus, 3', 
+            'cross, 4', 
+            'diamond open, 5', 
+            'triangle down open, 6', 
+            'square cross, 7', 
+            'astrisk, 8', 
+            'diamond plus, 9',
+            'circle plus, 10', 
+            'triangle up and down,11', 
+            'square plus, 12', 
+            'circle cross, 13', 
+            'triangle square, 14', 
+            'square, 15', 
+            'circle, 16', 
+            'triangle, 17', 
+            'diamond, 18', 
+            'circle small, 19', 
+            'bullet, 20', 
+            'circle fill, 21', 
+            'square fill, 22', 
+            'diamond fill, 23', 
+            'triangle fill, 24'),
+  shape = 0:24, 
+  x = 0:24 %/% 5,
+  y = -(0:24 %% 5)
+)
+ggplot(shapes, aes(x, y)) + 
+  geom_point(aes(shape = shape), size = 5, fill = "red") +
+  geom_text(aes(label = shape_name), hjust = 0.5, vjust = 3) +
+  scale_shape_identity() +
+  lims(x = c(-0.5, 4.55), y = c(-4.5, 0)) +
+  theme_void()
+```
+
+### 2.3 기하요소
+
+기하요소는 `ggplot()` 로 생성된 초기화 `ggplot` 객체에 데이터를 표현하는 방법을 지정하는 요소이다. 2.기하요소에는 여러가지가 있지만 우리가 흔히 생각하는 것은 점(Point), 선(Line), 막대(Bar, Col) 등이 대표적이다.
 
 기하요소를 생성하기 위해서는 `geom_*()` 함수를 사용하고 각각의 `geom_*()` 함수를 호출할 때마다 각각의 기하요소 레이어가 생성되고 이 레이어들이 계속 겹쳐서 그려짐으로써 데이터 시각화가 진행된다. 기하요소를 위한 `geom_*()` 의 주요 함수는 각각의 함수에 따라 선언되는 시각화 요소들이 다르지만 데이터, 심미요소 매핑, 기하요소 지정, 통계 변환, 위치 조정 등이 선언된다.
 
 기하요소를 선택할 때는 각각의 기하요소에 따라 표현되는 값의 제한이 있다. 예를 들어 막대 그래프의 경우 Y축은 연속된 정수값이 표현되는 것이 가능하지만 X축에는 연속된 정수값이 아닌 값의 구별이 가능한 이산 값(discrete value)가 와야한다. 그래야 분리된 하나의 이산값에 하나의 막대가 표현될 수 있다. 이렇게 표현하고자 하는 값의 종류에 따라 적합한 기하요소를 선택하여야 한다. 값의 종류는 연속된 값(continuous value), 분리된 이산값(discrete value) 나 팩터(factor)의 여부, 단변량, 다변량의 여부 등으로 나눌 수 있다.
 
-#### 2.2.1 연속된 단변량 기하요소
+#### 2.3.1 연속된 단변량 기하요소
 
 연속된 단변량 기하요소는 수치형 데이터 하나를 시각화할 때 사용할 수 있는 기하요소이다. `ggplot()` 는 보통 X축과 Y축의 2차원 표현이 기본이기 때문에 하나의 데이터만이 정의되면 나머지 하나의 데이터는 자동적으로 결정된다. 이렇게 자동적으로 결정되는 데이터는 보통 면적(Area), 밀도분포(Density), 도수 분포(Histogram) 등이다.
 
-##### 2.2.1.1 `geom_histogram` 
+##### 2.3.1.1 `geom_histogram`
 
 `geom_histogram` 은 도수분포표를 그리는 기하요소 함수이다. 도수분포는 초등학교때 배우는 가장 기본적인 막대그래프로 각각의 변수 변량에 따른 데이터의 개수를 표현하는 시각화 방법이다. 변수 변량에 따른 데이터의 개수를 표현하기 때문에 X축 데이터만 설정하면 데이터를 자동적으로 분석하여 X축에 매핑된 변수의 변량별로 데이터 개수를 산출하게 되고 이 개수를 막대 그래프로 표현하게 된다. 따라서 도수분포는 막대그래프에 속하는 종류 중 하나일 뿐이다.
 
@@ -137,6 +298,12 @@ geom_histogram(mapping = NULL, data = NULL, bins, binwidth, ...)
   - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
   - bins : X축을 나누는 bin의 개수 설정
   - binwidth : X축을 나누는 bin의 너비 설정, 숫자벡터를 사용할 수 있다. (bin과 binwidth는 동시에 사용될 수 없다)
+```
+
+`geom_histogram()` 에 매핑될 수 있는 심미요인은 다음과 같다.
+
+```{r eval=FALSE}
+mapping = aes(x, y, alpha, color, fill, linetype, size, weight)
 ```
 
 df_입학자를 사용하여 `geom_historgram()` 을 그려보자.
@@ -161,6 +328,9 @@ p_histogram +
 ## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 교육대학열로 매핑, binwidth = 300으로 설정 
 p_histogram +
   geom_histogram(aes(x = 교육대학), binwidth = 300)
+
+p_histogram + 
+  geom_histogram(aes(x = 교육대학), color = 'blue', fill = 'red', alpha = 0.5)
 ```
 
-#### 
+##### 2.2.1.2 
