@@ -20,14 +20,30 @@ colnames(df_입학자) <- c('연도', '지역', '전문대학', '교육대학', 
 
 df_입학자 <- df_입학자 |> filter(!is.na(지역))
 
+df_취업통계 <- read_excel('2020년 학과별 고등교육기관 취업통계.xlsx', 
+                      ## '학과별' 시트의 데이터를 불러오는데,
+                      sheet = '학과별',
+                      ## 앞의 13행을 제외하고
+                      skip = 13, 
+                      ## 첫번째 행은 열 이름으로 설정
+                      col_names = TRUE, 
+                      ## 열의 타입을 설정, 처음 9개는 문자형으로 다음 79개는 수치형으로 설정
+                      col_types = c(rep('text', 9), rep('numeric', 79)))
+
+
+df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'))
+
 
 df_입학자 |> 
   ggplot(aes(x = 연도, y = 전문대학)) +
   geom_line(aes(group = 지역))
 vignette('ggplot()')
 
+p_histogram <- df_취업통계 |>
+  ggplot()
+
 p_histogram + 
-  geom_histogram(aes(x = 교육대학), color = 'blue', fill = 'red', alpha = 0.5)
+  geom_histogram(aes(x = 취업률_계), color = 'blue', fill = 'red', alpha = 0.5)
 
 df_입학자 |> ggplot(aes(x = 연도, y = 전문대학)) +
   geom_point(aes(color = 지역))
@@ -133,3 +149,58 @@ df_입학자 |> filter(지역 == '전체') |>
   ggplot(aes(x = 연도, y = 전문대학)) +
   geom_point(shape = 15)
 
+
+##  df_취업통계를 ggplot 객체를 생성하고 p_histogram에 저장
+p_histogram <- df_취업통계 |>
+  ggplot()
+
+## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, binning 옵션을 주지 않았으므로 bins = 30이 기본값으로 설정됨 
+p_histogram +
+  geom_histogram(aes(x = 취업률_계))
+
+## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, bins = 90으로 설정 
+p_histogram +
+  geom_histogram(aes(x = 취업률_계), bins = 90)
+
+## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, binwidth = 10으로 설정 
+p_histogram +
+  geom_histogram(aes(x = 취업률_계), binwidth = 10)
+
+## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, binwidth = 5으로 설정 
+p_histogram +
+  geom_histogram(aes(x = 취업률_계), binwidth = 5)
+
+p_histogram + 
+  geom_histogram(aes(x = 취업률_계), color = 'red', fill = 'red', alpha = 0.2, linetype = 2)
+
+
+
+
+
+
+
+
+df_입학자 |> 
+  ggplot() +
+  geom_freqpoly(aes(x = 일반대학), bins = 30, na.rm = TRUE)
+p_freqpoly +
+  geom_freqpoly(aes(x = 일반대학), binwidth = 2000, color = 'red', linetype = 3)
+
+##  df_입학자에서 연도가 2021인 데이터만 추출하여 ggplot 객체를 생성하고 p_density에 저장
+p_density <- df_입학자 |>
+  ggplot()
+
+## p_density객체에 geom_density 레이어를 생성하는데 x축을 일반대학으로 매핑
+p_density + 
+  geom_density(aes(x = 일반대학))
+
+## p_density객체에 geom_density 레이어를 생성하는데 x축을 일반대학으로 매핑, color를 red, fill을 blue, linetype을 2, size를 3으로 설정
+p_density + 
+  geom_density(aes(x = 일반대학), color = 'blue', fill = 'skyblue', linetype = 2, size = 1, alpha = 0.5)
+
+
+p_bar <- df_입학자 |>
+  ggplot()
+
+p_bar +
+  geom_bar(aes(x = 지역))

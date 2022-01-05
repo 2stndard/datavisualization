@@ -31,6 +31,28 @@ df_입학자 <- df_입학자 |> filter(!is.na(지역))
 
 지금까지 데이터 시각화를 위한 R의 기초 사용법에 대해 알아보았다. 이제 본격적으로 `ggplot2` 패키지를 위주로 데이터 시각화 방법을 알아보도록 하자.
 
+먼저 데이터 시각화를 실습하기 위한 데이터를 설정하도록 하겠다. 두 개의 데이터를 사용할 것인데 하나는 2장에서 사용했던 df_입학자 데이터이고 나머지 하나는 교육통계 서비스 홈페이지에서 제공하는 학교/학과별 데이터셋의 2020년 취업통계 학과별 데이터 셋[^1] 을 사용하겠다. 취업통계 데이터 셋을 불러 들이는 코드는 다음과 같다.[^2]
+
+[^1]: <https://kess.kedi.re.kr/contents/dataset?itemCode=04&menuId=m_02_04_03_02&tabId=m3>
+
+[^2]: 해당 데이터는 필자의 블로그(2stndard.tistory.com)에서 다운로드 받을 수 있다.
+
+```{r}
+df_취업통계 <- read_excel('2020년 학과별 고등교육기관 취업통계.xlsx', 
+                     ## '학과별' 시트의 데이터를 불러오는데,
+                     sheet = '학과별',
+                     ## 앞의 13행을 제외하고
+                     skip = 13, 
+                     ## 첫번째 행은 열 이름으로 설정
+                     col_names = TRUE, 
+                     ## 열의 타입을 설정, 처음 9개는 문자형으로 다음 79개는 수치형으로 설정
+                     col_types = c(rep('text', 9), rep('numeric', 79)))
+
+
+df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'))
+str(df_취업통계)
+```
+
 ## 1. `ggplot2` 란
 
 `ggplot2` 패키지는 R에서 데이터 시각화를 위해 가장 널리 사용되는 패키지이다. 이 패키지는 R-Studio의 수석 데이터 사이언티스트인 Hadley Wickham이 주도적으로 개발한 패키지로 2005년 발간된 Leland Wilkinson의 The Grammar of Graphics을 기본으로 작성되었다.
@@ -310,11 +332,11 @@ df_입학자 |> filter(지역 == '전체') |>
 
 #### 2.2.8 group
 
-기하요소는 개별(individual) 기하요소와 집합(collective) 기하요소로 구분될 수 있다. 개별 기하요소는 각각의 관측이(행)을 각각의 기하요소로 매핑해서 표현하지만 집합 기하요소는 여러개의 관측치를 하나의 기하요소로 표현한다.[^1] 집합 기하요소는 통계적인 요약이 필요한 Box Plot이나 한번에 여러개의 변량이 연결되어 표현되야하는 도형(polygon), 선, 세그먼트 등에서 연결되는 구분이 설정되어야한다. 이를 표현하기 위해 사용되는 미적요소가 `group`이다. 설명한대로 `group` 은 직접적으로 표현되는 미적요소는 아니지만 미적요소가 적용되는 범위를 설정하기 위해 사용되는 미적요소이다.
+기하요소는 개별(individual) 기하요소와 집합(collective) 기하요소로 구분될 수 있다. 개별 기하요소는 각각의 관측이(행)을 각각의 기하요소로 매핑해서 표현하지만 집합 기하요소는 여러개의 관측치를 하나의 기하요소로 표현한다.[^3] 집합 기하요소는 통계적인 요약이 필요한 Box Plot이나 한번에 여러개의 변량이 연결되어 표현되야하는 도형(polygon), 선, 세그먼트 등에서 연결되는 구분이 설정되어야한다. 이를 표현하기 위해 사용되는 미적요소가 `group`이다. 설명한대로 `group` 은 직접적으로 표현되는 미적요소는 아니지만 미적요소가 적용되는 범위를 설정하기 위해 사용되는 미적요소이다.
 
-[^1]: Hadley Wickham, ggplot2:Elegant Graphics for Data Analysis 2nd edition, P 46, Springer, 2016.
+[^3]: Hadley Wickham, ggplot2:Elegant Graphics for Data Analysis 2nd edition, P 46, Springer, 2016.
 
-아래의 코드를 살펴보자. 
+아래의 코드를 살펴보자.
 
 ```{r}
 ## df_입학자 중 전문대학 입학생을 선 그래프로 시각화하는데 지역별 구분이 되지 않음
@@ -329,7 +351,17 @@ df_입학자 |>
 
 ```
 
+위의 코드에서 앞선 코드는 `group` 을 지정하지 않고 `color` 만 df_입학자 데이터의 지역열에 매핑하였다. 하지만 선으로 표현될 미적요소는 지역별로 그루핑되어야 정상적으로 표현되는데 단지 `color` 만의 매핑으로는 정상적으로 표현되지 않는다. 따라서 `geom_line()` 으로 여러개의 선이 표현되는 선 그래프를 표현하기 해서는 반드시 `group` 으로 그루핑되는 열을 지정해야 정상적으로 표현된다.
 
+그렇다면 단 하나의 선만이 있는 선 그래프는 어떻게 될까? 단 하나의 선이기 때문에 `group` 이 필요없을까? 답은 그렇지 않다. 다만 단 하나의 선이 있는 경우에는 `group = 1` 로 선언함으로써 열을 매핑하지 않고 사용할 수도 있다.
+
+```{r}
+## df_입학자 중 지역이 전체에 해당하는 전문대학 입학생을 선 그래프로 시각화하는데 지역이 하나뿐이므로 group을 1로 설정함으로써 선그래프를 그릴 수 있음
+df_입학자 |> filter(지역 == '전체') |>
+  ggplot(aes(x = 연도, y = 전문대학)) +
+  geom_line(aes(color = 지역, group = 1))
+
+```
 
 ### 2.3 기하요소
 
@@ -337,17 +369,17 @@ df_입학자 |>
 
 기하요소를 생성하기 위해서는 `geom_*()` 함수를 사용하고 각각의 `geom_*()` 함수를 호출할 때마다 각각의 기하요소 레이어가 생성되고 이 레이어들이 계속 겹쳐서 그려짐으로써 데이터 시각화가 진행된다. 기하요소를 위한 `geom_*()` 의 주요 함수는 각각의 함수에 따라 선언되는 시각화 요소들이 다르지만 데이터, 미적요소 매핑, 기하요소 지정, 통계 변환, 위치 조정 등이 선언된다.
 
-기하요소를 선택할 때는 각각의 기하요소에 따라 표현되는 값의 제한이 있다. 예를 들어 막대 그래프의 경우 Y축은 연속된 정수값이 표현되는 것이 가능하지만 X축에는 연속된 정수값이 아닌 값의 구별이 가능한 이산 값(discrete value)가 와야한다. 그래야 분리된 하나의 이산값에 하나의 막대가 표현될 수 있다. 이렇게 표현하고자 하는 값의 종류에 따라 적합한 기하요소를 선택하여야 한다. 값의 종류는 연속된 값(continuous value), 분리된 이산값(discrete value) 나 팩터(factor)의 여부, 단변량, 다변량의 여부 등으로 나눌 수 있다.
+기하요소를 선택할 때는 각각의 기하요소에 따라 표현되는 값의 제한이 있다. 예를 들어 막대 그래프의 경우 Y축은 연속된 정수값이 표현되는 것이 가능하지만 X축에는 연속된 정수값이 아닌 값의 구별이 가능한 이산 값(discrete value)가 와야한다. 그래야 분리된 하나의 이산값에 하나의 막대가 표현될 수 있다. 이렇게 표현하고자 하는 값의 종류에 따라 적합한 기하요소를 선택하여야 한다. 값의 종류는 연속된 값(continuous value), 분리된 이산값(discrete value) 나 팩터(factor)의 여부, 일변량, 다변량의 여부 등으로 나눌 수 있다.
 
-#### 2.3.1 연속된 단변량 기하요소
+#### 2.3.1 연속된(Continuous) 일변량 데이터 시각화
 
-연속된 단변량 기하요소는 수치형 데이터 하나를 시각화할 때 사용할 수 있는 기하요소이다. `ggplot()` 는 보통 X축과 Y축의 2차원 표현이 기본이기 때문에 하나의 데이터만이 정의되면 나머지 하나의 데이터는 자동적으로 결정된다. 이렇게 자동적으로 결정되는 데이터는 보통 면적(Area), 밀도분포(Density), 도수 분포(Histogram) 등이다.
+연속된 일변량 데이터는 수치형 데이터 열 하나를 의미한다. `ggplot()` 는 보통 X축과 Y축의 2차원 표현이 기본이기 때문에 하나의 데이터 열만이 정의되면 나머지 하나의 데이터는 자동적으로 결정되어야 한다. 이렇게 자동적으로 결정되는 데이터는 보통 면적(Area), 밀도 분포(Density), 도수 분포(Histogram) 등이다. 이와 같이 자동적으로 결정되는 데이터에 따라 기하요소 함수를 사용할 수 있다.
 
 ##### 2.3.1.1 `geom_histogram`
 
 `geom_histogram` 은 도수분포표를 그리는 기하요소 함수이다. 도수분포는 초등학교때 배우는 가장 기본적인 막대그래프로 각각의 변수 변량에 따른 데이터의 개수를 표현하는 시각화 방법이다. 변수 변량에 따른 데이터의 개수를 표현하기 때문에 X축 데이터만 설정하면 데이터를 자동적으로 분석하여 X축에 매핑된 변수의 변량별로 데이터 개수를 산출하게 되고 이 개수를 막대 그래프로 표현하게 된다. 따라서 도수분포는 막대그래프에 속하는 종류 중 하나일 뿐이다.
 
-앞에서 막대그래프는 연속된 수치값이 아닌 분리된 이산값이 X축에 매핑되어야 한다고 설명는데 연속된 단변량 기하요소에 `geom_histogram()` 이 속하는 것은 왜일까? `geom_histogram()` 은 연속된 수치값을 X축에 매핑한다. 하지만 내부적으로 적절한 단위로 전체 X값을 분리하여 이산값으로 만들어 준 후에 막대그래프를 생성해 준다. 이 과정이 통계요소이고 `geom_histogram()` 에서 사용되는 유일한 통계요소은 연속된 값을 층화하여 구간하는 방법인 binning이다. 이처럼 자동적으로 계산되는 binning 떄문에 연속된 단변량 기하요소에 속한다.
+앞에서 막대그래프는 연속된 수치값이 아닌 분리된 이산값이 X축에 매핑되어야 한다고 설명는데 연속된 일변량 기하요소에 `geom_histogram()` 이 속하는 것은 왜일까? `geom_histogram()` 은 연속된 수치값을 X축에 매핑한다. 하지만 내부적으로 적절한 단위로 전체 X값을 분리하여 이산값으로 만들어 준 후에 막대그래프를 생성해 준다. 이 과정이 통계요소이고 `geom_histogram()` 에서 사용되는 유일한 통계요소은 연속된 값을 층화하여 구간하는 방법인 binning이다. 이처럼 자동적으로 계산되는 binning 떄문에 연속된 일변량 기하요소에 속한다.
 
 `geom_histogram` 의 사용법과 주요 매개변수는 다음과 같다.
 
@@ -359,37 +391,124 @@ geom_histogram(mapping = NULL, data = NULL, bins, binwidth, ...)
   - binwidth : X축을 나누는 bin의 너비 설정, 숫자벡터를 사용할 수 있다. (bin과 binwidth는 동시에 사용될 수 없다)
 ```
 
-`geom_histogram()` 에 매핑될 수 있는 미적요소은 다음과 같다.
-
-```{r eval=FALSE}
-mapping = aes(x, y, alpha, color, fill, linetype, size, weight)
-```
-
-df_입학자를 사용하여 `geom_historgram()` 을 그려보자.
+`geom_histogram()` 에 매핑될 수 있는 미적요소은 위치(x, y), alpha, color, fill, linetype, size 등이다.
 
 ```{r}
-##  df_입학자에서 연도가 2021인 데이터만 추출하여 ggplot 객체를 생성하고 p_histogram에 저장
-p_histogram <- df_입학자 |> filter(연도 == 2021) |>
+##  df_취업통계를 ggplot 객체로 생성하고 p_histogram에 저장
+p_histogram <- df_취업통계 |>
   ggplot()
 
-## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 교육대학열로 매핑, binning 옵션을 주지 않았으므로 bins = 30이 기본값으로 설정됨 
+## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, binning 옵션을 주지 않았으므로 bins = 30이 기본값으로 설정됨 
 p_histogram +
-  geom_histogram(aes(x = 교육대학))
+  geom_histogram(aes(x = 취업률_계))
 
-## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 교육대학열로 매핑, bins = 90으로 설정 
+## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, bins = 90으로 설정 
 p_histogram +
-  geom_histogram(aes(x = 교육대학), bins = 90)
+  geom_histogram(aes(x = 취업률_계), bins = 90)
 
-## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 교육대학열로 매핑, binwidth = 100으로 설정 
+## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, binwidth = 10으로 설정 
 p_histogram +
-  geom_histogram(aes(x = 교육대학), binwidth = 100)
+  geom_histogram(aes(x = 취업률_계), binwidth = 10)
 
-## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 교육대학열로 매핑, binwidth = 300으로 설정 
+## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, binwidth = 5으로 설정 
 p_histogram +
-  geom_histogram(aes(x = 교육대학), binwidth = 300)
+  geom_histogram(aes(x = 취업률_계), binwidth = 5)
 
+## p_histogram에 geom_histogram 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, 각각의 미적요인을 설정 
 p_histogram + 
-  geom_histogram(aes(x = 교육대학), color = 'blue', fill = 'red', alpha = 0.5)
+  geom_histogram(aes(x = 취업률_계), color = 'red', fill = 'red', alpha = 0.2, linetype = 2)
+
 ```
 
-##### 2.2.1.2
+##### 2.3.1.2 `geom_freqpoly()`
+
+`geom_freqpoly()` 는 하나의 데이터 열에 기록된 연속형 수치 데이터를 표현하는데 사용되는 기하요소 함수이다. 앞선 `geom_histogram()` 은 막대를 사용하여 데이터의 수치를 표현해지만 `geom_freqpoly()` 는 데이터 값들을 연결한 다각형을 사용하여 데이터의 수치를 표현한다.
+
+```{r eval=FALSE}
+geom_freqpoly(mapping = NULL, data = NULL, na.rm = FALSE, show.legend = NA, ...)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE)
+```
+
+`geom_freqpoly()` 에서 사용이 가능한 미적요소는 위치(x, y), alpha, color, linetype, size, group이다.
+
+`geom_freqpoly()` 를 사용한 데이터 시각화는 다음과 같다.
+
+```{r}
+##  df_취업통계를 ggplot 객체로 생성하고 p_freqpoly에 저장
+p_freqpoly <- df_취업통계 |>
+  ggplot()
+
+## p_freqpoly에 geom_freqpoly 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, bins = 30으로 설정 
+p_freqpoly +
+  geom_freqpoly(aes(x = 취업률_계), bins = 30)
+
+## p_freqpoly에 geom_freqpoly 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, binwidth = 10으로 설정 
+p_freqpoly +
+  geom_freqpoly(aes(x = 취업률_계), binwidth = 10, rm.na = TRUE)
+
+## p_freqpoly에 geom_freqpoly 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, binwidth = 10으로 설정하고 미적요소 설정 
+p_freqpoly +
+  geom_freqpoly(aes(x = 취업률_계), binwidth = 10, color = 'red', linetype = 2)
+
+## p_freqpoly에 geom_freqpoly 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, group과 color를 과정구분으로 매핑, binwidth = 10으로 설정 
+p_freqpoly +
+  geom_freqpoly(aes(x = 취업률_계, group = 과정구분, color = 과정구분), binwidth = 10, linetype = 2)
+
+```
+
+##### 2.3.1.3 `geom_density()`
+
+`geom_density()` 도 하나의 데이터 열에 기록된 연속형 수치 데이터를 표현하는데 사용되는 기하요소 함수인데 데이터의 분포에 따른 확률분포함수를 표현하는 함수이다. 데이터 값으로 주어진 연속된 수치 데이터를 확률밀도함수에 대입하여 계산된 연속확률분포를 시각화한다. 따라서 X값에 따라 계산된 연속확률분포값은 확률값이기 때문에 1보다 작은 값들이고 이 값들이 연결되어 표현된다. `geom_density()` 를 사용하여 연속확률분포를 시각화할 수 있다.
+
+```{r eval=FALSE}
+geom_density(mapping = NULL, data = NULL, na.rm = FALSE, show.legend = NA, ...)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE)
+```
+
+`geom_density()` 에서 사용할 수 있는 미적요소는 위치(x, y), alpha, color, fill, linetype, size 등이다.
+
+```{r}
+##  df_취업통계를 ggplot 객체로 생성하고 p_density에 저장
+p_density <- df_취업통계 |>
+  ggplot()
+
+## p_density객체에 geom_density 레이어를 생성하는데 x축을 '취업률_계'열로 매핑
+p_density + 
+  geom_density(aes(x = 취업률_계))
+
+## p_density객체에 geom_density 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, 미적요소 설정
+p_density + 
+  geom_density(aes(x = 취업률_계), color = 'blue', fill = 'skyblue', linetype = 2, size = 1, alpha = 0.5)
+
+```
+
+#### 2.3.2 이산된(Discrete) 일변량 데이터 시각화
+
+앞 절에서 설명한 `geom_histogram()`, `geom_freqpoly()`, `geom_density()` 는 연속된 수치값에 대한 일변량 시각화 기하요소함수였다. 그렇다면 팩터와 같은 구분되고 분리되는 이산된 일변량 시각화는 어떻게 시각화되는가? 이산된 일변량 데이터를 위한 기하요소 함수는 `geom_bar()` 가 유일하다. 사실 `geom_bar()` 는 뒤에서 설명될 `geom_col()` 과 거의 유사한 결과를 내는 막대 그래프 시각화이다. 다만 `geom_bar()` 는 앞선 연속된 일변량 데이터 시각화와 같이 하나의 데이터만 제공되면 해당 데이터의 빈도를 자동적으로 계산하여 변수의 변량에 따른 데이터의 빈도를 막대 그래프 형태로 시각화한다. 이는 또 `geom_histogram()` 과 유사하게 나타나지만 X축으로 제공되는 데이터가 연속형 수치 데이터인가 이산형 데이터인가에 따라 차이가 있다. 또 X 축에 매핑되는 데이터가 이산형 데이터이기 때문에 꼭 수치 데이터가 아닐 수 있다.
+
+```{r eval=FALSE}
+geom_bar(mapping = NULL, data = NULL, stat = "count", position = "stack", width = NULL, na.rm = FALSE, show.legend = NA, ...)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE) 
+```
+
+`geom_bar()` 에서 사용이 가능한 미적요소는 x, alpha, color, fill, linetype, size, weight가 있다.
+
+```{r}
+p_bar <- df_취업통계 |>
+  ggplot()
+
+p_bar +
+  geom_bar(aes(x = 대계열))
+
+p_bar +
+  geom_bar(aes(x = 대계열), color = 'blue', fill = 'skyblue', linetype = 2, size = 1, alpha = 0.5)
+```
