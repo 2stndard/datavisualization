@@ -1,4 +1,24 @@
 library(tidyverse)
+library(showtext)
+showtext_auto()
+library(tidyverse)
+library(readxl)
+setwd('./chap3')
+df_입학자 <- read_excel('2021_연도별 입학자수.xlsx', 
+                     ## 'data' 시트의 데이터를 불러오는데,
+                     sheet = 'Sheet0',
+                     ## 앞의 10행을 제외하고
+                     skip = 3, 
+                     ## 첫번째 행은 열 이름을 설정
+                     col_names = FALSE, 
+                     ## 열의 타입을 설정, 처음 8개는 문자형으로 다음 56개는 수치형으로 설정
+                     col_types = c(rep('text', 2), rep('numeric', 30)))
+df_입학자 <- df_입학자 |> select(1, 2, 5, 7, 9, 11, 13, 19, 29, 31)
+
+## df_입학자의 열이름을 적절한 이름으로 설정
+colnames(df_입학자) <- c('연도', '지역', '전문대학', '교육대학', '일반대학', '방송통신대학', '산업대학', '원격및사이버대학', '석사', '박사')
+
+df_입학자 <- df_입학자 |> filter(!is.na(지역))
 
 
 df_입학자 |> 
@@ -104,3 +124,12 @@ ggplot(shapes, aes(x, y)) +
   scale_shape_identity() +
   lims(x = c(-0.5, 4.55), y = c(-4.5, 0)) +
   theme_void()
+
+df_입학자 |># |> filter(지역 == '전체') |>
+  ggplot(aes(x = 연도, y = 전문대학)) +
+  geom_point(aes(shape = 지역))
+
+df_입학자 |> filter(지역 == '전체') |>
+  ggplot(aes(x = 연도, y = 전문대학)) +
+  geom_point(shape = 15)
+
