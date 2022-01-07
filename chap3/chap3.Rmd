@@ -156,7 +156,7 @@ df_입학자 |> ggplot(aes(x = 연도, y = 전문대학)) +
 
 x와 y는 기하요소가 표시될 X축의 위치와 Y축의 위치 설정에 필요한 데이터 열의 매핑을 설정한다. 일부 선을 그리거나 사각형을 그리는 `geom_segment()` 나 `geom_rect()` 와 같은 기하요소 함수에서는 x, y 부터 시작하여 xend, yend까지 기하요소를 그린다. 다른 미적요소와는 달리 x, y, xend, yend는 매핑과 고정값 설정시 모두 반드시 `aes()` 함수안에서 사용되야 한다.
 
-#### 2.2.2 color
+#### 2.2.2 color, colour
 
 기하요소의 외곽선 색상을 설정한다. R에서 사용되는 색상은 색상 이름으로 설정하거나 RGB코드값으로 설정할 수 있다.
 
@@ -313,7 +313,7 @@ df_입학자 |> filter(지역 == '전체') |>
 
 ```
 
-#### 2.2.7 label
+#### 2.2.8 label
 
 `label`은 텍스트로 표현되는 기하요소를 말한다. 데이터의 위치에 대한 수치값을 표현한다거나 데이터의 분류에 대한 문자를 표현할 때 사용되는 미적요소이다. `label`은 주로 텍스트에 관련된 기하요소인 `geom_text()`나 `geom_label()`에서 주로 사용된다.
 
@@ -330,7 +330,7 @@ df_입학자 |> filter(지역 == '전체') |>
 
 ```
 
-#### 2.2.8 group
+#### 2.2.9 group
 
 기하요소는 개별(individual) 기하요소와 집합(collective) 기하요소로 구분될 수 있다. 개별 기하요소는 각각의 관측이(행)을 각각의 기하요소로 매핑해서 표현하지만 집합 기하요소는 여러개의 관측치를 하나의 기하요소로 표현한다.[^3] 집합 기하요소는 통계적인 요약이 필요한 Box Plot이나 한번에 여러개의 변량이 연결되어 표현되야하는 도형(polygon), 선, 세그먼트 등에서 연결되는 구분이 설정되어야한다. 이를 표현하기 위해 사용되는 미적요소가 `group`이다. 설명한대로 `group` 은 직접적으로 표현되는 미적요소는 아니지만 미적요소가 적용되는 범위를 설정하기 위해 사용되는 미적요소이다.
 
@@ -371,22 +371,26 @@ df_입학자 |> filter(지역 == '전체') |>
 
 기하요소를 선택할 때는 각각의 기하요소에 따라 표현되는 값의 제한이 있다. 예를 들어 막대 그래프의 경우 Y축은 연속된 정수값이 표현되는 것이 가능하지만 X축에는 연속된 정수값이 아닌 값의 구별이 가능한 이산 값(discrete value)가 와야한다. 그래야 분리된 하나의 이산값에 하나의 막대가 표현될 수 있다. 이렇게 표현하고자 하는 값의 종류에 따라 적합한 기하요소를 선택하여야 한다. 값의 종류는 연속된 값(continuous value), 분리된 이산값(discrete value) 나 팩터(factor)의 여부, 일변량, 다변량의 여부 등으로 나눌 수 있다.
 
-#### 2.3.1 연속된(Continuous) 일변량 데이터 시각화
+#### 2.3.1 일변수(One Variable) 데이터 시각화
 
-연속된 일변량 데이터는 수치형 데이터 열 하나를 의미한다. `ggplot()` 는 보통 X축과 Y축의 2차원 표현이 기본이기 때문에 하나의 데이터 열만이 정의되면 나머지 하나의 데이터는 자동적으로 결정되어야 한다. 이렇게 자동적으로 결정되는 데이터는 보통 면적(Area), 밀도 분포(Density), 도수 분포(Histogram) 등이다. 이와 같이 자동적으로 결정되는 데이터에 따라 기하요소 함수를 사용할 수 있다.
+일변수 데이터는 수치형 데이터 열 하나를 의미한다. `ggplot()` 는 보통 X축과 Y축의 2차원 표현이 기본이기 때문에 하나의 데이터 열만이 정의되면 나머지 하나의 데이터는 자동적으로 결정되어야 한다. 이렇게 자동적으로 결정되는 데이터는 보통 면적(Area), 밀도 분포(Density), 도수 분포(Histogram) 등이다. 일변수 데이터 시각화는 일변수로 설정되는 데이터가 연속성 수치 데이터인지 이산성 데이터인지에 따라 구분하여 기하요소 함수를 사용할 수 있다.
 
-##### 2.3.1.1 `geom_histogram`
+##### 2.3.1.1 연속형 수치 데이터
+
+###### 2.3.1.1.1 `geom_histogram()`
 
 `geom_histogram` 은 도수분포표를 그리는 기하요소 함수이다. 도수분포는 초등학교때 배우는 가장 기본적인 막대그래프로 각각의 변수 변량에 따른 데이터의 개수를 표현하는 시각화 방법이다. 변수 변량에 따른 데이터의 개수를 표현하기 때문에 X축 데이터만 설정하면 데이터를 자동적으로 분석하여 X축에 매핑된 변수의 변량별로 데이터 개수를 산출하게 되고 이 개수를 막대 그래프로 표현하게 된다. 따라서 도수분포는 막대그래프에 속하는 종류 중 하나일 뿐이다.
 
-앞에서 막대그래프는 연속된 수치값이 아닌 분리된 이산값이 X축에 매핑되어야 한다고 설명는데 연속된 일변량 기하요소에 `geom_histogram()` 이 속하는 것은 왜일까? `geom_histogram()` 은 연속된 수치값을 X축에 매핑한다. 하지만 내부적으로 적절한 단위로 전체 X값을 분리하여 이산값으로 만들어 준 후에 막대그래프를 생성해 준다. 이 과정이 통계요소이고 `geom_histogram()` 에서 사용되는 유일한 통계요소은 연속된 값을 층화하여 구간하는 방법인 binning이다. 이처럼 자동적으로 계산되는 binning 떄문에 연속된 일변량 기하요소에 속한다.
+앞에서 막대그래프는 연속된 수치값이 아닌 분리된 이산값이 X축에 매핑되어야 한다고 설명는데 연속된 일변량 기하요소에 `geom_histogram()` 이 속하는 것은 왜일까? `geom_histogram()` 은 연속된 수치값을 X축에 매핑한다. 하지만 내부적으로 적절한 단위로 전체 X값을 분리하여 이산값으로 만들어 준 후에 막대그래프를 생성해 준다. 이 과정이 통계요소이고 `geom_histogram()` 에서 사용되는 유일한 통계요소은 연속된 값을 층화하여 구간하는 방법인 binning이다. 이처럼 자동적으로 계산되는 binning 떄문에 연속된 일변량 기하요소에 속하고 이를 위해 통계요소를 'bin'으로 사용한다.
 
 `geom_histogram` 의 사용법과 주요 매개변수는 다음과 같다.
 
 ```{r eval=FALSE}
-geom_histogram(mapping = NULL, data = NULL, bins, binwidth, ...)
+geom_histogram(mapping = NULL, data = NULL, stat = "bin", position = "stack", bins, binwidth, ...)
   - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
   - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소로 'bin'이 권장됨
+  - position : 시각화에 적용될 위치요소로 'stack'로 권장됨
   - bins : X축을 나누는 bin의 개수 설정
   - binwidth : X축을 나누는 bin의 너비 설정, 숫자벡터를 사용할 수 있다. (bin과 binwidth는 동시에 사용될 수 없다)
 ```
@@ -420,14 +424,16 @@ p_histogram +
 
 ```
 
-##### 2.3.1.2 `geom_freqpoly()`
+###### 2.3.1.1.2 `geom_freqpoly()`
 
-`geom_freqpoly()` 는 하나의 데이터 열에 기록된 연속형 수치 데이터를 표현하는데 사용되는 기하요소 함수이다. 앞선 `geom_histogram()` 은 막대를 사용하여 데이터의 수치를 표현해지만 `geom_freqpoly()` 는 데이터 값들을 연결한 다각형을 사용하여 데이터의 수치를 표현한다.
+`geom_freqpoly()` 는 하나의 데이터 열에 기록된 연속형 수치 데이터를 표현하는데 사용되는 기하요소 함수이다. 앞선 `geom_histogram()` 은 막대를 사용하여 데이터의 수치를 표현해지만 `geom_freqpoly()` 는 데이터 값들을 연결한 다각형을 사용하여 데이터의 수치를 표현한다.`geom_freqpoly()`도 `geom_histogram()`과 같이 binning을 기본적으로 사용하기 때문에 통계요소를 'bin'이 기본적으로 적용된다. 만약 다각형을 조금 부드럽게(smoothing) 하려면 통계요소를 'density'로 설정하는데 이 경우는 `geom_density()`와 동일한 결과가 나온다.
 
 ```{r eval=FALSE}
-geom_freqpoly(mapping = NULL, data = NULL, na.rm = FALSE, show.legend = NA, ...)
+geom_freqpoly(mapping = NULL, data = NULL,  stat = "bin",  position = "identity", na.rm = FALSE, show.legend = NA, ...)
   - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
   - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소로 'bin'이 권장됨
+  - position : 시각화에 적용될 위치요소로 'identity'로 권장됨
   - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
   - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE)
 ```
@@ -445,6 +451,10 @@ p_freqpoly <- df_취업통계 |>
 p_freqpoly +
   geom_freqpoly(aes(x = 취업률_계), bins = 30)
 
+## p_freqpoly에 geom_freqpoly 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, bins = 30으로 설정하는데 통계요소를 'density'로 설정
+p_freqpoly +
+  geom_freqpoly(aes(x = 취업률_계), stat = 'density', bins = 30)
+
 ## p_freqpoly에 geom_freqpoly 레이어를 생성하는데 x축을 '취업률_계'열로 매핑, binwidth = 10으로 설정 
 p_freqpoly +
   geom_freqpoly(aes(x = 취업률_계), binwidth = 10, rm.na = TRUE)
@@ -459,14 +469,16 @@ p_freqpoly +
 
 ```
 
-##### 2.3.1.3 `geom_density()`
+###### 2.3.1.1.3 `geom_density()`
 
-`geom_density()` 도 하나의 데이터 열에 기록된 연속형 수치 데이터를 표현하는데 사용되는 기하요소 함수인데 데이터의 분포에 따른 확률분포함수를 표현하는 함수이다. 데이터 값으로 주어진 연속된 수치 데이터를 확률밀도함수에 대입하여 계산된 연속확률분포를 시각화한다. 따라서 X값에 따라 계산된 연속확률분포값은 확률값이기 때문에 1보다 작은 값들이고 이 값들이 연결되어 표현된다. `geom_density()` 를 사용하여 연속확률분포를 시각화할 수 있다.
+`geom_density()` 도 하나의 데이터 열에 기록된 연속형 수치 데이터를 표현하는데 사용되는 기하요소 함수인데 데이터의 분포에 따른 확률분포함수를 표현하는 함수이다. 데이터 값으로 주어진 연속된 수치 데이터를 확률밀도함수에 대입하여 계산된 연속확률분포를 시각화한다. 따라서 X값에 따라 계산된 연속확률분포값은 확률값이기 때문에 1보다 작은 값들이고 이 값들이 연결되어 표현된다. `geom_density()` 를 사용하여 연속확률분포를 시각화할 수 있다. 따라서 통계요소가 앞선 두 함수와는 달리 'density'가 기본값으로 설정된다.
 
 ```{r eval=FALSE}
-geom_density(mapping = NULL, data = NULL, na.rm = FALSE, show.legend = NA, ...)
+geom_density(mapping = NULL, data = NULL, stat = "density",  position = "identity", na.rm = FALSE, show.legend = NA, ...)
   - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
   - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소로 'density'로 권장됨
+  - position : 시각화에 적용될 위치요소로 'identity'으로 권장됨
   - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
   - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE)
 ```
@@ -488,7 +500,7 @@ p_density +
 
 ```
 
-#### 2.3.2 이산된(Discrete) 일변량 데이터 시각화
+##### 2.3.1.2 이산(Discrete) 데이터 : `geom_bar()`
 
 앞 절에서 설명한 `geom_histogram()`, `geom_freqpoly()`, `geom_density()` 는 연속된 수치값에 대한 일변량 시각화 기하요소함수였다. 그렇다면 팩터와 같은 구분되고 분리되는 이산된 일변량 시각화는 어떻게 시각화되는가? 이산된 일변량 데이터를 위한 기하요소 함수는 `geom_bar()` 가 유일하다. 사실 `geom_bar()` 는 뒤에서 설명될 `geom_col()` 과 거의 유사한 결과를 내는 막대 그래프 시각화이다. 다만 `geom_bar()` 는 앞선 연속된 일변량 데이터 시각화와 같이 하나의 데이터만 제공되면 해당 데이터의 빈도를 자동적으로 계산하여 변수의 변량에 따른 데이터의 빈도를 막대 그래프 형태로 시각화한다. 이는 또 `geom_histogram()` 과 유사하게 나타나지만 X축으로 제공되는 데이터가 연속형 수치 데이터인가 이산형 데이터인가에 따라 차이가 있다. 또 X 축에 매핑되는 데이터가 이산형 데이터이기 때문에 꼭 수치 데이터가 아닐 수 있다.
 
@@ -496,6 +508,8 @@ p_density +
 geom_bar(mapping = NULL, data = NULL, stat = "count", position = "stack", width = NULL, na.rm = FALSE, show.legend = NA, ...)
   - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
   - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소로 'count'로 권장됨
+  - position : 시각화에 적용될 위치요소로 'stack'으로 권장됨
   - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
   - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE) 
 ```
@@ -503,12 +517,272 @@ geom_bar(mapping = NULL, data = NULL, stat = "count", position = "stack", width 
 `geom_bar()` 에서 사용이 가능한 미적요소는 x, alpha, color, fill, linetype, size, weight가 있다.
 
 ```{r}
+##  df_취업통계를 ggplot 객체로 생성하고 p_bar에 저장
 p_bar <- df_취업통계 |>
   ggplot()
 
+## p_bar 객체에 geom_bar 레이어를 만드는데 x축을 대계열로 매핑
 p_bar +
   geom_bar(aes(x = 대계열))
 
+## p_bar 객체에 geom_bar 레이어를 만드는데 x축을 대계열로 매핑하고 미적요소 서정
 p_bar +
   geom_bar(aes(x = 대계열), color = 'blue', fill = 'skyblue', linetype = 2, size = 1, alpha = 0.5)
+```
+
+#### 2.3.2 이변수(Two Variable) 데이터 시각화
+
+앞서 언급한 바와 같이 `ggplot` 객체는 보통 X, Y 두 개의 축으로 표현되는 2차원 시각화를 기본으로 하고 있다. 따라서 변수 두개를 사용한 데이터 시각화가 일반적 형태의 시각화이다. 변수 두개를 사용한 데이터 시각화도 일변수 데이터 시각화와 마찬가지로 시각화해야할 데이터가 연속형 수치 데이터인지 이산형 데이터인지에 따라 사용하는 기하요소의 종류와 함수가 달라진다.
+
+##### 2.3.2.1 2개의 연속형 수치 변수
+
+X축과 Y축에 매핑되어 시각화해야하는 두개의 변수가 모두 연속형 수치 변수인 경우에는 X축과 Y축의 매핑에 따라 위치를 표시해 주는 시각화가 대부분이다. 보통 데이터의 분포를 확인해야 하는 경우와 데이터에 수치값이나 텍스트를 표현해야 할 때 많이 사용된다.
+
+###### 2.3.2.1.1 `geom_point()`
+
+데이터의 전반적 분포를 확인할 때 가장 많이 사용되는 기하요소가 점을 사용한 데이터 시각화이다. 이렇게 X, Y축에 따라 데이터를 점으로 표현한 시각화를 산점도(Scatter Plot)라고 한다. 산점도는 X축과 Y축의 좌표값에 따라 점을 표시함으로서 데이터의 전반적인 분포를 살펴보고 X, Y축의 증감에 따른 데이터의 상관관계를 살펴보는데 효과적인 시각화 방법이다. 따라서 시각화 과정에서 데이터 값을 통계처리하지 않고 사용되기 때문에 통계요소가 'identity'로 설정된다.
+
+```{r eval=FALSE}
+geom_point(mapping = NULL, data = NULL,  stat = "identity",  position = "identity", na.rm = FALSE, show.legend = NA,  ...)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소로 'identity'로 권장됨
+  - position : 시각화에 적용될 위치요소로 'identity'으로 권장됨
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE) 
+```
+
+`geom_point()`에서 사용이 가능한 미적요소는 x, y, alpha, colour, fill, group, shape, size, stroke 등이다.
+
+```{r}
+##  df_취업통계 데이터 중 졸업자가 500명 이하인 학과를 필터링하여 ggplot 객체로 생성하고 p_point에 저장
+p_point <- df_취업통계 |> filter(졸업자_계 < 500) |>
+  ggplot()
+
+##  p_point객체에 geom_point 레이어를 생성하는데 x축은 졸업자_계, y축은 취업자_합계_계로 매핑
+p_point +
+  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계))
+
+##  p_point객체에 geom_point 레이어를 생성하는데 x축은 졸업자_계, y축은 취업자_합계_계, color를 대계열로 매핑하고 투명도를 설정
+p_point +
+  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열), alpha = 0.5)
+```
+
+###### 2.3.2.1.2 `geom_text()`
+
+`geom_text()`는 `geom_point()`와 데이터 표현방식은 동일하나 표현되는 데이터가 문자열이라는 점에서 차이가 있다. `geom_text()`는 주로 점이나 선, 막대 등으로 표현된 기하요소 레이어에 추가하여 해당 데이터들의 값이나 정보를 표현하기 위한 부가 정보를 제공하는데 활용된다. 그렇기 때문에 기본 기하요소와 겹쳐지 않기 위해 위치 조정을 위한 매개변수가 추가될 수 있다.
+
+```{r eval = FALSE}
+geom_text(mapping = NULL, data = NULL, stat = "identity", position = "identity", nudge_x = 0, nudge_y = 0, check_overlap = FALSE, na.rm = FALSE, show.legend = NA, ...)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소로 'identity'로 권장됨
+  - position : 시각화에 적용될 위치요소로 'identity'으로 권장됨
+  - nudge_x : X축 방향으로 문자열의 이동
+  - nudge_y :  Y축 방향으로 문자열의 이동
+  - check_overlap : 텍스트가 겹치는 것을 허용할지에 대한 논리값(TRUE/FALSE)
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE) 
+```
+
+`geom_text()`에서 사용 가능한 미적요소는 x, y, label, alpha, angle, color, family, fontface, group, hjust, lineheight, size, vjust 등이다.
+
+-   angle : 문자열이 표현되는 각도 설정
+
+-   family : 문자열 시각화에 사용될 폰트 설정
+
+-   fontface : 문자열 시각화에 사용될 문자 특성("plain", "bold", "italic", "bold.italic")
+
+-   hjust : 수평 맞춤 설정, 0부터 1사이의 값을 지정
+
+-   vjust : 수직 맞춤 설정, 0부터 1사이의 값을 지정
+
+-   lineheight : 줄간격 설정, 0부터 1사이의 값을 지정
+
+```{r}
+##  df_입학자 데이터 중 지역이 전체인 데이터를 필터링하여 ggplot 객체로 생성하고 p_text에 저장
+p_text <- df_입학자 |> filter(지역 == '전체') |>
+  ggplot()
+
+##  p_text에 geom_point 레이어와 geom_text레이어를 생성하는데 x축은 연도, y축은 전문대학을 매핑
+p_text +
+  geom_point(aes(x = 연도, y = 전문대학)) +
+  geom_text(aes(x = 연도, y = 전문대학, label = 전문대학))
+
+##  p_text에 geom_point 레이어와 geom_text레이어를 생성하는데 x축은 연도, y축은 전문대학을 매핑하고 미적요소 설정
+p_text +
+  geom_point(aes(x = 연도, y = 전문대학)) +
+  geom_text(aes(x = 연도, y = 전문대학, label = 전문대학), nudge_x = 1, fontface = 'bold')
+
+```
+
+###### 2.3.2.1.3 `geom_label()`
+
+`geom_label()`은 `geom_text()`와 거의 유사한 시각화를 제공한다. 다만 `geom_text()`는 문자열만을 시각화하지만 `geom_label()`은 박스로 둘러싸여진 문자열을 시각화한다. 따라서 문자열을 둘러싸고 있는 박스에 대한 설정외에는 `geom_text()`의 설정과 동일하다.
+
+```{r eval = FALSE}
+geom_label(mapping = NULL, data = NULL, stat = "identity", position = "identity", nudge_x = 0, nudge_y = 0, label.padding = unit(0.25, "lines"), label.r = unit(0.15, "lines"), label.size = 0.25, na.rm = FALSE, show.legend = NA, ...)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소로 'identity'로 권장됨
+  - position : 시각화에 적용될 위치요소로 'identity'으로 권장됨
+  - nudge_x : X축 방향으로 문자열의 이동
+  - nudge_y :  Y축 방향으로 문자열의 이동
+  - label.padding : 박스와 문자열간의 여백 설정
+  - label.r = 박스의 귀퉁이를 둥글게 설정할 경우 반지름 설정
+  - label.size = 박스 라인의 두께 설정
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE) 
+```
+
+`geom_label()`에서 사용 가능한 미적요소는 x, y, label, alpha, angle, color, family, fontface, group, hjust, lineheight, size, vjust 등이다.
+
+```{r}
+##  df_입학자 데이터 중 지역이 전체인 데이터를 필터링하여 ggplot 객체로 생성하고 p_label에 저장
+p_label <- df_입학자 |> filter(지역 == '전체') |>
+  ggplot()
+
+##  p_label에 geom_point 레이어와 geom_text레이어를 생성하는데 x축은 연도, y축은 전문대학을 매핑
+p_label +
+  geom_point(aes(x = 연도, y = 전문대학)) +
+  geom_label(aes(x = 연도, y = 전문대학, label = 전문대학))
+
+##  p_label에 geom_point 레이어와 geom_text레이어를 생성하는데 x축은 연도, y축은 전문대학을 매핑하고 미적요소 설정
+p_label +
+  geom_point(aes(x = 연도, y = 전문대학)) +
+  geom_label(aes(x = 연도, y = 전문대학, label = 전문대학), nudge_x = 1, fontface = 'bold')
+
+```
+
+###### 2.3.2.1.4 `geom_smooth()`
+
+`geom_smooth()`는 데이터의 전반적인 추세선을 표현하는 기하요소 함수이다. 이 추세선은 데이터의 패턴을 찾기 위해 사용되고 특히 오버플로팅된 데이터에 대한 패턴을 찾아낼때 유용하게 사용된다. `geom_smooth()`에서 추세선을 결정하기 위해 제공하는 통계 방법은 "lm", "glm", "gam", "loess"의 네가지를 제공한다.
+
+```{r eval = FALSE}
+geom_smooth(mapping = NULL, data = NULL, stat = "identity", position = "identity", method = NULL,   formula = NULL, se = TRUE, na.rm = FALSE, orientation = NA, show.legend = NA, ...)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소로 'identity'로 권장됨
+  - position : 시각화에 적용될 위치요소로 'identity'으로 권장됨
+  - method : 추세선을 결정하기 위해 사용하는 통계 방법 설정, "lm", "glm", "gam", "loess" 중 하나임
+  - formula :  추세선을 결정하기 위해 사용하는 함수식 설정
+  - se : 추세선에 대한 표준오차 설정을 위한 논리값(TRUE/FALSE)
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE) 
+```
+
+`geom_smooth()`에서 사용 가능한 미적요소는 x, y, alpha, color, fill, group, linetype, size, weight, ymax, ymin 등이다.
+
+```{r}
+##  df_입학자 데이터 중 지역이 전체인 데이터를 필터링하여 ggplot 객체로 생성하고 p_smooth에 저장
+p_smooth <- df_입학자 |> filter(지역 == '전체') |>
+  ggplot()
+
+##  p_smooth에 geom_line레이어와 geom_smooth레이어를 생성하는데 x축은 연도, y축은 전문대학을 매핑, geom_smooth의 추세선 결정 방법은 'loess'로 설정
+p_smooth +
+  geom_line(aes(x = 연도, y = 전문대학, group = 1)) +
+  geom_smooth(aes(x = 연도, y = 전문대학, group = 1), method = 'loess')
+
+##  p_smooth에 geom_line레이어와 geom_smooth레이어를 생성하는데 x축은 연도, y축은 전문대학을 매핑, geom_smooth의 추세선 결정 방법은 'lm', se는 FALSE로 설정
+p_smooth +
+  geom_line(aes(x = 연도, y = 전문대학, group = 1)) +
+  geom_smooth(aes(x = 연도, y = 전문대학, group = 1), method = 'lm', se = FALSE)
+
+```
+
+##### 2.3.2.2 연속형 수치 변수와 이산형 변수
+
+반별 성적 평균이라던지 지역별 매출액 평균등을 시각화 할 때같이 연속형 수치변수와 이산형 변수를 사용하여 데이터를 시각화하는 경우가 많이 있다. 사실 시각화의 가장 효과적인 활용 방법이 이 경우일 것이다.
+
+###### 2.3.2.2.1 `geom_col()`
+`geom_col()`은 막대그래프를 그리기 위해 사용하는 시각화 함수이다. 앞에서 막대그래프는 이미 `geom_histogram()`과 `geom_bar()`가 설명되었다. 그런데 또 `geom_col()`이 제공된다. 막대그래프는 시각화하고자 하는 데이터의 종류에 따라 각각의 특성에 맞는 함수가 제공된다. 하지만 `geom_col()`이 가장 포괄적인 막대그래프 시각화 함수로써 `geom_col()`를 사용하여 `geom_histogram()`과 `geom_bar()`와 동일한 막대그래프를 그릴 수도 있다. 특히 `geom_col()`은 `geom_bar(stat = 'ideneity)`와 동일한 시각화 효과를 낸다.  
+
+```{r eval=FALSE}
+geom_col(mapping = NULL, data = NULL, position = "stack", width = NULL, na.rm = FALSE, show.legend = NA, ...)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - position : 시각화에 적용될 위치요소로 'stack'으로 초기 설정됨
+  - width : 막대의 너비 설정
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE) 
+
+```
+
+`geom_col()`에서 특별하게 활용되는 매개변수가 `position`이다. 이 `position`를 설정하여 막대그래프의 타입을 달리하여 시각화가 가능하다는 것이다. `position`의 종류는 다음 절에서 자세히 설명하도록 하겠다. 
+`geom_col()`에서 사용 가능한 미적요소는 x, y, alpha, color, fill, group, linetype, size 등이다. 
+
+```{r}
+##  df_입학자 데이터 중 지역이 전체가 아닌 데이터를 필터링하여 ggplot 객체로 생성하고 p_col에 저장
+p_col <- df_입학자 |> filter(지역 != '전체') |>
+  ggplot()
+
+##  p_col에 geom_col레이어를 생성하는데 x축은 연도, y축은 일반대학을 매핑함
+p_col +
+  geom_col(aes(x = 연도, y = 일반대학))
+
+##  p_col에 geom_bar레이어를 생성하는데 x축은 연도, y축은 일반대학을 매핑하고 stat을 'identity'로 설정
+p_col +
+  geom_bar(aes(x = 연도, y = 일반대학), stat = 'identity')
+
+##  p_col에 geom_bar레이어를 생성하는데 x축은 연도, y축은 일반대학, fill을 지역으로 매핑
+p_col +
+  geom_col(aes(x = 연도, y = 일반대학, fill = 지역))
+
+```
+
+
+###### 2.3.2.2.2 `geom_boxplot()`
+
+박스 플롯은 데이터의 전반적 분포를 살펴볼 수 있는 매우 좋은 시각화 방법이다. 앞서 설명한 산점도는 X, Y축 모두 연속형 수치 변수를 사용하지만 박스 플롯은 이산형 변수로 분류되는 데이터의 전반적 분포를 시각화할 수 있다는 점에서 활용도가 크고 Scatter Plot에서는 표현할 수 없었던 중간값, IQR 범위, 이상치 등의 추가적인 정보를 같이 볼 수 있다는 장점이 있다. R에서 박스 플롯 레이어를 생성하기 위해서는 `geom_boxplot()`을 사용한다.
+
+박스 플롯으로 표현되는 상자의 중심은 중앙값이다. 중앙값은 가로선으로 표현되며 그 주위를 상자가 둘러싸고 있다. 상자의 상단과 하단은 관측값들의 25%\~75%를 나타내고 중간 선은 전체 데이터의 중간값(50%)을 표현한다. 상자의 상단과 하단 범위를 벗어나면 사분위 범위의 1.5배에 해당하는 '수염(whisker)'으로 표현된다. 수염 밖으로 존재하는 값은 점으로 표기하며 일반적으로 이상치로 간주한다. ![](boxplot.png)
+
+```{r eval = FALSE}
+geom_boxplot(mapping = NULL, data = NULL, stat = "boxplot", position = "dodge2", outlier.color = NULL, outlier.fill = NULL, outlier.shape = 19, outlier.size = 1.5, outlier.stroke = 0.5, outlier.alpha = NULL, notch = FALSE, notchwidth = 0.5, na.rm = FALSE, show.legend = NA, ...)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소로 'boxplot'으로 권장됨
+  - position : 시각화에 적용될 위치요소로 'dodge2'로 권장됨
+  - outlier.colour, outlier.color, outlier.fill, outlier.shape, outlier.size, outlier.stroke, outlier.alpha : 이상치로 표현되는 점의 미적요소 설정
+  - notch : 상자의 중간값을 구분하는 귀퉁이를 표현할 지를 설정하기 위한 논리값(TRUE/FALSE)
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE) 
+```
+
+`geom_boxplot()`에서 사용이 가능한 미적요소는 x, y, lower(xlower), upper(xupper), middle(xmiddle), ymin(xmin), ymax(xmax), alpha, colour, fill, group, linetype, shape, size, weight 등이 있다. 이 중 lower(xlower), upper(xupper), middle(xmiddle), ymin(xmin), ymax(xmax)는 박스를 수동으로 설정하기 위해 사용하는 미적요소이다. 
+
+```{r}
+##  df_취업통계 데이터를 ggplot 객체로 생성하고 p_boxplot에 저장
+p_boxplot <- df_취업통계 |>
+  ggplot()
+
+## p_boxplot에 geom_boxplot레이어를 생성하는데 x축에 대계열, y축에 취업률_계로 매핑
+p_boxplot + 
+  geom_boxplot(aes(x = 대계열, y = 취업률_계)) 
+  
+## p_boxplot에 geom_boxplot레이어를 생성하는데 x축에 대계열, y축에 취업률_계, fill을 대계열로 매핑, 미적요소 설정
+p_boxplot + 
+  geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 대계열), linetype = 2) 
+
+## p_boxplot에 geom_boxplot레이어를 생성하는데 x축에 대계열, y축에 취업률_계, fill을 대계열로 매핑, 미적요소 설정
+p_boxplot + 
+  geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 대계열), linetype = 2, notch = TRUE, notchwidth = 0.2, outlier.shape = 3) 
+
+```
+
+###### 2.3.2.2.3 `geom_violin()`
+
+`geom_violin()`은 박스플롯과 거의 유사한 시각화 방법인데 박스대신 데이터의 분포를 표현하는 바이올린 과 유사한 형태의 도형으로 표현하는 시각화 방법이다. 박스 플롯에서는 25%부터 75%까지의 범위를 표현하는데 유용하지만 그 범위내에서 데이터가 어느 구간에 많이 분포되어 있는지는 표현하지 못한다. 이와 같은 단점을 극복하기 위해 `geom_violin()`은 데이터가 많이 분포하는 구간은 좌우를 넓게 표현하고 데이터가 적게 분포하는 구간은 좌우를 좁게 표현해서 데이터의 전체 구간에 데이터의 분포를 시각화할 수 있다. 
+
+```{r eval=FALSE}
+geom_violin(mapping = NULL, data = NULL, stat = "ydensity", position = "dodge", draw_quantiles = NULL, trim = TRUE, scale = "area", na.rm = FALSE, show.legend = NA, ...)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소로 'ydensity'으로 권장됨
+  - position : 시각화에 적용될 위치요소로 'dodge'로 권장됨
+  - draw_quantiles : 박스플롯에서 표현하는 것과 같이 분위라인을 그리는데 사용될 분위 설정
+  - trim : 
+  - scale : 
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE) 
 ```

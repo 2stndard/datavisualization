@@ -182,7 +182,8 @@ p_histogram +
 
 df_입학자 |> 
   ggplot() +
-  geom_freqpoly(aes(x = 일반대학), bins = 30, na.rm = TRUE)
+  geom_freqpoly(aes(x = 일반대학), stat = 'count', bins = 30, na.rm = TRUE)
+
 p_freqpoly +
   geom_freqpoly(aes(x = 일반대학), binwidth = 2000, color = 'red', linetype = 3)
 
@@ -196,11 +197,71 @@ p_density +
 
 ## p_density객체에 geom_density 레이어를 생성하는데 x축을 일반대학으로 매핑, color를 red, fill을 blue, linetype을 2, size를 3으로 설정
 p_density + 
-  geom_density(aes(x = 일반대학), color = 'blue', fill = 'skyblue', linetype = 2, size = 1, alpha = 0.5)
+  geom_density(aes(x = 일반대학), stat = 'count', color = 'blue', fill = 'skyblue', linetype = 2, size = 1, alpha = 0.5)
 
 
-p_bar <- df_입학자 |>
+p_bar <- df_취업통계 |>
   ggplot()
 
 p_bar +
-  geom_bar(aes(x = 지역))
+  geom_bar(aes(x = 대계열))
+
+p_bar +
+  geom_bar(aes(x = 대계열), position = 'identity', color = 'blue', fill = 'skyblue', linetype = 2, size = 1, alpha = 0.5)
+
+
+##  df_취업통계 데이터 중 졸업자가 500명 이하인 학과를 필터링하여 ggplot 객체로 생성하고 p_point에 저장
+p_jitter <- df_취업통계 |> filter(졸업자_계 < 500) |>
+  ggplot()
+
+##  p_point객체에 geom_point 레이어를 생성하는데 x축은 졸업자_계, y축은 취업자_합계_계로 매핑
+p_jitter +
+  geom_jitter(aes(x = 졸업자_계, y = 취업자_합계_계))
+
+##  p_point객체에 geom_point 레이어를 생성하는데 x축은 졸업자_계, y축은 취업자_합계_계, color를 대계열로 매핑하고 투명도를 설정
+p_point +
+  geom_jitter(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열), alpha = 0.5)
+
+
+p_text <- df_입학자 |> filter(지역 == '전체') |>
+  ggplot()
+
+p_text +
+  geom_point(aes(x = 연도, y = 전문대학)) +
+  geom_text(aes(x = 연도, y = 전문대학, label = 전문대학))
+
+p_text +
+  geom_point(aes(x = 연도, y = 전문대학)) +
+  geom_text(aes(x = 연도, y = 전문대학, label = 전문대학), nudge_x = 1)
+
+
+
+p_smooth <- df_입학자 |> filter(지역 == '전체') |>
+  ggplot(aes(x = 연도, y = 전문대학))
+
+p_smooth +
+  geom_line(aes(group = 1)) +
+  geom_smooth(aes(group = 1))
+
+
+df_취업통계 |>
+  ggplot(aes(x = 졸업자_계, y = 취업자_합계_계)) +
+  geom_point() +
+  geom_smooth()
+
+
+
+vignette("ggplot2-specs")
+
+
+p_boxplot <- df_취업통계 |>
+  ggplot()
+
+p_boxplot + 
+  geom_violin(aes(x = 대계열, y = 취업률_계), draw_quantiles = c(0.2, 0.4, 0.5, 0.6, 0.8), trim = F, scale = 'width') 
+  
+p_boxplot + 
+  geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 대계열), linetype = 2) 
+
+p_boxplot + 
+  geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 대계열), linetype = 2, notch = TRUE, notchwidth = 0.2) 
