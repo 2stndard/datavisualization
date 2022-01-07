@@ -261,7 +261,8 @@ p_boxplot +
   geom_violin(aes(x = 대계열, y = 취업률_계), draw_quantiles = c(0.2, 0.4, 0.5, 0.6, 0.8), trim = F, scale = 'width') 
   
 p_boxplot + 
-  geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 대계열), linetype = 2) 
+  geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 대계열), linetype = 2) +
+  geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun.y = 'max')
 
 p_boxplot + 
   geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 대계열), linetype = 2, notch = TRUE, notchwidth = 0.2) 
