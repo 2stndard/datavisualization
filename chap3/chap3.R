@@ -261,7 +261,40 @@ p_boxplot +
   geom_violin(aes(x = 대계열, y = 취업률_계), draw_quantiles = c(0.2, 0.4, 0.5, 0.6, 0.8), trim = F, scale = 'width') 
   
 p_boxplot + 
-  geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 대계열), linetype = 2) 
+  geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 대계열)) +
+  labs(title = '계열별 취업률 분포')
 
 p_boxplot + 
   geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 대계열), linetype = 2, notch = TRUE, notchwidth = 0.2) 
+
+
+df_취업통계 |>
+  ggplot() +
+  geom_tile(aes(x = 졸업자_계, y = 취업자_합계_계, fill = 취업률_계))
+
+
+p_line <- df_입학자 |> filter(지역 != '전체') |>
+  ggplot()
+
+p_line + 
+  geom_step(aes(x = 연도, y = 일반대학, group = 지역, color = 지역))
+
+p_line + 
+  geom_line(aes(x = 연도, y = 일반대학, group = 지역))
+
+install.packages('bookdown')
+
+p_line + 
+  geom_line(aes(x = 연도, y = 일반대학, group = 지역, color = 지역)) +
+  facet_wrap(~지역)
+
+df_입학자
+
+
+p_col +
+  geom_col(aes(x = 연도, y = 일반대학)) + 
+  coord_fixed()
+
+p_point +
+  geom_point(aes(x = 졸업자_계, y = 취업률_계)) + 
+  coord_fixed()
