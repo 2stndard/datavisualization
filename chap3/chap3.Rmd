@@ -1634,3 +1634,29 @@ df_입학자_long |> filter(지역 == '전체') |>
   scale_color_brewer(palette = 'Set1')
 
 ```
+
+
+`scale_*()`에서 공통적으로 많이 사용되는 매개변수는 다음과 같다. 
+
+```{r eval=FALSE}
+scale_*_discrete(name = waiver(), breaks = waiver(), labels = waiver(), limits = NULL, position = "left", ...)
+  - name : 스케일에 설정할 이름, 축이나 범례의 이름
+  - breaks : 이산값의 분할점을 설정하는 매개변수로 NULL(분할값 없음), waiver() 함수(`ggplot`의 기본 설정 값 사용 함수), 분할점의 문자열 벡터, 분할점을 리턴하는 함수 중 하나 설정
+  - labels : 분할점에 표기될 라벨로 NULL(라벨 없음), waiver(), 라벨로 사용할 문자열 벡터(breaks와 동일한 벡터 길이), 분할점 라벨을 리턴하는 함수 중 하나 설정
+  - limits : 이산값의 범위를 설정하는데 NULL(기본값 사용), 이산값의 범위에 해당하는 문자열 벡터, 이산값의 범위 벡터를 리턴하는 함수 중 하나를 설정
+  - position : 스케일의 위치 설정(left, right, top, bottom)
+discrete_scale()
+
+continuous_scale()
+
+binned_scale()
+
+
+```
+
+
+
+
+
+
+
