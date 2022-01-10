@@ -261,8 +261,78 @@ p_boxplot +
   geom_violin(aes(x = 대계열, y = 취업률_계), draw_quantiles = c(0.2, 0.4, 0.5, 0.6, 0.8), trim = F, scale = 'width') 
   
 p_boxplot + 
+<<<<<<< HEAD
   geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 대계열), linetype = 2) +
   geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun.y = 'max')
+=======
+  geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 대계열)) +
+  labs(title = '계열별 취업률 분포')
+>>>>>>> 6987445214c576aacb0fc05b3fe685754e1a0cdf
 
 p_boxplot + 
   geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 대계열), linetype = 2, notch = TRUE, notchwidth = 0.2) 
+
+
+df_취업통계 |>
+  ggplot() +
+  geom_tile(aes(x = 졸업자_계, y = 취업자_합계_계, fill = 취업률_계))
+
+
+p_line <- df_입학자 |> filter(지역 != '전체') |>
+  ggplot()
+
+p_line + 
+  geom_step(aes(x = 연도, y = 일반대학, group = 지역, color = 지역))
+
+p_line + 
+  geom_line(aes(x = 연도, y = 일반대학, group = 지역))
+
+install.packages('bookdown')
+
+p_line + 
+  geom_line(aes(x = 연도, y = 일반대학, group = 지역, color = 지역)) +
+  facet_wrap(~지역)
+
+df_입학자
+
+
+p_col +
+  geom_col(aes(x = 연도, y = 일반대학)) + 
+  coord_fixed()
+
+p_point +
+  geom_point(aes(x = 졸업자_계, y = 취업률_계)) + 
+  coord_fixed()
+
+install.packages('officedown')
+
+theme_element <- df_입학자 |> ggplot(aes(x = 연도, y = 일반대학))
+
+font_add("HMFMPYUN", "HMFMPYUN.TTF")
+
+font_add("NANUMBRUSH", "C:/USERS/STANDARD/APPDATA/LOCAL/MICROSOFT/WINDOWS/FONTS/NANUMBRUSH.TTF")
+
+theme_element + 
+  ### theme() 으로 테마요소를 설정
+  theme(
+    ## axis.line.x는 line이므로 element_line()을 사용하여 선 특성 설정
+    axis.text = element_text(family = 'NANUMBRUSH', size = 10, color = 'blue'), 
+    axis.title = element_text(size = 10, color = 'blue'), 
+    ## axis.line.y는 line이므로 element_line()을 사용하여 선 특성 설정
+    axis.line.y = element_line(linetype = 3, size = 1.5, color = 'skyblue'), 
+    ## panel.grid.major.x는 line이므로 element_line()을 사용하여 선 특성 설정
+    panel.grid.major.x = element_line(linetype = 1, color = 'red', arrow = grid::arrow(length = unit(0.3, "cm"), ends = "both"))
+  )
+warnings()
+
+
+df_입학자_long |> filter(지역 != '전체') |>
+  ggplot(aes(x = 연도, y = 입학생수)) +
+  facet_wrap(~지역, scale = 'free_y') +
+  geom_line(aes(group = 학교종류, color = 학교종류)) +
+  ## X축의 스케일은 이산값(discrete)으로 위치를 top으로 설정
+  scale_x_discrete(position = 'top') +
+  ## Y축의 스케일은 연속값(continuous)으로 축이름을 설정
+  scale_y_continuous(name = '일반대학 입학생수(명)') +
+  ## color의 스케일은 이산값(discrete)
+  scale_color_brewer(palette = 'Set1')
