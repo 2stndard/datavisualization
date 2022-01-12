@@ -56,7 +56,7 @@ df_입학자 |> ggplot(aes(x = 연도, y = 전문대학)) +
   geom_point(aes(color = 지역)) + 
   scale_color_manual(values = c('서울' = 'red', '부산' = 'blue', '대구' = 'blue', '인천' = 'red', '광주' = 'blue', '대전' = 'blue', '울산' = 'blue', '세종' = 'blue', '경기' = 'red', '강원' = 'blue', '충북' = 'blue', '충남' = 'blue', '전북' = 'blue', '전남' = 'blue', '경북' = 'blue', '경남' = 'blue', '제주' = 'blue'))
 
-colors() |> head(10)
+colors()
 
 rgb(red)
 
@@ -336,3 +336,10 @@ df_입학자_long |> filter(지역 != '전체') |>
   scale_y_continuous(name = '일반대학 입학생수(명)') +
   ## color의 스케일은 이산값(discrete)
   scale_color_brewer(palette = 'Set1')
+
+
+help(scale_color_brewer)
+
+
+RColorBrewer::display.brewer.all()
+
