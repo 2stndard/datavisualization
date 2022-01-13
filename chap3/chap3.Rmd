@@ -18,7 +18,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, out.width = '100%', dpi = 120)
 library(showtext)
 showtext_auto()
 library(tidyverse)
@@ -1628,12 +1628,13 @@ scale_line +
 주요 `scale_*()`에서 공통적으로 많이 사용되는 매개변수는 다음과 같다.
 
 ```{r eval=FALSE}
-scale_*_*(palette, name = waiver(), breaks = waiver(), labels = waiver(), limits = NULL, position = "left", ...)
+scale_*_*(palette, name = waiver(), breaks = waiver(), labels = waiver(), limits = NULL, guide = "legend", position = "left", ...)
   - palette : 색상 선택을 위한 팔래트 함수
   - name : 스케일에 설정할 이름, 축이나 범례의 이름
   - breaks : 이산값의 분할점을 설정하는 매개변수로 NULL(분할값 없음), waiver() 함수(`ggplot`의 기본 설정 값 사용 함수), 분할점의 문자열 벡터, 분할점을 리턴하는 함수 중 하나 설정
   - labels : 분할점에 표기될 라벨로 NULL(라벨 없음), waiver(), 라벨로 사용할 문자열 벡터(breaks와 동일한 벡터 길이), 분할점 라벨을 리턴하는 함수 중 하나 설정
   - limits : 이산값의 범위를 설정하는데 NULL(기본값 사용), 이산값의 범위에 해당하는 문자열 벡터, 이산값의 범위 벡터를 리턴하는 함수 중 하나를 설정
+  - guide : guide_*()를 사용하여 설정하는 범례나 축의 세부 설정
   - position : 스케일의 위치 설정(left, right, top, bottom)
 
 ```
@@ -1738,7 +1739,21 @@ hex_codes2 <- scales::hue_pal()(n2)
 scales::show_col(hex_codes2)  
 ```
 
-색상을 설정하는데 가장 편리한 방법은 미리 정의된 색상 세트인 팔레트를 사용하는 것이다. R에서 많이 사용하는 색상 팔레트는 `RColorBrewer` 패키지에서 정의하는 색상 팔레트인데 `scale_color_brewer()`를 사용하여 `RColorBrewer`에서 제공하는 색상 팔레트를 사용할 수 있다. `RColorBrewer`에서 제공하는 색상의 확인은 다음과 같다.
+색상을 설정하는데 가장 편리한 방법은 미리 정의된 색상 세트인 팔레트를 사용하는 것이다. R에서 많이 사용하는 색상 팔레트는 `RColorBrewer` 패키지에서 정의하는 색상 팔레트인데 `scale_color_brewer()`를 사용하여 `RColorBrewer`에서 제공하는 색상 팔레트를 사용할 수 있다. `scale_color_brewer()`는 `scale_fill_brewer()`와 사용방법이 동일하다. 
+
+```{r eval=FALSE}
+scale_colour_brewer(scale_*_*() 매개변수, type = "seq", palette = 1, direction = 1)
+
+scale_fill_brewer(scale_*_*() 매개변수, type = "seq", palette = 1, direction = 1)
+
+  - scale_*_*() 매개변수 : scale_*_*()의 주요 매개변수
+  - type : 'seq', 'div', 'qual'중의 하나로 팔레트 타입을 설정
+  - pallette : RColorBrewer에서 제공하는 팔레트 이름
+  - direction : 컬러 팔레트의 순서 방향
+
+```
+
+`RColorBrewer`에서 제공하는 색상의 확인은 다음과 같다.
 
 ```{r}
 RColorBrewer::display.brewer.all()
@@ -1811,9 +1826,23 @@ legend_line <- df_입학자_long |>
 legend_line
 ```
 
-앞선 장에서 넓은 형태의 데이터와 긴 형태의 데이터를 설명하면서 데이터 시각화에는 넓은 형태보다는 긴 형태의 데이터가 효율적이라는 표현을 썼다. 이 이유중 가장 큰 이유가 바로 미적요소 매핑에 따른 범례 표현에 있다. 그렇다면 앞서 넓은 형태의 데이터로 생성한 선 그래프와 같이 미적요소로 매핑되지 않은 범례를 생성할 때에는 `scale_*()`를 사용하여 미적 요소를 수동으로 설정할 수 있다.
+앞선 장에서 넓은 형태의 데이터와 긴 형태의 데이터를 설명하면서 데이터 시각화에는 넓은 형태보다는 긴 형태의 데이터가 효율적이라고 했다. 이 이유가 바로 미적요소 매핑에 따른 범례 표현에 있다. 그렇다면 앞서 넓은 형태의 데이터로 생성한 선 그래프와 같이 미적요소로 매핑되지 않은 범례를 생성할 때에는 `scale_*()`를 사용하여 미적 요소를 수동으로 설정할 수 있다.
 
-위의 넓은 형태의 그래프에는 각각의 선을 색으로 구분했다. 따라서 `scale_color_*()`함수가 사용된다. 이렇게 사용자가 직접 미적요소의 스케일을 설정하는 함수의 접미사는 'manual'이기 떄문에 `scale_color_manual()`함수를 사용한다. 완성된 코드는 다음과 같다.
+위의 넓은 형태의 그래프에는 각각의 선을 색으로 구분했다. 따라서 `scale_color_*()`함수가 사용된다. 이렇게 사용자가 직접 미적요소의 스케일을 설정하는 함수의 접미사는 'manual'이기 떄문에 `scale_color_manual()`함수를 사용한다. `scale_color_manual()`와 `scale_fill_manual()`의 사용법과 주요 매개변수는 다음과 같다. 
+
+```{r eval=FALSE}
+scale_color_manual(scale_*_*() 매개변수, values, breaks = waiver(),  na.value = "grey50")
+
+scale_fill_manual(scale_*_*() 매개변수, values, breaks = waiver(), na.value = "grey50")
+
+  - scale_*_*() 매개변수 : scale_*_*()의 주요 매개변수
+  - values : 데이터 변량과 색의 매핑을 위한 네임드 벡터
+  - breaks : 색의 구분값으로 사용될 벡터
+  - na.value : 결측치에 대한 값 설정
+
+```
+
+`scale_color_manual()`를 사용한 코드는 다음과 같다.
 
 ```{r}
 df_입학자 |> filter(지역 == '전체') |>
@@ -1826,7 +1855,7 @@ df_입학자 |> filter(지역 == '전체') |>
 
 ```
 
-앞선 코드와는 조금 다르다. 우선 각각의 `geom_line()` 레이어에 `color` 미적요소를 `aes()`밖의 설정에서 `aes()`안의 매핑으로 바꾸어주었다. 그러면서 매핑 이름을 각각 설정해 주었는데 y축의 매핑에서는 데이터 열을 가르키기 때문에 따옴표가 없는 데이터 열 이름을 설정했고 `color`에는 따옴표에 넣어서 데이터 열 이름이 아닌 문자열로 매핑 이름을 만들어 주었다. 또 `scale_color_manual()`의 `values`에 네임드 벡터를 설정하였다. 네임드 벡터의 벡터 이름은 매핑 이름을, 벡터 값을 색상명으로 설정하면 해당 매핑명이 색상명으로 스케일되고 이 스케일에 따라 범례가 표시된다. 이와 같이 `scale_*_manual()`은 `values` 매개변수를 사용하여 사용자 설정 스케일과 범례를 생성할 수 있다.
+위의 코드는 *그림* 의 코드와는 조금 다르다.  각각의 `geom_line()` 레이어에 `color` 미적요소를 설정에서 `aes()`를 사용한 매핑으로 바꾸어주었다. 그러면서 매핑 이름을 각각 설정해 주었는데 y축의 매핑에서는 데이터 열을 가르키기 때문에 따옴표가 없는 데이터 열 이름을 설정했고 `color`에는 따옴표에 넣어서 데이터 열 이름이 아닌 문자열로 매핑 이름을 만들어 주었다. 또 `scale_color_manual()`의 `values`에 네임드 벡터를 설정하였다. 네임드 벡터의 벡터 이름은 매핑 이름을, 벡터 값을 색상명으로 설정하면 해당 매핑명이 색상명으로 스케일되고 이 스케일에 따라 범례가 표시된다. 이와 같이 `scale_*_manual()`은 `values` 매개변수를 사용하여 사용자 설정 스케일과 범례를 생성할 수 있다.
 
 ### 범례 요소 세부 설정
 
@@ -2036,8 +2065,12 @@ guide_colorbar(title = waiver(), title.position = NULL, title.theme = NULL, titl
 legend_colorbar <- df_입학자_long |> 
   filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '석사', '박사')) |>
   ggplot(aes(x = 연도)) +
-  geom_line(aes(y = 입학생수, group = 학교종류, linetype = 학교종류)) +
-  geom_point(aes(y = 입학생수, color = 입학생수), size = 5) + 
+  geom_line(aes(y = 입학생수, 
+                group = 학교종류, 
+                linetype = 학교종류)) +
+  geom_point(aes(y = 입학생수, 
+                 color = 입학생수), 
+             size = 5) + 
   scale_y_continuous(labels = scales::comma) + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
 
@@ -2050,7 +2083,11 @@ legend_colorbar
 legend_colorbar + 
   scale_color_continuous(labels = scales::comma, 
                          breaks = c(50000, 100000, 150000, 200000, 250000, 300000, 350000), 
-                         guide = guide_colorbar(label.hjust = 0.5, frame.colour = 'blue', frame.linewidth = 2, ticks = FALSE, reverse = TRUE))
+                         guide = guide_colorbar(label.hjust = 0.5, 
+                                                frame.colour = 'blue', 
+                                                frame.linewidth = 2, 
+                                                ticks = FALSE, 
+                                                reverse = TRUE))
 ```
 
 #### 범례 위치
@@ -2064,8 +2101,10 @@ legend_line +
   scale_color_discrete(name = '학교급', 
                        breaks = c('전문대학', '일반대학', '석사', '박사'), 
                        guide = guide_legend(keywidth = 3)) +
-  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
-  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  scale_shape_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  scale_linetype_discrete(name = '학교급', 
+                          breaks = c('전문대학', '일반대학', '석사', '박사')) +
   theme(legend.text.align = 0.5, 
         legend.position = 'bottom')
 
@@ -2080,8 +2119,10 @@ legend_line +
   scale_color_discrete(name = '학교급', 
                        breaks = c('전문대학', '일반대학', '석사', '박사'), 
                        guide = guide_legend(keywidth = 3)) +
-  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
-  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  scale_shape_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  scale_linetype_discrete(name = '학교급', 
+                          breaks = c('전문대학', '일반대학', '석사', '박사')) +
   theme(legend.text.align = 0.5, 
         legend.position = 'none')
 
@@ -2095,10 +2136,13 @@ legend_line +
   scale_color_discrete(name = '학교급', 
                        breaks = c('전문대학', '일반대학', '석사', '박사'), 
                        guide = guide_legend(keywidth = 3)) +
-  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
-  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  scale_shape_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  scale_linetype_discrete(name = '학교급', 
+                          breaks = c('전문대학', '일반대학', '석사', '박사')) +
   theme(legend.text.align = 0.5, 
-        legend.position = 'bottom', legend.justification = 'right')
+        legend.position = 'bottom', 
+        legend.justification = 'right')
 
 ```
 
@@ -2111,10 +2155,13 @@ legend_line +
   scale_color_discrete(name = '학교급', 
                        breaks = c('전문대학', '일반대학', '석사', '박사'), 
                        guide = guide_legend(keywidth = 3)) +
-  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
-  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  scale_shape_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  scale_linetype_discrete(name = '학교급', 
+                          breaks = c('전문대학', '일반대학', '석사', '박사')) +
   theme(legend.text.align = 0.5, 
-        legend.position = 'bottom', legend.direction = 'vertical')
+        legend.position = 'bottom', 
+        legend.direction = 'vertical')
 
 ```
 
@@ -2127,9 +2174,11 @@ legend_line +
   scale_color_discrete(name = '학교급', 
                        breaks = c('전문대학', '일반대학', '석사', '박사'), 
                        guide = guide_legend(keywidth = 3)) +
-  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), 
+  scale_shape_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사'), 
                        guide = guide_legend(keywidth = 3)) +
-  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), 
+  scale_linetype_discrete(name = '학교급', 
+                          breaks = c('전문대학', '일반대학', '석사', '박사'), 
                           guide = guide_legend(keywidth = 3)) +
   theme(legend.text.align = 0.5, 
         legend.background = element_rect(fill = 'skyblue'), 
@@ -2148,12 +2197,16 @@ legend_line +
   scale_color_discrete(name = '학교급', 
                        breaks = c('전문대학', '일반대학', '석사', '박사'), 
                        guide = guide_legend(keywidth = 3)) +
-  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), 
+  scale_shape_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사'), 
                        guide = guide_legend(keywidth = 3)) +
-  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), 
+  scale_linetype_discrete(name = '학교급', 
+                          breaks = c('전문대학', '일반대학', '석사', '박사'), 
                           guide = guide_legend(keywidth = 3)) +
   theme(legend.text.align = 0.5, 
-        legend.background = element_rect(fill = 'skyblue', color = 'blue', size = 1), 
+        legend.background = element_rect(fill = 'skyblue', 
+                                         color = 'blue', 
+                                         size = 1), 
         legend.key = element_rect(fill = 'transparent'))
 
 ```
@@ -2167,12 +2220,16 @@ legend_line +
   scale_color_discrete(name = '학교급', 
                        breaks = c('전문대학', '일반대학', '석사', '박사'), 
                        guide = guide_legend(keywidth = 3)) +
-  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), 
+  scale_shape_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사'), 
                        guide = guide_legend(keywidth = 3)) +
-  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), 
+  scale_linetype_discrete(name = '학교급', 
+                          breaks = c('전문대학', '일반대학', '석사', '박사'), 
                           guide = guide_legend(keywidth = 3)) +
   theme(legend.text.align = 0.5, 
-        legend.background = element_rect(fill = 'skyblue', color = 'blue', size = 1), 
+        legend.background = element_rect(fill = 'skyblue', 
+                                         color = 'blue', 
+                                         size = 1), 
         legend.key = element_rect(fill = 'transparent'), 
         legend.margin = margin(0,10,10,0))
 
@@ -2184,15 +2241,96 @@ legend_line +
 
 ![](axis.png)
 
-축을 구성하는 요소는 축 제목(title, name), 축 눈금자(tick), 축 라벨(labels, text), 축 눈금(breaks) 등으로 구성되어 있다. 이 중 `scale_*()`의 매개변수로 사용되는 것은 `name`, `labels`, `breaks`이고 `theme()`의 매개변수로 사용되는 것은 title, text, ticks, line으로 접두사로 'axis'를 사용하고 세부 설정을 위해 'x', 'y', 'length' 등을 '.'을 사용해 붙여 설정할 수 있다. `scale_*()`의 `name`, `labels`, `breaks`의 설정은 스케일에서 언급했으니 `theme()`을 사용하여 모양을 설정하는 방법을 설명하겠다. 
+축을 구성하는 요소는 축 제목(title, name), 축 눈금자(tick), 축 라벨(labels, text), 축 눈금(breaks) 등으로 구성되어 있다. 이 중 `scale_*()`의 매개변수로 사용되는 것은 `name`, `labels`, `breaks`이고 `theme()`의 매개변수로 사용되는 것은 title, text, ticks, line으로 접두사로 'axis'를 사용하고 세부 설정을 위해 'x', 'y', 'length' 등을 '.'을 사용해 붙여 설정할 수 있다. 축을 설정하는 `scale_*()`의 사용법과 주요 매개변수는 다음과 같다.  
 
-### 축 제목 모양 설정
+```{r eval=FALSE}
+scale_x_discrete(scale_*_*() 매개변수, expand = waiver(), position = "bottom")
 
-축 제목은 앞선 스케일에서 언급한 바와 같이 `labs()`, `xlab()`, `ylab()`을 사용하여 설정이 가능하다. 또 `scale_*()`의 `name`을 사용하여 설정하는 것도 가능하다. 하지만 축 제목의 모양은 `theme()`을 사용하여 설정이 가능하다. 
+scale_y_discrete(scale_*_*() 매개변수, expand = waiver(), position = "left")
+
+scale_x_continuous(scale_*_*() 매개변수, minor_breaks = waiver(), n.breaks = NULL, na.value = NA_real_, trans = "identity", sec.axis = waiver())
+
+scale_x_continuous(scale_*_*() 매개변수, minor_breaks = waiver(), n.breaks = NULL, na.value = NA_real_, trans = "identity", sec.axis = waiver())
+
+  - scale_*_*() 매개변수 : scale_*_*()의 주요 매개변수
+  - expand : 축의 범위에서 확장의 범위를 설정, 연속형 변수는 5%의, 이산형 변수는 0.6 유닛의 확장이 기본값
+  - position : 축이 표시되는 위치 설정
+  - minor_breaks : 주 눈금사이에 표시되는 보조 눈금 설정
+  - n.breaks : 주 눈금을 눈금의 갯수로 설정
+  - na.value : 결측치를 표기방법 설정
+  - trans : 축의 변환을 위해 사용하는 변환 함수 설정
+  - sec.axis : 두번째 보조 축의 설정
+
+```
+
+또 `theme()`에서 설정 가능한 축의 매개변수는 다음과 같다. 
+
+```{r eval=FALSE}
+theme(axis.title, axis.title.x, axis.title.x.top, axis.title.x.bottom,   axis.title.y, axis.title.y.left, axis.title.y.right, axis.text, axis.text.x, axis.text.x.top, axis.text.x.bottom, axis.text.y, axis.text.y.left, axis.text.y.right, axis.ticks, axis.ticks.x, axis.ticks.x.top, axis.ticks.x.bottom, axis.ticks.y, axis.ticks.y.left, axis.ticks.y.right,  axis.ticks.length, axis.ticks.length.x, axis.ticks.length.x.top, axis.ticks.length.x.bottom, axis.ticks.length.y, axis.ticks.length.y.left, axis.ticks.length.y.right, axis.line, axis.line.x, axis.line.x.top, axis.line.x.bottom, axis.line.y, axis.line.y.left, axis.line.y.right, ...)
+
+  - axis.title, axis.title.x, axis.title.x.top, axis.title.x.bottom,   axis.title.y, axis.title.y.left, axis.title.y.right : 축 제목에 관한 설정 매개변수
+  - axis.text, axis.text.x, axis.text.x.top, axis.text.x.bottom, axis.text.y, axis.text.y.left, axis.text.y.right : 축 라벨(텍스트)에 관한 설정 매개변수
+  - axis.ticks, axis.ticks.x, axis.ticks.x.top, axis.ticks.x.bottom, axis.ticks.y, axis.ticks.y.left, axis.ticks.y.right,  axis.ticks.length, axis.ticks.length.x, axis.ticks.length.x.top, axis.ticks.length.x.bottom, axis.ticks.length.y, axis.ticks.length.y.left, axis.ticks.length.y.right : 축 눈금자에 관한 설정 매개변수
+  - axis.line, axis.line.x, axis.line.x.top, axis.line.x.bottom, axis.line.y, axis.line.y.left, axis.line.y.right : 축 선에 관한 설정 매개변수
+
+```
+
+
+### 축 제목 특성 설정
+
+축 제목은 앞선 스케일에서 언급한 바와 같이 `labs()`, `xlab()`, `ylab()`을 사용하여 설정이 가능하다. 또 `scale_*()`의 `name`을 사용하여 설정하는 것도 가능하고 축 제목의 특성은 `theme()`을 사용하여 설정이 가능하다. 
 
 ```{r}
 legend_line + 
-  theme(axis.title = element_text(color = 'blue', size = 15), 
-        axis.title.y.left = )
+  theme(axis.title = element_text(color = 'blue', 
+                                  size = 15), 
+        axis.title.y = element_text(color = 'darkgreen', 
+                                    size = 10, 
+                                    angle = -90, 
+                                    margin = margin(0,10,0,0)))
+```
+
+### 축 눈금자(tick) 특성 설정
+
+축의 눈금자는 기본적으로 축의 라벨이 표기되는 곳에 짧은 선으로 표기된다. 선으로 표기되기 때문에 눈금자를 설정하기 위해서는 `element_line()`을 사용하여 세부 특성 값을 설정할 수 있다. 다만 길이를 표현하는 매개변수는 `unit()`을 사용하여 길이를 설정한다. 
+
+```{r}
+legend_line +
+  theme(axis.ticks.x = element_line(color = 'red', size = 2), 
+        axis.ticks.y = element_line(color = 'green', size = 1), 
+        axis.ticks.length = unit(0.25, 'cm')
+        )
 
 ```
+
+### 축 라벨(label, text) 특성 설정
+
+축의 라벨은 축에서 주요 눈금들이 표기되는 곳의 값을 표기하는 문자열이다. 이 축 라벨은 `scale_*()`에서는 `labels` 매개변수를 사용해서 라벨을 개별적으로 설정할 수 있다. 하지만 이에 대한 특성을 설정하는 `theme()`에서는 `labels` 애신 `text`가 들어간 매개변수를 사용하여 설정한다. 축 라벨은 문자열이기 때문에 `element_text()`를 사용하여 세부 특성 값을 설정한다. 
+
+```{r}
+legend_line +
+  theme(axis.text.x = element_text(color = 'red', size = 10, face = 'bold'), 
+        axis.text.y = element_text(color = 'darkgreen', size = 10, vjust = 1)
+        )
+
+```
+
+### 축 선(line) 특성 설정
+
+축 선은 X축과 Y축의 눈금자가 위치하는 선을 의미한다. 이 선을 구분하여 데이터가 표시되는 곳과 표시되지 않는 곳이 구분된다. `ggplot`은 이 축 선을 따로 설정하지 않으면 기본값으로는 표현되지 않는다. 따라서 이 선은 `theme()`을 사용하여 설정해야 보여진다. 축 선은 선(line)으로 표현되기 때문에 `element_line()`을 사용하여 세부 특성 값을 설정한다. 
+
+```{r}
+legend_line +
+  theme(axis.line.x = element_line(color = 'red', arrow = arrow()), 
+        axis.line.y = element_line(color = 'darkgreen', linetype = 2, arrow = arrow())
+        )
+
+```
+
+
+
+
+
+
+
+
