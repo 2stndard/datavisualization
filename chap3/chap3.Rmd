@@ -1773,7 +1773,7 @@ scale_line4
 
 ![](legend.png)
 
-### 범례의 생성
+### 범례 생성
 
 앞에서 살펴본 스케일과 같이 범례도 `ggplot`에서 자동적으로 생성된다. `ggplot`에서 자동적으로 표현되는 범례는 `aes()`로 매핑된 미적요소를 대상으로 자동 생성(위치 지정 미적요소(x, y)는 제외)된다. 따라서 범례이름이나 범례 아이템, 범례 키 등이 변수명이나 변량명으로 사용되기 때문에 매핑되지 않는 기하요소나 미적요소는 범례에 표현되지 않는다. 아래의 예를 살펴보자.
 
@@ -1861,7 +1861,7 @@ guide_legend(title = waiver(), title.position = NULL, title.theme = NULL,   titl
 
 ```
 
-#### 범례 제목 설정
+#### 범례 제목
 
 범례의 제목을 설정하는 방법은 헬퍼함수를 사용하는 방법, `theme()`을 사용하는 방법, `scale_*()`의 `guide = guide_legend()`를 사용하는 방법, `guide()`와 `guide_legend()`를 사용하는 방법이 있다.
 
@@ -1910,7 +1910,21 @@ legend_line +
 
 ```
 
-#### 범례 라벨 설정
+##### 범례 제목 꾸미기
+
+범례 제목을 보기좋게 꾸미기 위해서는 `theme()`을 사용하거나 `guide()`를 사용할 수 있다. 이 중 `theme()`을 사용하여 꾸미는 방법은 다음과 같다. 
+
+```{r}
+legend_line +
+  scale_color_discrete(name = '학교급') +
+  scale_shape_discrete(name = '학교급') +
+  scale_linetype_discrete(name = '학교급') +
+  theme(legend.title = element_text(size = 10, face = 'bold', hjust = 0.5, color = 'red'))
+
+```
+
+
+#### 범례 라벨
 
 범례 제목을 설정하는 것만큼 많이 사용되는 범례 설정은 범례 아이템들의 라벨을 설정하는 것이다. 앞선 선 그래프에서 범례에 표시되는 라벨의 단위를 표현해 줄 필요도 있을 것이다. 범례 라벨을 설정하기 위해서는 `scale_*()`에 `labels`를 사용한다.
 
@@ -1980,11 +1994,205 @@ legend_line +
 
 ```
 
-#### 범례 키 설정
+#### 범례 키
 
-범례의 키는 범례에서 실제 표현되는 미적요소의 모형을 보여주는 부분을 말한다. 범례키의 설정은 가로, 세로 크기 뿐이다. 
+범례의 키는 범례에서 실제 표현되는 미적요소의 모형을 보여주는 부분을 말한다. `ggplot`에서 제공하는 범례 키의 형태는 리스트 형태의 키와 컬러바 형태의 키의 두가지이다. 
 
+##### 개별 범례 키
 
+범례 키가 각각 구분된 미적요소의 모형을 보여주는 형태의 범례 키 구성을 말한다. 개별 범례 키는 매핑된 기하요소 레이어에 의해 생성되고 `guide_legend()`를 사용해서 세부 설정을 변경할 수 있다. 
 
+```{r}
+legend_line +
+  scale_color_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                       guide = guide_legend(keywidth = 3, nrow = 2)) +
+  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  theme(legend.text.align = 0.5)
+  
+```
 
+##### 컬러바 범례 키
 
+컬러바 형태의 키는 앞서 사용했던 `guide_legend()`를 사용하지만 컬러바 형태의 범례 키는 연속형 데이터에서 사용하며 `guide_colorbar()`로 설정한다. 
+
+```{r eval=FALSE}
+guide_colorbar(title = waiver(), title.position = NULL, title.theme = NULL, title.hjust = NULL, title.vjust = NULL, label = TRUE, label.position = NULL, label.theme = NULL, label.hjust = NULL, label.vjust = NULL, barwidth = NULL, barheight = NULL, nbin = 300, frame.colour = NULL, frame.linewidth = 0.5, frame.linetype = 1, ticks = TRUE, ticks.colour = "white", ticks.linewidth = 0.5, draw.ulim = TRUE, draw.llim = TRUE, direction = NULL, default.unit = "line", reverse = FALSE, ...)
+  - barwidth : 컬러바의 너비 설정
+  - barheight : 컬러바의 높이 설정
+  - nbin : 컬러바의 색상 단계 설정
+  - frame.colour, frame.linewidth, frame.linetype : 컬러바의 테두리 색, 너비, 타입 설정
+  - ticks, ticks.colour, ticks.linewidth : 컬러바의 눈금자 표현을 위한 논리값과 색, 선 너비 설정
+  - draw.ulim, draw.llim : 최대 눈금과 최소 눈금 표현을 위한 논리값
+  - direction : 범례 표시 방향('horizontal', 'vertical')
+  - reverse : 범례 표시 방향을 역순으로 표시하는 논리값
+
+```
+
+앞선 절의 선 그래프를 다음과 같이 바꾸면 컬러바 형태의 범례 키가 나타난다. 
+
+```{r}
+legend_colorbar <- df_입학자_long |> 
+  filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '석사', '박사')) |>
+  ggplot(aes(x = 연도)) +
+  geom_line(aes(y = 입학생수, group = 학교종류, linetype = 학교종류)) +
+  geom_point(aes(y = 입학생수, color = 입학생수), size = 5) + 
+  scale_y_continuous(labels = scales::comma) + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+
+legend_colorbar
+```
+
+위의 `ggplot`에서 컬러바에 표시되는 라벨이 지수형태로 되어 있어 알아보기가 어렵다. 이를 천단위 콤마가 표시된 숫자형태로 나타내려면 앞에서 사용했던 `scales::comma`를 사용한다. 또 단계가 세개 뿐인데 만약 이를 늘이거나 줄이려면 `breaks`를 사용한다. 또 컬러바의 세부 모양을 설정하려면 `guide_colorbar()`를 사용한다. 
+
+```{r}
+legend_colorbar + 
+  scale_color_continuous(labels = scales::comma, 
+                         breaks = c(50000, 100000, 150000, 200000, 250000, 300000, 350000), 
+                         guide = guide_colorbar(label.hjust = 0.5, frame.colour = 'blue', frame.linewidth = 2, ticks = FALSE, reverse = TRUE))
+```
+
+#### 범례 위치
+
+범례의 위치는 범례의 위치는 기본적으로 좌측에 위치한다. 이를 바꾸기 위해서는 `theme()`의 `legend.position` 매개변수에 범례 위치를 설정하는 키워드를 설정하여 바꿀 수 있다.
+
+범례 위치를 설정하는 키워드는 'right', 'left', 'top', 'bottom'의 네가지이다. 
+
+```{r}
+legend_line +
+  scale_color_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                       guide = guide_legend(keywidth = 3)) +
+  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  theme(legend.text.align = 0.5, 
+        legend.position = 'bottom')
+
+```
+
+#### 범례 제거
+
+범례를 없애기를 원할 경우에는 앞선 위치 설정 방법과 동일한데 `theme()`의 `legend.position` 매개변수에 ’none’을 설정하면 범례가 없어진다.
+
+```{r}
+legend_line +
+  scale_color_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                       guide = guide_legend(keywidth = 3)) +
+  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  theme(legend.text.align = 0.5, 
+        legend.position = 'none')
+
+```
+
+#### 범례 정렬
+범례의 위치는 `theme()`의 `legend.position`으로 설정할 수 있는데 기본적으로 각각 사이드의 중간에 정렬된다. 설정된 사이드내에서 위쪽이나 아래쪽, 혹은 오른쪽이나 왼쪽에 위치하게 설정하기 위해서는 `legend.justification` 매개변수에 아래의 키워드를 설정함으로써 위치를 설정 할 수 있다. 범례 정렬을 위해 제공되는 키워드는 'right', 'left', 'top', 'bottom'의 네가지가 있다. 
+
+```{r}
+legend_line +
+  scale_color_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                       guide = guide_legend(keywidth = 3)) +
+  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  theme(legend.text.align = 0.5, 
+        legend.position = 'bottom', legend.justification = 'right')
+
+```
+
+#### 범례 방향
+
+위의 범례를 보면 왼쪽과 오른쪽에 위치한 범례는 모두 세로 방향으로 범례가 표현되고 위쪽과 아래쪽에 위치한 범례는 모두 가로 방향으로 범례가 표현된다. 만약 왼쪽과 오른쪽에 위치한 범례를 가로방향으로 설정하거나 위쪽과 아래쪽에 위치한 범례를 세로방향으로 설정하기 위해서는 `theme()`의 `legend.direction` 매개변수에 ‘horizontal’(가로방향) 혹은 ‘vertical’(세로방향)을 설정하여 범례 방향을 바꿀 수 있다.
+
+```{r}
+legend_line +
+  scale_color_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                       guide = guide_legend(keywidth = 3)) +
+  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  theme(legend.text.align = 0.5, 
+        legend.position = 'bottom', legend.direction = 'vertical')
+
+```
+
+#### 범례 배경
+
+범례의 배경을 설정하기 위해서는 `theme()`의 `legend.background`에 색 이름을 설정함으로써 바꾸어줄 수 있다. 다만 앞의 설정과는 다른 것이 범례 배경을 설정할 때는 `element_rect()`의 `fill` 매개변수에 색 이름을 설정해야 한다는 것이다.
+
+```{r}
+legend_line +
+  scale_color_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                       guide = guide_legend(keywidth = 3)) +
+  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                       guide = guide_legend(keywidth = 3)) +
+  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                          guide = guide_legend(keywidth = 3)) +
+  theme(legend.text.align = 0.5, 
+        legend.background = element_rect(fill = 'skyblue'), 
+        legend.key = element_rect(fill = 'transparent'))
+
+```
+
+위의 코드에서 하나 추가한 것은 `legend.key = element_rect(fill = 'transparent'`부분이다. 이 코드는 범례 키의 배경을 투명하게 설정한 것로 이를 설정하지 않으면 어색하게 보여 설정하였다. 
+
+#### 범례 테두리
+
+범례의 테두리를 설정하기 위해서는 `theme()`의 `legend.background`에 색 이름을 설정함으로써 바꾸어줄 수 있다. 이 설정도 앞의 범례 배경과 같이 `element_rect()`를 사용하는데 `color`로 색을 지정하고 `size`로 두께를 지정하여 설정한다.
+
+```{r}
+legend_line +
+  scale_color_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                       guide = guide_legend(keywidth = 3)) +
+  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                       guide = guide_legend(keywidth = 3)) +
+  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                          guide = guide_legend(keywidth = 3)) +
+  theme(legend.text.align = 0.5, 
+        legend.background = element_rect(fill = 'skyblue', color = 'blue', size = 1), 
+        legend.key = element_rect(fill = 'transparent'))
+
+```
+
+#### 범례 여백
+
+위의 범례 테두리를 그려보면 범례 안에서의 여백이 없음이 명확히 보인다. 여백을 만들기 위해서는 `theme()`의 `legend.margin`을 사용하는데 앞선 범례 배경이나 범례 테두리와 유사하게 `margin()`을 사용하여 네개의 수치를 전달하는데 12시 방향에서부터 시계방향인 3시, 6시, 9시의 여백을 지정하게 할 수 있다.
+
+```{r}
+legend_line +
+  scale_color_discrete(name = '학교급', 
+                       breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                       guide = guide_legend(keywidth = 3)) +
+  scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                       guide = guide_legend(keywidth = 3)) +
+  scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), 
+                          guide = guide_legend(keywidth = 3)) +
+  theme(legend.text.align = 0.5, 
+        legend.background = element_rect(fill = 'skyblue', color = 'blue', size = 1), 
+        legend.key = element_rect(fill = 'transparent'), 
+        legend.margin = margin(0,10,10,0))
+
+```
+
+## 축(Axis)
+
+`ggplot`에서는 3차원을 지원하지 않기 때문에 X축과 Y축으로 축이 제공된다. 앞 절의 스케일에서 일부 설명하였지만 X축과 Y축을 제어하기 위해서는 `scale_x_*()`, `scale_y_*()`와 `theme()`를 사용한다. 우선 축을 구성하는 요소부터 살펴보도록 하자. 
+
+![](axis.png)
+
+축을 구성하는 요소는 축 제목(title, name), 축 눈금자(tick), 축 라벨(labels, text), 축 눈금(breaks) 등으로 구성되어 있다. 이 중 `scale_*()`의 매개변수로 사용되는 것은 `name`, `labels`, `breaks`이고 `theme()`의 매개변수로 사용되는 것은 title, text, ticks, line으로 접두사로 'axis'를 사용하고 세부 설정을 위해 'x', 'y', 'length' 등을 '.'을 사용해 붙여 설정할 수 있다. `scale_*()`의 `name`, `labels`, `breaks`의 설정은 스케일에서 언급했으니 `theme()`을 사용하여 모양을 설정하는 방법을 설명하겠다. 
+
+### 축 제목 모양 설정
+
+축 제목은 앞선 스케일에서 언급한 바와 같이 `labs()`, `xlab()`, `ylab()`을 사용하여 설정이 가능하다. 또 `scale_*()`의 `name`을 사용하여 설정하는 것도 가능하다. 하지만 축 제목의 모양은 `theme()`을 사용하여 설정이 가능하다. 
+
+```{r}
+legend_line + 
+  theme(axis.title = element_text(color = 'blue', size = 15), 
+        axis.title.y.left = )
+
+```
