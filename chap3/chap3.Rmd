@@ -945,7 +945,7 @@ geom_line(mapping = NULL, data = NULL, stat = "identity", position = "identity",
   - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
   - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
   - stat : 시각화에 적용될 통계요소, 기본값은 'identity'
-  - position : 시각화에 적용될 위치요소, , 기본값은 'identity'로 권장됨
+  - position : 시각화에 적용될 위치요소, , 기본값은 'identity'
   - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
   - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE) 
 ```
@@ -971,8 +971,8 @@ p_line +
 geom_area(mapping = NULL, data = NULL, stat = "identity", position = "stack", na.rm = FALSE, show.legend = NA, outline.type = "upper", ...)
   - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
   - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
-  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'으로 권장됨
-  - position : 시각화에 적용될 위치요소, 기본값은 'identity'로 권장됨
+  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'
+  - position : 시각화에 적용될 위치요소, 기본값은 'identity'
   - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
   - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE) 
 
@@ -991,12 +991,48 @@ p_area +
 
 ```
 
-### 통계 요소
+### 무변수 기하요소
+
+무변수 기하요소로 매핑되는 변수가 없이 데이터 설정만으로 생성할 수 있는 기하요소를 말한다. `ggplot` 매뉴얼에서는 무변수 기하요소라는 표현은 사용하지 않고 그래픽 기본요소(Graphical Primitive)라는 문구로 표현되는 기하요소이다. 이 기하요소들은 데이터에 매핑되지 않기 때문에 세부 설정을 사용자가 직접하여야 한다. 따라서 데이터로 표현되기 어려운 설명과 강조점들을 생성할 때 사용한다. `geom_rect()`, `geom_segment()`, `geom_polygon()`, `geom_abline()`, `geom_vline()`, `geom_hline()` 등이 있고 `geom_text()`도 변수 매핑 없이 사용할 수 있다. 하지만 이 함수들은 생각보다 잘 작동하지 않는 미적요소들이 있다. 예를들면 `geom_rect()`의 경우 투명도를 설정하는 `alpha`가 정상적으로 작동하지 않는다. 이 절에서는 각각의 함수에 대해 간략히 설명하겠지만 이번 장의 마지막에서 설명할 `annotate()`를 사용하는 것을 권장한다. 
+
+#### geom_rect()
+
+`geom_rect()`는 `ggplot` 객체에 사각형을 그리는 레이어를 생성하는 함수이다. 사각형을 그리기 위해 사각형의 네 꼭지점 좌표를 결정하기 위한 xmin, ymin, xmax, ymax값이 필요하고 사각형 선의 색이나 내부 색 등을 설정할 수 있다. `geom_rect()`를 사용할 때 하나 주의해야 할 것이 미적요소의 순서에 따라 
+
+```{r eval=FALSE}
+geom_rect(mapping = NULL, data = NULL, stat = "identity", position = "identity", linejoin = "mitre", na.rm = FALSE, show.legend = NA, ...)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'
+  - position : 시각화에 적용될 위치요소, 기본값은 'identity'
+  - linejoin : 사각형의 꼭지점의 처리 방법 설정(round, mitre, bevel)
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE) 
+
+```
+
+`geom_rect()`에서 사용이 가능한 미적요인은 xmin, ymin, xmax, ymax, alpha, color, fill, linetype, size 등 이다.
+
+```{r}
+ggplot() +
+  geom_rect(aes(xmin = '2001', ymin = -Inf, xmax = '2005', ymax = Inf), fill = 'yellow', alpha = 0.25) +
+  geom_rect(aes(xmin = '2012', ymin = -Inf, xmax = '2017', ymax = Inf), fill = 'green', alpha = 0.25) +
+  geom_rect(aes(xmin = -Inf, ymin = 70000, xmax = Inf, ymax = 110000), fill = 'skyblue', alpha = 0.25) +
+  geom_line(data =  df_입학자_long |> filter(지역 == '전체'), aes(x = 연도, y = 입학생수, group = 학교종류, color = 학교종류))
+  
+```
+
+#### geom_segment()
+
+`geom_segment()`는 
+
+
+## 통계 요소
 
 앞서 설명한 기하요소 중에 산점도와 같은 시각화는 데이터의 자체 값을 사용하는 기하요소이고 히스토그램과 같은 시각화는 데이터를 통계 처리한 후 그 결과를 사용하였다. 사실 데이터 자체값을 그대로 사용하는 경우에도 함수의 매개변수로 통계 변환을 뜻하는 매개변수인 `stat`을 `identity`로 설정함으로서 그 자체값을 사용하는 통계변환을 지정한다. 따라서 모든 기하요소에는 기본적으로 디폴트 통계 변환 요소가 포함된다.\
 ![](stat.png)
 
-#### stat\_\*()
+### stat\_\*()
 
 `ggplot`를 사용하는 사용자들은 주로 `geom_*` 함수를 사용하여 시각화의 주요 데이터 레이어를 를 생성한다. 하지만 `stat_*()` 함수를 사용하여 데이터 레이어를 생성할 수도 있다. 모든 `geom_*()` 로 생성된 레이어는 `stat_*()` 사용하여 동일한 레이어를 생성할 수 있다. 다시 말하자면 `geom_*()`은 데이터가 표현될 도형을 위주로 시각화 레이어를 생성하는 방법이고 `stat_*()`은 데이터의 통계적 변환을 위주로 시각화 레이어를 생성하는 방법이다.
 
@@ -1057,7 +1093,7 @@ p_area +
 
 위에서 살펴본 바와 같이 `geom_*()`으로 생성할 수 있는 기하요소 레이어는 `stat_*()`을 사용하여 동일하게 생성할 수 있다. 하지만 `geom_*()`에서는 제공하지 않는 `stat_*()`에서만 제공하는 특별한 레이어가 있다.
 
-#### stat_summary()
+### stat_summary()
 
 `geom_*()`으로 생성한 기하요소 레이어에 통계적으로 변환된 데이터를 추가적으로 표현해야 할 경우가 있다. 가장 대표적인 예가 박스 플롯에서 중간값이 자동적으로 표현되지만 평균값을 추가적으로 표현해야 하는 경우가 있다. 이런 경우에 대비하여 특정 함수로 요약한 통계치를 표현하는 레이어를 추가할 때 `stat_summary()`를 사용한다.
 
@@ -1103,7 +1139,7 @@ p_point +
 
 ```
 
-#### 통계 변수의 생성
+### 통계 변수의 생성
 
 `stat_*()` 레이어를 사용할 때는 먼저 원본 데이터프레임을 적절한 통계처리를 통해 처리한 결과 데이터프레임을 산출하고 이를 시각화 데이터로 사용한다. 그래서 통계처리된 후에는 원본 데이터프레임에는 없었던 새로운 변수(열)이 생성된다. `ggplot`에서는 이렇게 내부적으로 변환되어 생성된 변수를 미적요소로 매핑이 가능하도록 지원한다. 하지만 내부적으로 계산되어 생성된 변수의 이름을 어떻게 알아낼 수 있을 것인가? `ggplot`에서는 통계처리되는 방법에 따라 미리 변수 이름을 지정해 놓았기 때문에 이 변수를 쉽게 사용할 수 있다. `ggplot`이 통계변환을 통해 생성하는 통계 변수는 다음과 같다.
 
