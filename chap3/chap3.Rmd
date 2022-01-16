@@ -18,7 +18,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, out.width = '100%', dpi = 120)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, out.width = '100%', dpi = 120, fig.width = 6.5)
 library(showtext)
 showtext_auto()
 library(tidyverse)
@@ -66,7 +66,7 @@ df_취업통계 <- read_excel('2020년 학과별 고등교육기관 취업통계
                      col_types = c(rep('text', 9), rep('numeric', 79)))
 
 ## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
-df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'))
+df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 
 ## df_취업통계 정보 확인
 str(df_취업통계)
@@ -161,10 +161,14 @@ ggplot(df_입학자)
 미적요소는 `aes()` 를 사용하여 매핑할 수 있고 고정값을 설정할 수 있다. 이 부분은 미적요소의 사용에 가장 혼동을 유발하는 부분이다. 미적요소를 매핑한다는 것은 미적요소가 데이터 변수에 의해 변경되어야 하는 경우 사용한다. 즉 미적요소가 변수에 대응됨으로써 변수의 변량에 따라 해당 미적요소들이 바뀌어서 표현된다. 그러나 고정값을 설정한다는 것은 변수에 대응되는 것이 아닌 특정값에 고정되도록 설정하기 때문에 고정값으로 설정된 기하요소들은 변수의 변량이 변경되어도 같은 미적요소로 표현된다. 미적요소는 사용하고자 하는 기하요소 함수(`geom_*()`) 내에서 사용되지만 매핑할때는 반드시 `aes()` 함수를 사용하여 데이터 열이나 매핑 변수를 설정하여야 하고 고정값을 설정할 때는 반드시 `aes()` 함수 바깥에서 선언되어야 한다. 다음의 예를 살펴보자.
 
 ```{r}
+## df_입학자에서 X축에 연도, Y축에 전문대학을 매핑한 ggplot 객체를 만들고
 df_입학자 |> ggplot(aes(x = 연도, y = 전문대학)) +
+  ## color를 지역으로 매핑한 geom_point 레이어를 생성
   geom_point(aes(color = 지역))
 
+## df_입학자에서 X축에 연도, Y축에 전문대학을 매핑한 ggplot 객체를 만들고
 df_입학자 |> ggplot(aes(x = 연도, y = 전문대학)) +
+  ## color를 'red'로 설정한 geom_point 레이어를 생성
   geom_point(color = 'red')
 
 ```
@@ -191,9 +195,10 @@ colors() |> head(10)
 RGB 색상 코드는 HTML/CSS에서와 같이 RGB 코드를 16진수 값(00에서 FF)을 사용하여 2자리씩 정의하는데 "#" 접두사로 붙은 문자열로 설정한다. 예를 들어 red는은 "#FF0000"으로 표현된다.
 
 ```{r}
-## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 막대의 외곽선 색상을 빨강으로 설정
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 
 df_입학자 |> filter(지역 == '전체') |>
   ggplot(aes(x = 연도, y = 전문대학)) +
+  ## 막대의 외곽선 색상을 `#ff0000`으로 설정
   geom_col(color = '#ff0000')
 
 ```
@@ -203,9 +208,10 @@ df_입학자 |> filter(지역 == '전체') |>
 기하요소의 내부 색상의 설정을 설정한다. 색상의 설정은 `color` 설정과 동일하다.
 
 ```{r}
-## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 막대의 내부 색상을 빨강으로 설정
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 
 df_입학자 |> filter(지역 == '전체') |>
   ggplot(aes(x = 연도, y = 전문대학)) +
+  ## 막대의 내부 색상을 `#ff0000`으로 설정
   geom_col(fill = '#ff0000')
 
 ```
@@ -215,14 +221,15 @@ df_입학자 |> filter(지역 == '전체') |>
 기하요소의 투명도를 설정한다. `alpha` 는 정수형 수치로 설정하는데 0부터 1사이의 값을 가진다. 0에 가까울수록 투명해지고 1에 가까울 수록 불투명해진다.
 
 ```{r}
-## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 막대의 투명도를 0.3으로 설정
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 
 df_입학자 |> filter(지역 == '전체') |>
   ggplot(aes(x = 연도, y = 전문대학)) +
+  ## 막대의 투명도를 0.3으로 설정
   geom_col(alpha = 0.3)
 
-## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 막대의 투명도를 0.7로 설정
 df_입학자 |> filter(지역 == '전체') |>
   ggplot(aes(x = 연도, y = 전문대학)) +
+  ## 막대의 투명도를 0.7로 설정
   geom_col(alpha = 0.7)
 
 ```
@@ -252,26 +259,28 @@ ggplot() +
 ```
 
 ```{r}
-## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 선의 타입을 'dashed'로 설정
 df_입학자 |> filter(지역 == '전체') |>
   ggplot(aes(x = 연도, y = 전문대학)) +
+  ## 선의 타입을 'dashed'로 설정
   geom_line(aes(group = 1), linetype = 'dotted')
 
 ```
 
 ### size
 
-`size` 는 기하요소의 크기를 설정한다. 기하요소가 점이면 점의 크기, 선이면 선의 굵기를 설정한다. 점의 크기를 결정할 때는 반지름의 길이를 밀리미터 단위로 지정한다. 또 선의 굵기도 밀리미터 단위로 지정할 수 있다.
+`size` 는 기하요소의 크기를 설정한다. 기하요소가 점이면 점의 크기, 선이면 선의 굵기를 설정한다. 점의 크기를 결정할 때는 반지름의 길이를 밀리미터 단위로 지정한다. 또 선의 굵기도 밀리미터 단위로 설정할 수 있다.
 
 ```{r}
-## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 선의 크기를 3으로 설정
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 
 df_입학자 |> filter(지역 == '전체') |>
   ggplot(aes(x = 연도, y = 전문대학)) +
+  ## 선의 크기를 3으로 설정
   geom_line(aes(group = 1), size = 3)
 
-## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 점의 크기를 3으로 설정
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 
 df_입학자 |> filter(지역 == '전체') |>
   ggplot(aes(x = 연도, y = 전문대학)) +
+  ## 점의 크기를 3으로 설정
   geom_point(size = 3)
 
 ```
@@ -322,14 +331,16 @@ ggplot(shapes, aes(x, y)) +
 위의 `shape`를 실제 사용하는 예제는 다음과 같다.
 
 ```{r}
-## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 점의 모양을 15로 설정
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 
 df_입학자 |> filter(지역 == '전체') |>
   ggplot(aes(x = 연도, y = 전문대학)) +
+  ## 점의 모양을 15로 설정
   geom_point(shape = 15)
 
-## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 점의 모양을 'triangle open'으로 설정
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 
 df_입학자 |> filter(지역 == '전체') |>
   ggplot(aes(x = 연도, y = 전문대학)) +
+  ## 점의 모양을 'triangle open'으로 설정
   geom_point(shape = 'triangle open')
 
 ```
@@ -339,14 +350,16 @@ df_입학자 |> filter(지역 == '전체') |>
 `label`은 텍스트로 표현되는 기하요소를 말한다. 데이터의 위치에 대한 수치값을 표현한다거나 데이터의 분류에 대한 문자를 표현할 때 사용되는 미적요소이다. `label`은 주로 텍스트에 관련된 기하요소인 `geom_text()`나 `geom_label()`에서 주로 사용된다.
 
 ```{r}
-## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 라벨을 '전문대학'으로 설정
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 
 df_입학자 |> filter(지역 == '전체') |>
   ggplot(aes(x = 연도, y = 전문대학)) +
+  ## 라벨을 '전문대학'으로 설정
   geom_text(label = '전문대학')
 
-## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 라벨을 '전문대학'열에 매핑
+## df_입학자의 지역이 '전체'인 데이터를 시각화하는데 
 df_입학자 |> filter(지역 == '전체') |>
   ggplot(aes(x = 연도, y = 전문대학)) +
+  ## 라벨을 '전문대학'열에 매핑
   geom_text(aes(label = 전문대학))
 
 ```
@@ -369,9 +382,11 @@ df_입학자_long |> filter(지역 == '전체') |>
 위의 코드에서는 `group` 을 지정하지 않고 `color` 만 df_입학자_long 데이터의 학교종류 열에 매핑하였다. 하지만 선으로 표현될 미적요소는 학교종류별로 그루핑되어야 정상적으로 표현되는데 단지 `color` 만의 매핑으로는 정상적으로 표현되지 않는다. 따라서 `geom_line()` 으로 여러개의 선이 표현되는 선 그래프를 표현하기 해서는 반드시 `group` 으로 그루핑되는 열을 지정해야 정상적으로 표현된다.
 
 ```{r}
-## df_입학자_long를 x축에 연도, y축에 입학생수를 매핑하여 학교종류별 입학생수를 선 그래프로 시각화하는데 group을 학교종류으로 설정함으로써 학교종류별 구분이 가능
+## df_입학자_long에서 
 df_입학자_long |> filter(지역 == '전체') |>
+  ## x축에 연도, y축에 입학생수를 매핑한 ggplot 객체 생성
   ggplot(aes(x = 연도, y = 입학생수)) +
+  ## color와 group을 학교종류로 매핑한 geom_line 레이어 생성
   geom_line(aes(color = 학교종류, group = 학교종류))
 
 ```
@@ -379,9 +394,10 @@ df_입학자_long |> filter(지역 == '전체') |>
 그렇다면 단 하나의 선만이 있는 선 그래프는 어떻게 될까? 단 하나의 선이기 때문에 `group` 이 필요없을까? 답은 그렇지 않다. 다만 단 하나의 선이 있는 경우에는 `group = 1` 로 선언함으로써 열을 매핑하지 않고 사용할 수도 있다.
 
 ```{r}
-## df_입학자_long 중 지역이 전체에 해당하는 전문대학 입학생을 선 그래프로 시각화하는데 지역이 하나뿐이므로 group을 1로 설정함으로써 선그래프를 그릴 수 있음
+## df_입학자_long 중 지역이 전체, 학교종류가 전문대학이 데이터를 필터링 
 df_입학자_long |> filter(지역 == '전체', 학교종류 == '전문대학') |>
   ggplot(aes(x = 연도, y = 입학생수)) +
+  ## group을 단일 그룹으로 매핑한 geom_line 레이어 생성
   geom_line(aes(group = 1))
 
 ```
@@ -701,14 +717,17 @@ geom_smooth(mapping = NULL, data = NULL, stat = "smooth", position = "identity",
 p_smooth <- df_입학자 |> filter(지역 == '전체') |>
   ggplot()
 
-##  p_smooth에 x축은 연도, y축은 전문대학을 매핑, geom_smooth의 추세선 결정 방법은 'loess'로 설정한 geom_line레이어와 geom_smooth레이어를 생성
+##  p_smooth에
 p_smooth +
+  ## x축은 연도, y축은 전문대학, group을 단일 그룹으로 매핑한 geom_line 레이어 생성
   geom_line(aes(x = 연도, y = 전문대학, group = 1)) +
+  ## geom_smooth의 추세선 결정 방법은 'loess'로 설정한 geom_smooth레이어를 생성
   geom_smooth(aes(x = 연도, y = 전문대학, group = 1), method = 'loess')
 
 ##  p_smooth에 x축은 연도, y축은 전문대학을 매핑, geom_smooth의 추세선 결정 방법은 'lm', se는 FALSE로 설정한 geom_line레이어와 geom_smooth레이어를 생성
 p_smooth +
   geom_line(aes(x = 연도, y = 전문대학, group = 1)) +
+  ## geom_smooth의 추세선 결정 방법은 'lm'로 설정하고 표준오차선을 제거한  geom_smooth레이어를 생성
   geom_smooth(aes(x = 연도, y = 전문대학, group = 1), method = 'lm', se = FALSE)
 
 ```
@@ -957,7 +976,7 @@ geom_line(mapping = NULL, data = NULL, stat = "identity", position = "identity",
 p_line <- df_입학자_long |> filter(지역 == '전체') |>
   ggplot()
 
-##  p_line객체에 x축에 연도, y축에 입학생수으로 매핑하고 각각의 line은 학교종류으로 그루핑하고, color는 학교종류로 매핑한 geom_line레이어를 생성
+##  p_line객체에 x축에 연도, y축에 입학생수, group과 color를 학교종류로 매핑한 geom_line레이어를 생성
 p_line + 
   geom_line(aes(x = 연도, y = 입학생수, group = 학교종류, color = 학교종류))
 
@@ -985,7 +1004,7 @@ geom_area(mapping = NULL, data = NULL, stat = "identity", position = "stack", na
 p_area <- df_입학자_long |> filter(지역 == '전체') |>
   ggplot()
 
-##  p_area객체에 x축에 연도, y축에 입학생수로 매핑하고 각각의 line은 학교종류으로 그루핑하고, fill는 학교종류로 매핑한 geom_area 레이어를 생성
+##  p_area객체에 x축에 연도, y축에 입학생수, group과 fill을 학교종류로 매핑한 geom_area 레이어를 생성
 p_area + 
   geom_area(aes(x = 연도, y = 입학생수, group = 학교종류, fill = 학교종류))
 
@@ -993,11 +1012,11 @@ p_area +
 
 ### 무변수 기하요소
 
-무변수 기하요소로 매핑되는 변수가 없이 데이터 설정만으로 생성할 수 있는 기하요소를 말한다. `ggplot` 매뉴얼에서는 무변수 기하요소라는 표현은 사용하지 않고 그래픽 기본요소(Graphical Primitive)라는 문구로 표현되는 기하요소이다. 이 기하요소들은 데이터에 매핑되지 않기 때문에 세부 설정을 사용자가 직접하여야 한다. 따라서 데이터로 표현되기 어려운 설명과 강조점들을 생성할 때 사용한다. `geom_rect()`, `geom_segment()`, `geom_polygon()`, `geom_abline()`, `geom_vline()`, `geom_hline()` 등이 있고 `geom_text()`도 변수 매핑 없이 사용할 수 있다. 하지만 이 함수들은 생각보다 잘 작동하지 않는 미적요소들이 있다. 예를들면 `geom_rect()`의 경우 투명도를 설정하는 `alpha`가 정상적으로 작동하지 않는다. 이 절에서는 각각의 함수에 대해 간략히 설명하겠지만 이번 장의 마지막에서 설명할 `annotate()`를 사용하는 것을 권장한다. 
+무변수 기하요소로 매핑되는 변수가 없이 데이터 설정만으로 생성할 수 있는 기하요소를 말한다. `ggplot` 매뉴얼에서는 무변수 기하요소라는 표현은 사용하지 않고 그래픽 기본요소(Graphical Primitive)라는 문구로 표현되는 기하요소이다. 이 기하요소들은 데이터에 매핑되지 않기 때문에 세부 설정을 사용자가 직접하여야 한다. 따라서 데이터로 표현되기 어려운 설명과 강조점들을 생성할 때 사용한다. `geom_rect()`, `geom_segment()`, `geom_polygon()`, `geom_abline()`, `geom_vline()`, `geom_hline()` 등이 있고 `geom_text()`도 변수 매핑 없이 사용할 수 있다. 하지만 이 함수들은 생각보다 잘 작동하지 않는 미적요소들이 있다. 예를들면 `geom_rect()`의 경우 투명도를 설정하는 `alpha`가 정상적으로 작동하지 않는다. 이 절에서는 각각의 함수에 대해 간략히 설명하겠지만 이번 장의 마지막에서 설명할 `annotate()`를 사용하는 것을 권장한다.
 
 #### geom_rect()
 
-`geom_rect()`는 `ggplot` 객체에 사각형을 그리는 레이어를 생성하는 함수이다. 사각형을 그리기 위해 사각형의 네 꼭지점 좌표를 결정하기 위한 xmin, ymin, xmax, ymax값이 필요하고 사각형 선의 색이나 내부 색 등을 설정할 수 있다. `geom_rect()`를 사용할 때 하나 주의해야 할 것이 미적요소의 순서에 따라 
+`geom_rect()`는 `ggplot` 객체에 사각형을 그리는 레이어를 생성하는 함수이다. 사각형을 그리기 위해 사각형의 네 꼭지점 좌표를 결정하기 위한 `xmin`, `ymin`, `xmax`, `ymax`값이 필요하고 사각형 선의 색이나 내부 색 등을 설정할 수 있다.
 
 ```{r eval=FALSE}
 geom_rect(mapping = NULL, data = NULL, stat = "identity", position = "identity", linejoin = "mitre", na.rm = FALSE, show.legend = NA, ...)
@@ -1011,21 +1030,103 @@ geom_rect(mapping = NULL, data = NULL, stat = "identity", position = "identity",
 
 ```
 
-`geom_rect()`에서 사용이 가능한 미적요인은 xmin, ymin, xmax, ymax, alpha, color, fill, linetype, size 등 이다.
+`geom_rect()`에서 사용이 가능한 미적요인은 xmin, ymin, xmax, ymax, alpha, color, fill, linetype, size 등 이다. 아래의 코드는 위의 선 그래프에 강조가 필요한 부분을 `geom_rect()`를 사용하여 표현하였다.
 
 ```{r}
-ggplot() +
+## 아무것도 없는 ggplot 객체에
+p_rect <- ggplot() +
+  ## (2001, -Inf)와 (2005, Inf)를 최소, 최대로 가지고 fill은 'yellow', alpha = 0.25로 설정한 geom_rect 레이어 생성, Inf는 Infinity의 준말로 무한대를 지칭 
   geom_rect(aes(xmin = '2001', ymin = -Inf, xmax = '2005', ymax = Inf), fill = 'yellow', alpha = 0.25) +
+  ## (2012, -Inf)와 (2017, Inf)를 최소, 최대로 가지고 fill은 'green', alpha = 0.25로 설정한 geom_rect 레이어 생성
   geom_rect(aes(xmin = '2012', ymin = -Inf, xmax = '2017', ymax = Inf), fill = 'green', alpha = 0.25) +
+  ## (-Inf, 70000)와 (Inf, 110000)를 최소, 최대로 가지고 fill은 'skyblue', alpha = 0.25로 설정한 geom_rect 레이어 생성
   geom_rect(aes(xmin = -Inf, ymin = 70000, xmax = Inf, ymax = 110000), fill = 'skyblue', alpha = 0.25) +
+  ## data와 x, y, group, color를 매핑한 geom_line 레이어 생성
   geom_line(data =  df_입학자_long |> filter(지역 == '전체'), aes(x = 연도, y = 입학생수, group = 학교종류, color = 학교종류))
-  
+
+p_rect  
 ```
+
+위의 코드는 앞선 코드와는 많이 다른 점이 있다. 우선 `geom_line()` 레이어를 생성하기 이전에 `geom_rect()`를 사용하여 강조 부분에 대한 레이어를 먼저 생성하였다. 앞서 설명한 바와 같이 `geom_rect()`에서 `alpha`가 정상적으로 작동하지 않는 문제 때문이다. 데이터가 매핑된 레이어가 생성되기 전에 생성된 `geom_rect()` 레이어에서는 `alpha`에 따른 투명도가 정상적으로 작동하지만 이미 생성된 레이어 위에 `geom_rect()`를 생성할 떄는 `alpha`가 정상적으로 작동하지 않는다.
 
 #### geom_segment()
 
-`geom_segment()`는 
+`geom_segment()`는 선으로 표현되는 미적요소에 대한 레이어를 생성한다. `geom_line()`과 유사하지만 데이터 매핑없이 사용한다는 점에서 주로 설명선을 그릴때 사용되는 레이어이다.
 
+```{r eval=FALSE}
+geom_segment(mapping = NULL, data = NULL, stat = "identity", position = "identity", arrow = NULL, arrow.fill = NULL, lineend = "butt", linejoin = "round", na.rm = FALSE, show.legend = NA, ...)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'
+  - position : 시각화에 적용될 위치요소, 기본값은 'identity'
+  - arrow : 선의 끝에 화살표를 표시할 것인지 설정
+  - arrow.fill : 내부가 채워진 화살표를 그릴것인지 설정
+  - lineend : 선의 끝 모양을 설정('butt', 'round', 'square')
+  - linejoin : 사각형의 꼭지점의 처리 방법 설정(round, mitre, bevel)
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값(TRUE/FALSE)
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값(TRUE/FALSE) 
+
+```
+
+`geom_segment()`에서 사용이 가능한 미적요인은 x, y, xend, yend, alpha, color, group, fill, linetype, size 등 이다.
+
+```{r}
+## p_rect에서
+p_rect + 
+  ## (2003, 300000)부터 (2006, 300000)까지 color가 'yellow', 끝이 arrow(길이가 0.25cm이고 닫힌 형태의 화살표)이고 arrow.fill이 'yellow'인 geom_segement인 레이어 생성 
+  geom_segment(aes(x = '2003', y = 300000, xend = '2006', yend = 300000), color = 'yellow', arrow = arrow(length = unit(0.25,'cm'), type = 'closed'), arrow.fill = 'yellow') + 
+  ## (2015, 300000)부터 (2018, 300000)까지 color가 'green', 끝이 arrow(길이가 0.25cm이고 닫힌 형태의 화살표)이고 arrow.fill이 'green'인 geom_segement인 레이어 생성 
+  geom_segment(aes(x = '2015', y = 300000, xend = '2018', yend = 300000), color = 'green', arrow = arrow(length = unit(0.25,'cm'), type = 'closed'), arrow.fill = 'green') + 
+  ## (2010, 100000)부터 (2010, 130000)까지 color가 'skyblue', 끝이 arrow(길이가 0.25cm이고 닫힌 형태의 화살표)이고 arrow.fill이 'skyblue'인 geom_segement인 레이어 생성 
+  geom_segment(aes(x = '2010', y = 100000, xend = '2010', yend = 130000), color = 'skyblue', arrow = arrow(length = unit(0.25,'cm'), type = 'closed'), arrow.fill = 'skyblue')
+  
+```
+
+#### geom_vline(), geom_hline()
+
+`geom_vline()`과 `geom_hline()`은 수직선과 수평선으로 표현되는 미적요소에 대한 레이어를 생성한다. `geom_segment()`과 유사하지만 `xintercept`나 `yintercept`의 하나의 매개변수만으로 수직선, 수평선을 생성할 수 있다. 주로 기준선을 설정할 때 사용한다.
+
+```{r eval = FALSE}
+geom_vline(mapping = NULL, data = NULL, xintercept, na.rm = FALSE, show.legend = NA, ...)
+
+geom_hline(mapping = NULL, data = NULL, yintercept, na.rm = FALSE, show.legend = NA, ...)
+  - xintercept : 수직선을 그릴때 사용하는 X 절편값
+  - yintercept : 수평선을 그릴때 사용하는 Y 절편값
+
+```
+
+`geom_vline()`과 `geom_hline()`에서 사용하는 미적요소는 `geom_segment()`와 동일하다.
+
+```{r}
+## p_rect에
+p_rect + 
+  ## x절편이 2010이고 color, linetype 이 설정된 geom_vline 레이어 생성
+  geom_vline(xintercept = '2010', color = 'red', linetype = 2) +
+  ## y절편이 200000이고 color, linetype 이 설정된 geom_hline 레이어 생성
+  geom_hline(yintercept = 200000, color = 'blue', linetype = 3)
+
+```
+
+#### geom_abline()
+
+`geom_abline()`은 대각선을 그릴때 사용하는 레이어이다. `geom_line()`도 대각선을 그릴수 있지만 `geom_line()`은 두 점을 이어주는 선을 그리는 반면 `geom_abline()`은 일차방정식 형태의 기울기와 y절편값을 사용하여 대각선을 그려준다. 당연히 기울기가 0이면 수평선이 그려지고 기울기가 무한대 이면 수직선이 그려진다.
+
+```{r eval=FALSE}
+geom_abline(mapping = NULL, data = NULL, ..., slope, intercept, na.rm = FALSE, show.legend = NA)
+  - slope : 선을 그릴 기울기
+  - intercept : 선을 그릴 Y 절편
+
+```
+
+`geom_abline()`에서 사용하는 미적요소는 `geom_segment()`와 동일하다.
+
+```{r}
+## p_rect에
+p_rect + 
+  ## 기울기가 10000이고 y절편이 20000인 geom_abline 레이어 생성
+  geom_abline(slope = 10000, intercept = 20000, color = 'red', linetype = 2)
+
+```
 
 ## 통계 요소
 
@@ -1115,27 +1216,34 @@ stat_summary(mapping = NULL, data = NULL, geom = "pointrange", position = "ident
 아래의 코드는 박스 플롯에 평균을 추가하는 코드이다.
 
 ```{r}
-## p_boxplot에 geom_boxplot 레이어를 만들고 X값에 대한 Y 값은 평균(mean), 미적요소는 point, color는 'red'로 설정한 stat_summary 레이어를 추가
+## p_boxplot객체에서 
 p_boxplot + 
+  ## X축은 대계열, Y축은 취업률_계로 매핑한 geom_boxplot 레이어 생성
   geom_boxplot(aes(x = 대계열, y = 취업률_계)) +
+  ## X값에 대한 Y 값은 평균(mean), 미적요소는 point, color는 'red'로 설정한 stat_summary 레이어를 추가
   stat_summary(aes(x = 대계열, y = 취업률_계), fun = 'mean', geom = 'point', color = 'red')
 
-## p_point에 geom_point 레이어를 만들고 X값에 대한 Y 값은 평균(mean), 미적요소는 point, color는 'red'로 설정한 레이어와 stat_summary 레이어를 추가하는데 X값에 대한 Y 값은 평균(mean), 미적요소는 point, color는 'red'로 설정한 레이어를 추가 
+## p_point 객체에서 
 p_point + 
+  ## X축은 대계열, Y축은 취업률_계로 매핑한 geom_point 레이어 생성
   geom_point(aes(x = 대계열, y = 취업률_계), alpha = 0.1) +
+  ## X축은 대계열, Y축은 취업률_계로 매핑하고 평균(mean), 미적요소는 point, color는 'red'로 설정한 stat_summary 레이어를 추가
   stat_summary(aes(x = 대계열, y = 취업률_계), fun = 'mean', geom = 'point', color = 'red', size = 3) +
-    stat_summary(aes(x = 대계열, y = 취업률_계), fun = 'median', geom = 'point', color = 'blue', size = 3)
+  ## X축은 대계열, Y축은 취업률_계로 매핑하고 중간값(median), 미적요소는 point, color는 'blue'로 설정한 stat_summary 레이어를 추가
+  stat_summary(aes(x = 대계열, y = 취업률_계), fun = 'median', geom = 'point', color = 'blue', size = 3)
 
 ```
 
 위의 `stat_summary()`를 `geom_*()`을 사용하여 코딩하면 다음과 같다.
 
 ```{r}
+## p_point 객체에서
 p_point + 
   geom_point(aes(x = 대계열, y = 취업률_계), alpha = 0.1) +
+  ## X축은 대계열, Y축은 취업률_계로 매핑하고 stat을 summary, 함수를 평균(mean), color는 'red'로 설정한 geom_point 레이어를 추가
   geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun = 'mean', color = 'red', size = 3) +
+  ## X축은 대계열, Y축은 취업률_계로 매핑하고 stat을 summary, 함수를 중간값(median), color는 'blue'로 설정한 geom_point 레이어를 추가
   geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun = 'median', color = 'blue', size = 3) 
-
 
 ```
 
@@ -1165,7 +1273,9 @@ p_density + geom_density(aes(x = 취업률_계, y = ..density..))
 팩터와 같은 여러개의 범주(Category)를 가지고 있는 변수를 시각화할 때 하나의 그래프에 표현한다면 동시에 표현되는 기하 요소가 많아지기 떄문에 시각화의 효과가 저해되는 상황이 발생한다. 아래의 예를 보자.
 
 ```{r}
+## p_line에
 p_line + 
+  ## x축이 연도, y축이 입학생수 group, color는 학교종류로 매핑된 geom_line 레이어 생성
   geom_line(aes(x = 연도, y = 입학생수, group = 학교종류, color = 학교종류))
 
 ```
@@ -1201,27 +1311,32 @@ facet_wrap(facets, nrow = NULL, ncol = NULL, scales = "fixed", labeller = "label
 `facet_wrap()`은 다음과 같이 사용할 수 있다.
 
 ```{r}
-## p_line 객체에 x축은 연도, y축은 일반대학, group과 color를 지역으로 매핑한 geom_line 레이어를 생성하고 지역별로 시각화를 분할(vars() 사용)
+## p_line 객체에 
 p_line + 
+  ## x축은 연도, y축은 일반대학, group과 color를 지역으로 매핑한 geom_line 레이어를 생성
   geom_line(aes(x = 연도, y = 입학생수, group = 학교종류, color = 학교종류)) +
+  ## 지역별로 시각화를 분할(vars() 사용)
   facet_wrap(vars(학교종류))
 ```
 
 위의 예에서 전체 Y축의 스케일(Scale)을 전체적으로 고정시켰기 때문에 전반적인 데이터의 수준은 어느 지역이 높고 어느 지역이 낮은지가 눈에 보이지만 지역별로 데이터의 흐름이 잘 보이지 않는다. 이를 위해 다음과 같이 Y축의 스케일을 풀어줄 수 있다.
 
 ```{r}
-## p_line 객체에 x축은 연도, y축은 일반대학, group과 color를 지역으로 매핑한 geom_line 레이어를 생성하고 지역별로 시각화를 분할(vars() 사용)
+## p_line에서
 p_line + 
   geom_line(aes(x = 연도, y = 입학생수, group = 학교종류, color = 학교종류)) +
+  ## 지역별로 시각화를 분할하되 y축을 각각의 분할 스케일로 설정
   facet_wrap(vars(학교종류), scales = 'free_y')
 ```
 
 아래는 지역과 연도를 바꾸어 막대그래프로 표현한 분할 시각화이다.
 
 ```{r}
-## p_col 객체에 x축은 지역, y축은 일반대학으로 매핑한 geom_line 레이어를 생성하고 연도별로 시각화를 분할(~ 사용)
+## p_col 객체에서 
 p_col + 
+  ## x축은 지역, y축은 일반대학으로 매핑한 geom_line 레이어를 생성
   geom_col(aes(x = 학교종류, y = 입학생수)) +
+  ## 연도별로 시각화를 분할(~ 사용)
   facet_wrap(~연도)
 ```
 
@@ -1243,14 +1358,18 @@ facet_grid(rows = NULL, cols = NULL, scales = "fixed", labeller = "label_value",
 `facet_grid()`은 다음과 같이 사용할 수 있다.
 
 ```{r}
-## p_histogram 객체에 x축은 취업률_계로 매핑한 geom_histogram 레이어를 생성하고 X축방향으로 대계열, Y축방향으로 과정구분으로 시각화를 분할(vars() 사용)
+## p_histogram 객체에 
 p_histogram +
+  ## x축은 취업률_계로 매핑한 geom_histogram 레이어를 생성
   geom_histogram(aes(x = 취업률_계)) +
+  ## X축방향으로 대계열, Y축방향으로 과정구분으로 시각화를 분할(vars() 사용)
   facet_grid(rows = vars(대계열), cols = vars(과정구분))
 
 ## p_col 객체에 x축은 지역, y축은 일반대학으로 매핑한 geom_line 레이어를 생성하고 연도별로 시각화를 분할(~ 사용)
 p_density + 
+  ## x축은 지역, y축은 일반대학으로 매핑한 geom_line 레이어를 생성
   geom_density(aes(x = 취업률_계)) +
+  ## 세로방향으로 대계열, 가로방향으로 과정구분으로 시각화 분할(~ 사용)
   facet_grid(과정구분 ~ 대계열)
 
 ```
@@ -1279,14 +1398,16 @@ coord_cartesian(xlim = NULL, ylim = NULL, expand = TRUE, ...)
 `coord_cartesian()`은 다음과 같이 사용할 수 있다.
 
 ```{r}
-## p_line 객체에 x축은 연도, y축은 입학생수, group과 color는 학교종류으로 매핑된 geom_line 레이어를 생성하는데 y축의 범위를 20000에서 40000으로 설정
+## p_line 객체에 
 p_line + 
-  geom_line(aes(x = 연도, y = 입학생수, group = 학교종류, color = 학교종류)) + 
+  ## x축은 연도, y축은 입학생수, group과 color는 학교종류으로 매핑된 geom_line 레이어를 생성
+  geom_line(aes(x = 연도, y = 입학생수, group = 학교종류, color = 학교종류)) +
+  ## y축의 범위를 20000에서 40000으로 설정
   coord_cartesian(ylim = c(20000, 40000))
 
-## p_line 객체에 x축은 연도, y축은 입학생수, group과 color는 학교종류으로 매핑된 geom_line 레이어를 생성하는데 y축의 범위를 20000에서 40000으로 설정하고 expand를 FALSE로 설정하여 확장을 제한
 p_line + 
-  geom_line(aes(x = 연도, y = 입학생수, group = 학교종류, color = 학교종류)) + 
+  geom_line(aes(x = 연도, y = 입학생수, group = 학교종류, color = 학교종류)) +
+  ## y축의 범위를 20000에서 40000으로 설정하고 expand를 FALSE로 설정하여 확장을 제한
   coord_cartesian(ylim = c(20000, 40000), expand = FALSE)
 ```
 
@@ -1304,9 +1425,11 @@ coord_flip(xlim = NULL, ylim = NULL, expand = TRUE, ...)
 `coord_flip()`은 다음과 같이 사용할 수 있다.
 
 ```{r}
-## p_col 객체에 x축은 연도, y축은 일반대학이 매핑된 geom_col 레이어를 생성하는데 축을 바꾸어 줌
+## p_col 객체에 
 p_col +
+  ## x축은 연도, y축은 일반대학이 매핑된 geom_col 레이어를 생성
   geom_col(aes(x = 연도, y = 입학생수)) + 
+  ## 축을 바꾸어 줌
   coord_flip()
 
 ```
@@ -1326,18 +1449,22 @@ coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, ...)
 아래의 코드는 `coord_fixed()`의 사용 예제이다. y축에 매핑된 데이터가 0부터 100까지의 백분률 데이터이기 때문에 X축의 0부터 100까지의 길이에 해당하는 만큼의 Y축만 표현된다.
 
 ```{r}
-## p_point 객체에 x축이 졸업자_계, y축은 취업률_계로 매핑된 geom_point 레이어를 생성하고 양쪽 축의 스케일을 1:1로 고정
+## p_point 객체에 
 p_point +
-  geom_point(aes(x = 졸업자_계, y = 취업률_계)) + 
+  ## x축이 졸업자_계, y축은 취업률_계로 매핑된 geom_point 레이어를 생성
+  geom_point(aes(x = 졸업자_계, y = 취업률_계)) +
+  ## 양쪽 축의 스케일을 1:1로 고정
   coord_fixed()
 ```
 
 위와 같이 Y축이 좁아진 것을 넓혀주려면 `rario` 매개변수를 조절한다.
 
 ```{r}
-## p_point 객체에 x축이 졸업자_계, y축은 취업률_계로 매핑된 geom_point 레이어를 생성하고 양쪽 축의 스케일을 3:1로 고정
+## p_point 객체에 
 p_point +
-  geom_point(aes(x = 졸업자_계, y = 취업률_계)) + 
+  ## x축이 졸업자_계, y축은 취업률_계로 매핑된 geom_point 레이어를 생성
+  geom_point(aes(x = 졸업자_계, y = 취업률_계)) +
+  ## 양쪽 축의 스케일을 3:1로 고정
   coord_fixed(ratio = 3)
 
 ```
@@ -1360,9 +1487,11 @@ coord_trans(x = "identity", y = "identity", xlim = NULL, ylim = NULL, expand = T
 앞에서 시각화했던 `geom_point()`의 결과를 보면 졸업자 `coord_trans()`는 다음과 같이 사용할 수 있다.
 
 ```{r}
-## p_point객체에 x축은 졸업자_계, y축은 취업자_합계_계로 매핑된 geom_point 레이어를 생성하는데 x축을 'log10' 변환
+## p_point객체에 
 p_point +
-  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계)) + 
+  ## x축은 졸업자_계, y축은 취업자_합계_계로 매핑된 geom_point 레이어를 생성
+  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계)) +
+  ## x축을 'log10' 변환
   coord_trans(x = 'log10')
 
 ```
@@ -1530,7 +1659,7 @@ if(!require(sysfonts)) {
   ## showtext 패키지 로딩
   library(sysfonts)
 }
-## font_add를 사용하여 
+## font_add를 사용하여 나눔펜 폰트를 설정(TTF폴더는 자신의 폰트 폴더를 설정) 
 font_add("NANUMBRUSH", "TTF폴더/NANUMBRUSH.TTF")
 
 ```
@@ -1775,7 +1904,7 @@ hex_codes2 <- scales::hue_pal()(n2)
 scales::show_col(hex_codes2)  
 ```
 
-색상을 설정하는데 가장 편리한 방법은 미리 정의된 색상 세트인 팔레트를 사용하는 것이다. R에서 많이 사용하는 색상 팔레트는 `RColorBrewer` 패키지에서 정의하는 색상 팔레트인데 `scale_color_brewer()`를 사용하여 `RColorBrewer`에서 제공하는 색상 팔레트를 사용할 수 있다. `scale_color_brewer()`는 `scale_fill_brewer()`와 사용방법이 동일하다. 
+색상을 설정하는데 가장 편리한 방법은 미리 정의된 색상 세트인 팔레트를 사용하는 것이다. R에서 많이 사용하는 색상 팔레트는 `RColorBrewer` 패키지에서 정의하는 색상 팔레트인데 `scale_color_brewer()`를 사용하여 `RColorBrewer`에서 제공하는 색상 팔레트를 사용할 수 있다. `scale_color_brewer()`는 `scale_fill_brewer()`와 사용방법이 동일하다.
 
 ```{r eval=FALSE}
 scale_colour_brewer(scale_*_*() 매개변수, type = "seq", palette = 1, direction = 1)
@@ -1829,11 +1958,17 @@ scale_line4
 앞에서 살펴본 스케일과 같이 범례도 `ggplot`에서 자동적으로 생성된다. `ggplot`에서 자동적으로 표현되는 범례는 `aes()`로 매핑된 미적요소를 대상으로 자동 생성(위치 지정 미적요소(x, y)는 제외)된다. 따라서 범례이름이나 범례 아이템, 범례 키 등이 변수명이나 변량명으로 사용되기 때문에 매핑되지 않는 기하요소나 미적요소는 범례에 표현되지 않는다. 아래의 예를 살펴보자.
 
 ```{r}
+## df_입학자에서 지역이 전체인 데이터만 필터링
 df_입학자 |> filter(지역 == '전체') |>
+  ## x축을 연도에 매핑한 ggplot 객체 생성
   ggplot(aes(x = 연도)) +
+  ## y축을 전문대학, group을 단일 그룹으로 매핑한 geom_line 레이어 생성
   geom_line(aes(y = 전문대학, group = 1), color = 'red') +
+  ## y축을 일반대학, group을 단일 그룹으로 매핑한 geom_line 레이어 생성
   geom_line(aes(y = 일반대학, group = 1), color = 'blue') +
+  ## y축을 석사, group을 단일 그룹으로 매핑한 geom_line 레이어 생성
   geom_line(aes(y = 석사, group = 1), color = 'green') + 
+  ## y축을 박사, group을 단일 그룹으로 매핑한 geom_line 레이어 생성
   geom_line(aes(y = 박사, group = 1), color = 'black')
 
 ```
@@ -1841,9 +1976,13 @@ df_입학자 |> filter(지역 == '전체') |>
 위의 그래프에서 사용한 데이터는 연도별 입학생수를 넓은 형태로 표현한 데이터프레임이다. 각각의 열에 학교종류에 해당하는 입학생수가 저장되어 있다. 이 데이터를 사용하여 각각의 `geom_line()`레이어에서 각각 하나씩 학교종류 열을 매핑하여 전체 선 그래프를 구성하였다. 또 각각의 레이어에서는 선이 하나씩 밖에 없기 때문에 색(color)를 매핑하지 않고 설정하였다. 따라서 이 시각화에서는 매핑된 미적요소가 위치요소(x, y)외에는 존재하지 않는다. 따라서 범례도 표현되지 않는다. 하지만 같은 그래프로 다음의 그래프를 살펴보자.
 
 ```{r}
+## df_입학자_long에서
 df_입학자_long |> 
+  ## 지역이 전체, 학교종류가 '전문대학', '일반대학', '석사', '박사'인 데이터 필터링
   filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '석사', '박사')) |>
+  ## x축이 연도로 매핑된 ggplot 객체 생성
   ggplot(aes(x = 연도)) +
+  ## y축이 입학생수, group이 학교종류, color가 학교종류로 매핑된 geom_line 레이어 생성
   geom_line(aes(y = 입학생수, group = 학교종류, color = 학교종류))
 
 ```
@@ -1851,12 +1990,19 @@ df_입학자_long |>
 위의 선 그래프는 앞선 그래프와 동일한 그래프이다. 하지만 데이터를 넓은 형태의 데이터가 아닌 넓은 형태의 데이어에서 각 열로 표현되어 었던 열 이름들이 하나의 열에 저장한 긴 형태의 데이터를 사용하였다. 이렇게 함으로써 학교종류 열을 색(color)로 매핑이 가능하다. 색으로 매핑된 학교종류에 포함된 변량값에 따라 범례가 표현되었다. 동일한 변수로 매핑된 서로 다른 기하요소들은 다음과 같이 범례 키에 중첩되어 표현된다.
 
 ```{r}
+## df_입학자_long 데이터에서
 legend_line <- df_입학자_long |> 
+  ## 지역이 전체, 학교종류가 '전문대학', '일반대학', '석사', '박사'인 데이터 필터링
   filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '석사', '박사')) |>
+  ## x축이 연도로 매핑된 ggplot 객체 생성
   ggplot(aes(x = 연도)) +
+  ## y축이 입학생수, group, color, linetype이 학교종류로 매핑된 geom_line 레이어 생성
   geom_line(aes(y = 입학생수, group = 학교종류, color = 학교종류, linetype = 학교종류)) +
-  geom_point(aes(y = 입학생수, shape = 학교종류, color = 학교종류)) + 
+  ## y축이 입학생수, group, color이 학교종류로 매핑된 geom_point 레이어 생성
+  geom_point(aes(y = 입학생수, shape = 학교종류, color = 학교종류)) +
+  ## 연속형 y축 스케일을 설정하는데 라벨을 scales 패키지의 comma 포맷 적용
   scale_y_continuous(labels = scales::comma) + 
+  ## theme()을 사용하여 axis.text.x를 element_text()를 사용해 세부 특성 설정
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
 
 legend_line
@@ -1864,7 +2010,7 @@ legend_line
 
 앞선 장에서 넓은 형태의 데이터와 긴 형태의 데이터를 설명하면서 데이터 시각화에는 넓은 형태보다는 긴 형태의 데이터가 효율적이라고 했다. 이 이유가 바로 미적요소 매핑에 따른 범례 표현에 있다. 그렇다면 앞서 넓은 형태의 데이터로 생성한 선 그래프와 같이 미적요소로 매핑되지 않은 범례를 생성할 때에는 `scale_*()`를 사용하여 미적 요소를 수동으로 설정할 수 있다.
 
-위의 넓은 형태의 그래프에는 각각의 선을 색으로 구분했다. 따라서 `scale_color_*()`함수가 사용된다. 이렇게 사용자가 직접 미적요소의 스케일을 설정하는 함수의 접미사는 'manual'이기 떄문에 `scale_color_manual()`함수를 사용한다. `scale_color_manual()`와 `scale_fill_manual()`의 사용법과 주요 매개변수는 다음과 같다. 
+위의 넓은 형태의 그래프에는 각각의 선을 색으로 구분했다. 따라서 `scale_color_*()`함수가 사용된다. 이렇게 사용자가 직접 미적요소의 스케일을 설정하는 함수의 접미사는 'manual'이기 떄문에 `scale_color_manual()`함수를 사용한다. `scale_color_manual()`와 `scale_fill_manual()`의 사용법과 주요 매개변수는 다음과 같다.
 
 ```{r eval=FALSE}
 scale_color_manual(scale_*_*() 매개변수, values, breaks = waiver(),  na.value = "grey50")
@@ -1881,17 +2027,24 @@ scale_fill_manual(scale_*_*() 매개변수, values, breaks = waiver(), na.value 
 `scale_color_manual()`를 사용한 코드는 다음과 같다.
 
 ```{r}
+## df_입학자에서 지역이 전체인 데이터만 필터링
 df_입학자 |> filter(지역 == '전체') |>
+  ## x축이 연도로 매핑된 ggplot 객체 생성
   ggplot(aes(x = 연도)) +
+  ## y축이 전문대학 열, group을 단일 그룹, color를 '전문대 입학생'이라는 이름으로 매핑
   geom_line(aes(y = 전문대학, group = 1, color = '전문대 입학생')) +
+  ## y축이 일반대학 열, group을 단일 그룹, color를 '일반대 입학생'이라는 이름으로 매핑
   geom_line(aes(y = 일반대학, group = 1, color = '일반대 입학생')) +
+  ## y축이 석사 열, group을 단일 그룹, color를 '석사 입학생'이라는 이름으로 매핑
   geom_line(aes(y = 석사, group = 1, color = '석사 입학생')) + 
-  geom_line(aes(y = 박사, group = 1, color = '박사 입학생')) + 
+  ## y축이 박사 열, group을 단일 그룹, color를 '박사 입학생'이라는 이름으로 매핑
+  geom_line(aes(y = 박사, group = 1, color = '박사 입학생')) +
+  ## 색 스케일을 사용자가 정의하는데 각각의 매핑명과 색 이름을 매칭한 네임드 벡터를 values에 설정
   scale_color_manual(values = c('전문대 입학생' = 'red', '일반대 입학생' = 'blue', '석사 입학' = 'green', '박사 입학' = 'black'))
 
 ```
 
-위의 코드는 *그림* 의 코드와는 조금 다르다.  각각의 `geom_line()` 레이어에 `color` 미적요소를 설정에서 `aes()`를 사용한 매핑으로 바꾸어주었다. 그러면서 매핑 이름을 각각 설정해 주었는데 y축의 매핑에서는 데이터 열을 가르키기 때문에 따옴표가 없는 데이터 열 이름을 설정했고 `color`에는 따옴표에 넣어서 데이터 열 이름이 아닌 문자열로 매핑 이름을 만들어 주었다. 또 `scale_color_manual()`의 `values`에 네임드 벡터를 설정하였다. 네임드 벡터의 벡터 이름은 매핑 이름을, 벡터 값을 색상명으로 설정하면 해당 매핑명이 색상명으로 스케일되고 이 스케일에 따라 범례가 표시된다. 이와 같이 `scale_*_manual()`은 `values` 매개변수를 사용하여 사용자 설정 스케일과 범례를 생성할 수 있다.
+위의 코드는 *그림* 의 코드와는 조금 다르다. 각각의 `geom_line()` 레이어에 `color` 미적요소를 설정에서 `aes()`를 사용한 매핑으로 바꾸어주었다. 그러면서 매핑 이름을 각각 설정해 주었는데 y축의 매핑에서는 데이터 열을 가르키기 때문에 따옴표가 없는 데이터 열 이름을 설정했고 `color`에는 따옴표에 넣어서 데이터 열 이름이 아닌 문자열로 매핑 이름을 만들어 주었다. 또 `scale_color_manual()`의 `values`에 네임드 벡터를 설정하였다. 네임드 벡터의 벡터 이름은 매핑 이름을, 벡터 값을 색상명으로 설정하면 해당 매핑명이 색상명으로 스케일되고 이 스케일에 따라 범례가 표시된다. 이와 같이 `scale_*_manual()`은 `values` 매개변수를 사용하여 사용자 설정 스케일과 범례를 생성할 수 있다.
 
 ### 범례 요소 세부 설정
 
@@ -1935,14 +2088,18 @@ guide_legend(title = waiver(), title.position = NULL, title.theme = NULL,   titl
 범례 제목은 `scale_*()`이나 `guide_legend()`에서 설정이 가능하지만 가장 쉬운 방법은 스케일의 헬퍼함수인 `labs()`를 사용하는 방법이다.
 
 ```{r}
+## legend_line 객체에서
 legend_line +
+  ## color의 범례 제목을 설정
   labs(color = '학교급')
 ```
 
 위에서는 `color`로 매핑되었던 미적요소들에 대한 범례는 지정한대로 '학교급'이라는 범례 제목이 설정되었지만 설정되지 않았던 `shape`, `linetype`은 범례 제목이 설정되지 않았기 때문에 원래 매핑열이었던 '학교종류'로 설정되면서 분리되었다. 모두 같은 값으로 설정하면 다시 하나로 합쳐진다.
 
 ```{r}
+## legend_line 객체에서
 legend_line +
+  ## color, shape, linetype 범례명을 설정
   labs(color = '학교급', shape = '학교급', linetype = '학교급')
 ```
 
@@ -1951,12 +2108,16 @@ legend_line +
 이를 `scale_*()`을 사용하여 범례 제목을 설정할 때는 제목을 설정할 각각의 미적요소에 대한 `scale_*()`에서 `guide` 매개변수를 `guide_legend()`를 사용하여 `title`을 설정한다. 단 범례의 제목에 한해서는 각 `scale_*()`의 `name` 매개변수를 사용하여 제목을 할당할 수도 있다.
 
 ```{r}
+## legend_line 객체에서
 legend_line +
+  ## 범례제목을 scale_*_discrete()와 guide_legend를 사용하여 설정
   scale_color_discrete(guide = guide_legend(title = '학교급')) +
   scale_shape_discrete(guide = guide_legend(title = '학교급')) +
   scale_linetype_discrete(guide = guide_legend(title = '학교급'))
 
+## legend_line 객체에서
 legend_line +
+  ## 범례제목을 scale_*_discrete()의 name를 사용하여 설정
   scale_color_discrete(name = '학교급') +
   scale_shape_discrete(name = '학교급') +
   scale_linetype_discrete(name = '학교급')
@@ -1968,7 +2129,9 @@ legend_line +
 `guides()`와 `guide_legend()`를 사용하여 제목을 설정할 때에는 `guide()`에서 `guide_legend()`를 사용하여 `title` 매개변수에 적절한 제목을 설정하고 이 제목을 붙여줄 미적요소에 할당한다.
 
 ```{r}
+## legend_line 객체에서
 legend_line +
+  ## 범례제목을 guides()의 guide_legend()를 사용하여 설정
   guides(color = guide_legend(title = '학교급'), 
          shape = guide_legend(title = '학교급'), 
          linetype = guide_legend(title = '학교급'))
@@ -1977,17 +2140,19 @@ legend_line +
 
 ##### 범례 제목 꾸미기
 
-범례 제목을 보기좋게 꾸미기 위해서는 `theme()`을 사용하거나 `guide()`를 사용할 수 있다. 이 중 `theme()`을 사용하여 꾸미는 방법은 다음과 같다. 
+범례 제목을 보기좋게 꾸미기 위해서는 `theme()`을 사용하거나 `guide()`를 사용할 수 있다. 이 중 `theme()`을 사용하여 꾸미는 방법은 다음과 같다.
 
 ```{r}
+## legend_line 객체에서
 legend_line +
+  ## 범례제목을 scale_*_discrete()의 name를 사용하여 설정
   scale_color_discrete(name = '학교급') +
   scale_shape_discrete(name = '학교급') +
   scale_linetype_discrete(name = '학교급') +
+  ## theme()의 legend.title을 element_text()로 세부 특성 설정
   theme(legend.title = element_text(size = 10, face = 'bold', hjust = 0.5, color = 'red'))
 
 ```
-
 
 #### 범례 라벨
 
@@ -1996,79 +2161,92 @@ legend_line +
 `scale_*()`에 `labels`을 사용할 때는 각각의 미적요소의 `scale_*()`의 `labels` 매개변수에 각각의 라벨에 대응되는 문자열 벡터를 설정함으로서 설정이 가능하다.
 
 ```{r}
+## legend_line 객체에서
 legend_line +
+  ## scale_*_discrete()의 labels를 사용하여 각각의 범례 라벨을 설정
   scale_color_discrete(name = '학교급', labels = c('박사(명)', '석사(명)', '일반대학(명)', '전문대학(명)')) +
   scale_shape_discrete(name = '학교급', labels = c('박사(명)', '석사(명)', '일반대학(명)', '전문대학(명)')) +
   scale_linetype_discrete(name = '학교급', labels = c('박사(명)', '석사(명)', '일반대학(명)', '전문대학(명)'))
 
 ```
 
-사실 위의 코드는 원칙적으로 `breaks`를 같이 써야한다. 하지만 color, shape, linetype으로 매핑된 변량을 그대로 사용하기 때문에 생략한 것이다. 만약 이 중 일부를 삭제하기 위해서는 `breaks`에서 제거하고 이에 대칭되도록 라벨을 설정해 주면 가능하다. 
+사실 위의 코드는 원칙적으로 `breaks`를 같이 써야한다. 하지만 color, shape, linetype으로 매핑된 변량을 그대로 사용하기 때문에 생략한 것이다. 만약 이 중 일부를 삭제하기 위해서는 `breaks`에서 제거하고 이에 대칭되도록 라벨을 설정해 주면 가능하다.
 
 ```{r}
+## legend_line 객체에서
 legend_line +
+  ## scale_*_discrete()의 breaks와 labels를 사용하여 각각의 범례 라벨을 설정
   scale_color_discrete(name = '학교급', breaks = c('일반대학', '전문대학'),  labels = c('일반대학(명)', '전문대학(명)')) +
   scale_shape_discrete(name = '학교급', breaks = c('일반대학', '전문대학'),  labels = c('일반대학(명)', '전문대학(명)')) +
   scale_linetype_discrete(name = '학교급', breaks = c('일반대학', '전문대학'),  labels = c('일반대학(명)', '전문대학(명)'))
 
 ```
 
-하나 주의해야 할 것은 `breaks`에 설정하는 값은 미적요소에 매핑된 열의 변량과 정확히 같은 값들이어야 한다는 점이다. 정확히 같지 않은 값을 사용하면 생각지도 않게 범례에서 사라지게 되어 아래와 같이 나타난다. 
+하나 주의해야 할 것은 `breaks`에 설정하는 값은 미적요소에 매핑된 열의 변량과 정확히 같은 값들이어야 한다는 점이다. 정확히 같지 않은 값을 사용하면 생각지도 않게 범례에서 사라지게 되어 아래와 같이 나타난다.
 
 ```{r}
+## legend_line 객체에서
 legend_line +
+  ## scale_*_discrete()의 breaks를 사용하여 각각의 범례 라벨을 설정하지만 일부 데이터는 미스매칭
   scale_color_discrete(name = '학교급', breaks = c('전문대', '일반대', '석사', '박사')) +
   scale_shape_discrete(name = '학교급', breaks = c('전문대', '일반대', '석사', '박사')) +
   scale_linetype_discrete(name = '학교급', breaks = c('전문대', '일반대', '석사', '박사'))
 
 ```
 
-위의 코드에서 보면 '석사'와 '박사'는 미적요소에 매핑된 학교종류 열의 변량값에 포함된 값이지만 '전문대'와 '일반대'는 정확한 값이 아니기 때문에 범례에 표시되지 않았다. 
+위의 코드에서 보면 '석사'와 '박사'는 미적요소에 매핑된 학교종류 열의 변량값에 포함된 값이지만 '전문대'와 '일반대'는 정확한 값이 아니기 때문에 범례에 표시되지 않았다.
 
-`breaks`를 사용해 몇개를 삭제할 수 있다는 것은 `breaks`를 통해 범례 아이템의 순서도 바꿀 수 있다는 것을 의미한다. 사실 우리가 대학의 순서를 말할 때는 보통
-'전문대학', '일반대학', '석사', '박사'의 순서이다. 이와 같은 순서로 범례의 순서를 설정하는 코드는 다음과 같다. 
+`breaks`를 사용해 몇개를 삭제할 수 있다는 것은 `breaks`를 통해 범례 아이템의 순서도 바꿀 수 있다는 것을 의미한다. 사실 우리가 대학의 순서를 말할 때는 보통 '전문대학', '일반대학', '석사', '박사'의 순서이다. 이와 같은 순서로 범례의 순서를 설정하는 코드는 다음과 같다.
 
 ```{r}
+## legend_line 객체에서
 legend_line +
-  scale_color_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  ## scale_*_discrete()의 breaks를 사용하여 각각의 범례 라벨을 설정하지만 순서를 지정
+   scale_color_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
   scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
   scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'))
 
 ```
 
-위의 코드에서는 라벨을 따로 설정하지 않았다. 이 이유는 라벨을 따로 설정하지 않는 경우 `breaks`에 설정된 이름을 그대로 사용하기 때문이다. 
+위의 코드에서는 라벨을 따로 설정하지 않았다. 이 이유는 라벨을 따로 설정하지 않는 경우 `breaks`에 설정된 이름을 그대로 사용하기 때문이다.
 
-위의 그래프에서 범례 라벨의 수평이 맞지 않는다. 이를 맞추기 위해서는 `hjust` 매개면수를 사용하여 중간으로 맞추어 준다. `scale_*()`의 `guide`를 사용하는 방법은 다음과 같다. 
+위의 그래프에서 범례 라벨의 수평이 맞지 않는다. 이를 맞추기 위해서는 `hjust` 매개면수를 사용하여 중간으로 맞추어 준다. `scale_*()`의 `guide`를 사용하는 방법은 다음과 같다.
 
 ```{r}
+## legend_line 객체에서
 legend_line +
+  ## scale_*_discrete()의 guide에 guide_legend()를 사용하여 세부 특성 설정
   scale_color_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), guide = guide_legend(label.hjust = 0.5)) +
   scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), guide = guide_legend(label.hjust = 0.5)) +
   scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사'), guide = guide_legend(label.hjust = 0.5))
 
 ```
 
-이를 `theme()`을 사용하면 다음과 같이 코딩할 수 있다. 
+이를 `theme()`을 사용하면 다음과 같이 코딩할 수 있다.
 
 ```{r}
+## legend_line 객체에서
 legend_line +
   scale_color_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
   scale_shape_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
   scale_linetype_discrete(name = '학교급', breaks = c('전문대학', '일반대학', '석사', '박사')) +
+  ## theme()의 legend.text.align를 사용하여 세부 특성 설정
   theme(legend.text.align = 0.5)
 
 ```
 
 #### 범례 키
 
-범례의 키는 범례에서 실제 표현되는 미적요소의 모형을 보여주는 부분을 말한다. `ggplot`에서 제공하는 범례 키의 형태는 리스트 형태의 키와 컬러바 형태의 키의 두가지이다. 
+범례의 키는 범례에서 실제 표현되는 미적요소의 모형을 보여주는 부분을 말한다. `ggplot`에서 제공하는 범례 키의 형태는 리스트 형태의 키와 컬러바 형태의 키의 두가지이다.
 
 ##### 개별 범례 키
 
-범례 키가 각각 구분된 미적요소의 모형을 보여주는 형태의 범례 키 구성을 말한다. 개별 범례 키는 매핑된 기하요소 레이어에 의해 생성되고 `guide_legend()`를 사용해서 세부 설정을 변경할 수 있다. 
+범례 키가 각각 구분된 미적요소의 모형을 보여주는 형태의 범례 키 구성을 말한다. 개별 범례 키는 매핑된 기하요소 레이어에 의해 생성되고 `guide_legend()`를 사용해서 세부 설정을 변경할 수 있다.
 
 ```{r}
+## legend_line 객체에서
 legend_line +
+  ## scale_*_discrete()의 guide에 guide_legend()를 사용하여 범례 키 세부 특성 설정
   scale_color_discrete(name = '학교급', 
                        breaks = c('전문대학', '일반대학', '석사', '박사'), 
                        guide = guide_legend(keywidth = 3, nrow = 2)) +
@@ -2080,7 +2258,7 @@ legend_line +
 
 ##### 컬러바 범례 키
 
-컬러바 형태의 키는 앞서 사용했던 `guide_legend()`를 사용하지만 컬러바 형태의 범례 키는 연속형 데이터에서 사용하며 `guide_colorbar()`로 설정한다. 
+컬러바 형태의 키는 앞서 사용했던 `guide_legend()`를 사용하지만 컬러바 형태의 범례 키는 연속형 데이터에서 사용하며 `guide_colorbar()`로 설정한다.
 
 ```{r eval=FALSE}
 guide_colorbar(title = waiver(), title.position = NULL, title.theme = NULL, title.hjust = NULL, title.vjust = NULL, label = TRUE, label.position = NULL, label.theme = NULL, label.hjust = NULL, label.vjust = NULL, barwidth = NULL, barheight = NULL, nbin = 300, frame.colour = NULL, frame.linewidth = 0.5, frame.linetype = 1, ticks = TRUE, ticks.colour = "white", ticks.linewidth = 0.5, draw.ulim = TRUE, draw.llim = TRUE, direction = NULL, default.unit = "line", reverse = FALSE, ...)
@@ -2095,42 +2273,35 @@ guide_colorbar(title = waiver(), title.position = NULL, title.theme = NULL, titl
 
 ```
 
-앞선 절의 선 그래프를 다음과 같이 바꾸면 컬러바 형태의 범례 키가 나타난다. 
+앞선 절의 선 그래프의 `geom_point()`레이어의 색 매핑을 다음과 같이 바꾸면 컬러바 형태의 범례 키가 나타난다.
 
 ```{r}
 legend_colorbar <- df_입학자_long |> 
   filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '석사', '박사')) |>
   ggplot(aes(x = 연도)) +
-  geom_line(aes(y = 입학생수, 
-                group = 학교종류, 
-                linetype = 학교종류)) +
-  geom_point(aes(y = 입학생수, 
-                 color = 입학생수), 
-             size = 5) + 
+  geom_line(aes(y = 입학생수, group = 학교종류, linetype = 학교종류)) +
+  ## color가 입학생수로 매핑된 geom_point 레이어 생성
+  geom_point(aes(y = 입학생수, color = 입학생수), size = 5) + 
   scale_y_continuous(labels = scales::comma) + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
 
 legend_colorbar
 ```
 
-위의 `ggplot`에서 컬러바에 표시되는 라벨이 지수형태로 되어 있어 알아보기가 어렵다. 이를 천단위 콤마가 표시된 숫자형태로 나타내려면 앞에서 사용했던 `scales::comma`를 사용한다. 또 단계가 세개 뿐인데 만약 이를 늘이거나 줄이려면 `breaks`를 사용한다. 또 컬러바의 세부 모양을 설정하려면 `guide_colorbar()`를 사용한다. 
+위의 `ggplot`에서 컬러바에 표시되는 라벨이 지수형태로 되어 있어 알아보기가 어렵다. 이를 천단위 콤마가 표시된 숫자형태로 나타내려면 앞에서 사용했던 `scales::comma`를 사용한다. 또 단계가 세개 뿐인데 만약 이를 늘이거나 줄이려면 `breaks`를 사용한다. 또 컬러바의 세부 모양을 설정하려면 `guide_colorbar()`를 사용한다.
 
 ```{r}
 legend_colorbar + 
-  scale_color_continuous(labels = scales::comma, 
-                         breaks = c(50000, 100000, 150000, 200000, 250000, 300000, 350000), 
-                         guide = guide_colorbar(label.hjust = 0.5, 
-                                                frame.colour = 'blue', 
-                                                frame.linewidth = 2, 
-                                                ticks = FALSE, 
-                                                reverse = TRUE))
+  scale_color_continuous(labels = scales::comma, breaks = c(50000, 100000, 150000, 200000, 250000, 300000, 350000), 
+  ## guide_colorbar()를 사용하여 컬러바 세부 특성 설정
+                         guide = guide_colorbar(label.hjust = 0.5, frame.colour = 'blue', frame.linewidth = 2, ticks = FALSE, reverse = TRUE))
 ```
 
 #### 범례 위치
 
 범례의 위치는 범례의 위치는 기본적으로 좌측에 위치한다. 이를 바꾸기 위해서는 `theme()`의 `legend.position` 매개변수에 범례 위치를 설정하는 키워드를 설정하여 바꿀 수 있다.
 
-범례 위치를 설정하는 키워드는 'right', 'left', 'top', 'bottom'의 네가지이다. 
+범례 위치를 설정하는 키워드는 'right', 'left', 'top', 'bottom'의 네가지이다.
 
 ```{r}
 legend_line +
@@ -2142,13 +2313,14 @@ legend_line +
   scale_linetype_discrete(name = '학교급', 
                           breaks = c('전문대학', '일반대학', '석사', '박사')) +
   theme(legend.text.align = 0.5, 
+  ## theme()의  legend.position을 사용하여 범례 위치 설정
         legend.position = 'bottom')
 
 ```
 
 #### 범례 제거
 
-범례를 없애기를 원할 경우에는 앞선 위치 설정 방법과 동일한데 `theme()`의 `legend.position` 매개변수에 ’none’을 설정하면 범례가 없어진다.
+범례를 없애기를 원할 경우에는 앞선 위치 설정 방법과 동일한데 `theme()`의 `legend.position` 매개변수에 'none'을 설정하면 범례가 없어진다.
 
 ```{r}
 legend_line +
@@ -2160,12 +2332,14 @@ legend_line +
   scale_linetype_discrete(name = '학교급', 
                           breaks = c('전문대학', '일반대학', '석사', '박사')) +
   theme(legend.text.align = 0.5, 
+  ## theme()의  legend.position을 사용하여 범례 제거
         legend.position = 'none')
 
 ```
 
 #### 범례 정렬
-범례의 위치는 `theme()`의 `legend.position`으로 설정할 수 있는데 기본적으로 각각 사이드의 중간에 정렬된다. 설정된 사이드내에서 위쪽이나 아래쪽, 혹은 오른쪽이나 왼쪽에 위치하게 설정하기 위해서는 `legend.justification` 매개변수에 아래의 키워드를 설정함으로써 위치를 설정 할 수 있다. 범례 정렬을 위해 제공되는 키워드는 'right', 'left', 'top', 'bottom'의 네가지가 있다. 
+
+범례의 위치는 `theme()`의 `legend.position`으로 설정할 수 있는데 기본적으로 각각 사이드의 중간에 정렬된다. 설정된 사이드내에서 위쪽이나 아래쪽, 혹은 오른쪽이나 왼쪽에 위치하게 설정하기 위해서는 `legend.justification` 매개변수에 아래의 키워드를 설정함으로써 위치를 설정 할 수 있다. 범례 정렬을 위해 제공되는 키워드는 'right', 'left', 'top', 'bottom'의 네가지가 있다.
 
 ```{r}
 legend_line +
@@ -2178,13 +2352,14 @@ legend_line +
                           breaks = c('전문대학', '일반대학', '석사', '박사')) +
   theme(legend.text.align = 0.5, 
         legend.position = 'bottom', 
+  ## theme()의  legend.justification을 사용하여 범례 정렬 설정
         legend.justification = 'right')
 
 ```
 
 #### 범례 방향
 
-위의 범례를 보면 왼쪽과 오른쪽에 위치한 범례는 모두 세로 방향으로 범례가 표현되고 위쪽과 아래쪽에 위치한 범례는 모두 가로 방향으로 범례가 표현된다. 만약 왼쪽과 오른쪽에 위치한 범례를 가로방향으로 설정하거나 위쪽과 아래쪽에 위치한 범례를 세로방향으로 설정하기 위해서는 `theme()`의 `legend.direction` 매개변수에 ‘horizontal’(가로방향) 혹은 ‘vertical’(세로방향)을 설정하여 범례 방향을 바꿀 수 있다.
+위의 범례를 보면 왼쪽과 오른쪽에 위치한 범례는 모두 세로 방향으로 범례가 표현되고 위쪽과 아래쪽에 위치한 범례는 모두 가로 방향으로 범례가 표현된다. 만약 왼쪽과 오른쪽에 위치한 범례를 가로방향으로 설정하거나 위쪽과 아래쪽에 위치한 범례를 세로방향으로 설정하기 위해서는 `theme()`의 `legend.direction` 매개변수에 'horizontal'(가로방향) 혹은 'vertical'(세로방향)을 설정하여 범례 방향을 바꿀 수 있다.
 
 ```{r}
 legend_line +
@@ -2197,6 +2372,7 @@ legend_line +
                           breaks = c('전문대학', '일반대학', '석사', '박사')) +
   theme(legend.text.align = 0.5, 
         legend.position = 'bottom', 
+  ## theme()의  legend.direction을 사용하여 범례 방향 설정
         legend.direction = 'vertical')
 
 ```
@@ -2217,12 +2393,14 @@ legend_line +
                           breaks = c('전문대학', '일반대학', '석사', '박사'), 
                           guide = guide_legend(keywidth = 3)) +
   theme(legend.text.align = 0.5, 
+  ## theme()의  legend.background을 사용하여 범례 배경 설정
         legend.background = element_rect(fill = 'skyblue'), 
+  ## theme()의  legend.key을 사용하여 범례 키의 배경색 설정
         legend.key = element_rect(fill = 'transparent'))
 
 ```
 
-위의 코드에서 하나 추가한 것은 `legend.key = element_rect(fill = 'transparent'`부분이다. 이 코드는 범례 키의 배경을 투명하게 설정한 것로 이를 설정하지 않으면 어색하게 보여 설정하였다. 
+위의 코드에서 하나 추가한 것은 `legend.key = element_rect(fill = 'transparent'`부분이다. 이 코드는 범례 키의 배경을 투명하게 설정한 것로 이를 설정하지 않으면 어색하게 보여 설정하였다.
 
 #### 범례 테두리
 
@@ -2239,10 +2417,10 @@ legend_line +
   scale_linetype_discrete(name = '학교급', 
                           breaks = c('전문대학', '일반대학', '석사', '박사'), 
                           guide = guide_legend(keywidth = 3)) +
+  ## theme()을 사용하여 legend.text.align를 설정
   theme(legend.text.align = 0.5, 
-        legend.background = element_rect(fill = 'skyblue', 
-                                         color = 'blue', 
-                                         size = 1), 
+  ## theme()의  legend.background을 사용하여 범례 배경 설정
+        legend.background = element_rect(fill = 'skyblue', color = 'blue', size = 1), 
         legend.key = element_rect(fill = 'transparent'))
 
 ```
@@ -2263,21 +2441,20 @@ legend_line +
                           breaks = c('전문대학', '일반대학', '석사', '박사'), 
                           guide = guide_legend(keywidth = 3)) +
   theme(legend.text.align = 0.5, 
-        legend.background = element_rect(fill = 'skyblue', 
-                                         color = 'blue', 
-                                         size = 1), 
+        legend.background = element_rect(fill = 'skyblue', color = 'blue', size = 1), 
         legend.key = element_rect(fill = 'transparent'), 
+        ## legend.margin를 margin()를 사용하여 세부 특성 설정
         legend.margin = margin(0,10,10,0))
 
 ```
 
 ## 축(Axis)
 
-`ggplot`에서는 3차원을 지원하지 않기 때문에 X축과 Y축으로 축이 제공된다. 앞 절의 스케일에서 일부 설명하였지만 X축과 Y축을 제어하기 위해서는 `scale_x_*()`, `scale_y_*()`와 `theme()`를 사용한다. 우선 축을 구성하는 요소부터 살펴보도록 하자. 
+`ggplot`에서는 3차원을 지원하지 않기 때문에 X축과 Y축으로 축이 제공된다. 앞 절의 스케일에서 일부 설명하였지만 X축과 Y축을 제어하기 위해서는 `scale_x_*()`, `scale_y_*()`와 `theme()`를 사용한다. 우선 축을 구성하는 요소부터 살펴보도록 하자.
 
 ![](axis.png)
 
-축을 구성하는 요소는 축 제목(title, name), 축 눈금자(tick), 축 라벨(labels, text), 축 눈금(breaks) 등으로 구성되어 있다. 이 중 `scale_*()`의 매개변수로 사용되는 것은 `name`, `labels`, `breaks`이고 `theme()`의 매개변수로 사용되는 것은 title, text, ticks, line으로 접두사로 'axis'를 사용하고 세부 설정을 위해 'x', 'y', 'length' 등을 '.'을 사용해 붙여 설정할 수 있다. 축을 설정하는 `scale_*()`의 사용법과 주요 매개변수는 다음과 같다.  
+축을 구성하는 요소는 축 제목(title, name), 축 눈금자(tick), 축 라벨(labels, text), 축 눈금(breaks) 등으로 구성되어 있다. 이 중 `scale_*()`의 매개변수로 사용되는 것은 `name`, `labels`, `breaks`이고 `theme()`의 매개변수로 사용되는 것은 title, text, ticks, line으로 접두사로 'axis'를 사용하고 세부 설정을 위해 'x', 'y', 'length' 등을 '.'을 사용해 붙여 설정할 수 있다. 축을 설정하는 `scale_*()`의 사용법과 주요 매개변수는 다음과 같다.
 
 ```{r eval=FALSE}
 scale_x_discrete(scale_*_*() 매개변수, expand = waiver(), position = "bottom")
@@ -2299,7 +2476,7 @@ scale_x_continuous(scale_*_*() 매개변수, minor_breaks = waiver(), n.breaks =
 
 ```
 
-또 `theme()`에서 설정 가능한 축의 매개변수는 다음과 같다. 
+또 `theme()`에서 설정 가능한 축의 매개변수는 다음과 같다.
 
 ```{r eval=FALSE}
 theme(axis.title, axis.title.x, axis.title.x.top, axis.title.x.bottom,   axis.title.y, axis.title.y.left, axis.title.y.right, axis.text, axis.text.x, axis.text.x.top, axis.text.x.bottom, axis.text.y, axis.text.y.left, axis.text.y.right, axis.ticks, axis.ticks.x, axis.ticks.x.top, axis.ticks.x.bottom, axis.ticks.y, axis.ticks.y.left, axis.ticks.y.right,  axis.ticks.length, axis.ticks.length.x, axis.ticks.length.x.top, axis.ticks.length.x.bottom, axis.ticks.length.y, axis.ticks.length.y.left, axis.ticks.length.y.right, axis.line, axis.line.x, axis.line.x.top, axis.line.x.bottom, axis.line.y, axis.line.y.left, axis.line.y.right, ...)
@@ -2311,29 +2488,29 @@ theme(axis.title, axis.title.x, axis.title.x.top, axis.title.x.bottom,   axis.ti
 
 ```
 
-
 ### 축 제목 특성 설정
 
-축 제목은 앞선 스케일에서 언급한 바와 같이 `labs()`, `xlab()`, `ylab()`을 사용하여 설정이 가능하다. 또 `scale_*()`의 `name`을 사용하여 설정하는 것도 가능하고 축 제목의 특성은 `theme()`을 사용하여 설정이 가능하다. 
+축 제목은 앞선 스케일에서 언급한 바와 같이 `labs()`, `xlab()`, `ylab()`을 사용하여 설정이 가능하다. 또 `scale_*()`의 `name`을 사용하여 설정하는 것도 가능하고 축 제목의 특성은 `theme()`을 사용하여 설정이 가능하다.
 
 ```{r}
 legend_line + 
-  theme(axis.title = element_text(color = 'blue', 
-                                  size = 15), 
-        axis.title.y = element_text(color = 'darkgreen', 
-                                    size = 10, 
-                                    angle = -90, 
-                                    margin = margin(0,10,0,0)))
+  ## axis.ticks.x를 설정하는데 element_line()을 사용하여 세부 특성 설정
+  theme(axis.title = element_text(color = 'blue', size = 15), 
+  ## axis.ticks.y를 설정하는데 element_line()을 사용하여 세부 특성 설정
+        axis.title.y = element_text(color = 'darkgreen', size = 10, angle = -90, margin = margin(0,10,0,0)))
 ```
 
 ### 축 눈금자(tick) 특성 설정
 
-축의 눈금자는 기본적으로 축의 라벨이 표기되는 곳에 짧은 선으로 표기된다. 선으로 표기되기 때문에 눈금자를 설정하기 위해서는 `element_line()`을 사용하여 세부 특성 값을 설정할 수 있다. 다만 길이를 표현하는 매개변수는 `unit()`을 사용하여 길이를 설정한다. 
+축의 눈금자는 기본적으로 축의 라벨이 표기되는 곳에 짧은 선으로 표기된다. 선으로 표기되기 때문에 눈금자를 설정하기 위해서는 `element_line()`을 사용하여 세부 특성 값을 설정할 수 있다. 다만 길이를 표현하는 매개변수는 `unit()`을 사용하여 길이를 설정한다.
 
 ```{r}
 legend_line +
+  ## axis.ticks.x를 설정하는데 element_line()을 사용하여 세부 특성 설정
   theme(axis.ticks.x = element_line(color = 'red', size = 2), 
+  ## axis.ticks.y를 설정하는데 element_line()을 사용하여 세부 특성 설정
         axis.ticks.y = element_line(color = 'green', size = 1), 
+  ## axis.ticks.length를 설정하는데 element_line()을 사용하여 세부 특성 설정
         axis.ticks.length = unit(0.25, 'cm')
         )
 
@@ -2341,11 +2518,13 @@ legend_line +
 
 ### 축 라벨(label, text) 특성 설정
 
-축의 라벨은 축에서 주요 눈금들이 표기되는 곳의 값을 표기하는 문자열이다. 이 축 라벨은 `scale_*()`에서는 `labels` 매개변수를 사용해서 라벨을 개별적으로 설정할 수 있다. 하지만 이에 대한 특성을 설정하는 `theme()`에서는 `labels` 애신 `text`가 들어간 매개변수를 사용하여 설정한다. 축 라벨은 문자열이기 때문에 `element_text()`를 사용하여 세부 특성 값을 설정한다. 
+축의 라벨은 축에서 주요 눈금들이 표기되는 곳의 값을 표기하는 문자열이다. 이 축 라벨은 `scale_*()`에서는 `labels` 매개변수를 사용해서 라벨을 개별적으로 설정할 수 있다. 하지만 이에 대한 특성을 설정하는 `theme()`에서는 `labels` 애신 `text`가 들어간 매개변수를 사용하여 설정한다. 축 라벨은 문자열이기 때문에 `element_text()`를 사용하여 세부 특성 값을 설정한다.
 
 ```{r}
 legend_line +
+  ## axis.text.x를 설정하는데 element_text()을 사용하여 세부 특성 설정
   theme(axis.text.x = element_text(color = 'red', size = 10, face = 'bold'), 
+  ## axis.text.y를 설정하는데 element_text()을 사용하여 세부 특성 설정
         axis.text.y = element_text(color = 'darkgreen', size = 10, vjust = 1)
         )
 
@@ -2353,20 +2532,91 @@ legend_line +
 
 ### 축 선(line) 특성 설정
 
-축 선은 X축과 Y축의 눈금자가 위치하는 선을 의미한다. 이 선을 구분하여 데이터가 표시되는 곳과 표시되지 않는 곳이 구분된다. `ggplot`은 이 축 선을 따로 설정하지 않으면 기본값으로는 표현되지 않는다. 따라서 이 선은 `theme()`을 사용하여 설정해야 보여진다. 축 선은 선(line)으로 표현되기 때문에 `element_line()`을 사용하여 세부 특성 값을 설정한다. 
+축 선은 X축과 Y축의 눈금자가 위치하는 선을 의미한다. 이 선을 구분하여 데이터가 표시되는 곳과 표시되지 않는 곳이 구분된다. `ggplot`은 이 축 선을 따로 설정하지 않으면 기본값으로는 표현되지 않는다. 따라서 이 선은 `theme()`을 사용하여 설정해야 보여진다. 축 선은 선(line)으로 표현되기 때문에 `element_line()`을 사용하여 세부 특성 값을 설정한다.
 
 ```{r}
 legend_line +
+  ## axis.line.x를 설정하는데 element_line()을 사용하여 세부 특성 설정
   theme(axis.line.x = element_line(color = 'red', arrow = arrow()), 
-        axis.line.y = element_line(color = 'darkgreen', linetype = 2, arrow = arrow())
-        )
+  ## axis.line.y를 설정하는데 element_line()을 사용하여 세부 특성 설정
+        axis.line.y = element_line(color = 'darkgreen', linetype = 2, 
+                                   arrow = arrow()))
 
 ```
 
+### 축 범위(limit) 설정
 
+축에 표현되는 최소값과 최대값의 설정은 `ggplot`에서 X축과 Y축으로 매핑된 데이터에 따라 자동적으로 결정된다. 데이터를 가장 잘 표현할 수 있는 범위로 자동적으로 설정된다. 이 최소값과 최대값의 범위를 어떻게 설정하느냐에 따라 시각화의 전반적인 형태가 달라지게 된다. 최소값과 최대값의 범위를 좁게 설정하면 줌인(Zoom-in)과 같은 효과를 낼 수 있지만 상대적인 데이터의 왜곡이 올 수 있고 최소값과 최대값의 범위를 넓게하면 줌아웃(Zoom-out)의 효과를 낼 수 있지만 미세한 데이터의 비교는 상대적으로 어려워진다. 따라서 축의 범위를 잘 설정할 필요가 있다.
 
+축의 범위 설정에는 `scale_x_*()`와 `scale_y_()`의 `limits`매개변수에 최소값과 최대값을 가지는 벡터를 사용하여 설정할 수 있다. 축의 범위를 설정하는 헬퍼함수도 제공되는데 `lims()`, `xlim()`, `ylim()`을 사용할 수도 있다.
 
+```{r}
+legend_line +
+  ## X축 범위를 2005부터 2015까지로 설정하는데 문자열 형태이기 때문에 as.character로 문자열으로 변환하여 사용
+  lims(x = c(as.character(2005:2015)), 
+  ## Y축 범위를 50000부터 300000까지로 설정
+       y = c(50000, 300000))
 
+```
 
+## 주석(Annotate)
 
+데이터를 시각화하는 `ggplot`객체에서는 기하요소를 사용하여 데이터를 각종 도형으로 표현한다. 하지만 그 시각화에서 중요하게 봐야할 부분의 강조나 데이터에 대한 세부 설명문들을 추가하면 데이터를 보는 독자들이 데이터를 이해하기가 쉬워진다. 이와 같이 데이터를 추가적으로 설명하기 위해 보조적으로 추가하는 레이어를 주석 레이어(annotate)라고 한다. 이 주석 레이어는 `annotate()`를 사용하여 생성할 수 있다.
 
+```{r eval=FALSE}
+annotate(geom, x = NULL, y = NULL, xmin = NULL, xmax = NULL, ymin = NULL, ymax = NULL, xend = NULL, yend = NULL, na.rm = FALSE, ...)
+  - geom : 주석으로 사용할 기하요소 설정
+  - x, y, xmin, xman, ymin, ymax, xend, yend : 기하요소 설정을 위한 위치 설정
+  - na.rm : 결측치를 제거할지 여부를 결정하는 논리 값
+
+```
+
+위의 `annotate()`에서 사용할 수 있는 기하요소인 `geom`은 다음과 같고 각각의 기하요소에 따라 설정가능한 위치 설정 매개변수가 달라진다.
+
++----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
+| 기하요소(geom) | 주요 매개변수                          | 미적요소                                                                                  |
++================+========================================+===========================================================================================+
+| text           | nudge_x, nudge_y, check_overlap        | x, y, label, alpha, angle, color, family, fontface, group, hjust, lineheight, size, vjust |
++----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
+| segment        | arrow, arrow.fill, lineend, linejoin   | x, y, xend, yend, alpha, color, group, fill, linetype, size                               |
++----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
+| rect           | linejoin                               | xmin, ymin, xmax, ymax, alpha, color, fill, linetype, size                                |
++----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
+| curve          | angle, ncp, arrow, arrow.fill, lineend | x, y, xend, yend, alpha, color, group, fill, linetype, size                               |
++----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
+
+앞 절의 무변수 기하요소를 사용하여 작성한 설명을 `annotate()`을 사용하여 코딩하면 다음과 같다.
+
+```{r}
+## df_입학자_long 데이터프레임에서 지역이 전체인 데이터만 필터링하고
+df_입학자_long |> filter(지역 == '전체') |>
+  ## ggplot 객체를 생성
+  ggplot() +
+  ## geom_line 레이어를 생성
+  geom_line(aes(x = 연도, y = 입학생수, group = 학교종류, color = 학교종류)) +
+  ## X축 2001, Y축 최저값부터 X축 2005, Y축 최대값까지의 rect형 주석 생성
+  annotate('rect', xmin = '2001', ymin = -Inf, xmax = '2005', ymax = Inf, 
+           fill = 'yellow', alpha = 0.25) +
+  ## X축 2012, Y축 최저값부터 X축 2017, Y축 최대값까지의 rect형 주석 생성
+  annotate('rect', xmin = '2012', ymin = -Inf, xmax = '2017', ymax = Inf, 
+           fill = 'green', alpha = 0.25) +
+  ## X축 최소값, Y축 70000부터 X축 최대값, Y축 130000까지의 rect형 주석 생성
+  annotate('rect', xmin = -Inf, ymin = 70000, xmax = Inf, ymax = 110000, 
+           fill = 'skyblue', alpha = 0.25) +
+  ## X축 2003, Y축 300000부터 X축 2006, Y축 300000까지의 segment형 주석 생성
+  annotate('segment', x = '2003', y = 300000, xend = '2006', yend = 300000, 
+           color = 'yellow', arrow = arrow(length = unit(0.25,'cm'), type = 'closed'), arrow.fill = 'yellow') + 
+  ## X축 2015, Y축 300000부터 X축 2018, Y축 300000까지의 segment형 주석 생성
+  annotate('segment', x = '2015', y = 300000, xend = '2018', yend = 300000, 
+           color = 'green', arrow = arrow(length = unit(0.25,'cm'), type = 'closed'), arrow.fill = 'green') + 
+  ## X축 2010, Y축 100000부터 X축 2010, Y축 130000까지의 segment형 주석 생성
+  annotate('segment', x = '2010', y = 100000, xend = '2010', yend = 130000, 
+           color = 'skyblue', arrow = arrow(length = unit(0.25,'cm'), type = 'closed'), arrow.fill = 'skyblue') + 
+  ## X축 2006, Y축 300000인 곳에 text형 주석 생성
+  annotate('text', x = '2006', y = 300000, label = '감소구간', hjust = -0.2) + 
+  ## X축 2018, Y축 300000인 곳에 text형 주석 생성
+  annotate('text', x = '2018', y = 300000, label = '감소구간', hjust = -0.2) + 
+  ## X축 2010, Y축 130000인 곳에 text형 주석 생성
+  annotate('text', x = '2010', y = 130000, label = '석사구간', vjust = -0.5)
+
+```
