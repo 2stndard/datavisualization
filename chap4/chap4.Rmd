@@ -25,11 +25,10 @@ showtext_auto()
 library(tidyverse)
 library(readxl)
 
-
 ```
 
 ```{r include=FALSE}
-df_취업통계 <- read_excel('C:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
+df_취업통계 <- read_excel('D:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
                      ## '학과별' 시트의 데이터를 불러오는데,
                      sheet = '학과별',
                      ## 앞의 13행을 제외하고
@@ -60,9 +59,9 @@ str(df_취업통계)
 
 아래의 그림은 1차원 표와 2차원 표의 예를 보이고 있다.
 
-![<https://docs.tibco.com/pub/spotfire/6.5.2/doc/html/images/cross_example_table.png>](cross_example_table.png)
+![<https://docs.tibco.com/pub/spotfire/6.5.2/doc/html/images/cross_example_table.png>](4-1.png)
 
-![<https://docs.tibco.com/pub/spotfire/6.5.2/doc/html/images/cross_example_cross_table.png>](cross_example_cross_table.png)
+![<https://docs.tibco.com/pub/spotfire/6.5.2/doc/html/images/cross_example_cross_table.png>](4-2.png)
 
 위의 그림에서 보면 1차원 표의 경우는 데이터를 설명하는 속성이 위쪽에만 설정되어 있다. 하지만 2차원 표의 경우는 데이터를 설명하는 속성이 위쪽과 왼쪽에 모두 설정되어 있다. 특정 칸의 데이터를 해석하기 위해서는 행과 열의 속성 정보를 모두 알아야 한다는 것이다.
 
@@ -70,7 +69,7 @@ str(df_취업통계)
 
 표의 구성 방법과 요소는 사용자가 표현하고 싶은 데이터와 형태에 따라 표현방식이 매우 다르기 때문에 어느 하나로 정의하기가 어렵다. 다음 그림은 논문의 작성에서 대표적으로 사용되는 미국 심리학회의 표 구성 가이드라인이다.
 
-![<https://libapps.s3.amazonaws.com/customers/836/qu/e1d262992c7ea1e2aa109305faf24d59.png>](apa.png)
+![<https://libapps.s3.amazonaws.com/customers/836/qu/e1d262992c7ea1e2aa109305faf24d59.png>](4-3.png)
 
 모든 표를 APA 가이드라인에 맞춰 그릴 수는 없겠지만 APA 가이드라인을 보면 표에 꼭 들어가야 할 몇가지 요소들을 알 수 있다.
 
@@ -94,13 +93,13 @@ str(df_취업통계)
 
 R에서 표를 만들기 위해 사용되는 패키지 중에 하나가 `gt` 패키지이다. `gt` 패키지는 표의 세부 구성들을 상세히 구분하고 이들을 구조적으로 조화롭게 구성시켜서 표를 만드는 다양한 함수와 매개 변수들을 제공한다. `gt` 패키지에서 사용하는 표의 세부 파트는 다음의 그림과 같다.
 
-![[https://gt.rstudio.com/reference/figures/gt_parts_of_a\\\\\\\_table.svg](https://gt.rstudio.com/reference/figures/gt_parts_of_a_table.svg){.uri}](gt_parts_of_a_table.svg)
+![<https://gt.rstudio.com/reference/figures/gt_parts_of_a_table.svg>](4-4.png)
 
 표의 구성을 보면 앞에서 살펴보았던 APA 가이드라인상의 표와 유사한 형태를 보인다. 이와 같이 표를 세부적인 파트로 구분하고 이들을 각각 설정함으로써 표를 만들 수 있다.
 
 `gt` 패키지에서 권장하는 표 생성 방식은 다음의 그림과 같다
 
-![<https://gt.rstudio.com/reference/figures/gt_workflow_diagram.svg>](gt_workflow_diagram.svg)
+![<https://gt.rstudio.com/reference/figures/gt_workflow_diagram.svg>](4-5.png)
 
 우선 표를 만들기 위한 기초 데이터를 생성해야 한다. `gt` 패키지로 생성되는 표는 `tidyverse` 방식을 준용하여 생성하는 것이 편하다. 따라서 `gt` 표를 생성하기 위해 만드는 기초 데이터도 `tidyverse` 의 `tibble` 이나 R의 기초 데이터 셋인 `data.frame` 으로 생성한다. 이렇게 생성된 기초 데이터 셋은 `gt` 객체로 변환되고 `gt` 패키지에서 제공되는 다양한 함수와 매개변수를 설정하여 사용자가 원하는 형태의 표로 만들게 된다. 마지막으로 이 표를 다른 문서에서 활용하기 위해 html, pdf 등의 문서로 변환하여 활용한다.
 
@@ -246,6 +245,11 @@ gt_table3
 ```
 
 ![](4-8.emf)
+
+## 표 헤드 수정
+
+표의 헤드는 표의 데이터가 표시되어 데이터 각 열의 이름이 표시되는 줄이다. 표 헤드는 한 줄로 표현이 가능하지만 유사한 열끼리 묶어 여러 행으로 표현하는 경우도 있다. 이 부분을 스패너(Spanner)라고 한다. 결국 표 헤드를 설정한다는 것은 각각의 열 이름을 설정하고 유사한 열끼리를 묶어 스패너를 설정하는 과정이다. 표 헤드를 설정하기 위해서는 다음과 같은 함수들이 사용된다. 
+
 
 
 ```{r}
@@ -396,17 +400,17 @@ gt_table9 <- gt_table8 |>
   tab_options(
     table.font.size = 12,
     ## 행 그룹 요약 행의 배경색 설정
-    summary_row.background.color = "deepskyblue3",
+    summary_row.background.color = "#009acd",
     ## 전체 요약 행의 배경색 설정
-    grand_summary_row.background.color = "deepskyblue4",
+    grand_summary_row.background.color = "#00688B",
     ## 구분(Stub) 행의 헤더 외곽선 스타일 설정
     stub.border.style = 'solid', 
     ## 구분(Stub) 행의 배경색 설정
-    stub.background.color = 'lightskyblue1',
+    stub.background.color = '#00BFFF',
     ## 행 그룹 이름 표현 셀 배경색 설정
-    row_group.background.color = 'aliceblue',
+    row_group.background.color = '#F0F8FF',
     ## 열 제목(Heading) 배경색 설정
-    heading.background.color = 'dodgerblue4',
+    heading.background.color = '#104E8B',
     ## 표 몸체(Body) 수평선 스타일 설정
     table_body.hlines.style = 'dashed', 
     ## 표 몸체(Body) 수직선 색깔 설정 
@@ -414,6 +418,29 @@ gt_table9 <- gt_table8 |>
     ## 표 몸체(BOdy) 수직선 스타일 설정
     table_body.vlines.style = 'dashed'
   )
+
+# gt_table9 <- gt_table8 |>
+#   tab_options(
+#     table.font.size = 12,
+#     ## 행 그룹 요약 행의 배경색 설정
+#     summary_row.background.color = "deepskyblue3",
+#     ## 전체 요약 행의 배경색 설정
+#     grand_summary_row.background.color = "deepskyblue4",
+#     ## 구분(Stub) 행의 헤더 외곽선 스타일 설정
+#     stub.border.style = 'solid', 
+#     ## 구분(Stub) 행의 배경색 설정
+#     stub.background.color = 'lightskyblue1',
+#     ## 행 그룹 이름 표현 셀 배경색 설정
+#     row_group.background.color = 'aliceblue',
+#     ## 열 제목(Heading) 배경색 설정
+#     heading.background.color = 'dodgerblue4',
+#     ## 표 몸체(Body) 수평선 스타일 설정
+#     table_body.hlines.style = 'dashed', 
+#     ## 표 몸체(Body) 수직선 색깔 설정 
+#     table_body.vlines.color = 'grey',
+#     ## 표 몸체(BOdy) 수직선 스타일 설정
+#     table_body.vlines.style = 'dashed'
+#   )
 
 
 gt_table9
@@ -650,4 +677,3 @@ gtextras_table5
 ```
 
 ![](4-24.emf)
-

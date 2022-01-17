@@ -2,14 +2,24 @@
 title: "R마크다운으로 한글 저장"
 output: 
   officedown::rdocx_document:
-    reference_docx: 'word-styles-reference-01.docx'
-    mapstyles:
-      Normal: ['First Paragraph']
+    reference_docx: bookdown.docx
+    plots:
+      style: Normal
+      align: center
+      fig.lp: 'fig:'
+      topcaption: false
+      caption:
+        style: Image Caption
+        pre: 'Figure '
+        sep: ': '
+        tnd: 0
+        tns: '-'
+        fp_text: !expr officer::fp_text_lite(bold = TRUE)
       
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 library(showtext)
 showtext_auto()
 ```
@@ -156,7 +166,7 @@ df.gt |>
   gt()
 ```
 
-```{r gt_preview, message=FALSE, warning=FALSE, eval=TRUE, echo = FALSE}
+```{r gt_preview, message=FALSE, warning=FALSE, echo = FALSE}
 library(gt)
 df.gt |> 
   gt() |>
@@ -172,7 +182,7 @@ gt.table1 <- df.gt |>
      groupname_col = '학위과정')
 ```
 
-```{r gt_preview1, message=FALSE, warning=FALSE, eval=TRUE, echo = FALSE}
+```{r gt_preview1, message=FALSE, warning=FALSE, echo = FALSE}
 gt.table1 <- df.gt |> 
   gt(rowname_col = '학제', 
      groupname_col = '학위과정') |>
@@ -207,7 +217,7 @@ gt.table2 <- gt.table1 |>
 
 ```
 
-```{r gt_preview2, message=FALSE, warning=FALSE, eval=TRUE, echo = FALSE}
+```{r gt_preview2, message=FALSE, warning=FALSE, echo = FALSE}
 gt.table2 <- gt.table1 |> 
   tab_header(title = '고등교육기관 데이터', subtitle = '2021년 전체 고등교육기관 대상') |>
   tab_options(table.font.size = 10)
@@ -237,7 +247,7 @@ gt.table3 <- gt.table2 |>
   tab_spanner(columns = 9:14, label = '평균')
 ```
 
-```{r gt_preview4, message=FALSE, warning=FALSE, eval=TRUE, echo = FALSE}
+```{r gt_preview4, message=FALSE, warning=FALSE, echo = FALSE}
 gt.table3 <- gt.table2 |> 
   tab_spanner(columns = 3:8, label = '합계') |>
   tab_spanner(columns = 9:14, label = '평균') |>
@@ -314,7 +324,7 @@ gt.table4 <- gt.table3 |>
   fmt_number(columns = 9:14, decimals = 1, use_seps = TRUE)
 ```
 
-```{r gt_preview3, message=FALSE, warning=FALSE, eval=TRUE, echo = FALSE}
+```{r gt_preview3, message=FALSE, warning=FALSE, echo = FALSE}
 gt.table4 <- gt.table3 |> 
   fmt_number(columns = 3:8, decimals = 0, use_seps = TRUE) |>
   fmt_number(columns = 9:14, decimals = 1, use_seps = TRUE) |>
@@ -384,7 +394,7 @@ gt.table5 <- gt.table4 |>
   )
 ```
 
-```{r gt_preview5, message=FALSE, warning=FALSE, eval=TRUE, echo = FALSE}
+```{r gt_preview5, message=FALSE, warning=FALSE, echo = FALSE}
 gt.table5 <- gt.table4 |> 
   cols_label(학제 = '학교종류', 
                학과수_전체_sum = '학과수', 
@@ -425,7 +435,7 @@ gt.table6 <- gt.table5 |>
   row_group_order(groups = c('전문대학과정', '대학과정', '대학원과정'))
 ```
 
-```{r gt_preview6, message=FALSE, warning=FALSE, eval=TRUE, echo = FALSE}
+```{r gt_preview6, message=FALSE, warning=FALSE, echo = FALSE}
 gt.table6 <- gt.table5 |> 
   row_group_order(
     groups = c('전문대학과정', '대학과정', '대학원과정')
@@ -529,7 +539,7 @@ gt.table7 <- gt.table6 |>
   )
 ```
 
-```{r gt_preview7, message=FALSE, warning=FALSE, eval=TRUE, echo = FALSE}
+```{r gt_preview7, message=FALSE, warning=FALSE, echo = FALSE}
 gt.table7 <- gt.table6 |> 
   summary_rows(
     groups = T,

@@ -1,6 +1,7 @@
 library(gt)
 library(tidyverse)
-df_취업통계 <- read_excel('C:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
+library(readxl)
+df_취업통계 <- read_excel('d:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
                       ## '학과별' 시트의 데이터를 불러오는데,
                       sheet = '학과별',
                       ## 앞의 13행을 제외하고
@@ -58,7 +59,7 @@ gt_table1 <- df_gt |> arrange(과정구분) |>
 
 gt_table1 %>%
   gtsave(
-    "4-6.pdf", expand = 10,
+    "4-6.pdf",
     path = 'C:/R/git/datavisualization/chap4/'
   )
 ##########################################################################
@@ -68,6 +69,12 @@ gt_table2 <- gt_table1 |>
 gt_table2 %>%
   gtsave(
     "4-7.pdf", expand = 10,
+    path = 'C:/R/git/datavisualization/chap4/'
+  )
+
+gt_table2 %>%
+  gtsave(
+    "4-7.pdf",
     path = 'C:/R/git/datavisualization/chap4/'
   )
 
@@ -239,6 +246,8 @@ gt_table8 %>%
   )
 ##########################################################################
 
+colors()
+
 gt_table9 <- gt_table8 |>
   tab_options(
     table.font.size = 12,
@@ -254,6 +263,29 @@ gt_table9 <- gt_table8 |>
     row_group.background.color = 'aliceblue',
     ## 열 제목(Heading) 배경색 설정
     heading.background.color = 'dodgerblue4',
+    ## 표 몸체(Body) 수평선 스타일 설정
+    table_body.hlines.style = 'dashed', 
+    ## 표 몸체(Body) 수직선 색깔 설정 
+    table_body.vlines.color = 'grey',
+    ## 표 몸체(BOdy) 수직선 스타일 설정
+    table_body.vlines.style = 'dashed'
+  )
+
+gt_table9 <- gt_table8 |>
+  tab_options(
+    table.font.size = 12,
+    ## 행 그룹 요약 행의 배경색 설정
+    summary_row.background.color = "#009acd",
+    ## 전체 요약 행의 배경색 설정
+    grand_summary_row.background.color = "#00688B",
+    ## 구분(Stub) 행의 헤더 외곽선 스타일 설정
+    stub.border.style = 'solid', 
+    ## 구분(Stub) 행의 배경색 설정
+    stub.background.color = '#00BFFF',
+    ## 행 그룹 이름 표현 셀 배경색 설정
+    row_group.background.color = '#F0F8FF',
+    ## 열 제목(Heading) 배경색 설정
+    heading.background.color = '#104E8B',
     ## 표 몸체(Body) 수평선 스타일 설정
     table_body.hlines.style = 'dashed', 
     ## 표 몸체(Body) 수직선 색깔 설정 

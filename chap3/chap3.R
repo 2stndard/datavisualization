@@ -4,6 +4,8 @@ showtext_auto()
 library(tidyverse)
 library(readxl)
 setwd('./chap3')
+
+remove.packages('bookdown')
 df_입학자 <- read_excel('2021_연도별 입학자수.xlsx', 
                      ## 'data' 시트의 데이터를 불러오는데,
                      sheet = 'Sheet0',
