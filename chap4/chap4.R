@@ -62,6 +62,19 @@ gt_table1 %>%
     "4-6.pdf",
     path = 'C:/R/git/datavisualization/chap4/'
   )
+
+gt_table1 %>%
+  gtsave(
+    "4-6.rtf",
+    path = 'C:/R/git/datavisualization/chap4/'
+  )
+
+gt_table1 %>%
+  gtsave(
+    "4-6.html",
+    path = 'C:/R/git/datavisualization/chap4/'
+  )
+
 ##########################################################################
 gt_table2 <- gt_table1 |>
   tab_header(title = '고등교육기관 취업통계', subtitle = '2021년 전체 고등교육기관 대상')
@@ -148,8 +161,7 @@ gt_table7 <- gt_table6 |>
       소계 = ~pull(df_gt_summary |> filter(대계열 == '인문계열') |> select(취업률))
       ),
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   ) |>
   summary_rows(
     groups = '사회계열',
@@ -158,8 +170,7 @@ gt_table7 <- gt_table6 |>
       소계 = ~pull(df_gt_summary |> filter(대계열 == '사회계열') |> select(취업률))
     ),
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   ) |>
   summary_rows(
     groups = '교육계열',
@@ -168,8 +179,7 @@ gt_table7 <- gt_table6 |>
       소계 = ~pull(df_gt_summary |> filter(대계열 == '교육계열') |> select(취업률))
     ),
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   ) |>
   summary_rows(
     groups = '자연계열',
@@ -178,8 +188,7 @@ gt_table7 <- gt_table6 |>
       소계 = ~pull(df_gt_summary |> filter(대계열 == '자연계열') |> select(취업률))
     ),
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   ) |>
   summary_rows(
     groups = '공학계열',
@@ -188,8 +197,7 @@ gt_table7 <- gt_table6 |>
       소계 = ~pull(df_gt_summary |> filter(대계열 == '공학계열') |> select(취업률))
     ),
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   ) |>
   summary_rows(
     groups = '의약계열',
@@ -198,8 +206,7 @@ gt_table7 <- gt_table6 |>
       소계 = ~pull(df_gt_summary |> filter(대계열 == '의약계열') |> select(취업률))
     ),
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   ) |>
   summary_rows(
     groups = '예체능계열',
@@ -208,8 +215,7 @@ gt_table7 <- gt_table6 |>
       소계 = ~pull(df_gt_summary |> filter(대계열 == '예체능계열') |> select(취업률))
     ),
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   )
 
 
@@ -235,8 +241,7 @@ gt_table8 <- gt_table7 |>
     fns = list(
       총계 = ~pull(df_gt_grand_summary |> select(취업률))), 
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   )
 
 gt_table8 %>%
@@ -548,4 +553,11 @@ gtextras_table5 %>%
     "4-24.pdf", expand = 10,
     path = 'C:/R/git/datavisualization/chap4/'
   )
+
+gtextras_table5 %>%
+  gtsave(
+    "4-24.html", 
+    path = 'C:/R/git/datavisualization/chap4/'
+  )
+
 ##########################################################################

@@ -177,7 +177,7 @@ gt(data, rowname_col = "rowname", groupname_col = dplyr::group_vars(data), ...)
 
 ```
 
-매개변수 없이 `gt()`만으로도 `gt` 객체가 생성된다. 하지만 행을 그루핑하여 행 그룹으로 사용할 `groupname_col`과 표의 스텁(Stub)으로 사용할 열인 `rowname_col`을 설정해주면 표의 전반적인 기본 형태를 볼 수 있기 때문에 가급적이면 `gt` 객체를 생성할 때 설정해 주는 것이 좋다.
+매개변수 없이 `gt()`만으로도 `gt` 객체가 생성된다. 이 경우는 앞서 설명한 1차원 표의 형태인 단순 표(simple table)의 형태이다. 하지만 2차원 표의 형태를 만들기 위해서는 행에 대한 이름(Stub)을 붙여주고 유사한 행들을 그루핑(row group)하여야 한다. 행 그룹으로 사용할 열은 `groupname_col`로, 표의 스텁(Stub)으로 사용할 열인 `rowname_col`을 설정해주면 표의 전반적인 기본 형태를 볼 수 있기 때문에 가급적이면 `gt` 객체를 생성할 때 설정해 주는 것이 좋다.
 
 ```{r}
 ## df_gt 데이터를 사용해 생성된 gt 객체를 gt_table1에 저장
@@ -225,7 +225,7 @@ gt_table2
 
 ```{r eval = FALSE}
 fmt_*(data, columns, rows = everything(), decimals = 2, sep_mark = ",", dec_mark = ".", use_seps = TRUE,  ...)
-  - data : 표에 사용할 데이터프레임이나 tibble
+  - data : 표에 사용할 gt 객체
   - columns : 포맷을 설정할 열 이름, `c()`를 사용하여 열 이름 벡터나 열 번호를 사용할 수 있고 헬퍼 함수인 `starts_with()`, `ends_with()`, `contains()`, `matches()`, `one_of()`, `num_range()`, `everything()`으로 열을 선택할 수 있음 
   - decimals : 소수점 아래 표기 자리수 설정
   - sep_mark : 천단위 구분자로 사용할 기호 설정
@@ -246,15 +246,45 @@ gt_table3
 
 ![](4-8.emf)
 
-## 표 헤드 수정
+## 표 헤드 설정
 
-표의 헤드는 표의 데이터가 표시되어 데이터 각 열의 이름이 표시되는 줄이다. 표 헤드는 한 줄로 표현이 가능하지만 유사한 열끼리 묶어 여러 행으로 표현하는 경우도 있다. 이 부분을 스패너(Spanner)라고 한다. 결국 표 헤드를 설정한다는 것은 각각의 열 이름을 설정하고 유사한 열끼리를 묶어 스패너를 설정하는 과정이다. 표 헤드를 설정하기 위해서는 다음과 같은 함수들이 사용된다. 
+표의 헤드는 표의 데이터가 표시되어 데이터 각 열의 이름이 표시되는 줄이다. 표 헤드는 한 줄로 표현이 가능하지만 유사한 열끼리 묶어 여러 행으로 표현하는 경우도 있다. 이 부분을 스패너(Spanner)라고 한다. 결국 표 헤드를 수정한다는 것은 각각의 열 이름이나 위치에 대한 수정, 유사한 열끼리를 묶는 스패너를 생성, 열을 묶어 하나의 열로 만드는 과정들이다. 표 헤드를 설정하기 위해 사용되는 주요 함수는 다음과 같다. [^2]
 
+[^2]: 각각의 함수에 대한 세부 사용법은 `gt` 패키지 매뉴얼(<https://gt.rstudio.com/reference/index.html>)을 참조하라.
 
+| 함수명               | 설명                  |
+|----------------------|-----------------------|
+| tab_spanner()        | 스패너 열을 생성      |
+| cols_align()         | 열의 정렬 수정        |
+| cols_width()         | 열의 너비 수정        |
+| cols_label()         | 열의 이름 수정        |
+| cols_move_to_start() | 열을 맨 앞으로 이동   |
+| cols_move_to_end()   | 열을 맨 뒤로 이동     |
+| cols_move()          | 열을 특정 위치로 이동 |
+| cols_hide()          | 열을 감춤             |
+| cols_unhide()        | 감춘 열을 보임        |
+| cols_merge()         | 열을 묶음(Merge)      |
+
+앞에서 만든 표는 `gt` 객체에 사용한 df_gt의 열 이름이 그대로 사용되어 헤드가 한줄로만 표현되었다. 이 중 교외 취업자, 교내 취업자 등 5열부터 11열까지는 취업자의 상세 내용이고 12열부터 18열까지는 비취업자의 상세 내용이기 때문에 이 두 부분을 각각 스패너로 묶어주면 좋을 듯 하다. 헤드의 스패너를 생성하기 위해서는 `tab_spanner()` 를 사용한다.
+
+```{r eval=FALSE}
+tab_spanner(data, label, columns, id = label, gather = TRUE)
+  - data : 표에 사용할 gt 객체
+  - label : 스패너 라벨
+  - columns : 스패너에 속할 열의 집합, 열 이름 벡터나 열 번호 벡터 가능
+  - id : 스패너의 ID
+  - gather : 스패너에 속한 열들을 모아줄 것인지를 결정하는 논리값
+  
+```
+
+`tab_spanner()`를 사용하여 스패너를 생성하는 코드는 다음과 같다. 
 
 ```{r}
+## gt_table3 객체에서
 gt_table4 <- gt_table3 |> 
+  ## 5열부터 11열까지 스패너로 묶어주는데 스페너 라벨은 '취업 상세'
   tab_spanner(columns = 5:11, label = '취업 상세') |>
+  ## 12열부터 18열까지 스패너로 묶어주는데 스페너 라벨은 '비취업 상세'
   tab_spanner(columns = 12:18, label = '비취업 상세') 
 
 gt_table4
@@ -262,19 +292,43 @@ gt_table4
 
 ![](4-9.emf)
 
+앞선 전처리 과정에서 '1인창(사)업자' 열은 열이름의 맨 앞이 숫자이고 특수문자가 들어가기 때문에 열이름을 '일인창사업자로' 설정했다. '1인창(사)업자'와 같이 숫자가 맨앞에 들어가는 열은 '\`'을 사용하여 접근이 가능하지만 여러모로 불편한점이 있다. 하지만 표에서의 표기는 원상태대로 해주겠다. `col_label()`을 이용하여 헤더에 표함된 열이름을 바꾸어 줄 수 있다. 
+
+```{r eval=FALSE}
+cols_label(.data, ...)
+  - data : 표에 사용할 gt 객체
+  - ... : 바꾸어줄 열의 이름과 바꿀 이름의 페어
+
+```
+
+
 ```{r}
 gt_table5 <- gt_table4 |> 
-  cols_label(일인창사업자 = '1인창(사)업자'
-  )
+  ## '일인창사업자'열이름을 '1인창(사)업자'로 변경
+  cols_label(일인창사업자 = '1인창(사)업자')
 
 gt_table5
 ```
 
 ![](4-10.emf)
 
+## 행 그룹 설정
+
+행 그룹은 열의 스패너와 비슷한 개념으로 유사한 행들을 묶어 표현할 수 있다. 행 그룹의 설정은 `gt()` 객체 생성시 `groupname_col`로 설정한 행끼리 묶어주는 행이 나타난다. 하지만 이 그룹들의 순서는 따로 설정되지 않았기 때문에 알파벳 순서(가나다 순)으로 정렬되었다. 이 부분을 사용자가 원하는 순서대로 설정하기 위해서는 `row_group_order()`를 사용한다. 
+
+```{r eval=FALSE}
+row_group_order(data, groups)
+  - data : 표에 사용할 gt 객체
+  - group : 행 그룹의 순서로 설정할 문자열 벡터
+
+```
+
+앞선 표의 행 그룹 순서를 설정하는 코드는 다음과 같다. 
+
 ```{r}
 gt_table6 <- gt_table5 |> 
   row_group_order(
+    ## 행 그룹의 정렬에 설정할 문자열 벡터 설정
     groups = c('인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')
   )
 
@@ -283,86 +337,116 @@ gt_table6
 
 ![](4-11.emf)
 
+## 요약 행 생성
+
+우리가 사용하는 많은 표들은 각 행 그룹이나 전체 표의 마지막에 소계, 총계, 평균과 같은 요약 행를 넣는 경우가 많다. `gt` 패키지는 각 행그룹과 전체 표의 요약행을 넣어주는 기능을 제공한다. 각 행그룹의 요약행을 넣는 함수는 `summary_rows()`이고 전체 요약행을 넣는 함수는 `grand_summary_rows()`이다. 
+
+```{r eval = FALSE}
+summary_rows(data, groups = NULL, columns = everything(), fns, missing_text = "---",formatter = fmt_number, ...)
+  - data : 표에 사용할 gt 객체
+  - groups : 요약행을 넣어줄 그룹 지정, 그룹명을 지정할 수도 있지만 TRUE를 지정하면 모든 행 그룹에 적용
+  - columns : 요약 함수를 적용할 열 지정
+  - fns : 요약에 사용할 함수, 일반적 요약 함수(mean, median, max, min 등)와 사용자 정의 함수 모두 가능
+  - missing_text : 누락치의 표현에 사용할 문자열
+  - formatter : 요약 행에 적용할 포맷 지정, fmt_*()를 사용할 수 있음
+
+```
+
+위의 표에서 합계를 요약 함수로 사용할 수 있는 열은 학생수가 표현되는 3열부터 18열까지이다. 이는 요약함수로 `sum()`을 사용하여 각각의 행 그룹에 대한 합계를 표현하는 행을 생성하는 코드는 아래와 같다. 또 19번째 열은 취업률인데 이 열은 합계나 평균으로 요약값을 제공하는 것은 정확하지도 쓸모가 있지도 않다. 따라서 이 요약행은 각 그룹에 따라 미리 계산된 값을 넣어주도록 하겠다.
+
 ```{r}
 gt_table7 <- gt_table6 |> 
+  ## 요약행을 만드는데
   summary_rows(
+    ## 모든 그룹에 요약행을 만듦
     groups = T,
+    ## 3번째부터 18번째까지 열을 대상으로 함
     columns = 3:18,
+    ## 요약함수로
     fns = list(
+      ## sum()함수를 사용하여 요약행 이름을 소계로 설정
       소계 = ~sum(.)),
-    formatter = fmt_number, 
+    ## 수치포맷으로 설정
+    formatter = fmt_number,
+    ## 소수점 아래는 제거
     decimals = 0,
+    ## 천단위 구분자를 사용
     use_seps = TRUE
   ) |>
+  ## 요약행을 만드는데 
   summary_rows(
+    ## 인문계열 그룹의 요약행
     groups = '인문계열',
+    ## 요약할 열은 19열
     columns = 19,
+    ## 요약 함수를 사용자 정의형으로 생성
     fns = list(
       소계 = ~pull(df_gt_summary |> filter(대계열 == '인문계열') |> select(취업률))
       ),
-    formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    ## 포맷은 백분률형태
+    formatter = fmt_percent,
+    ## 소수점은 한자리
+    decimals = 1
   ) |>
   summary_rows(
+    ## 사회계열 그룹의 요약행
     groups = '사회계열',
     columns = 19,
     fns = list(
       소계 = ~pull(df_gt_summary |> filter(대계열 == '사회계열') |> select(취업률))
     ),
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   ) |>
   summary_rows(
+    ## 교육계열 그룹의 요약행
     groups = '교육계열',
     columns = 19,
     fns = list(
       소계 = ~pull(df_gt_summary |> filter(대계열 == '교육계열') |> select(취업률))
     ),
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   ) |>
   summary_rows(
+    ## 자연계열 그룹의 요약행
     groups = '자연계열',
     columns = 19,
     fns = list(
       소계 = ~pull(df_gt_summary |> filter(대계열 == '자연계열') |> select(취업률))
     ),
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   ) |>
   summary_rows(
+    ## 공학계열 그룹의 요약행
     groups = '공학계열',
     columns = 19,
     fns = list(
       소계 = ~pull(df_gt_summary |> filter(대계열 == '공학계열') |> select(취업률))
     ),
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   ) |>
   summary_rows(
+    ## 의약계열 그룹의 요약행
     groups = '의약계열',
     columns = 19,
     fns = list(
       소계 = ~pull(df_gt_summary |> filter(대계열 == '의약계열') |> select(취업률))
     ),
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   ) |>
   summary_rows(
+    ## 예체능계열 그룹의 요약행
     groups = '예체능계열',
     columns = 19,
     fns = list(
       소계 = ~pull(df_gt_summary |> filter(대계열 == '예체능계열') |> select(취업률))
     ),
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    decimals = 1
   )
 
 gt_table7
@@ -370,23 +454,47 @@ gt_table7
 
 ![](4-12.emf)
 
+각 행 그룹별 요약행이 생성되면 전체 요약행을 생성한다. 전체 요약행은 `grand_summary_rows()`를 사용한다. 
+
+```{r eval=FALSE}
+grand_summary_rows(data, columns = everything(), fns, missing_text = "---", formatter = fmt_number, ...)
+  - data : 표에 사용할 gt 객체
+  - columns : 요약 함수를 적용할 열 지정
+  - fns : 요약에 사용할 함수, 일반적 요약 함수(mean, median, max, min 등)와 사용자 정의 함수 모두 가능
+  - missing_text : 누락치의 표현에 사용할 문자열
+  - formatter : 요약 행에 적용할 포맷 지정, fmt_*()를 사용할 수 있음
+
+```
+
+위의 표에 전체 요약행을 생성하는 코드는 다음과 같다. 
+
 ```{r}
 gt_table8 <- gt_table7 |>
+  ## 전체 요약행을 생성
   grand_summary_rows(
+    ## 3열부터 18열을 대상
     columns = 3:18,
+    ## 요약함수는 sum()이고 이름을 총계로 설정
     fns = list(
       총계 = ~sum(.)), 
+    ## 포맷은 수치형
     formatter = fmt_number, 
+    ## 소수점 아래는 제거
     decimals = 0,
+    ## 천단위 구분자 사용
     use_seps = TRUE
   ) |>
+  ## 전체 요약행을 생성
   grand_summary_rows(
+    ## 19열을 대상
     columns = 19,
+    ## 요약 함수를 사용자 정의형으로 생성
     fns = list(
       총계 = ~pull(df_gt_grand_summary |> select(취업률))), 
+    ## 포맷은 백분률형
     formatter = fmt_percent, 
-    decimals = 1,
-    use_seps = TRUE
+    ## 소수점은 한자리까지 표기
+    decimals = 1
   )
 
 
@@ -394,6 +502,10 @@ gt_table8
 ```
 
 ![](4-13.emf)
+
+## 전체 표 꾸미기
+
+표를 꾸밀때는 선 형태, 선 색깔, 셀 배경색, 글자 폰트, 글자 크기 등 여러가지 워드프로세서에서나 가능할 만한 여러가지 요소를 직접 설정할 수 있어야 한다. `gt` 패키지에서는 `tab_options()` 함수의 다양한 매개 변수를 설정함에 따라 이들 요소들을 직접 설정할 수 있다. 다만 tab_option()에서 제공하는 매개 변수들이 너무 많아서 본 포스트에서 다 설명할 수 없다. tab_option()의 매개변수는 gt의 tab_option() 매뉴얼을 참조하라.
 
 ```{r}
 gt_table9 <- gt_table8 |>
