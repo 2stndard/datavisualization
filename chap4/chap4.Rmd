@@ -24,11 +24,12 @@ library(showtext)
 showtext_auto()
 library(tidyverse)
 library(readxl)
+library(scales)
 
 ```
 
 ```{r include=FALSE}
-df_취업통계 <- read_excel('D:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
+df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
                      ## '학과별' 시트의 데이터를 불러오는데,
                      sheet = '학과별',
                      ## 앞의 13행을 제외하고
@@ -89,7 +90,7 @@ str(df_취업통계)
 
 이제 엑셀에서 탈피해서 R에서 표를 그려보자. R에서도 아주 훌륭한, 그리고 예쁘게 표를 그릴 수 있는 다양한 방법을 제공한다. R로 표를 그려보면 반복된 작업을 할 필요가 없다는 점에서, 기초 데이터의 업데이트가 발생해도 바로 반영할 수 있다는 점, 표를 세세하게 다룰 수 있다는 점에서 엑셀로 다시 돌아갈 수 없을 수도 있다.
 
-# `gt` 패키지
+# gt 패키지
 
 R에서 표를 만들기 위해 사용되는 패키지 중에 하나가 `gt` 패키지이다. `gt` 패키지는 표의 세부 구성들을 상세히 구분하고 이들을 구조적으로 조화롭게 구성시켜서 표를 만드는 다양한 함수와 매개 변수들을 제공한다. `gt` 패키지에서 사용하는 표의 세부 파트는 다음의 그림과 같다.
 
@@ -238,7 +239,10 @@ fmt_*(data, columns, rows = everything(), decimals = 2, sep_mark = ",", dec_mark
 
 ```{r}
 gt_table3 <- gt_table2 |> 
-  fmt_number(columns = 3:18, decimals = 0, use_seps = TRUE) |>
+  ## 4열부터 18열까지는 수치형 포맷으로 소수점이하를 제거하고 천단위 구분자 사용
+  ## 3열을 제외한 이유는 다음 절에서 설명할 gtExtras 패키지의 -gt_color_box()를 사용하기 위해 포맷을 설정하지 않았음.
+  fmt_number(columns = 4:18, decimals = 0, use_seps = TRUE) |>
+  ## 19열은 백분률 포맷으로 소수점 첫자리까지 표기하고 천단위 구분자는 미사용
   fmt_percent(columns = 19, decimals = 1, use_seps = FALSE)
 
 gt_table3
@@ -277,7 +281,7 @@ tab_spanner(data, label, columns, id = label, gather = TRUE)
   
 ```
 
-`tab_spanner()`를 사용하여 스패너를 생성하는 코드는 다음과 같다. 
+`tab_spanner()`를 사용하여 스패너를 생성하는 코드는 다음과 같다.
 
 ```{r}
 ## gt_table3 객체에서
@@ -292,7 +296,7 @@ gt_table4
 
 ![](4-9.emf)
 
-앞선 전처리 과정에서 '1인창(사)업자' 열은 열이름의 맨 앞이 숫자이고 특수문자가 들어가기 때문에 열이름을 '일인창사업자로' 설정했다. '1인창(사)업자'와 같이 숫자가 맨앞에 들어가는 열은 '\`'을 사용하여 접근이 가능하지만 여러모로 불편한점이 있다. 하지만 표에서의 표기는 원상태대로 해주겠다. `col_label()`을 이용하여 헤더에 표함된 열이름을 바꾸어 줄 수 있다. 
+앞선 전처리 과정에서 '1인창(사)업자' 열은 열이름의 맨 앞이 숫자이고 특수문자가 들어가기 때문에 열이름을 '일인창사업자로' 설정했다. '1인창(사)업자'와 같이 숫자가 맨앞에 들어가는 열은 '\`'을 사용하여 접근이 가능하지만 여러모로 불편한점이 있다. 하지만 표에서의 표기는 원상태대로 해주겠다. `col_label()`을 이용하여 헤더에 표함된 열이름을 바꾸어 줄 수 있다.
 
 ```{r eval=FALSE}
 cols_label(.data, ...)
@@ -300,7 +304,6 @@ cols_label(.data, ...)
   - ... : 바꾸어줄 열의 이름과 바꿀 이름의 페어
 
 ```
-
 
 ```{r}
 gt_table5 <- gt_table4 |> 
@@ -314,7 +317,7 @@ gt_table5
 
 ## 행 그룹 설정
 
-행 그룹은 열의 스패너와 비슷한 개념으로 유사한 행들을 묶어 표현할 수 있다. 행 그룹의 설정은 `gt()` 객체 생성시 `groupname_col`로 설정한 행끼리 묶어주는 행이 나타난다. 하지만 이 그룹들의 순서는 따로 설정되지 않았기 때문에 알파벳 순서(가나다 순)으로 정렬되었다. 이 부분을 사용자가 원하는 순서대로 설정하기 위해서는 `row_group_order()`를 사용한다. 
+행 그룹은 열의 스패너와 비슷한 개념으로 유사한 행들을 묶어 표현할 수 있다. 행 그룹의 설정은 `gt()` 객체 생성시 `groupname_col`로 설정한 행끼리 묶어주는 행이 나타난다. 하지만 이 그룹들의 순서는 따로 설정되지 않았기 때문에 알파벳 순서(가나다 순)으로 정렬되었다. 이 부분을 사용자가 원하는 순서대로 설정하기 위해서는 `row_group_order()`를 사용한다.
 
 ```{r eval=FALSE}
 row_group_order(data, groups)
@@ -323,7 +326,7 @@ row_group_order(data, groups)
 
 ```
 
-앞선 표의 행 그룹 순서를 설정하는 코드는 다음과 같다. 
+앞선 표의 행 그룹 순서를 설정하는 코드는 다음과 같다.
 
 ```{r}
 gt_table6 <- gt_table5 |> 
@@ -339,10 +342,10 @@ gt_table6
 
 ## 요약 행 생성
 
-우리가 사용하는 많은 표들은 각 행 그룹이나 전체 표의 마지막에 소계, 총계, 평균과 같은 요약 행를 넣는 경우가 많다. `gt` 패키지는 각 행그룹과 전체 표의 요약행을 넣어주는 기능을 제공한다. 각 행그룹의 요약행을 넣는 함수는 `summary_rows()`이고 전체 요약행을 넣는 함수는 `grand_summary_rows()`이다. 
+우리가 사용하는 많은 표들은 각 행 그룹이나 전체 표의 마지막에 소계, 총계, 평균과 같은 요약 행를 넣는 경우가 많다. `gt` 패키지는 각 행그룹과 전체 표의 요약행을 넣어주는 기능을 제공한다. 각 행그룹의 요약행을 넣는 함수는 `summary_rows()`이고 전체 요약행을 넣는 함수는 `grand_summary_rows()`이다.
 
 ```{r eval = FALSE}
-summary_rows(data, groups = NULL, columns = everything(), fns, missing_text = "---",formatter = fmt_number, ...)
+summary_rows(data, groups , columns = everything(), fns, missing_text = "---",formatter = fmt_number, ...)
   - data : 표에 사용할 gt 객체
   - groups : 요약행을 넣어줄 그룹 지정, 그룹명을 지정할 수도 있지만 TRUE를 지정하면 모든 행 그룹에 적용
   - columns : 요약 함수를 적용할 열 지정
@@ -454,7 +457,7 @@ gt_table7
 
 ![](4-12.emf)
 
-각 행 그룹별 요약행이 생성되면 전체 요약행을 생성한다. 전체 요약행은 `grand_summary_rows()`를 사용한다. 
+각 행 그룹별 요약행이 생성되면 전체 요약행을 생성한다. 전체 요약행은 `grand_summary_rows()`를 사용한다.
 
 ```{r eval=FALSE}
 grand_summary_rows(data, columns = everything(), fns, missing_text = "---", formatter = fmt_number, ...)
@@ -466,7 +469,7 @@ grand_summary_rows(data, columns = everything(), fns, missing_text = "---", form
 
 ```
 
-위의 표에 전체 요약행을 생성하는 코드는 다음과 같다. 
+위의 표에 전체 요약행을 생성하는 코드는 다음과 같다.
 
 ```{r}
 gt_table8 <- gt_table7 |>
@@ -505,54 +508,55 @@ gt_table8
 
 ## 전체 표 꾸미기
 
-표를 꾸밀때는 선 형태, 선 색깔, 셀 배경색, 글자 폰트, 글자 크기 등 여러가지 워드프로세서에서나 가능할 만한 여러가지 요소를 직접 설정할 수 있어야 한다. `gt` 패키지에서는 `tab_options()` 함수의 다양한 매개 변수를 설정함에 따라 이들 요소들을 직접 설정할 수 있다. 다만 tab_option()에서 제공하는 매개 변수들이 너무 많아서 본 포스트에서 다 설명할 수 없다. tab_option()의 매개변수는 gt의 tab_option() 매뉴얼을 참조하라.
+표를 꾸밀때는 선 형태, 선 색깔, 셀 배경색, 글자 폰트, 글자 크기 등 여러가지 워드프로세서에서나 가능할 만한 여러가지 특성 요소를 직접 설정할 수 있어야 한다. `gt` 패키지에서는 `tab_options()` 함수의 다양한 매개 변수를 설정함에 따라 이들 특성 요소들을 직접 설정할 수 있다. 다만 `tab_options()`에서 제공하는 매개 변수들이 너무 많아서 다 설명할 수 없다. 이 중 많이 사용되는 매개변수는 다음과 같다.[^3]
+
+[^3]: 보다 자세한 매개변수는 `gt` 의 매뉴얼(<https://gt.rstudio.com/reference/tab_options.html>)을 참조하라.
+
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| 매개변수                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 설명                                      |
++==================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================+===========================================+
+| table.width, table.layout, table.align , table.margin.left, table.margin.right, table.background.color, table.additional_css, table.font.names, table.font.size, table.font.weight, table.font.style, table.font.color, table.font.color.light, table.border.top.style, table.border.top.width, table.border.top.color, table.border.right.style, table.border.right.width, table.border.right.color, table.border.bottom.style, table.border.bottom.width, table.border.bottom.color, table.border.left.style, table.border.left.width, table.border.left.color | 전체 표의 특성 설정에 관련된 매개변수     |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| heading.background.color, heading.align, heading.title.font.size, heading.title.font.weight , heading.subtitle.font.size, heading.subtitle.font.weight, heading.padding, heading.border.bottom.style, heading.border.bottom.width, heading.border.bottom.color, heading.border.lr.style, heading.border.lr.width, heading.border.lr.color                                                                                                                                                                                                                        | 헤드 특성 설정에 관련된 매개변수          |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| column_labels.background.color, column_labels.font.size, column_labels.font.weight, column_labels.text_transform, column_labels.padding, column_labels.vlines.style, column_labels.vlines.width, column_labels.vlines.color, column_labels.border.top.style, column_labels.border.top.width, column_labels.border.top.color, column_labels.border.bottom.style, column_labels.border.bottom.width, column_labels.border.bottom.color, column_labels.border.lr.style, column_labels.border.lr.width, column_labels.border.lr.color, column_labels.hidden          | 열 제목(라벨)의 특성 설정을 위한 매개변수 |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| row_group.background.color, row_group.font.size, row_group.font.weight, row_group.text_transform, row_group.padding, row_group.border.top.style, row_group.border.top.width, row_group.border.top.color, row_group.border.bottom.style, row_group.border.bottom.width, row_group.border.bottom.color, row_group.border.left.style, row_group.border.left.width, row_group.border.left.color, row_group.border.right.style, row_group.border.right.width, row_group.border.right.color, row_group.default_label, row_group.as_column                              | 행 그룹의 특성 설정을 위한 매개변수       |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| table_body.hlines.style, table_body.hlines.width, table_body.hlines.color, table_body.vlines.style, table_body.vlines.width, table_body.vlines.color, table_body.border.top.style, table_body.border.top.width, table_body.border.top.color, table_body.border.bottom.style, table_body.border.bottom.width, table_body.border.bottom.color                                                                                                                                                                                                                      | 표 본체의 특성 설정을 위한 매개변수       |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| stub.background.color, stub.font.size, stub.font.weight, stub.text_transform, stub.border.style, stub.border.width, stub.border.color, stub_row_group.font.size, stub_row_group.font.weight, stub_row_group.text_transform, stub_row_group.border.style, stub_row_group.border.width, stub_row_group.border.color                                                                                                                                                                                                                                                | 스텁의 특성 설정을 위한 매개변수          |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| summary_row.background.color, summary_row.text_transform, summary_row.padding, summary_row.border.style, summary_row.border.width, summary_row.border.color, grand_summary_row.background.color, grand_summary_row.text_transform, grand_summary_row.padding, grand_summary_row.border.style, grand_summary_row.border.width, grand_summary_row.border.color, footnotes.background.color,                                                                                                                                                                        | 요약 행의 특성 설정을 위한 매개변수       |
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------+
+
+위에서 생성한 표의 주요 속성을 설정하는 코드는 다음과 같다.[^4]
+
+[^4]: 아래의 코드 중 색상명에서 오류가 발생한다면 주석에 기재된 RGB코드를 사용하라. 색상에 따른 RGB코드는 'R Charts'의 'Colors in R'(<https://r-charts.com/colors/>)에서 확인할 수 있다.
 
 ```{r}
-gt_table9 <- gt_table8 |>
-  tab_options(
-    table.font.size = 12,
-    ## 행 그룹 요약 행의 배경색 설정
-    summary_row.background.color = "#009acd",
-    ## 전체 요약 행의 배경색 설정
-    grand_summary_row.background.color = "#00688B",
-    ## 구분(Stub) 행의 헤더 외곽선 스타일 설정
-    stub.border.style = 'solid', 
-    ## 구분(Stub) 행의 배경색 설정
-    stub.background.color = '#00BFFF',
-    ## 행 그룹 이름 표현 셀 배경색 설정
-    row_group.background.color = '#F0F8FF',
-    ## 열 제목(Heading) 배경색 설정
-    heading.background.color = '#104E8B',
-    ## 표 몸체(Body) 수평선 스타일 설정
-    table_body.hlines.style = 'dashed', 
-    ## 표 몸체(Body) 수직선 색깔 설정 
-    table_body.vlines.color = 'grey',
-    ## 표 몸체(BOdy) 수직선 스타일 설정
-    table_body.vlines.style = 'dashed'
-  )
-
-# gt_table9 <- gt_table8 |>
-#   tab_options(
-#     table.font.size = 12,
-#     ## 행 그룹 요약 행의 배경색 설정
-#     summary_row.background.color = "deepskyblue3",
-#     ## 전체 요약 행의 배경색 설정
-#     grand_summary_row.background.color = "deepskyblue4",
-#     ## 구분(Stub) 행의 헤더 외곽선 스타일 설정
-#     stub.border.style = 'solid', 
-#     ## 구분(Stub) 행의 배경색 설정
-#     stub.background.color = 'lightskyblue1',
-#     ## 행 그룹 이름 표현 셀 배경색 설정
-#     row_group.background.color = 'aliceblue',
-#     ## 열 제목(Heading) 배경색 설정
-#     heading.background.color = 'dodgerblue4',
-#     ## 표 몸체(Body) 수평선 스타일 설정
-#     table_body.hlines.style = 'dashed', 
-#     ## 표 몸체(Body) 수직선 색깔 설정 
-#     table_body.vlines.color = 'grey',
-#     ## 표 몸체(BOdy) 수직선 스타일 설정
-#     table_body.vlines.style = 'dashed'
-#   )
+ gt_table9 <- gt_table8 |>
+   tab_options(
+     table.font.size = 12,
+     ## 행 그룹 요약 행의 배경색 설정("#009acd")
+     summary_row.background.color = "deepskyblue3",
+     ## 전체 요약 행의 배경색 설정("#00688B")
+     grand_summary_row.background.color = "deepskyblue4",
+     ## 구분(Stub) 행의 헤더 외곽선 스타일 설정
+     stub.border.style = 'solid', 
+     ## 구분(Stub) 행의 배경색 설정('#00BFFF')
+     stub.background.color = 'lightskyblue1',
+     ## 행 그룹 이름 표현 셀 배경색 설정('#F0F8FF')
+     row_group.background.color = 'aliceblue',
+     ## 열 제목(Heading) 배경색 설정('#104E8B')
+     heading.background.color = 'dodgerblue4',
+     ## 표 몸체(Body) 수평선 스타일 설정
+     table_body.hlines.style = 'dashed', 
+     ## 표 몸체(Body) 수직선 색깔 설정 
+     table_body.vlines.color = 'grey',
+     ## 표 몸체(BOdy) 수직선 스타일 설정
+     table_body.vlines.style = 'dashed'
+   )
 
 
 gt_table9
@@ -560,17 +564,71 @@ gt_table9
 
 ![](4-14.emf)
 
+## 개별 셀 꾸미기
+
+`tab_options()`에서 많은 설정값을 제공하지만 표를 세부적으로 설정하기가 다소 어려울 것이다. 표의 전체를 일괄적으로 설정 때는 `tab_options()`를 사용하지만 생각보다 세부적인 설정이 어렵다. 따라서 셀 단위로 세부적인 설정을 위해서는 `tab_style()`을 사용한다. `tab_style()`은 표에서 설정할 셀을 선택하고 이 부분에 대한 특성을 설정함으로써 표를 꾸밀 수 있다. 이 함수에서는 셀 위치(locations)와 셀 스타일(style)을 지정하는 두가지 매개변수가 필요하다. 이 매개변수들을 설정할 때는 도움 함수(helper function)[^5]을 사용하는데 tab_style() 의 사용법은 다음과 같다.
+
+[^5]: 특정 함수안에서만 사용이 되는 함수로 해당 함수의 세부 기능을 수행하기 위해 사용되는 함수를 말한다.
+
+```{r eval=FALSE}
+tab_style(data, style, locations)
+  - data : 표에 사용할 gt 객체
+  - locations : 셀의 위치를 설정하기 위한 헬퍼함수
+  - style : 셀의 속성을 설정하기 위한 도움 함수, 2개 이상의 도움 함수를 사용해야 할 경우는 list로 만들어준다.
+
+```
+
+`tab_style()` 의 위치(`locations`)를 설정하는데 사용하는 도움 함수는 다음과 같다.
+
++------------------+-------------------------------------------------------------------+----------------------------------------------------------------+
+| 도움함수명       | 설명                                                              | 매개변수                                                       |
++==================+===================================================================+================================================================+
+| `cell_fill()`    | 셀 안을 채우는 색깔을 지정하는 함수                               | `color`, `alpha`                                               |
++------------------+-------------------------------------------------------------------+----------------------------------------------------------------+
+| `cell_text()`    | 셀 안의 문자 형태(색깔, 폰트, 크기, 스타일, 굵기)를 지정하는 함수 | `color`, `font`, `size`, `style`, `weight` , `align`, `indent` |
++------------------+-------------------------------------------------------------------+----------------------------------------------------------------+
+| `cell_borders()` | 셀의 테두리 설정                                                  | `sides`, `color`, `style`, `weight`                            |
++------------------+-------------------------------------------------------------------+----------------------------------------------------------------+
+
+셀의 위치(`locations`)를 설정할 때 사용하는 도움 함수는 다음과 같다.
+
+| 도움 함수                    | 설명                          | 매개변수              |
+|------------------------------|-------------------------------|-----------------------|
+| `cells_title()`              | 표 제목 셀 선택               | groups                |
+| `cells_stubhead()`           | 구분(Stub) 열 제목셀 선택     |                       |
+| `cells_column_spanners()`    | 열 이름 묶음(Spanner) 셀 선택 | spanners              |
+| `cells_column_labels()`      | 열 이름 셀 선택               | columns               |
+| `cells_row_groups()`         | 행 그룹 셀 선택               | groups                |
+| `cells_stub()`               | 구분 셀 선택                  | rows                  |
+| `cells_body()`               | 표 몸체(Body) 셀 선택         | columns, rows         |
+| `cells_summary()`            | 요약 셀 선택                  | groups, columns, rows |
+| `cells_grand_summary()`      | 전체 요약 셀 선택             | columns, rows         |
+| `cells_stub_summary()`       | 요약 구분 셀 선택             | groups, rows          |
+| `cells_stub_grand_summary()` | 전체 요약 구분 셀 선택        | rows                  |
+| `cells_footnotes()`          | 각주 셀 선택                  |                       |
+| `cells_source_notes()`       | 출처 셀 선택                  |                       |
+
+그러면 이제 차근차근 표를 꾸며보자. 먼저 표 제목을 굵게하고 크기를 25로 부제목을 크기 15로 다음과 같이 설정한다.
+
 ```{r}
 gt_table10 <- gt_table9 |>
+  ## tab_style()로 셀을 설정
   tab_style(
+    ## cell_title()의 group = title로 제목 셀을 선택 
     locations = cells_title(groups = "title"),
+    ## 스타일을 설정
     style     = list(
+      ## 텍스트에 대한 설정이므로 cell_text()를 사용하여 세부 설정
       cell_text(weight = "bold", size = px(25))
     )
   ) |>
+  ## tab_style()로 셀을 설정
   tab_style(
+    ## cell_title()의 group = subtitle로 부제목 셀을 선택 
     locations = cells_title(groups = "subtitle"),
+    ## 스타일을 설정
     style     = list(
+      ## 텍스트에 대한 설정이므로 cell_text()를 사용하여 세부 설정
       cell_text(size = px(15))
     )
   )
@@ -581,15 +639,20 @@ gt_table10
 
 ![](4-15.emf)
 
+다음으로는 헤드에 대한 특성을 설정한다. 헤드는 열 라벨과 스패너로 구성되어 있다. '취업 상세' 스패너와 '비취업 상세' 스패너의 상세 특성 설정과 나머지 라벨들의 세부 설정 코드는 다음과 같다. 자세히 살펴보면 `cell_text()`로 설정하지 않은 "vertical-align:middle" 특성이 있다. 이는 CSS에서 사용하는 특성 설정으로 CSS 속성을 사용할 수 있다.
+
 ```{r}
 gt_table11 <- gt_table10 |>
+  ## tab_style()로 셀을 설정
   tab_style(
+    ## cells_column_spanners()로 '취업 상세' 스패너를 선택
     locations = cells_column_spanners(spanners = "취업 상세"),
     style     = list(
       cell_text(weight = "bold", color = 'grey20', align = 'center')
     )
   ) %>% 
   tab_style(
+    ## cells_column_labels()로  5열부터 11열까지 헤드 라벨 선택
     locations = cells_column_labels(columns = 5:11),
     style     = list(
       cell_text(weight = "lighter", color = 'grey50', align = 'center'), 
@@ -597,12 +660,14 @@ gt_table11 <- gt_table10 |>
     )
   ) %>% 
   tab_style(
-    locations = cells_column_spanners(spanners = "비취업 상세"),
+    ## cells_column_spanners()로 '비취업 상세'를 스패너 선택
+     locations = cells_column_spanners(spanners = "비취업 상세"),
     style     = list(
       cell_text(weight = "bold",color = "grey20", align = 'center')
     )
   ) |>
   tab_style(
+    ## cells_column_labels()로 12열부터 18열까지 헤드 라벨 선택
     locations = cells_column_labels(columns = 12:18),
     style     = list(
       cell_text(weight = "lighter", color = 'grey50', align = 'center'), 
@@ -610,6 +675,7 @@ gt_table11 <- gt_table10 |>
     )
   ) |>
   tab_style(
+    ## cells_column_labels()로 3, 4열과 19열 헤드 라벨 선택
     locations = cells_column_labels(columns = c(3:4, 19)),
     style     = list(
       cell_text(weight = "bold", color = 'grey20', align = 'center'), 
@@ -623,9 +689,12 @@ gt_table11
 
 ![](4-16.emf)
 
+이번에는 행 그룹 셀, 행그룹 요약 셀, 전체 요약 셀, 요약 스텁 셀에 대한 세부 특성을 설정하도록 한다.
+
 ```{r}
 gt_table12 <- gt_table11 |> 
   tab_style(
+    ## cells_row_groups()으로 전체 열 그룹 셀 선택
     locations = cells_row_groups(groups = everything()),
     style     = list(
       cell_text(color = "grey25", size = 24, align = 'center', weight = 'bold'), 
@@ -633,24 +702,28 @@ gt_table12 <- gt_table11 |>
     )
   ) |>
   tab_style(
+    ## cells_summary()로 전체 행 그룹 요약 셀 선택
     locations = cells_summary(groups = everything()),
     style     = list(
       cell_text(color = "white", size = 24, align = 'center', weight = 'bold')
     )
   ) |>
   tab_style(
+    ## cells_grand_summary()로 전체 요약 셀 선택
     locations = cells_grand_summary(),
     style     = list(
       cell_text(color = "white", size = 24, align = 'center', weight = 'bold')
     )
   ) |>
   tab_style(
+    ## cells_stub_summary()로 행 그룹 요약 스텁 셀 선택
     locations = cells_stub_summary(),
     style     = list(
       cell_text(color = "white", size = 24, align = 'center', weight = 'bold')
     )
   ) |>
   tab_style(
+    ## cells_stub_grand_summary()로 전체 요약 스텁 셀 선택
     locations = cells_stub_grand_summary(),
     style     = list(
       cell_text(color = "white", size = 24, align = 'center', weight = 'bold')
@@ -662,14 +735,45 @@ gt_table12
 
 ![](4-17.emf)
 
+셀에 대한 세부 특성 설정을 완료되고 나서 보면 열의 너비가 제각각이어서 보기가 좋지 않다. `cols_width()`로 전체 셀의 너비를 설정할 수 있다. `cols_width()`의 사용에서 하나 주의해야할 것은 열의 선택과 열의 너비를 선택하는 좌측과 우측을 모두 함수를 사용하여야 한다는 것과 할당 연산자인 `=` 나 `<-`를 사용하지 않고 `~`를 사용한다는 것이다. 좌측에는 열의 선택에 사용하는 `starts_with()`, `ends_with()` 와 같은 함수나 열 이름으로 벡터를 만들기 위해 `c()`를 사용하고 우측에는 `px()`를 사용한다.
+
 ```{r}
 gt_table13 <- gt_table12 |> 
+  ## cols_width()로 전체 셀(everything())을 선택하고 너비를 설정
   cols_width(everything() ~ px(70))
 
 gt_table13
 ```
 
 ![](4-18.emf)
+
+## 셀 배경색을 통한 데이터 강조
+
+표를 보다보면 최대값이나 최소값을 강조할 필요가 있다. 또 표에 포함된 숫자의 크기에 따라 글자색이나 배경색을 표기해주면 표를 읽기가 더 쉬워진다. `gt` 패키지에서는 이 기능을 지원하기 위해 `data_color()` 를 제공한다. `data_color()` 를 사용하여 열의 숫자에 따라 색을 달리 표현할 수 있다.
+
+data_color()의 사용법은 다음과 같다.
+
+```{r eval=FALSE}
+data_color(data, columns, colors, alpha = NULL, apply_to = c("fill", "text"), autocolor_text = TRUE)
+  - data : 표 그리기에 사용할 gt 객체
+  - columns : 배경색 변경을 적용해야하는 열
+  - color : 열의 색 변경에 사용할 색 벡터로써 scales 패키지의 색상 매핑 함수나 열의 개별 값(수준)에 매칭될 색 벡터
+  - alpha : 옵션 값으로 열의 색 변경에 적용되는 투명도 값
+  - apply_to : 열의 색을 배경색(fill)에 적용할지 글자색(text)에 적용할 지를 지정
+  - autocolor_text : 셀의 배경색에 따라 글자색을 변경하는 옵션 지정(기본값은 TRUE)
+
+```
+
+위의 `data_color()` 사용법에서 `color` 매개변수에는 `scales` 패키지의 색상 매핑 함수를 사용할 수 있다. `scales` 패키지의 색상 매핑 함수는 `scales::col_quantile()`, `scales::col_bin()`, `scales::col_numeric(`), `scales::col_factor(`) 를 사용할 수 있다.
+
+| 함수                     | 설명                                                           |
+|--------------------------|----------------------------------------------------------------|
+| `scales::col_numeric()`  | 선형적 변환에 의해 데이터 값을 색상으로 매핑                   |
+| `scales::col_quantile()` | 데이터 값을 지정된 분위(기본값은 4)에 따라 색상으로 매핑       |
+| `scales::col_bin()`      | 데이터 값을 기반으로 구간을 나누고(bins) 이에 따라 색상을 매핑 |
+| `scales::col_factor()`   | 매핑될 데이터가 팩터인 경우 팩터값에 따라 색상을 매핑          |
+
+`scales` 패키지의 색상 매핑 함수는 적절한 색상 팔레트를 정의해야 한다. 하지만 사용자가 색상 팔레트를 일일이 정의하는 것은 쉽지 않은 일이다. 따라서 R에서 제공하는 다양한 팔레트를 이용하는 것이 효율적인데 팔레트 설정을 위해 많이 사용되는 패키지가 `paletteer` 패키지이다. `paletteer` 패키지에서 제공하는 `paletteer_d()`는 R에서 제공하는 패키지에 포함되어 있는 팔레트 정보를 벡터로 추출해오는 함수이다. 따라서 이 함수를 사용하면 다양한 패키지에서 제공하는 팔레트를 표 색상을 설정하는데 사용할 수 있다. 다만 이 함수를 사용하는데 하나 주의해야 할 것이 결과값이 수치형 벡터이기 때문에 이를 문자형 벡터로 변환시켜 주는 과정이 필요하다는 점이다. `paletteer::paletteer_d()`를 사용하여 데이터 강조색을 설정하는 코드는 다음과 같다.
 
 ```{r}
 gt_table14 <- gt_table13  |>
@@ -688,27 +792,122 @@ gt_table14
 
 ![](4-19.emf)
 
+# gtExtras 패키지
+
+앞의 절에서 그린 표는 워드프로세서에서 그리는 것이 가능한 것이지만 `data_color()`를 사용하여 데이터 색 강조는 워드프로세서에서는 불가능한 기능이다. 그러나 `data_color()`의 기능은 엑셀에서는 지원한다. 결국 지금까지 `gt` 패키지를 이용해서 그린 표는 엑셀에서도 그리는게 가능했다는 것이다. 하지만 이번 절에서 소개하는 `gtExtras` 패키지에서 제공하는 기능은 워드프로세서도 엑셀도 지원하지 못하는 기능이다.
+
+## gtExtras 패키지
+
+`gtExtras` 패키지는 `gt` 객체로 그려진 표를 더 예쁘게 꾸미기 위해 추가적으로 제공하는 함수들로 구성된 패키지이다. 하지만 `gtExtras` 패키지는 아직은 완전히 완성된 패키지는 아니기 때문에 CRAN에 등록되지 않고 Github에 등록되어 있다.[^6]
+
+[^6]: `gtExtras` 패키지는 현재까지(2022년 2월) 완성된 패키지는 아니다. 따라서 일부 기능의 오류있을 수 있고 함수의 보완으로 이 책에서 언급한 바와 일부 사용법이 달라질 수 있다. 관련한 사항은 `gtExtras` 패키지 홈페이지(<https://jthomasmock.github.io/gtExtras/index.html>)를 참조하라.
+
+그래서 `gtExtras` 패키지의 설치는 다른 패키지와는 다소 다르다.
+
+```{r eval=FALSE}
+# `remotes` 패키지가 설치되어 있지 않다면 `install.packages("remotes")`로 `remotes` 패키지를 설치하라
+remotes::install_github("jthomasmock/gtExtras")
+
+```
+
+간혹 위의 코드를 실행하면 `gtExtras` 패키지를 설치하는데 필요한 몇가지 패키지를 업데이트하라는 메세지가 나온다. 그러면 'All'을 선택하여 전체 패키지를 업데이트해 주는 것이 좋지만 그냥 엔터를 쳐서 skip할 수도 있다.
+
+![](4-20.png)
+
+## 표 테마 사용
+
+앞선 `gt` 패키지에서 각각의 표 요소들을 개별적으로 설정하여 사용자가 원하는 표를 설정하는 과정을 살펴보았다. 하지만 이렇게 하나 하나 표를 설정하는 것은 번거로운데다가 표를 완성해놓고 보면 색상의 배열이나 표의 구조가 영 마음에 들지 않는 경우가 있을 것이다. 여러 디자이너들이 미리 예쁘게 만들어 놓은 템플릿을 사용하면 좀 편하게 표를 디자인 할 수 있을 것이다. `gtExtras` 패키지는 사전에 정의된 7개의 템플릿을 제공한다. 이를 적용하는 함수는 다음과 같다.
+
++-----------------------+----------------------------------------------------------------------------------------------------------------+
+| 함수명                | 설명                                                                                                           |
++=======================+================================================================================================================+
+| gt_theme_538()        | five thirty eight(미국의 여론 조사 분석, 정치, 경제 및 스포츠 블로그를 운영하는 사이트)에서 사용하는 형태의 표 |
++-----------------------+----------------------------------------------------------------------------------------------------------------+
+| gt_theme_espn()       | 미국 ESPN(스포츠 네트워크)에서 사용하는 형태의 표                                                              |
++-----------------------+----------------------------------------------------------------------------------------------------------------+
+| gt_theme_nytimes()    | 미국 뉴욕타임즈에서 사용하는 형태의 표                                                                         |
++-----------------------+----------------------------------------------------------------------------------------------------------------+
+| gt_theme_guardian()   | 영국 가디언즈에서 사용하는 형태의 표                                                                           |
++-----------------------+----------------------------------------------------------------------------------------------------------------+
+| gt_theme_dot_matrix() | 도트 매트릭스 형태의 표                                                                                        |
++-----------------------+----------------------------------------------------------------------------------------------------------------+
+| gt_theme_dark()       | 어두운 형태의 표                                                                                               |
++-----------------------+----------------------------------------------------------------------------------------------------------------+
+| gt_theme_excel()      | 엑셀 형태의 표                                                                                                 |
++-----------------------+----------------------------------------------------------------------------------------------------------------+
+
+![](4-21.png)
+
+## 표에 그래프 넣기
+
+`gtExtras`에서 제공하는 그래프 중에 가장 독특한 기능이 표안에 그래프를 넣을수 있다는 점이다. `gtExtras` 패키지에서 넣을 수 있는 그래프는 여러가지가 있다. 다음 그림은 `gtExtras` 패키지에서 제공하는 그래프이다.
+
+![](4-22.png)
+
+이 중 백분률을 점으로 표시하는 백분률 도트 플롯의 사용 예를 보겠다. 백분률 도트 플롯은 `gt_plt_percentile()` 로 만들 수 있다.
+
+```{r eval=FALSE}
+gt_plt_percentile(gt_object, column, palette = c("#007ad6", "#f0f0f0", "#f72e2e"), width = 25, scale = 1)
+  - gt_object : 표 그리기에 사용할 gt 객체
+  - column : 백분률 도트 플롯으로 변환할 열 설정
+  - palette : 백분률 도트 플롯에 사용될 색상 설정
+  - width : 백분률 도트 플롯의 너비 설정, mm단위
+  - scale : 열 값의 스케일(배수)를 설정할 정수
+```
+
+`gt_plt_percentile()`을 사용하여 취업률을 막대그래프로 변환해보겠다. 변환하기 위해 먼저 `gt_duplicate_column()`으로 취업률 열의 복사열을 하나 생성한다. `gt_duplicate_column()`의 사용법은 다음과 같다.
+
+```{r eval=FALSE}
+gt_duplicate_column(gt_object, column, after = dplyr::last_col(), append_text = "_dupe", dupe_name = NULL)
+  - gt_object : 표 그리기에 사용할 gt 객체
+  - column : 복사열을 만들 열 설정
+  - after : 복사된 열의 위치 설정
+  - append_text : 복사된 열의 이름에 붙일 접미사 설정
+  - dupe_name : 복사된 열의 이름 설정
+```
+
+`gt_duplicate_column()`을 사용하여 '취업률' 열의 복사열을 '취업률_막대그래프'의 이름으로 생성하고 '취업률' 열의 뒤에 위치시키고 열 너비를 100으로 설정한 후에 `gt_plt_percentile()`을 사용하여 '취업률_막대그래프'를 백분률 도트 그래프로 변환하는 코드는 다음과 같다.
+
 ```{r}
-if(!require('gtExtras')) {
-  install.packages('gtExtras')
-  library(gtExtras)
-}
+library(gtExtras)
 
 gtextras_table1 <- gt_table14 |>
+  ## 취업률을 복사하여 취업률_막대그래프생성하고 취업률 뒤에 위치
   gt_duplicate_column(취업률, dupe_name = '취업률_막대그래프', after = 취업률) |>
+  ## 열 너비를 100으로 설정
   cols_width(
     취업률_막대그래프 ~ px(100) 
   ) |>
+  ## 취업률_막대그래프를 스케일 100으로 설정한 백분률 도트 그래프로 변환
   gt_plt_percentile(column = 취업률_막대그래프, scale = 100)
 
 gtextras_table1
 ```
 
-![](4-20.emf)
+![](4-23.emf)
+
+이번에는 `gtExtras` 패키지에서 제공하는 컬러박스 그래프를 사용하는 예를 보겠다. 컬러박스는 앞 절에서 설명한 `data_color()`와 유사하게 색을 사용하여 데이터의 내용을 시각화한다는 점에서 유사하나 `data_color()`는 셀의 배경색을 사용하여 시각화하는 것이고 `geExtras` 패키지에서 제공하는 `gt_color_box()`는 수치 앞에 조그만 색 상자를 사용하여 데이터를 표현하는 것이 다르다. `gt_color_box()`의 사용법은 다음과 같다.
+
+```{r eval=FALSE}
+gt_color_box(gt_object, columns, palette = NULL, domain = NULL, width = 70, ...)
+  - gt_object : 표 그리기에 사용할 gt 객체
+  - column : 컬러 박스를 만들 열 설정
+  - palette : 컬러 박스에 매핑할 팔레트 설정 
+  - domain : 컬러 박스에 표현될 값의 범위 설정
+  - width : 컬러 박스의 너비 설정
+```
+
+위의 표에서 졸업자 열을 `gt_color_box()`를 사용하여 색 상자 열로 설정하는 코드는 다음과 같다.
 
 ```{r}
 gtextras_table2 <- gtextras_table1 |>
-  gt_color_box(columns = 3, domain = c(min(df_gt$졸업자), max(df_gt$졸업자)), palette = "ggsci::blue_material") |>
+  ## 3번 열을 gt_color_box()를 사용하여 색 상자를 만듦
+  gt_color_box(columns = 3, 
+               ## 값의 범위를 졸업자의 최소값에서 졸업자의 최대값까지이고
+               domain = c(min(df_gt$졸업자), max(df_gt$졸업자)),
+               ## ggsci 패키지의 blue_material 팔레트 설정
+               palette = "ggsci::blue_material") |>
+  ## 졸업자의 열 너비는 80으로 설정
     cols_width(
       졸업자 ~ px(80) 
     )
@@ -716,26 +915,62 @@ gtextras_table2 <- gtextras_table1 |>
 gtextras_table2
 ```
 
-![](4-21.emf)
+![](4-24.emf)
+
+## 열 병합하기
+
+표를 만들다 보면 몇개의 열을 합쳐서 하나의 열로 표현해야할 경우가 있다. 이 작업은 `gt` 패키지에서 제공하는 함수도 있고 `gtExtras` 패키지에서 제공하는 함수도 있다. 열 병합에 사용할 수 있는 함수는 다음과 같다.
+
+| 패키지     | 함수                                                                                     | 설명                                                                          |
+|------------|------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| `gt`       | [cols_merge_range()](https://gt.rstudio.com/reference/cols_merge_range.html)             | 범위로 설정된 두개의 열을 병합하는 함수                                       |
+|            | [cols_merge_uncert()](https://gt.rstudio.com/reference/cols_merge_uncert.html)           | 불확실성을 표현하는 열을 병합하는 함수, 불확실성 열을 묶어줄때 ±기호를 붙여줌 |
+|            | [cols_merge_n\_pct()](https://gt.rstudio.com/reference/cols_merge_n_pct.html)            | 백분률을 표현하는 열을 병합하는 함수, 백분률은 ()로 묶어줌                    |
+|            | [cols_merge()](https://gt.rstudio.com/reference/cols_merge.html)                         | 두개의 열을 병합하는 함수                                                     |
+| `gtExtras` | [gt_merge_stack()](https://jthomasmock.github.io/gtExtras/reference/gt_merge_stack.html) | 두개의 열을 병합하는 함수, 두번째 열을 첫번째 열의 아래쪽에 표시              |
+
+이 중 데이터와 백분률을 함께 표현하는 열이 많이 사용되는데 이는 `cols_merge_n_pct()` 통해 생성할 수 있다. `cols_merge_n_pct()` 의 사용법은 다음과 같다.
+
+```{r eval=FALSE}
+cols_merge_n_pct(data, col_n, col_pct, autohide = TRUE, ...)
+  - data : 표 그리기에 사용할 gt 객체
+  - col_n : 개체수(n)가 포함된 열 이름
+  - col_pct : 개체 비율이 포함된 열 이름 
+  - autohide : col_pct를 숨길지 여부를 결정하는 논리값
+
+```
+
+아래의 코드는 취업자수와 취업자 수의 비율을 병합하는 코드이다. 열을 병합하려면 비율이 계산된 열이 필요하다. 이는 `prop.table()` 을 사용하여 산출할 수 있다. 먼저 취업자 열을 하나 복사하고 이 열의 데이터를 `fmt()` 를 사용하여 데이터를 변환하는데 변환 사용자 정의 함수로 사용하였다. 사용된 사용자 정의 함수는 `prop.table()` 을 사용하여 비율을 산출하고 100을 곱해 백분률로 만들고 `round()` 로 소수점 둘쨰자리에서 반올림한 후 `paste0()` 를 사용하여 '%'를 붙여주는 함수이다. 이렇게 만들어진 취업자 비율 열과 취업자 열을 병합하는데 비율을 포함하기 때문에 `cols_merge_n_pct()` 를 사용하였다.
 
 ```{r}
 gtextras_table3 <- gtextras_table2 |>
+  ## 취업자 열을 복제한 취업자_비율 열 생성
   gt_duplicate_column(취업자, dupe_name = '취업자_비율', after = 취업자) |>
+  ## 취업자_비율열의 포맷 설정 
   fmt(columns = 취업자_비율,
+      ## 사용자 정의 함수 정의
       fns = function(x) {
+        ## prop.table의 값에 100을 곱하고 소수점 둘째 자리에서 반올림하여 '%'를 붙여줌
         paste0(round(prop.table(x) * 100, 1), '%')
       }) |>
+  ## 개체수열(취업자)과 비율열(취업자_비율)을 병합
   cols_merge_n_pct(취업자, 취업자_비율, autohide = TRUE) |>
+  ## 생성된 열을 스패터로 묶음
   tab_spanner(columns = 19:20, label = '취업 결과') |>
+  ## 취업률_막대그래프 열 이름을 그래프로 바꿈
   cols_label(취업률_막대그래프 = '그래프') |>
   tab_style(
+    ## 취업결과 스패너 셀을 선택
     locations = cells_column_spanners(spanners = "취업 결과"),
+    ## 스타일을 설정
     style     = list(
       cell_text(weight = "bold",color = "grey20", align = 'center')
     )
   ) |>
   tab_style(
+    ## 19열과 20열의 열 이름 셀을 선택
     locations = cells_column_labels(columns = 19:20),
+    ## 스타일을 설정
     style     = list(
       cell_text(weight = "lighter", color = 'grey50', align = 'center'), 
       "vertical-align:middle"   ## css attribute
@@ -745,10 +980,15 @@ gtextras_table3 <- gtextras_table2 |>
 gtextras_table3
 ```
 
-![](4-22.emf)
+![](4-25.emf)
+
+위에서는 취업자 열에 대해 비율 열을 생성하고 이를 병합하는 코드를 보았다. 이를 전체 열에 대해 설정하는 방법을 알아보겠다.
+
+우선 비율을 계산하는 열을 생성하겠다. `gt_duplicate_column()`의 `column`은 단일 열에 대해서만 지원하기 때문에 각각의 열에 대해 코드를 구현하였다.
 
 ```{r}
 gtextras_table4 <- gtextras_table3 |>
+  ## 비율을 계산할 열들을 복제(복제된 열의 이름 접미사를 설정하지 않았으므로 '_dupe'가 설정됨)
   gt_duplicate_column(column = 교외취업자) |>
   gt_duplicate_column(column = 교내취업자) |>
   gt_duplicate_column(column = 해외취업자) |>
@@ -763,6 +1003,7 @@ gtextras_table4 <- gtextras_table3 |>
   gt_duplicate_column(column = 제외인정자) |>
   gt_duplicate_column(column = 기타) |>
   gt_duplicate_column(column = 미상) |>
+  ## 복제된 열의 수치를 비율로 변환(변환 대상열은 접미사가 'dupe'인 열로 한정)
   fmt(columns = ends_with('dupe'),
       fns = function(x) {
         paste0(round(prop.table(x) * 100, 1), '%')
@@ -772,14 +1013,21 @@ gtextras_table4 <- gtextras_table3 |>
 gtextras_table4
 ```
 
-![](4-23.emf)
+![](4-26.emf)
+
+위의 표를 보면 각각의 열에 대한 비율이 계산된 열이 우측에 생성되었음을 확인할 수 있다. 이 열들을 앞선 개체수 열과 병합하는데 for loop를 사용하여 다음과 같이 구현할 수 있다. 
 
 ```{r}
+## for loop에 사용될 gt 객체 선언
 temp <- temp1 <- gtextras_table4
 
+## 5열부터 18열까지 loop를 도는데
 for(i in 5:18) {
+  ## temp gt 객체에서
   temp1 <- temp |>
+    ## 개체수열(i)과 비율열(i+17)을 병합한 결과를 temp1에 저장
     cols_merge_n_pct(i, i+17, autohide = TRUE)
+  ## temp1을 다시 temp에 저장
   temp <- temp1
 }
 
@@ -788,4 +1036,4 @@ gtextras_table5 <- temp
 gtextras_table5
 ```
 
-![](4-24.emf)
+![](4-27.emf)

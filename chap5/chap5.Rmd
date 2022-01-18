@@ -1,0 +1,583 @@
+---
+title : 그래프의 시각화
+output:
+  officedown::rdocx_document:
+    reference_docx: bookdown.docx
+    plots:
+      style: Normal
+      align: center
+      fig.lp: 'fig:'
+      topcaption: false
+      caption:
+        style: Image Caption
+        pre: 'Figure '
+        sep: ': '
+        tnd: 0
+        tns: '-'
+        fp_text: !expr officer::fp_text_lite(bold = TRUE)
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, out.width = '100%', dpi = 120, fig.width = 6.5)
+
+library(showtext)
+showtext_auto()
+library(tidyverse)
+library(readxl)
+library(scales)
+library(patchwork)
+
+df_입학자 <- read_excel('c:/R/git/datavisualization/chap3/2021_연도별 입학자수.xlsx', 
+                 ## 'data' 시트의 데이터를 불러오는데,
+                 sheet = 'Sheet0',
+                 ## 앞의 10행을 제외하고
+                 skip = 3, 
+                 ## 첫번째 행은 열 이름을 설정
+                 col_names = FALSE, 
+                 ## 열의 타입을 설정, 처음 8개는 문자형으로 다음 56개는 수치형으로 설정
+                 col_types = c(rep('text', 2), rep('numeric', 30)))
+df_입학자 <- df_입학자 |> select(1, 2, 5, 7, 9, 11, 13, 19, 29, 31)
+
+## df_입학자의 열이름을 적절한 이름으로 설정
+colnames(df_입학자) <- c('연도', '지역', '전문대학', '교육대학', '일반대학', '방송통신대학', '산업대학', '원격및사이버대학', '석사', '박사')
+
+df_입학자 <- df_입학자 |> filter(!is.na(지역))
+
+df_입학자_long <- df_입학자 |> pivot_longer(3:10, names_to = '학교종류', values_to = '입학생수')
+
+
+```
+
+```{r include=FALSE}
+
+df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
+                     ## '학과별' 시트의 데이터를 불러오는데,
+                     sheet = '학과별',
+                     ## 앞의 13행을 제외하고
+                     skip = 13, 
+                     ## 첫번째 행은 열 이름으로 설정
+                     col_names = TRUE, 
+                     ## 열의 타입을 설정, 처음 9개는 문자형으로 다음 79개는 수치형으로 설정
+                     col_types = c(rep('text', 9), rep('numeric', 79)))
+
+## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
+df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
+
+## df_취업통계 정보 확인
+str(df_취업통계)
+```
+
+# 막대 그래프
+
+## stack, dodge, fill
+
+```{r}
+p_col <- df_입학자_long |>
+  filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
+  mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |>
+  ggplot()
+
+p_col +
+  geom_col(aes(x = 연도, y = 입학생수))
+
+```
+
+```{r}
+p_col +
+  geom_col(aes(x = 연도, y = 입학생수, fill = 학교종류))
+
+```
+
+
+```{r}
+p_col +
+  geom_col(aes(x = 연도, y = 입학생수, fill = 학교종류), position = 'stack')
+
+p_col +
+  geom_col(aes(x = 연도, y = 입학생수, fill = 학교종류), position = 'fill')
+
+p_col +
+  geom_col(aes(x = 연도, y = 입학생수, fill = 학교종류), position = 'dodge')
+  
+```
+
+
+
+## 데이터 값 넣기
+
+```{r}
+p_col_2_1 <- p_col +
+  geom_col(aes(x = 연도, y = 입학생수, fill = 학교종류))
+
+p_col_2_1
+```
+
+
+```{r}
+p_col_2_2 <- p_col_2_1 + 
+  geom_text(aes(x = 연도, y = 입학생수, label = scales::comma(입학생수), fill =학교종류), position = position_stack(vjust = 0.5), size = 2)
+
+p_col_2_2
+```
+
+
+```{r}
+p_col_2_3 <-  p_col_2_2 + 
+  stat_summary(aes(x = 연도, y = 입학생수, label = scales::comma(stat(y), accuracy = 1)), fun = 'sum', geom = 'text', color = 'red', vjust = -0.5, size = 2,  inherit.aes = FALSE)
+
+p_col_2_3
+```
+
+
+```{r}
+p_col_2_4 <- p_col_2_3 + 
+  scale_y_continuous(labels = scales::comma) +
+  theme(axis.text.x = element_text(angle = 45)) 
+
+p_col_2_4
+```
+
+## 가로형 막대 그래프
+
+```{r}
+p_col_3_1 <- p_col +
+  geom_col(aes(x = 연도, y = 입학생수, fill = 학교종류), position = 'fill')
+
+p_col_3_1
+```
+
+
+```{r}
+p_col_3_2 <- p_col_3_1 + 
+  geom_text(data = (df_입학자_long |>
+  filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
+  mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |>
+  group_by(연도) |>
+  mutate(비율 = 입학생수 / sum(입학생수)) |>
+  ungroup()), 
+  aes(x = 연도, y = 비율, label = scales::percent(비율, accuracy = 0.1), fill = 학교종류), position = position_stack(vjust = 0.5), size = 2)
+
+p_col_3_2
+```
+
+```{r}
+p_col_3_3 <- p_col_3_2 + 
+  coord_flip()
+
+p_col_3_3
+```
+
+```{r}
+p_col_3_3 + 
+    scale_y_continuous(labels = scales::percent_format(suffix = "%", prefix = "")) +
+  scale_x_discrete(limits=rev) +
+  #  scale_y_discrete(labels = scales::percent_format()) +
+  labs(y="학교별 구성비") +
+  theme(axis.line = element_line(size=1, colour = "black"),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.border = element_blank(), panel.background = element_blank()) + scale_fill_brewer(palette="Paired")
+
+```
+```{r}
+ p_col_3_1 + 
+  geom_text(data = (df_입학자_long |>
+  filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
+  mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |>
+  group_by(연도) |>
+  mutate(비율 = 입학생수 / sum(입학생수)) |>
+  ungroup()), 
+  aes(x = 연도, y = 비율, label = ifelse(비율 > 0.04, paste0(round(비율, 3) * 100,"%"), ''), fill = 학교종류), position = position_stack(vjust = 0.5), size = 2) + 
+  coord_flip() + 
+    scale_y_continuous(labels = scales::percent_format(suffix = "%", prefix = "")) +
+  scale_x_discrete(limits=rev) +
+  #  scale_y_discrete(labels = scales::percent_format()) +
+  labs(y="학교별 구성비") +
+  theme(axis.line = element_line(size=1, colour = "black"),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.border = element_blank(), panel.background = element_blank()) + scale_fill_brewer(palette="Paired")
+```
+
+## 축 라벨에 이미지 넣기
+
+```{r eval=FALSE}
+library(readxl)
+df_nation <- read_xlsx('파일경로/연도별 유학국가별 유학생수.xlsx', sheet = 'Sheet0', skip = 2, col_types = c('numeric', 'text', rep('numeric', 25)), col_names = TRUE)
+
+df_nation <- df_nation |>
+  filter(!is.na(학년도), 학제 == '소계') |>
+  select(!contains(c('계', '학제', '기타', '미확인', '그외동남아', '남미'))) |>
+  gather('국가명', '유학생수', -'학년도')
+
+df_nation_top10 <- df_nation |>
+  group_by(국가명) |>
+  summarise(sum = sum(유학생수)) |>
+  arrange(desc(sum)) |>
+  top_n(10)
+
+df_nation_top10
+
+```
+
+```{r echo=FALSE}
+library(readxl)
+df_nation <- read_xlsx('c:/R/git/datavisualization/chap5/연도별 유학국가별 유학생수.xlsx', sheet = 'Sheet0', skip = 2, col_types = c('numeric', 'text', rep('numeric', 25)), col_names = TRUE)
+
+df_nation <- df_nation |>
+  filter(!is.na(학년도), 학제 == '소계') |>
+  select(!contains(c('계', '학제', '기타', '미확인', '그외동남아', '남미'))) |>
+  gather('국가명', '유학생수', -'학년도')
+
+df_nation_top10 <- df_nation |>
+  group_by(국가명) |>
+  summarise(sum = sum(유학생수)) |>
+  arrange(desc(sum)) |>
+  top_n(10)
+
+df_nation_top10
+
+```
+
+
+```{r}
+df_nation_top10 |>
+  ggplot(aes(x = 국가명, y = sum)) +
+  geom_col(fill = 'dark blue') +
+  geom_text(aes(x = 국가명, y = sum, label = sum), vjust = -0.5) + 
+  theme_minimal() + 
+  labs(title = '국가별 유학생수 Top 10', y = '유학생수')
+```
+
+```{r}
+df_nation_top10$국가명 <- fct_reorder(df_nation_top10$국가명, desc(df_nation_top10$sum))
+
+p_nation_top10 <- df_nation_top10 |>
+  ggplot(aes(x = 국가명, y = sum)) +
+  geom_col(fill = 'dark blue') +
+  geom_text(aes(x = 국가명, y = sum, label = sum), vjust = -0.5) + 
+  theme_minimal() + 
+  labs(title = '국가별 유학생수 Top 10', y = '유학생수')
+```
+
+```{r eval=FALSE}
+flag_usa <- '아이콘 이미지 저장 폴더 경로/usa.png'
+flag_canada <- '아이콘 이미지 저장 폴더 경로/can.png'
+flag_china <- '아이콘 이미지 저장 폴더 경로/chi.png'
+flag_phi <- '아이콘 이미지 저장 폴더 경로/phi.png'
+flag_nz <- '아이콘 이미지 저장 폴더 경로/nz.png'
+flag_aus <- '아이콘 이미지 저장 폴더 경로/aus.png'
+flag_jap <- '아이콘 이미지 저장 폴더 경로/jap.png'
+flag_eng <- '아이콘 이미지 저장 폴더 경로/eng.png'
+flag_mal <- '아이콘 이미지 저장 폴더 경로/mal.png'
+flag_ger <- '아이콘 이미지 저장 폴더 경로/ger.png'
+
+flags <- data.frame(nations = c('미국', '캐나다', '중국', '뉴질랜드', '필리핀', '호주', '영국', '일본', '말레이시아', '싱가폴'), flag_path = c(flag_usa, flag_canada, flag_china, flag_nz, flag_phi, flag_aus, flag_eng, flag_jap, flag_mal, flag_sing))
+
+labels <- setNames(
+  paste0("<img src='", flags$flag_path, "' width='30'  height = '20'> <br> ", flags$nations),  flags$nations)
+
+```
+
+```{r echo=FALSE}
+flag_usa <- 'c:/R/git/datavisualization/chap5/usa.png'
+flag_canada <- 'c:/R/git/datavisualization/chap5/can.png'
+flag_china <- 'c:/R/git/datavisualization/chap5/chi.png'
+flag_phi <- 'c:/R/git/datavisualization/chap5/phi.png'
+flag_nz <- 'c:/R/git/datavisualization/chap5/nz.png'
+flag_aus <- 'c:/R/git/datavisualization/chap5/aus.png'
+flag_jap <- 'c:/R/git/datavisualization/chap5/jap.png'
+flag_eng <- 'c:/R/git/datavisualization/chap5/eng.png'
+flag_mal <- 'c:/R/git/datavisualization/chap5/mal.png'
+flag_ger <- 'c:/R/git/datavisualization/chap5/ger.png'
+
+flags <- data.frame(nations = c('미국', '캐나다', '중국','필리핀', '뉴질랜드', '호주', '일본', '영국', '말레이시아', '독일'), flag_path = c(flag_usa, flag_canada, flag_china, flag_phi, flag_nz, flag_aus, flag_jap, flag_eng, flag_mal, flag_ger))
+
+labels <- setNames(
+  paste0("<img src='", flags$flag_path, "' width='30'  height = '20'> <br> ", flags$nations),  flags$nations)
+
+```
+
+```{r}
+p_nation_top10_1 <- p_nation_top10 +
+  scale_x_discrete(labels = labels)
+
+p_nation_top10_1
+```
+
+```{r}
+if(!require(ggtext)) {
+  install.packages('ggtext')
+  library(ggtext)
+}
+
+p_nation_top10_1 +
+  scale_x_discrete(labels = labels) + 
+  theme(axis.text.x = ggtext::element_markdown())
+```
+
+
+# 히스토그램
+
+## bin, binwidth
+
+```{r}
+p_histo <- df_취업통계 |>
+  ggplot(aes(x = 취업률_계))
+
+p_histo +
+  geom_histogram()
+
+```
+
+```{r}
+p_histo + 
+  geom_histogram(aes(y = ..count..))
+
+```
+
+```{r}
+p_histo +
+  geom_histogram(aes(y = ..count..)) +
+  stat_bin(aes(x = 취업률_계,y=..count.., label=..count..), geom="text", vjust=-.5)
+
+```
+
+```{r eval = FALSE}
+p_histo +
+  geom_histogram(aes(y = ..count..), bins = 20) +
+  stat_bin(aes(y=..count.., label=..count..), bins = 20, geom="text", vjust=-.5) +
+  labs(title = 'bins = 20')
+
+p_histo +
+  geom_histogram(aes(y = ..count..), bins = 30) +
+  stat_bin(aes(y=..count.., label=..count..), bins =30, geom="text", vjust=-.5) +
+  labs(title = 'bins = 30(default)')
+
+p_histo +
+  geom_histogram(aes(y = ..count..), bins = 50) +
+  stat_bin(aes(y=..count.., label=..count..), bins = 50, geom="text", vjust=-.5) +
+  labs(title = 'bins = 50')
+
+p_histo +
+  geom_histogram(aes(y = ..count..), bins = 100) +
+  stat_bin(aes(y=..count.., label=..count..), bins = 100, geom="text", vjust=-.5) +
+  labs(title = 'bins = 100')
+
+```
+
+```{r echo = FALSE}
+((p_histo +
+  geom_histogram(aes(y = ..count..), bins = 20) +
+  stat_bin(aes(y=..count.., label=..count..), bins = 20, geom="text", vjust=-.5, size = 2) +
+  labs(title = 'bins = 20')) +
+(p_histo +
+  geom_histogram(aes(y = ..count..), bins = 30) +
+  stat_bin(aes(y=..count.., label=..count..), bins =30, geom="text", vjust=-.5, size = 2) +
+  labs(title = 'bins = 30(default)')))/
+((p_histo +
+  geom_histogram(aes(y = ..count..), bins = 50) +
+  stat_bin(aes(y=..count.., label=..count..), bins = 50, geom="text", vjust=-.5, size = 2) +
+  labs(title = 'bins = 50')) +
+(p_histo +
+  geom_histogram(aes(y = ..count..), bins = 100) +
+  stat_bin(aes(y=..count.., label=..count..), bins = 100, geom="text", vjust=-.5, size = 2) +
+  labs(title = 'bins = 100')))
+
+```
+
+```{r eval = FALSE}
+p_histo +
+  geom_histogram(aes(y = ..count..), binwidth = 25) +
+  stat_bin(aes(y=..count.., label=..count..), binwidth = 25, geom="text", vjust=-.5) +
+  labs(title = 'binwidth = 25')
+
+p_histo +
+  geom_histogram(aes(y = ..count..), binwidth = 20) +
+  stat_bin(aes(y=..count.., label=..count..), binwidth = 20, geom="text", vjust=-.5) +
+  labs(title = 'binwidth = 20')
+
+p_histo +
+  geom_histogram(aes(y = ..count..), binwidth = 10) +
+  stat_bin(aes(y=..count.., label=..count..), binwidth = 10, geom="text", vjust=-.5) +
+  labs(title = 'binwidth = 10')
+
+p_histo +
+  geom_histogram(aes(y = ..count..), binwidth = 5) +
+  stat_bin(aes(y=..count.., label=..count..), binwidth = 5, geom="text", vjust=-.5) +
+  labs(title = 'binwidth = 5')
+
+```
+
+```{r echo = FALSE}
+((p_histo +
+  geom_histogram(aes(y = ..count..), binwidth = 25) +
+  stat_bin(aes(y=..count.., label=..count..), binwidth = 25, geom="text", size = 2, vjust=-.5) +
+  labs(title = 'binwidth = 25')) +
+
+(p_histo +
+  geom_histogram(aes(y = ..count..), binwidth = 20) +
+  stat_bin(aes(y=..count.., label=..count..), binwidth = 20, geom="text", size = 2, vjust=-.5) +
+  labs(title = 'binwidth = 20'))) /
+
+((p_histo +
+  geom_histogram(aes(y = ..count..), binwidth = 10) +
+  stat_bin(aes(y=..count.., label=..count..), binwidth = 10, geom="text", size = 2, vjust=-.5) +
+  labs(title = 'binwidth = 10')) +
+
+(p_histo +
+  geom_histogram(aes(y = ..count..), binwidth = 5) +
+  stat_bin(aes(y=..count.., label=..count..), binwidth = 5, geom="text", size = 2, vjust=-.5) +
+  labs(title = 'binwidth = 5')))
+```
+
+
+## bin 분할 원리
+
+```{r}
+p_histo_2_1 <- p_histo +
+  geom_histogram(aes(y = ..count..), bins = 3) +
+  stat_bin(aes(y=..count.., label=..count..), bins = 3, geom="text", vjust=-.5)
+
+p_histo_2_1
+```
+
+```{r}
+range.x <- max(df_취업통계$취업률_계) - min(df_취업통계$취업률_계)
+
+p_histo_2_1 + 
+  geom_vline(aes(xintercept = range.x/2), color = 'red', linetype = 2)
+
+```
+
+```{r}
+p_histo_2_1 + 
+  geom_vline(aes(xintercept = range.x/2), color = 'red', linetype = 2) + 
+  geom_vline(xintercept = range.x/2, color = 'red') + ## X축의 1/2 위치
+  geom_vline(xintercept = range.x/2/2, color = 'red') + ## X축의 1/4 위치 
+  geom_vline(xintercept = range.x/2/2*3, color = 'red') + ## X축의 3/4 위치
+  scale_x_continuous(breaks = c(min(df_취업통계$취업률_계), 
+                                range.x/2/2, 
+                                range.x/2,
+                                range.x/2/2*3,
+                                max(df_취업통계$취업률_계)
+                                )
+  )
+
+```
+
+
+```{r}
+p_histo_2_1 + 
+  geom_vline(xintercept = 50, color = 'yellow', linetype = 2) + 
+  geom_vline(xintercept = 0, color = 'yellow', linetype = 2) + 
+  geom_vline(xintercept = 100, color = 'yellow', linetype = 2) + 
+  geom_vline(xintercept = 25, color = 'red') + ## X축의 1/4 위치 
+  geom_vline(xintercept = 75, color = 'red') + ## X축의 3/4 위치
+  scale_x_continuous(breaks = c(min(df_취업통계$취업률_계), 
+                                range.x/2/2, 
+                                range.x/2,
+                                range.x/2/2*3,
+                                max(df_취업통계$취업률_계)
+                                )
+  )
+
+```
+
+```{r eval = FALSE}
+p_histo +
+  geom_bar() +
+  scale_x_binned(n.breaks = 3, right = T) +
+  labs(title = 'n.breaks = 3')
+
+p_histo +
+  geom_bar() +
+  scale_x_binned(n.breaks = 5, right = T) +
+  labs(title = 'n.breaks = 5')
+
+p_histo +
+  geom_bar() +
+  scale_x_binned(n.breaks = 10, right = T) +
+  labs(title = 'n.breaks = 10')
+
+p_histo +
+  geom_bar() +
+  scale_x_binned(n.breaks = 20, right = T) +
+  labs(title = 'n.breaks = 20')
+
+```
+
+```{r echo = FALSE}
+(p_histo +
+  geom_bar() +
+  scale_x_binned(n.breaks = 3, right = T) +
+  labs(title = 'n.breaks = 3') +
+
+p_histo +
+  geom_bar() +
+  scale_x_binned(n.breaks = 5, right = T) +
+  labs(title = 'n.breaks = 5')) /
+
+(p_histo +
+  geom_bar() +
+  scale_x_binned(n.breaks = 10, right = T) +
+  labs(title = 'n.breaks = 10') +
+
+p_histo +
+  geom_bar() +
+  scale_x_binned(n.breaks = 20, right = T) +
+  labs(title = 'n.breaks = 20'))
+
+```
+
+## 히스토그램의 축 변환
+
+
+```{r}
+p_histo3_1 <- df_취업통계 |> filter(졸업자_계 < 500) |>
+  ggplot()
+
+p_histo3_2 <- p_histo3_1 +
+  geom_histogram(aes(x = 졸업자_계), bins = 50)
+
+p_histo3_2
+```
+
+```{r eval = FALSE}
+p_histo3_2 +
+  scale_x_log10() +
+  labs(title = 'log10 변환')
+
+p_histo3_2 +
+  scale_x_sqrt() +
+  labs(title = 'sqrt 변환')
+
+```
+
+```{r echo = FALSE}
+(p_histo3_2 +
+  scale_x_log10() +
+  labs(title = 'log10 변환')) /
+(p_histo3_2 +
+  scale_x_sqrt() +
+  labs(title = 'sqrt 변환'))
+
+```
+
+```{r}
+
+df_취업통계 |> filter(취업률_계 != 100, 취업률_계 != 0) |>
+  ggplot() +
+  geom_density(aes(x = 취업률_계, fill = 과정구분, linetype = 과정구분), alpha=0.4, position = 'identity')
+
+```
+
+
+# 밀도 분포 그래프
+
+
+
+
+
+
+
+
+

@@ -417,6 +417,10 @@ gt_table12 %>%
 gt_table13 <- gt_table12 |> 
   cols_width(everything() ~ px(70))
 
+gt_table12 |> 
+  cols_width(starts_with('교외') ~ px(80))
+
+
 gt_table13 %>%
   gtsave(
     "4-18.pdf", expand = 10,
