@@ -566,7 +566,8 @@ p_histo3_2 +
 
 df_취업통계 |> filter(취업률_계 != 100, 취업률_계 != 0) |>
   ggplot() +
-  geom_density(aes(x = 취업률_계, fill = 과정구분, linetype = 과정구분), alpha=0.4, position = 'identity')
+  geom_density(aes(x = 취업률_계, color = 과정구분, fill = 과정구분, linetype = 과정구분), alpha=0.4, position = 'identity') + 
+  facet_wrap(~대계열)
 
 ```
 
