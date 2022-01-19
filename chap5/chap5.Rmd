@@ -1,5 +1,5 @@
 ---
-title : 그래프의 시각화
+title : 분포의 시각화
 output:
   officedown::rdocx_document:
     reference_docx: bookdown.docx
@@ -27,7 +27,7 @@ library(readxl)
 library(scales)
 library(patchwork)
 
-df_입학자 <- read_excel('c:/R/git/datavisualization/chap3/2021_연도별 입학자수.xlsx', 
+df_입학자 <- read_excel('d:/R/git/datavisualization/chap3/2021_연도별 입학자수.xlsx', 
                  ## 'data' 시트의 데이터를 불러오는데,
                  sheet = 'Sheet0',
                  ## 앞의 10행을 제외하고
@@ -50,7 +50,7 @@ df_입학자_long <- df_입학자 |> pivot_longer(3:10, names_to = '학교종류
 
 ```{r include=FALSE}
 
-df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
+df_취업통계 <- read_excel('d:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
                      ## '학과별' 시트의 데이터를 불러오는데,
                      sheet = '학과별',
                      ## 앞의 13행을 제외하고
@@ -66,6 +66,95 @@ df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 ## df_취업통계 정보 확인
 str(df_취업통계)
 ```
+
+# 스캐터 플롯(scatter plot)
+
+## 추세선 스캐터 플롯(scatter plot)
+
+```{r}
+df_취업통계 |> filter(졸업자_계 < 500) |>
+  ggplot(aes(x = 졸업자_계, y = 취업률_계)) +
+  geom_point()
+
+df_취업통계 |> filter(졸업자_계 < 500) |>
+  ggplot(aes(x = 졸업자_계, y = 취업자_합계_계)) +
+  geom_point(aes(color = 대계열))
+
+df_취업통계 |> filter(졸업자_계 < 500) |>
+  ggplot(aes(x = 졸업자_계, y = 취업자_합계_계)) +
+  geom_point(aes(color = 대계열)) + 
+  geom_smooth(aes(color = 대계열))
+
+```
+
+## 데이터 강조
+
+```{r}
+df_취업통계 |> filter(졸업자_계 < 500) |>
+  ggplot(aes(x = 졸업자_계, y = 취업자_합계_계)) +
+  geom_point(aes(color = 대계열)) + 
+  geom_point(data = df_취업통계 |> filter(졸업자_계 < 500, 학과명 == '건축학과'), color = 'black', size = 3) +
+  ggrepel::geom_text_repel(data = df_취업통계 |> filter(졸업자_계 < 500, 학과명 == '건축학과'), aes(label = 과정구분))
+
+```
+
+
+## 러그 스캐터 플롯(scatter plot)
+
+
+```{r}
+df_취업통계 |> filter(졸업자_계 < 500) |>
+  ggplot(aes(x = 졸업자_계, y = 취업률_계)) +
+  geom_point() +
+   geom_rug(col="steelblue",alpha=0.1, size=1.5)
+
+
+df_취업통계 |> filter(졸업자_계 < 500, 과정구분 == '대학과정') |>
+  ggplot(aes(x = 졸업자_계, y = 취업자_합계_계)) +
+  geom_point(aes(color = 대계열)) +
+   geom_rug(col="steelblue",alpha=0.1, size=1.5)
+
+df_취업통계 |> filter(졸업자_계 < 500) |>
+  ggplot(aes(x = 졸업자_계, y = 취업자_합계_계)) +
+  geom_point(aes(color = 대계열)) + 
+  geom_smooth(aes(color = 대계열)) + 
+    geom_point(data = df_취업통계 |> filter(졸업자_계 < 500, 학과명 == '건축학과'), color = 'black', size = 3) +
+  ggrepel::geom_text_repel(data = df_취업통계 |> filter(졸업자_계 < 500, 학과명 == '건축학과'), aes(label = 과정구분))
+
+geom_text_repel
+```
+
+
+## encircle 스캐터 플롯(scatter plot)
+
+
+```{r}
+if(!require('ggalt')) {
+  install.packages('ggalt')
+  library(ggalt)
+}
+
+df_취업통계 |> filter(졸업자_계 < 500) |>
+  ggplot(aes(x = 졸업자_계, y = 취업자_합계_계)) +
+  geom_point(aes(color = 대계열)) + 
+    geom_point(data = df_취업통계 |> filter(졸업자_계 < 500, 학과명 == '건축학과'), color = 'black', size = 3) +
+  ggrepel::geom_text_repel(data = df_취업통계 |> filter(졸업자_계 < 500, 학과명 == '건축학과'), aes(label = 과정구분)) +
+  geom_encircle(data = df_취업통계 |> filter(졸업자_계 < 500, 학과명 == '건축학과'),  
+                color="black", 
+                size=2, 
+                expand=0.1)
+
+```
+
+## 카운트 스캐터 플롯
+
+```{r}
+df_취업통계 |> filter(졸업자_계 < 25, 대계열 == '인문계열') |>
+  ggplot(aes(x = 졸업자_계, y = 취업률_계, color = 과정구분)) +
+  geom_point()
+
+```
+
 
 # 막대 그래프
 
@@ -220,7 +309,7 @@ df_nation_top10
 
 ```{r echo=FALSE}
 library(readxl)
-df_nation <- read_xlsx('c:/R/git/datavisualization/chap5/연도별 유학국가별 유학생수.xlsx', sheet = 'Sheet0', skip = 2, col_types = c('numeric', 'text', rep('numeric', 25)), col_names = TRUE)
+df_nation <- read_xlsx('d:/R/git/datavisualization/chap5/연도별 유학국가별 유학생수.xlsx', sheet = 'Sheet0', skip = 2, col_types = c('numeric', 'text', rep('numeric', 25)), col_names = TRUE)
 
 df_nation <- df_nation |>
   filter(!is.na(학년도), 학제 == '소계') |>
@@ -278,16 +367,16 @@ labels <- setNames(
 ```
 
 ```{r echo=FALSE}
-flag_usa <- 'c:/R/git/datavisualization/chap5/usa.png'
-flag_canada <- 'c:/R/git/datavisualization/chap5/can.png'
-flag_china <- 'c:/R/git/datavisualization/chap5/chi.png'
-flag_phi <- 'c:/R/git/datavisualization/chap5/phi.png'
-flag_nz <- 'c:/R/git/datavisualization/chap5/nz.png'
-flag_aus <- 'c:/R/git/datavisualization/chap5/aus.png'
-flag_jap <- 'c:/R/git/datavisualization/chap5/jap.png'
-flag_eng <- 'c:/R/git/datavisualization/chap5/eng.png'
-flag_mal <- 'c:/R/git/datavisualization/chap5/mal.png'
-flag_ger <- 'c:/R/git/datavisualization/chap5/ger.png'
+flag_usa <- 'd:/R/git/datavisualization/chap5/usa.png'
+flag_canada <- 'd:/R/git/datavisualization/chap5/can.png'
+flag_china <- 'd:/R/git/datavisualization/chap5/chi.png'
+flag_phi <- 'd:/R/git/datavisualization/chap5/phi.png'
+flag_nz <- 'd:/R/git/datavisualization/chap5/nz.png'
+flag_aus <- 'd:/R/git/datavisualization/chap5/aus.png'
+flag_jap <- 'd:/R/git/datavisualization/chap5/jap.png'
+flag_eng <- 'd:/R/git/datavisualization/chap5/eng.png'
+flag_mal <- 'd:/R/git/datavisualization/chap5/mal.png'
+flag_ger <- 'd:/R/git/datavisualization/chap5/ger.png'
 
 flags <- data.frame(nations = c('미국', '캐나다', '중국','필리핀', '뉴질랜드', '호주', '일본', '영국', '말레이시아', '독일'), flag_path = c(flag_usa, flag_canada, flag_china, flag_phi, flag_nz, flag_aus, flag_jap, flag_eng, flag_mal, flag_ger))
 
@@ -308,10 +397,11 @@ if(!require(ggtext)) {
   install.packages('ggtext')
   library(ggtext)
 }
+library(ggtext)
 
 p_nation_top10_1 +
-  scale_x_discrete(labels = labels) + 
   theme(axis.text.x = ggtext::element_markdown())
+
 ```
 
 
@@ -562,6 +652,65 @@ p_histo3_2 +
 
 ```
 
+
+## 사용자 정의 히스토그램
+
+
+```{r}
+df_취업통계$취업률_그룹 <- cut(df_취업통계$취업률_계, breaks = 10, label = paste0(1:10, '그룹'))
+
+df_취업통계 |>
+  ggplot() +
+  geom_bar(aes(x = 취업률_그룹, y = ..count..))
+
+df_취업통계$취업률_그룹 <- cut(df_취업통계$취업률_계, breaks = c(-Inf, 30, 40, 50, 60, 70, 80, 90, 100), label = c('30% 이하', '40%대', '50%대', '60%대', '70%대', '80%대', '90%대', '100%'))
+
+df_취업통계 |>
+  ggplot() +
+  geom_bar(aes(x = 취업률_그룹, y = ..count..))
+
+df_취업통계 |>
+  mutate(취업률_그룹 = case_when(
+    취업률_계 < 30 ~ '30%이하', 
+    취업률_계 >= 30 & 취업률_계 < 40 ~ '30%대', 
+    취업률_계 >= 40 & 취업률_계 < 50 ~ '40%대', 
+    취업률_계 >= 50 & 취업률_계 < 60 ~ '50%대', 
+    취업률_계 >= 60 & 취업률_계 < 70 ~ '60%대', 
+    취업률_계 >= 70 & 취업률_계 < 80 ~ '70%대', 
+    취업률_계 >= 80 & 취업률_계 < 90 ~ '80%대', 
+    취업률_계 >= 90 & 취업률_계 < 100 ~ '90%대',
+    TRUE ~ '100%'
+  ))
+
+df_취업통계 |>
+  ggplot() +
+  geom_bar(aes(x = 취업률_그룹, y = ..count..))
+
+df_취업통계$취업률_그룹 <- case_when( 
+    df_취업통계$취업률_계 < 30 ~ '30%이하', 
+    df_취업통계$취업률_계 >= 30 & df_취업통계$취업률_계 < 40 ~ '30%대', 
+    df_취업통계$취업률_계 >= 40 & df_취업통계$취업률_계 < 50 ~ '40%대', 
+    df_취업통계$취업률_계 >= 50 & df_취업통계$취업률_계 < 60 ~ '50%대', 
+    df_취업통계$취업률_계 >= 60 & df_취업통계$취업률_계 < 70 ~ '60%대', 
+    df_취업통계$취업률_계 >= 70 & df_취업통계$취업률_계 < 80 ~ '70%대', 
+    df_취업통계$취업률_계 >= 80 & df_취업통계$취업률_계 < 90 ~ '80%대', 
+    df_취업통계$취업률_계 >= 90 & df_취업통계$취업률_계 < 100 ~ '90%대',
+    TRUE ~ '100%'
+  )
+
+
+
+```
+
+
+
+
+
+
+# 밀도 분포 그래프
+
+## 다중 밀도 분포 그래프
+
 ```{r}
 
 df_취업통계 |> filter(취업률_계 != 100, 취업률_계 != 0) |>
@@ -572,13 +721,33 @@ df_취업통계 |> filter(취업률_계 != 100, 취업률_계 != 0) |>
 ```
 
 
-# 밀도 분포 그래프
+## ridge 그래프
+
+```{r}
+if(!require('ggridges')) {
+  install.packages('ggridges')
+  library(ggridges)
+}
+
+df_취업통계 |> filter(취업률_계 != 100, 취업률_계 != 0) |>
+  ggplot() +
+ geom_density_ridges(aes(x = 취업률_계, y = 대계열, fill = 과정구분), alpha=0.4, position = 'identity')
 
 
+```
 
 
+```{r}
+if(!require('ggExtra')) {
+  install.packages('ggExtra')
+  library(ggExtra)
+}
+
+p_scatter <- df_취업통계 |> filter(졸업자_계 < 500) |>
+  ggplot(aes(x = 졸업자_계, y = 취업률_계)) +
+  geom_point()
 
 
+  ggMarginal(p_scatter, df_취업통계, y = 취업률_합계_계, type = 'density', color="purple", size=4)
 
-
-
+```
