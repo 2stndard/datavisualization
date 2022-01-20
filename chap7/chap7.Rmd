@@ -97,29 +97,177 @@ theme_set(theme(
 ```{r}
 df_입학자_long$연도 <- lubridate::ymd(as.Date(df_입학자_long$연도, '%Y'))
 
+df_입학자_long$학교종류 <- fct_relevel(df_입학자_long$학교종류, '전문대학', '일반대학', '교육대학', '산업대학',  '방송통신대학', '원격및사이버대학', '석사', '박사')
+
+
 p_line <- df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '교육대학', '산업대학', '석사', '박사')) |>
   ggplot(aes(x = 연도, y = (입학생수)/1000)) + 
-  scale_y_continuous(breaks = c(100, 200, 300), labels = c('100천', '200천', '300천')) +
-  scale_x_date(date_breaks = "2 years", date_labels = '%y', limits = ) +
-  theme(axis.text.x = element_text(angle = 45)) +
+  scale_x_date(date_breaks = "2 years", date_labels = '%y') +
   labs(title = '선 그래프', x = '연도', y = '입학생수(천명)')
 
 p_line +
   geom_line(aes(group = 학교종류, color = 학교종류))
 
-
-substring(pull(df_입학자_long, 연도), 3, 4)
-
-pull
 ```
-## 스파게티 선 그래프
 
-### 분할(facet)을 사용
+### 데이터 점 레이어 병합
 
 ```{r}
 p_line +
-  geom_line() + 
-  facet_wrap(~ 학교종류)
-
+  geom_line(aes(group = 학교종류, color = 학교종류)) +
+  geom_point(aes(color = 학교종류))
 
 ```
+
+```{r}
+p_line +
+  geom_line(aes(group = 학교종류, color = 학교종류)) +
+  geom_point(aes(color = 학교종류)) +
+  geom_text(aes(color = 학교종류, label = scales::comma(입학생수, accuracy = 1)), size = 2, vjust = -1.5)
+
+```
+
+```{r}
+p_line +
+  geom_line(aes(group = 학교종류, color = 학교종류)) +
+  geom_point(aes(color = 학교종류)) +
+  geom_text(data = df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '교육대학', '산업대학', '석사', '박사'), lubridate::year(연도) == '2021'),
+            aes(color = 학교종류, label = scales::comma(입학생수, accuracy = 1)), 
+            size = 3, vjust = -1.5)
+
+```
+
+## 스파게티 선 그래프
+
+### 분할(facet) 사용
+
+```{r}
+p_line +
+  geom_line(aes(group = 학교종류)) +
+  facet_wrap(~ 학교종류)
+
+```
+
+
+
+```{r}
+p_line +
+  geom_line(aes(group = 학교종류)) +
+  facet_wrap(~ 학교종류, scales = 'free_y')
+
+```
+
+
+### 특정 범주만 강조
+
+```{r}
+p_line +
+  geom_line(aes(group = 학교종류), color = 'grey75') + 
+  geom_line(data = df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('전문대학')), aes(group = 1), color = 'darkred')
+```
+
+
+### 분할(facet)과 특정 범주 강조
+
+```{r}
+p_line +
+  geom_line(aes(group = 학교종류), color = 'grey75') + 
+  geom_line(data = df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('전문대학')), aes(group = 1), color = 'darkred') +
+  facet_wrap(~ 학교종류)
+
+```
+
+### 이중 축 선 그래프
+
+```{r}
+p_line1 <- df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('일반대학', '석사', '박사')) |>
+  ggplot(aes(x = 연도, y = (입학생수)/1000)) + 
+  scale_x_date(date_breaks = "2 years", date_labels = '%y', limits = ) +
+  labs(title = '이중축 선 그래프', x = '연도', y = '입학생수(천명)')
+
+p_line1 +
+  geom_line(aes(group = 학교종류, color = 학교종류))
+
+```
+
+```{r}
+first_max <- df_입학자_long |>
+  filter(지역 == '전체', 학교종류 %in% c('일반대학')) |>
+  summarise(max = max(입학생수)) |>
+  pull()
+
+second_max <- df_입학자_long |>
+  filter(지역 == '전체', 학교종류 %in% c('석사')) |>
+  summarise(max = max(입학생수)) |>
+  pull()
+
+ratio <- first_max/second_max
+
+p_line2 <- p_line1 +
+  geom_line(data = df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('일반대학')), aes(x = 연도, y = 입학생수 / 1000, group = 1, color = 학교종류)) +
+  geom_line(data = df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('석사')), aes(x = 연도, y = (입학생수 * ratio) / 1000, group = 학교종류, color = 학교종류))
+
+p_line2
+```
+
+```{r}
+p_line3 <-p_line2 +
+  scale_color_manual(values = c('일반대학' = 'darkred', '석사' = 'darkgreen'))
+
+p_line3
+
+```
+
+
+```{r}
+p_line4 <- p_line3 +
+  scale_y_continuous(name = "일반대학 입학생수(천명)",  ## 첫번째 Y축 이름 설정
+                     labels = scales::comma, 
+                     sec.axis = sec_axis(trans=~ ./ratio, ## 두번째 Y축 변환식과 이름 설정
+                                         name="석사 입학생수(천명)", 
+                                         labels = scales::comma) 
+    ) 
+
+p_line4
+
+```
+
+
+
+```{r}
+
+
+p_line4 +
+  theme(legend.position = 'bottom', 
+        axis.line.y.left = element_line(color = 'darkgreen'), 
+        axis.text.y.left = element_text(color = 'darkgreen'), 
+        axis.title.y.left = element_text(color = 'darkgreen'),
+        panel.grid.major.y = element_line(color = 'darkgreen'), 
+        axis.line.y.right = element_line(color = 'darkred'), 
+        axis.text.y.right = element_text(color = 'darkred'), 
+        axis.title.y.right = element_text(color = 'darkred')
+        ) + 
+  geom_hline(aes(yintercept = 90 * ratio), color = 'darkred', linetype = 2) + 
+  geom_hline(aes(yintercept = 100 * ratio), color = 'darkred', linetype = 2)
+
+```
+
+
+## 세그먼트 라인 그래프
+
+```{r}
+df_입학자 |> filter(지역 == '전체') |>
+  ggplot(aes(x = 석사, y = 박사)) + 
+  ggrepel::geom_text_repel(aes(label = 연도)) +
+  geom_segment(aes(
+                    xend=c(tail(석사, n=-1), NA), 
+                    yend=c(tail(박사, n=-1), NA)
+                  ),
+                  arrow=arrow(length=unit(0.3,"cm"))
+      ) + 
+  scale_x_continuous(labels = scales::comma) + 
+  scale_y_continuous(labels = scales::comma)
+```
+
+
+
