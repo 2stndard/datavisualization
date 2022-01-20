@@ -1,5 +1,5 @@
 ---
-title : 상관(Correlation)의 시각화
+title : 추세(trend)의 시각화
 output:
   officedown::rdocx_document:
     reference_docx: bookdown.docx
@@ -65,11 +65,7 @@ df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 
 ## df_취업통계 정보 확인
 str(df_취업통계)
-```
 
-# 스캐터 플롯(Scatter Plot)
-
-```{r}
 set.seed(123)
 df_취업통계_sample <- df_취업통계 |> filter(취업률_계 != 100, 졸업자_계 >= 1) |>
   filter(졸업자_계 < 500) |>
@@ -92,133 +88,38 @@ theme_set(theme(
     legend.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"), 
     legend.key = element_rect(fill = "#fbf9f4", color = NA)
   ))
-
 ```
 
-## 추세선 스캐터 플롯(scatter plot)
+# 선 그래프
+
+## 기본 그래프
 
 ```{r}
-p_scatter <- df_취업통계_sample |> 
-  ggplot()
+df_입학자_long$연도 <- lubridate::ymd(as.Date(df_입학자_long$연도, '%Y'))
 
-p_scatter1 <- p_scatter +
-  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계)) + 
-  labs(title = '산점도', x = '졸업자수', y = '취업자수')
+p_line <- df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '교육대학', '산업대학', '석사', '박사')) |>
+  ggplot(aes(x = 연도, y = (입학생수)/1000)) + 
+  scale_y_continuous(breaks = c(100, 200, 300), labels = c('100천', '200천', '300천')) +
+  scale_x_date(date_breaks = "2 years", date_labels = '%y', limits = ) +
+  theme(axis.text.x = element_text(angle = 45)) +
+  labs(title = '선 그래프', x = '연도', y = '입학생수(천명)')
 
-p_scatter1
+p_line +
+  geom_line(aes(group = 학교종류, color = 학교종류))
+
+
+substring(pull(df_입학자_long, 연도), 3, 4)
+
+pull
 ```
+## 스파게티 선 그래프
 
-
-```{r}
-p_scatter2 <- p_scatter1 +
-  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열)) + 
-  labs(color = '계열구분')
-
-p_scatter2
-```
-
+### 분할(facet)을 사용
 
 ```{r}
-p_scatter2 + 
-  geom_smooth(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열))
-```
-
-## 러그 스캐터 플롯(scatter plot)
+p_line +
+  geom_line() + 
+  facet_wrap(~ 학교종류)
 
 
-```{r}
-if(!require('ggrepel')) {
-  install.packages('ggrepel')
-  library(ggrepel)
-}
-
-
-p_scatter3 <- p_scatter2 + 
-  geom_rug(aes(x = 졸업자_계, y = 취업자_합계_계), col= "steelblue", alpha=0.5)
-
-p_scatter3
-```
-
-## 데이터 강조
-
-```{r}
-p_scatter4 <- p_scatter3 + 
-  geom_point(data = df_취업통계_sample |> filter(학과명 == '컴퓨터정보학과'), aes(x = 졸업자_계, y = 취업자_합계_계), color = 'black', size = 2)
-
-p_scatter4
-
-```
-
-```{r}
-p_scatter5 <- p_scatter4 +
-  ggrepel::geom_text_repel(data = df_취업통계_sample |> filter(학과명 == '컴퓨터정보학과'), aes(x = 졸업자_계, y = 취업자_합계_계, label = 학제))
-
-p_scatter5
-```
-
-## encircle 스캐터 플롯(scatter plot)
-
-
-```{r}
-if(!require('ggalt')) {
-  install.packages('ggalt')
-  library(ggalt)
-}
-
-p_scatter6 <- p_scatter5 +
-    geom_encircle(data = df_취업통계_sample |> filter(학과명 == '컴퓨터정보학과'), aes(x = 졸업자_계, y = 취업자_합계_계), color="darkred", size = 2)
-
-p_scatter6
-```
-
-# 버블 차트(Bubble Chart)
-
-```{r}
-p_bubble <- df_취업통계_sample |> filter(대계열 == '인문계열') |> 
-  ggplot()
-
-p_bubble +
-  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계, size = 취업률_계, color = 취업률_계)) + 
-  labs(title = '버블 차트', x = '졸업자수', y = '취업자수', color = '취업률', size = '취업률') 
-  
-
-```
-
-# 상관도
-
-```{r}
-if(!require('ggcorrplot')) {
-  install.packages('ggcorrplot')
-  library(ggcorrplot)
-}
-
-corr <- round(cor(df_취업통계_sample[, 13:19]), 1)
-
-ggcorrplot(corr, type = "lower", 
-           lab = TRUE, 
-           lab_size = 3, 
-           method="square", 
-           colors = c("tomato1", "white", "skyblue1"), 
-           title="취업 상세 정보의 상관도", 
-           ggtheme=theme_bw)
-```
-
-# 히트맵
-
-```{r}
-df_입학자_long |> filter(지역 != '전체') |> filter(학교종류 == '일반대학') |>
-  ggplot() +
-  geom_tile(aes(x = 연도, y = 지역, fill = 입학생수)) + 
-  scale_fill_continuous(type = "viridis")
-```
-
-
-
-# geom_hex
-
-```{r}
-df_입학자_long |> filter(지역 != '전체') |> filter(학교종류 == '일반대학') |>
-  ggplot() +
-  geom_hex(aes(x = 연도, y = 지역)) + 
-  scale_fill_continuous(type = "viridis")
 ```

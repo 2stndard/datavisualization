@@ -1,5 +1,5 @@
 ---
-title : 분포의 시각화
+title : 분포(Distribution)의 시각화
 output:
   officedown::rdocx_document:
     reference_docx: bookdown.docx
@@ -67,10 +67,27 @@ df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 str(df_취업통계)
 
 set.seed(123)
-df_취업통계_sample <- df_취업통계 |>
+df_취업통계_sample <- df_취업통계 |> filter(취업률_계 != 100, 졸업자_계 >= 1) |>
   filter(졸업자_계 < 500) |>
   sample_n(2000)
 
+df_취업통계_sample$과정구분 <- fct_relevel(df_취업통계_sample$과정구분, '전문대학과정', '대학과정', '대학원과정')
+
+## 대계열의 순서를 맞추기 위해 과정구분을 팩터로 설정하고 레벨의 순서를 설정
+df_취업통계_sample$대계열 <- fct_relevel(df_취업통계_sample$대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')
+
+theme_set(theme(
+    axis.ticks = element_blank(),
+    axis.line = element_line(colour = "grey50"),
+    panel.grid = element_line(color = "#b4aea9"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(linetype = "dashed"),
+    panel.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
+    plot.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"), 
+    legend.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"), 
+    legend.key = element_rect(fill = "#fbf9f4", color = NA)
+  ))
 ```
 
 # 히스토그램
@@ -676,44 +693,121 @@ p_nation_top10_1 +
 
 ```
 
-# 박스 플롯
+# 박스 플롯과 바이올린 플롯
+
+## 기본 플롯
 
 ```{r}
 
-df_취업통계_sample$과정구분 <- fct_relevel(df_취업통계_sample$과정구분, '전문대학과정', '대학과정', '대학원과정')
-
-## 대계열의 순서를 맞추기 위해 과정구분을 팩터로 설정하고 레벨의 순서를 설정
-df_취업통계_sample$대계열 <- fct_relevel(df_취업통계_sample$대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')
-
-p_boxplot <- df_취업통계_sample |> filter(취업률_계 != 100, 졸업자_계 >= 1) |>
+p_boxplot <- df_취업통계_sample |>
   ggplot() + 
-  theme_classic()
-
+  labs(title = '박스 플롯', x = '대계열', y = '취업률')
 
 p_boxplot +
   geom_boxplot(aes(x = 대계열, y = 취업률_계))
 
+```
+
+## 평균값 표현
+
+```{r}
+df_취업통계_sample |>
+  ggplot() + 
+  labs(title = '박스 플롯', x = '대계열', y = '취업률') +
+  geom_boxplot(aes(x = 대계열, y = 취업률_계)) +
+  geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun.y = 'mean', color = 'tomato3', shape = 4) + 
+  geom_text(aes(x = 대계열, y = 취업률_계, label = round(..y.., 1)), stat = 'summary', fun.y = 'mean', color = 'tomato3', vjust = 1.5)
 
 ```
+
 
 ## highlight boxplot
 
 ```{r}
-df_취업통계 
+df_취업통계_sample$highlight <- ifelse(df_취업통계_sample$대계열 == '자연계열', 1, 0)
+
+p_boxplot <- df_취업통계_sample |>
+  ggplot() + 
+  labs(title = '박스 플롯', x = '대계열', y = '취업률')
 
 p_boxplot +
-  geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 과정구분))
-  
+  geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = as.factor(highlight)), show.legend = FALSE) +
+  geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun.y = 'mean', color = 'tomato3', shape = 4) + 
+  geom_text(aes(x = 대계열, y = 취업률_계, label = round(..y.., 1)), stat = 'summary', fun.y = 'mean', color = 'tomato3', vjust = 1.5) +
+  scale_fill_manual(values=c("grey", "dodgerblue1")) 
 
 ```
 
-
-
+## grouped boxplot
 
 ```{r}
 p_boxplot +
   geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 과정구분))
+
+```
+
+## facet boxplot
+
+```{r}
+p_boxplot +
+  geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = as.factor(highlight)), show.legend = FALSE) +
+  facet_wrap(~과정구분) + 
+  theme(axis.text.x = element_text(angle = -45, vjust = 0.5)) +
+  scale_fill_manual(values=c("grey", "dodgerblue1")) 
+
+
+```
+
+## boxplot with jitter
+
+```{r}
+p_boxplot +
+  geom_boxplot(aes(x = 대계열, y = 취업률_계)) +
+  geom_jitter(aes(x = 대계열, y = 취업률_계), alpha = 0.2, color = 'orange') +
+  geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun.y = 'mean', color = 'tomato3', shape = 4) + 
+  geom_text(aes(x = 대계열, y = 취업률_계, label = round(..y.., 1)), stat = 'summary', fun.y = 'mean', color = 'tomato3', vjust = 1.5)
   
+```
+## 박스플롯과 바이올린 플롯의 병합
+
+```{r}
+p_violin <- df_취업통계_sample |>
+  ggplot() + 
+  labs(title = '바이올린 플롯', x = '대계열', y = '취업률')
+  
+p_violin +
+  geom_violin(aes(x = 대계열, y = 취업률_계, fill = as.factor(highlight)), show.legend = FALSE) +
+  geom_boxplot(aes(x = 대계열, y = 취업률_계), width=0.2, color="white", alpha=0.2) +
+  geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun.y = 'mean', color = 'tomato3', shape = 4) + 
+  geom_text(aes(x = 대계열, y = 취업률_계, label = round(..y.., 1)), stat = 'summary', fun.y = 'mean', color = 'tomato3', vjust = 1.5) +
+  scale_fill_manual(values=c("grey", "dodgerblue1"))
+  
+```
+
+
+# 피라미드 플롯
+
+```{r}
+brks <- seq(from = -300000, to = 300000, by = 50000)
+lbls <- paste0(as.character(c(seq(300, 0, -50), seq(50, 300, 50))), "K")
+
+
+df_입학자_pyramid<- df_입학자_long |>
+  filter(학교종류 %in% c('전문대학', '일반대학'), 지역 == '전체') |>
+  mutate(입학생수 = ifelse(학교종류 == '전문대학', 입학생수 * -1, 입학생수))
+
+
+p_pyramid <- df_입학자_pyramid |>
+  ggplot() + 
+  labs(title = '일반대, 전문대 입학생수 변화')
+
+
+p_pyramid +
+  geom_col(aes(x = 연도, y = 입학생수, fill = 학교종류)) + 
+  scale_y_continuous(breaks = brks, labels = lbls) +
+  scale_x_discrete(limits=rev) + 
+  coord_flip() + 
+  scale_fill_brewer(palette = "Dark2")  # Color palette
 
 ```
 
