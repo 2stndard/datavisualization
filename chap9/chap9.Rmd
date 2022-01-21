@@ -92,7 +92,7 @@ theme_set(theme(
 
 
 
-## 가로형 막대 그래프
+# 비율 누적 막대 그래프
 
 ```{r}
 p_col_hor <- df_입학자_long |>
@@ -157,3 +157,12 @@ p_col_hor3 +
         panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.border = element_blank(), panel.background = element_blank()) + scale_fill_brewer(palette="Paired")
 ```
+
+
+# 파이 차트
+
+# 도텃 차트
+
+# 트리맵
+
+# 와플차트
