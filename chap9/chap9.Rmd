@@ -1,0 +1,159 @@
+---
+title : 구성(Composition)의 시각화
+output:
+  officedown::rdocx_document:
+    reference_docx: bookdown.docx
+    plots:
+      style: Normal
+      align: center
+      fig.lp: 'fig:'
+      topcaption: false
+      caption:
+        style: Image Caption
+        pre: 'Figure '
+        sep: ': '
+        tnd: 0
+        tns: '-'
+        fp_text: !expr officer::fp_text_lite(bold = TRUE)
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, out.width = '100%', dpi = 120, fig.width = 6.5)
+
+library(showtext)
+showtext_auto()
+library(tidyverse)
+library(readxl)
+library(scales)
+library(patchwork)
+
+df_입학자 <- read_excel('c:/R/git/datavisualization/chap3/2021_연도별 입학자수.xlsx', 
+                 ## 'data' 시트의 데이터를 불러오는데,
+                 sheet = 'Sheet0',
+                 ## 앞의 10행을 제외하고
+                 skip = 3, 
+                 ## 첫번째 행은 열 이름을 설정
+                 col_names = FALSE, 
+                 ## 열의 타입을 설정, 처음 8개는 문자형으로 다음 56개는 수치형으로 설정
+                 col_types = c(rep('text', 2), rep('numeric', 30)))
+df_입학자 <- df_입학자 |> select(1, 2, 5, 7, 9, 11, 13, 19, 29, 31)
+
+## df_입학자의 열이름을 적절한 이름으로 설정
+colnames(df_입학자) <- c('연도', '지역', '전문대학', '교육대학', '일반대학', '방송통신대학', '산업대학', '원격및사이버대학', '석사', '박사')
+
+df_입학자 <- df_입학자 |> filter(!is.na(지역))
+
+df_입학자_long <- df_입학자 |> pivot_longer(3:10, names_to = '학교종류', values_to = '입학생수')
+
+
+```
+
+```{r include=FALSE}
+
+df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
+                     ## '학과별' 시트의 데이터를 불러오는데,
+                     sheet = '학과별',
+                     ## 앞의 13행을 제외하고
+                     skip = 13, 
+                     ## 첫번째 행은 열 이름으로 설정
+                     col_names = TRUE, 
+                     ## 열의 타입을 설정, 처음 9개는 문자형으로 다음 79개는 수치형으로 설정
+                     col_types = c(rep('text', 9), rep('numeric', 79)))
+
+## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
+df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
+
+## df_취업통계 정보 확인
+str(df_취업통계)
+
+set.seed(123)
+df_취업통계_sample <- df_취업통계 |> filter(취업률_계 != 100, 졸업자_계 >= 1) |>
+  filter(졸업자_계 < 500) |>
+  sample_n(2000)
+
+df_취업통계_sample$과정구분 <- fct_relevel(df_취업통계_sample$과정구분, '전문대학과정', '대학과정', '대학원과정')
+
+## 대계열의 순서를 맞추기 위해 과정구분을 팩터로 설정하고 레벨의 순서를 설정
+df_취업통계_sample$대계열 <- fct_relevel(df_취업통계_sample$대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')
+
+theme_set(theme(
+    axis.ticks = element_blank(),
+    axis.line = element_line(colour = "grey50"),
+    panel.grid = element_line(color = "#b4aea9"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(linetype = "dashed"),
+    panel.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
+    plot.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"), 
+    legend.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"), 
+    legend.key = element_rect(fill = "#fbf9f4", color = NA)
+  ))
+```
+
+
+
+## 가로형 막대 그래프
+
+```{r}
+p_col_hor <- df_입학자_long |>
+  filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
+  mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |>
+  ggplot()
+
+p_col_hor1 <- p_col_hor +
+  geom_col(aes(x = 연도, y = 입학생수, fill = 학교종류), position = 'fill')
+
+p_col_hor1
+```
+
+
+```{r}
+p_col_hor2 <- p_col_hor1 + 
+  geom_text(data = (df_입학자_long |>
+  filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
+  mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |>
+  group_by(연도) |>
+  mutate(비율 = 입학생수 / sum(입학생수)) |>
+  ungroup()), 
+  aes(x = 연도, y = 비율, label = scales::percent(비율, accuracy = 0.1), fill = 학교종류), position = position_stack(vjust = 0.5), size = 2)
+
+p_col_hor2
+```
+
+```{r}
+p_col_hor3 <- p_col_hor2 + 
+  coord_flip()
+
+p_col_hor3
+```
+
+```{r}
+p_col_hor3 + 
+    scale_y_continuous(labels = scales::percent_format(suffix = "%", prefix = "")) +
+  scale_x_discrete(limits=rev) +
+  #  scale_y_discrete(labels = scales::percent_format()) +
+  labs(y="학교별 구성비") +
+  theme(axis.line = element_line(size=1, colour = "black"),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.border = element_blank(), panel.background = element_blank()) + scale_fill_brewer(palette="Paired")
+
+```
+
+```{r}
+ p_col_hor1 + 
+  geom_text(data = (df_입학자_long |>
+  filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
+  mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |>
+  group_by(연도) |>
+  mutate(비율 = 입학생수 / sum(입학생수)) |>
+  ungroup()), 
+  aes(x = 연도, y = 비율, label = ifelse(비율 > 0.04, paste0(round(비율, 3) * 100,"%"), ''), fill = 학교종류), position = position_stack(vjust = 0.5), size = 2) + 
+  coord_flip() + 
+    scale_y_continuous(labels = scales::percent_format(suffix = "%", prefix = "")) +
+  scale_x_discrete(limits=rev) +
+  #  scale_y_discrete(labels = scales::percent_format()) +
+  labs(y="학교별 구성비") +
+  theme(axis.line = element_line(size=1, colour = "black"),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.border = element_blank(), panel.background = element_blank()) + scale_fill_brewer(palette="Paired")
+```

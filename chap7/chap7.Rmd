@@ -110,31 +110,37 @@ p_line +
 
 ```
 
-### 데이터 점 레이어 병합
+### 스캐터 플롯과 병합
 
 ```{r}
-p_line +
+p_mix_scatter <- p_line +
   geom_line(aes(group = 학교종류, color = 학교종류)) +
   geom_point(aes(color = 학교종류))
 
+p_mix_scatter
 ```
 
 ```{r}
-p_line +
-  geom_line(aes(group = 학교종류, color = 학교종류)) +
-  geom_point(aes(color = 학교종류)) +
+p_mix_scatter +
   geom_text(aes(color = 학교종류, label = scales::comma(입학생수, accuracy = 1)), size = 2, vjust = -1.5)
 
 ```
 
 ```{r}
-p_line +
-  geom_line(aes(group = 학교종류, color = 학교종류)) +
-  geom_point(aes(color = 학교종류)) +
+p_mix_scatter1 <- p_mix_scatter +
   geom_text(data = df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '교육대학', '산업대학', '석사', '박사'), lubridate::year(연도) == '2021'),
             aes(color = 학교종류, label = scales::comma(입학생수, accuracy = 1)), 
-            size = 3, vjust = -1.5)
+            size = 3, vjust = -1.5, show.legend = FALSE)
 
+p_mix_scatter1  
+```
+
+## 추세 선 그래프
+
+```{r}
+p_mix_scatter1 +
+  geom_smooth(aes(group = 학교종류, color = 학교종류))
+  
 ```
 
 ## 스파게티 선 그래프
@@ -153,7 +159,8 @@ p_line +
 ```{r}
 p_line +
   geom_line(aes(group = 학교종류)) +
-  facet_wrap(~ 학교종류, scales = 'free_y')
+  facet_wrap(~ 학교종류, scales = 'free_y') + 
+  geom_smooth(aes(group = 학교종류))
 
 ```
 
@@ -176,16 +183,17 @@ p_line +
   facet_wrap(~ 학교종류)
 
 ```
+## 축 다루기
 
 ### 이중 축 선 그래프
 
 ```{r}
-p_line1 <- df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('일반대학', '석사', '박사')) |>
+p_dual_axis <- df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('일반대학', '석사', '박사')) |>
   ggplot(aes(x = 연도, y = (입학생수)/1000)) + 
-  scale_x_date(date_breaks = "2 years", date_labels = '%y', limits = ) +
+  scale_x_date(date_breaks = "2 years", date_labels = '%y') +
   labs(title = '이중축 선 그래프', x = '연도', y = '입학생수(천명)')
 
-p_line1 +
+p_dual_axis +
   geom_line(aes(group = 학교종류, color = 학교종류))
 
 ```
@@ -203,24 +211,24 @@ second_max <- df_입학자_long |>
 
 ratio <- first_max/second_max
 
-p_line2 <- p_line1 +
+p_dual_axis1 <- p_dual_axis +
   geom_line(data = df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('일반대학')), aes(x = 연도, y = 입학생수 / 1000, group = 1, color = 학교종류)) +
   geom_line(data = df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('석사')), aes(x = 연도, y = (입학생수 * ratio) / 1000, group = 학교종류, color = 학교종류))
 
-p_line2
+p_dual_axis1
 ```
 
 ```{r}
-p_line3 <-p_line2 +
+p_dual_axis2 <-p_dual_axis1 +
   scale_color_manual(values = c('일반대학' = 'darkred', '석사' = 'darkgreen'))
 
-p_line3
+p_dual_axis2
 
 ```
 
 
 ```{r}
-p_line4 <- p_line3 +
+p_dual_axis3 <- p_dual_axis2 +
   scale_y_continuous(name = "일반대학 입학생수(천명)",  ## 첫번째 Y축 이름 설정
                      labels = scales::comma, 
                      sec.axis = sec_axis(trans=~ ./ratio, ## 두번째 Y축 변환식과 이름 설정
@@ -228,16 +236,14 @@ p_line4 <- p_line3 +
                                          labels = scales::comma) 
     ) 
 
-p_line4
+p_dual_axis3
 
 ```
 
 
 
 ```{r}
-
-
-p_line4 +
+p_dual_axis3 +
   theme(legend.position = 'bottom', 
         axis.line.y.left = element_line(color = 'darkgreen'), 
         axis.text.y.left = element_text(color = 'darkgreen'), 
@@ -252,8 +258,44 @@ p_line4 +
 
 ```
 
+### 축 자르기
 
-## 세그먼트 라인 그래프
+```{r}
+p_cut_axis <- df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('일반대학', '석사')) |>
+  ggplot(aes(x = 연도, y = (입학생수)/1000)) + 
+  geom_line(aes(group = 학교종류, color = 학교종류)) +
+  scale_x_date(date_breaks = "2 years", date_labels = '%y') +
+  labs(title = '선 그래프- 축 자르기', x = '연도', y = '입학생수(천명)')
+
+p_cut_axis
+
+```
+
+```{r}
+if(!require(ggbreak)) {
+  install.packages('ggbreaks')
+  library(ggbreak)
+}
+
+p_cut_axis + 
+  scale_y_break(c(110, 310)) + 
+  theme(axis.title.y = element_text(angle = 90))
+
+```
+
+# 슬로프 그래프
+
+```{r}
+df_입학자_long |> filter(지역 == '전체', lubridate::year(연도) %in% c(seq(from = 2001, to = 2021, by = 5)),  학교종류 %in% c('전문대학', '일반대학')) |>
+  ggplot(aes(x = 연도, y = (입학생수)/1000)) + 
+  geom_line(aes(group = 학교종류, color = 학교종류)) + 
+  geom_label(aes(group = 학교종류, label = paste0(round(입학생수/1000, 0), '천')), label.size = NA, size = 3, fill = '#fbf9f4') + 
+  scale_x_date(breaks = as.Date(as.character(seq(from = 2001, to = 2021, by = 5)), format = '%Y'), date_labels = '%Y') +
+  labs(title = '슬로프 그래프', x = '연도', y = '입학생수(천명)')
+
+```
+
+# 세그먼트 라인 그래프
 
 ```{r}
 df_입학자 |> filter(지역 == '전체') |>
@@ -266,8 +308,30 @@ df_입학자 |> filter(지역 == '전체') |>
                   arrow=arrow(length=unit(0.3,"cm"))
       ) + 
   scale_x_continuous(labels = scales::comma) + 
-  scale_y_continuous(labels = scales::comma)
+  scale_y_continuous(labels = scales::comma) +
+  labs(title = '석사 및 박사 졸업생 변화', x = '석사 졸업생', y = '박사 졸업생')
+
 ```
 
+
+# 덤벨 그래프
+
+```{r}
+df_입학자_long |> filter(지역 == '전체', lubridate::year(연도) %in% c(2016, 2021)) |>
+  mutate(연도 = lubridate::year(연도)) |>
+  select(1, 3, 4) |>
+  pivot_wider(names_from = 연도, values_from = 입학생수) |>
+  ggplot() +
+  geom_point(data = df_입학자_long |> filter(지역 == '전체', 
+                                            lubridate::year(연도) %in% c(2016, 2021)) |>
+               mutate(연도 = as.character(lubridate::year(연도))) |>
+               select(1, 3, 4),
+             aes(x = 입학생수, y = 학교종류, color = 연도)) +
+  ggalt::geom_dumbbell(aes(x = `2016`, xend = `2021`, y = 학교종류), colour_x="skyblue", colour_xend = 'darkblue', size_x = 2, size_xend = 2) + 
+  scale_x_continuous(label=scales::comma) + 
+  scale_color_manual(values = c('2016' = 'skyblue', '2021' = 'darkblue')) +
+  labs(x=NULL, y=NULL, title="덤벨 그래프")
+
+```
 
 

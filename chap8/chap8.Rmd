@@ -18,25 +18,332 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, out.width = '100%', dpi = 120, fig.width = 6.5)
+
+library(showtext)
+showtext_auto()
+library(tidyverse)
+library(readxl)
+library(scales)
+library(patchwork)
+
+df_입학자 <- read_excel('c:/R/git/datavisualization/chap3/2021_연도별 입학자수.xlsx', 
+                 ## 'data' 시트의 데이터를 불러오는데,
+                 sheet = 'Sheet0',
+                 ## 앞의 10행을 제외하고
+                 skip = 3, 
+                 ## 첫번째 행은 열 이름을 설정
+                 col_names = FALSE, 
+                 ## 열의 타입을 설정, 처음 8개는 문자형으로 다음 56개는 수치형으로 설정
+                 col_types = c(rep('text', 2), rep('numeric', 30)))
+df_입학자 <- df_입학자 |> select(1, 2, 5, 7, 9, 11, 13, 19, 29, 31)
+
+## df_입학자의 열이름을 적절한 이름으로 설정
+colnames(df_입학자) <- c('연도', '지역', '전문대학', '교육대학', '일반대학', '방송통신대학', '산업대학', '원격및사이버대학', '석사', '박사')
+
+df_입학자 <- df_입학자 |> filter(!is.na(지역))
+
+df_입학자_long <- df_입학자 |> pivot_longer(3:10, names_to = '학교종류', values_to = '입학생수')
+
+
 ```
 
-## R Markdown
+```{r include=FALSE}
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
+                     ## '학과별' 시트의 데이터를 불러오는데,
+                     sheet = '학과별',
+                     ## 앞의 13행을 제외하고
+                     skip = 13, 
+                     ## 첫번째 행은 열 이름으로 설정
+                     col_names = TRUE, 
+                     ## 열의 타입을 설정, 처음 9개는 문자형으로 다음 79개는 수치형으로 설정
+                     col_types = c(rep('text', 9), rep('numeric', 79)))
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
+df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 
-```{r cars}
-summary(cars)
+## df_취업통계 정보 확인
+str(df_취업통계)
+
+set.seed(123)
+df_취업통계_sample <- df_취업통계 |> filter(취업률_계 != 100, 졸업자_계 >= 1) |>
+  filter(졸업자_계 < 500) |>
+  sample_n(2000)
+
+df_취업통계_sample$과정구분 <- fct_relevel(df_취업통계_sample$과정구분, '전문대학과정', '대학과정', '대학원과정')
+
+## 대계열의 순서를 맞추기 위해 과정구분을 팩터로 설정하고 레벨의 순서를 설정
+df_취업통계_sample$대계열 <- fct_relevel(df_취업통계_sample$대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')
+
+theme_set(theme(
+    axis.ticks = element_blank(),
+    axis.line = element_line(colour = "grey50"),
+    panel.grid = element_line(color = "#b4aea9"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(linetype = "dashed"),
+    panel.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
+    plot.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"), 
+    legend.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"), 
+    legend.key = element_rect(fill = "#fbf9f4", color = NA)
+  ))
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+# 막대 그래프
+```{r}
+df_취업통계_계열별 <- df_취업통계 |> group_by(과정구분, 대계열, 중계열) |>  
+  summarise(졸업자 = sum(졸업자_계), 
+            취업자 = sum(취업자_합계_계), 
+            교외취업자 = sum(취업자_교외취업자_계), 
+            교내취업자 = sum(취업자_교내취업자_계), 
+            해외취업자 = sum(취업자_해외취업자_계), 
+            농림어업종사자 = sum(취업자_농림어업종사자_계), 
+            개인창작활동종사자 = sum(취업자_개인창작활동종사자_계), 
+            일인창사업자 = sum(`취업자_1인창(사)업자_계`), 
+            프리랜서 = sum(취업자_프리랜서_계), 
+            진학자 = sum(진학자_계), 
+            입대자 = sum(입대자),
+            취업불가능자 = sum(취업불가능자_계), 
+            외국인유학생 = sum(외국인유학생_계), 
+            제외인정자 = sum(제외인정자_계), 
+            기타 = sum(기타_계), 
+            미상 = sum(미상_계), 
+    ## 백분률인 취업률은 그 자체로 합계나 평균을 낼 수 없으니 각 그룹별로 재계산
+            취업률 = 취업자 / (졸업자 - (진학자+입대자+취업불가능자+외국인유학생+제외인정자)))
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## stack, dodge, fill
+
+```{r}
+p_col_type <- df_취업통계_계열별 |>
+  mutate(대계열 = fct_relevel(대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')) |>
+  ggplot()
+
+p_col_type +
+  geom_col(aes(x = 대계열, y = 취업자))
+
+```
+
+```{r}
+p_col_type +
+  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분))
+
+```
+
+
+```{r}
+p_col_type +
+  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'stack')
+
+p_col_type +
+  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'fill')
+
+p_col_type +
+  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'dodge')
+  
+```
+
+
+
+## 데이터 값 넣기
+
+
+```{r}
+p_col_data <- df_취업통계_계열별 |> group_by(과정구분, 대계열) |>
+  summarise(취업자 = sum(취업자)) |>
+  ggplot() +
+  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분)) +
+  geom_text(aes(x = 대계열, y = 취업자, label = scales::comma(취업자, accuracy = 1), fill =과정구분), position = position_stack(vjust = 0.5), size = 2)
+
+p_col_data
+```
+
+
+```{r}
+p_col_data1 <-  p_col_data + 
+  stat_summary(aes(x = 대계열, y = 취업자, label = scales::comma(..y.., accuracy = 1)), fun = 'sum', geom = 'text', color = 'red', vjust = -0.5, size = 2,  inherit.aes = FALSE) + 
+  scale_y_continuous(labels = scales::comma)
+
+p_col_data1
+```
+
+
+
+
+## 축 라벨에 이미지 넣기
+
+```{r eval=FALSE}
+library(readxl)
+df_nation <- read_xlsx('파일경로/연도별 유학국가별 유학생수.xlsx', sheet = 'Sheet0', skip = 2, col_types = c('numeric', 'text', rep('numeric', 25)), col_names = TRUE)
+
+df_nation <- df_nation |>
+  filter(!is.na(학년도), 학제 == '소계') |>
+  select(!contains(c('계', '학제', '기타', '미확인', '그외동남아', '남미'))) |>
+  gather('국가명', '유학생수', -'학년도')
+
+df_nation_top10 <- df_nation |>
+  group_by(국가명) |>
+  summarise(sum = sum(유학생수)) |>
+  arrange(desc(sum)) |>
+  top_n(10)
+
+df_nation_top10
+
+```
+
+```{r echo=FALSE}
+library(readxl)
+df_nation <- read_xlsx('c:/R/git/datavisualization/chap5/연도별 유학국가별 유학생수.xlsx', sheet = 'Sheet0', skip = 2, col_types = c('numeric', 'text', rep('numeric', 25)), col_names = TRUE)
+
+df_nation <- df_nation |>
+  filter(!is.na(학년도), 학제 == '소계') |>
+  select(!contains(c('계', '학제', '기타', '미확인', '그외동남아', '남미'))) |>
+  gather('국가명', '유학생수', -'학년도')
+
+df_nation_top10 <- df_nation |>
+  group_by(국가명) |>
+  summarise(sum = sum(유학생수)) |>
+  arrange(desc(sum)) |>
+  top_n(10)
+
+df_nation_top10
+
+```
+
+
+```{r}
+p_nation_top10 <- df_nation_top10 |>
+  ggplot(aes(x = 국가명, y = sum)) +
+  geom_col(fill = 'dark blue') +
+  geom_text(aes(x = 국가명, y = sum, label = sum), vjust = -0.5) + 
+  labs(title = '국가별 유학생수 Top 10', y = '유학생수')
+```
+
+
+
+```{r eval=FALSE}
+flag_usa <- '아이콘 이미지 저장 폴더 경로/usa.png'
+flag_canada <- '아이콘 이미지 저장 폴더 경로/can.png'
+flag_china <- '아이콘 이미지 저장 폴더 경로/chi.png'
+flag_phi <- '아이콘 이미지 저장 폴더 경로/phi.png'
+flag_nz <- '아이콘 이미지 저장 폴더 경로/nz.png'
+flag_aus <- '아이콘 이미지 저장 폴더 경로/aus.png'
+flag_jap <- '아이콘 이미지 저장 폴더 경로/jap.png'
+flag_eng <- '아이콘 이미지 저장 폴더 경로/eng.png'
+flag_mal <- '아이콘 이미지 저장 폴더 경로/mal.png'
+flag_ger <- '아이콘 이미지 저장 폴더 경로/ger.png'
+
+flags <- data.frame(nations = c('미국', '캐나다', '중국', '뉴질랜드', '필리핀', '호주', '영국', '일본', '말레이시아', '싱가폴'), flag_path = c(flag_usa, flag_canada, flag_china, flag_nz, flag_phi, flag_aus, flag_eng, flag_jap, flag_mal, flag_sing))
+
+labels <- setNames(
+  paste0("<img src='", flags$flag_path, "' width='30'  height = '20'> <br> ", flags$nations),  flags$nations)
+
+```
+
+```{r echo=FALSE}
+flag_usa <- 'c:/R/git/datavisualization/chap5/usa.png'
+flag_canada <- 'c:/R/git/datavisualization/chap5/can.png'
+flag_china <- 'c:/R/git/datavisualization/chap5/chi.png'
+flag_phi <- 'c:/R/git/datavisualization/chap5/phi.png'
+flag_nz <- 'c:/R/git/datavisualization/chap5/nz.png'
+flag_aus <- 'c:/R/git/datavisualization/chap5/aus.png'
+flag_jap <- 'c:/R/git/datavisualization/chap5/jap.png'
+flag_eng <- 'c:/R/git/datavisualization/chap5/eng.png'
+flag_mal <- 'c:/R/git/datavisualization/chap5/mal.png'
+flag_ger <- 'c:/R/git/datavisualization/chap5/ger.png'
+
+flags <- data.frame(nations = c('미국', '캐나다', '중국','필리핀', '뉴질랜드', '호주', '일본', '영국', '말레이시아', '독일'), flag_path = c(flag_usa, flag_canada, flag_china, flag_phi, flag_nz, flag_aus, flag_jap, flag_eng, flag_mal, flag_ger))
+
+labels <- setNames(
+  paste0("<img src='", flags$flag_path, "' width='30'  height = '20'> <br> ", flags$nations),  flags$nations)
+
+```
+
+```{r}
+p_nation_top10_1 <- p_nation_top10 +
+  scale_x_discrete(labels = labels)
+
+p_nation_top10_1
+```
+
+```{r}
+if(!require(ggtext)) {
+  install.packages('ggtext')
+  library(ggtext)
+}
+
+p_nation_top10_1 +
+  theme(axis.text.x = ggtext::element_markdown())
+
+```
+
+
+# 순위 막대 그래프
+
+```{r}
+df_nation_top10$국가명 <- fct_reorder(df_nation_top10$국가명, desc(df_nation_top10$sum))
+
+df_nation_top10 |>
+  ggplot(aes(x = 국가명, y = sum)) +
+  geom_col(fill = 'dark blue') +
+  geom_text(aes(x = 국가명, y = sum, label = sum), vjust = -0.5) + 
+  labs(title = '국가별 유학생수 Top 10', x = '국가', y = '유학생수') +
+  scale_x_discrete(labels = labels) +
+  theme(axis.text.x = ggtext::element_markdown())
+
+```
+
+
+# 롤리팝 그래프
+
+```{r}
+df_lolipop <- df_취업통계_계열별 |> filter(대계열 == '공학계열') |> group_by(중계열) |>
+  summarise(취업자 = sum(취업자)) |> arrange(desc(취업자))
+
+df_lolipop$중계열 <- fct_reorder(df_lolipop$중계열, desc(df_lolipop$취업자))
+
+p_lolipop <- df_lolipop|>
+  ggplot()
+
+p_lolipop1 <- p_lolipop +
+  geom_segment(aes(x = 중계열, xend = 중계열, y = 0, yend = 취업자)) +
+  geom_point(aes(x = 중계열, y = 취업자, group = 중계열))
+
+p_lolipop1
+
+```
+
+```{r}
+p_lolipop2 <- p_lolipop1 +  
+  geom_text(aes(x = 중계열, y = 취업자, label = scales::comma(취업자)), vjust = -1)
+
+p_lolipop2
+```
+
+```{r}
+p_lolipop1 + 
+  geom_label(aes(x = 중계열, y = 취업자, label = scales::comma(취업자)), hjust = -0.1, label.size = NA, size = 3, fill = '#fbf9f4') +
+  scale_x_discrete(limits = rev) +
+  scale_y_continuous(labels = scales::comma, limits = c(0, 22000)) +
+  labs(title = '롤리팝 그래프', x = '중계열', y = '취업률') + 
+  coord_flip()
+```
+
+# 도트 그래프
+
+```{r}
+p_dot <- df_lolipop|>
+  ggplot()
+
+p_dot1 <- p_dot +
+  geom_segment(aes(x = 중계열, xend = 중계열, y = min(취업자), yend = max(취업자)), linetype = 'dashed', size = 0.1) +
+  geom_point(aes(x = 중계열, y = 취업자, group = 중계열), size = 3, color = 'red') + 
+  scale_x_discrete(limits = rev) +
+  coord_flip() + 
+  labs(title = '도트 그래프', x = '중계열', y = '취업자수')
+
+p_dot1
+
+```
