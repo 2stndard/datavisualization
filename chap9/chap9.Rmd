@@ -161,8 +161,191 @@ p_col_hor3 +
 
 # 파이 차트
 
-# 도텃 차트
+## 단일 파이 차트
+
+```{r}
+df_pie <- df_입학자_long |>
+  filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체', 연도 == 2021) |>
+  mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |>
+  mutate(비율 = 입학생수 / sum(입학생수))
+
+p_pie <- df_pie |>
+  ggplot()
+
+
+p_pie1 <- p_pie +
+  geom_col(aes(x = 연도, y = 입학생수, fill = 학교종류), position = 'fill') +
+  geom_text(aes(x = 연도, y = 비율, label = scales::percent(비율, accuracy = 0.1), fill = 학교종류), position = position_stack(vjust = 0.5), size = 3)
+
+p_pie1
+
+p_pie1 +
+  coord_polar(theta = "y") +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = '2021년 입학생 구성비')
+```
+
+## 분할 파이 차트
+
+```{r}
+df_pie_all <- df_입학자_long |>
+  filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
+  mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |> 
+  group_by(연도) |>
+  mutate(비율 = 입학생수 / sum(입학생수)) |>
+  ungroup()
+
+
+p_pie_all <- df_pie_all |>
+  ggplot()
+
+
+p_pie_all1 <- p_pie_all +
+  geom_col(aes(x = 1, y = 입학생수, fill = 학교종류), position = 'fill') +
+  geom_text(aes(x = 1, y = 비율, label = scales::percent(비율, accuracy = 0.1), fill = 학교종류), position = position_stack(vjust = 0.5), size = 2)
+
+p_pie_all1
+
+p_pie_all1 +
+  facet_wrap(~연도) + 
+  coord_polar(theta = "y") +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = '연도별 입학생 구성비')
+```
+
+# 도넛 차트
+
+## 단일 도넛 차트
+
+```{r}
+df_donut <- df_입학자_long |>
+  filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체', 연도 == 2021) |>
+  mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |>
+  mutate(비율 = round(입학생수 / sum(입학생수), 3))
+
+
+df_donut$ymax = cumsum(df_donut$비율)
+
+df_donut$ymin = lag(df_donut$ymax, 1, default = 0)
+
+df_donut$middle = (df_donut$ymin + df_donut$ymax) / 2 
+
+p_donut <- df_donut |>
+  ggplot()
+
+p_donut1 <- p_donut +
+  geom_rect(aes(xmin = 3, xmax = 4, ymin = ymin, ymax = ymax, fill = 학교종류)) + 
+  geom_text(aes(x = 3.5, y = middle, label = scales::percent(비율, accuracy = 0.1)))
+
+p_donut1
+
+p_donut2 <- p_donut1 +
+  coord_polar(theta = "y") +
+  lims(x = c(2, 4)) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = '2021년 입학생 구성비')
+
+p_donut2
+```
+
+## 분할 도넛 차트
+
+```{r}
+df_donut_all <- df_입학자_long |>
+  filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
+  mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |> 
+  group_by(연도) |>
+  mutate(비율 = 입학생수 / sum(입학생수), ymax = cumsum(df_donut$비율), ymin = lag(df_donut$ymax, 1, default = 0), middle = (df_donut$ymin + df_donut$ymax) / 2) |>
+  ungroup() |>
+  mutate(비율 = round(입학생수 / sum(입학생수), 3))
+
+p_donut_all <- df_donut_all |>
+  ggplot()
+
+p_donut_all1 <- p_donut_all +
+  geom_rect(aes(xmin = 3, xmax = 4, ymin = ymin, ymax = ymax, fill = 학교종류)) + 
+  geom_text(aes(x = 3.5, y = middle, label = scales::percent(비율, accuracy = 0.1)), size = 2)
+
+
+p_donut_all1
+
+p_donut_all1 +
+  facet_wrap(~연도) + 
+  lims(x = c(2, 4)) +
+  coord_polar(theta = "y") +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = '연도별 입학생 구성비')
+
+
+```
 
 # 트리맵
 
+## 단일 그룹 트리맵
+
+```{r}
+if(!require(treemapify)) {
+  install.packages('treemapify')
+  library(treemapify)
+}
+
+df_treemap <- df_취업통계 |> filter(대계열 == '공학계열') |> group_by(중계열) |>
+  summarise(취업자 = sum(취업자_합계_계))
+
+df_treemap |> ggplot(aes(area = 취업자, fill = 취업자, label = paste0(중계열, "\n", scales::comma(취업자)))) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white",
+                    place = "centre",
+                    size = 10, grow =TRUE) +
+  labs(title = '공학계열 취업자 현황') +
+  theme(plot.title = element_text(hjust = 0.5, size = 15))
+
+```
+
+## 다중 그룹 트리맵
+
+```{r}
+
+df_treemap_multi <- df_취업통계 |> group_by(대계열, 중계열) |>
+  summarise(취업자 = sum(취업자_합계_계))
+
+df_treemap_multi |> ggplot(aes(area = 취업자, fill = 취업자, label = paste0(중계열, "\n", scales::comma(취업자)), subgroup = 대계열)) +
+  geom_treemap() + 
+  geom_treemap_subgroup_border(colour = "white", size = 5) +
+  geom_treemap_subgroup_text(place = "centre", grow = TRUE,
+                             alpha = 0.25, colour = "black") +
+  geom_treemap_text(colour = "white", place = "centre",
+                    size = 10, grow = TRUE)
+
+
+  labs(title = '공학계열 취업자 현황') +
+  theme(plot.title = element_text(hjust = 0.5, size = 15))
+
+```
 # 와플차트
+
+```{r}
+var <- df_취업통계 |> filter(대계열 == '공학계열') |> select(중계열) |> pull()  # the categorical data 
+
+nrows <- 20
+
+df_waffle <- expand.grid(y = 1:nrows, x = 1:nrows)
+
+categ_table <- round(table(var) * ((nrows*nrows)/(length(var))))
+
+df_waffle$category <- factor(rep(names(categ_table), categ_table))
+
+ggplot(df_waffle, aes(x = x, y = y, fill = category)) + 
+  geom_tile(color = "black", size = 0.5) +
+  theme_void() +
+  labs(title="공학계열 중계열 학과수 Waffle Chart", fill = '중계열') +
+  scale_fill_brewer(palette = "Set3")
+
+```
+
+
+
