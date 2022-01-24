@@ -10,8 +10,8 @@ output:
       topcaption: false
       caption:
         style: Image Caption
-        pre: 'Figure '
-        sep: ': '
+        pre: '실행결과 8- '
+        sep: '. '
         tnd: 0
         tns: '-'
         fp_text: !expr officer::fp_text_lite(bold = TRUE)
@@ -90,10 +90,25 @@ theme_set(theme(
   ))
 ```
 
+비교의 시각화는특정 변수의 변량에 따른 데이터 값들간의 순서를 비교하는 시각화이다. 비교의 시각화는 다른 시각화와 다른 두가지 특징이 있다.
+
+첫번째 특징은 시각화 그래프 내에서 한번 더 통계처리가 필요하다는 특성을 가진다. 보통 비교의 시각화는 데이터에 값에 따라 시각화 한 후 그 값들을 다시 정렬함으로써 시각화를 완성하게 된다. 따라서 데이터 시각화 후에 `ggplot`객체 내에서 정렬과 같은 통계 처리가 한번 더 일어나게 된다.
+
+두번째 특징은 그 관심의 대상이 데이터 자체의 값 보다는 비교되는 대상 내에서의 상대적 위치에 더 쏠려있다는 점이다. 비교되는 대상 중에 가장 값이 크거나 작은 변량이 무엇인지에 관심이 있는 시각화이다. 비교되는 대상들의 상대적 위치를 명확하게 구분되어야 하기 때문에 비교되는 대상들이 명확하게 구분되어야 하고 이 대상들을 명학하게 구분하기 위해 비교를 위한 변수는 이산형 변수를 사용하는 것이 일반적이다.
+
+비교의 시각화는 막대 그래프, 순위 막대 그래프, 롤리팝 그래프, 도트 그래프 등이 있다.
 
 # 막대 그래프
+
+막대 그래프는 이산형 변수로 구분되는 연속형 수치형 변수를 시각화하기 위해 사용한다. 각각의 이산형 변수에 하나씩의 막대가 표시되고 막대의 길이를 사용하여 데이터 값을 표현한다. 막대 그래프는 데이터를 쉽게 읽을 수 있을 뿐아니라 데이터간의 비교가 상대적으로 쉽다. 따라서 데이터간의 비교에 매우 효과적인 시각화 방법이다.
+
+막대그래프의 가장 일반적인 형태는 세로 막대가 가로축으로 배열되어 있는 형태이다. 과거의 한정된 지면에 표현하던 때나 데이터가 한정적이던 때는 비교할 이산형 변수의 변량이 많지 았았지만 지금같이 데이터가 많이지고 웹사이트와 같이 위아래로 스크롤이 가능한 화면에서는 오히려 가로형 막대를 세로축에 표현하는 경우도 많다.
+
+막대 그래프를 실습해보기 전에 실습에 필요한 데이터를 다음과 같이 데이터를 준비하도록 하겠다. 다음의 데이터는 df_취업통계 데이터를 과정구분, 대계열, 중계열 별로 그루핑하여 각각의 열의 합계값을 만들고 각각의 중계열별 취업률을 산출한다.
+
 ```{r}
-df_취업통계_계열별 <- df_취업통계 |> group_by(과정구분, 대계열, 중계열) |>  
+df_취업통계_계열별 <- df_취업통계 |> 
+  group_by(과정구분, 대계열, 중계열) |>  
   summarise(졸업자 = sum(졸업자_계), 
             취업자 = sum(취업자_합계_계), 
             교외취업자 = sum(취업자_교외취업자_계), 
@@ -111,82 +126,170 @@ df_취업통계_계열별 <- df_취업통계 |> group_by(과정구분, 대계열
             기타 = sum(기타_계), 
             미상 = sum(미상_계), 
     ## 백분률인 취업률은 그 자체로 합계나 평균을 낼 수 없으니 각 그룹별로 재계산
-            취업률 = 취업자 / (졸업자 - (진학자+입대자+취업불가능자+외국인유학생+제외인정자)))
+            취업률 = 취업자 / (졸업자 - (진학자+입대자+취업불가능자+외국인유학생+제외인정자))) |>
+  ## 계열의 표시 순서를 설정하기 위해 레벨을 재조정
+  mutate(대계열 = fct_relevel(대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열'))
+
+df_취업통계_계열별 |> head()
 ```
 
-## stack, dodge, fill
+## stack, dodge, fill 타입의 막대 그래프
 
-```{r}
-p_col_type <- df_취업통계_계열별 |>
-  mutate(대계열 = fct_relevel(대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')) |>
+우리가 가장 흔하게 생각하는 막대 그래프는 각 변량별로 하나의 막대로 데이터를 표현하는 막대그래프이다. 하지만 그 막대를 구성하는 데이터들은 다시 세분화될 수 있다. 이렇게 하나의 막대로 표현된 세부 데이터를 다시 표현해야할 경우를 대비하여 `ggplot2`는 세가지 형태의 막대 그래프를 지원한다.
+
+-   stack : 막대의 세부 그룹을 각각 쌓아 올려 하나의 단일 막대를 생성
+-   dodge : 막대의 세부 그룹을 각각 옆으로 붙여 세부 그룹 수 만큼의 막대 생성
+-   fill : 막대의 세부 그룹을 각각 쌓아 올려 하나의 단일 막대를 만들되 전체 막대크 크기를 모두 동일하게 맞춰 세부 그룹들의 비율을 표현
+
+다음의 기본 막대 그래프를에서 파생되는 세가지 형태의 막대 그래프의 형태를 비교해 보도록 한다.
+
+```{r fig.cap='기본형 막대 그래프'}
+p_bar_type <- df_취업통계_계열별 |>
+  ## ggplot 객체 생성
   ggplot()
 
-p_col_type +
+p_bar_type +
+  ## X축을 대계열, Y축을 취업자열로 매핑한 geom_col 레이어 생성
+  ## geom_bar를 사용하려면 geom_bar(aes(x = 대계열, y = 취업자), stat = 'identity')
   geom_col(aes(x = 대계열, y = 취업자))
 
 ```
 
-```{r}
-p_col_type +
-  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분))
+`geom_col()`과 `geom_bar()`의 막대 타입은 막대의 위치를 뜻하는 `position` 매개변수로 변경할 수 있다. 기본값은 'stack'으로 전체 막대 길이는 전체 데이터 값이며 각각의 세부 그룹들이 위에 쌓아올려진 형태의 막대 그래프이다.
 
+```{r eval = FALSE}
+p_bar_type +
+  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'stack', show.legend = FALSE) + 
+  labs(title = 'stack형 막대 그래프')
+
+p_bar_type +
+  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'dodge', show.legend = FALSE) + 
+  labs(title = 'dodge형 막대 그래프')
+
+p_bar_type +
+  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'fill', show.legend = FALSE) + 
+  labs(title = 'fill형 막대 그래프')
 ```
 
+```{r echo = FALSE, fig.cap='막대그래프의 position 비교'}
+fig1 <- p_bar_type +
+  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'stack', show.legend = FALSE) + 
+  labs(title = 'stack형 막대 그래프')
 
-```{r}
-p_col_type +
-  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'stack')
+fig2 <- p_bar_type +
+  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'dodge', show.legend = FALSE) + 
+  labs(title = 'dodge형 막대 그래프')
 
-p_col_type +
-  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'fill')
-
-p_col_type +
-  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'dodge')
+fig3 <- p_bar_type +
+  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'fill', show.legend = FALSE) + 
+  labs(title = 'fill형 막대 그래프')
   
+(fig1 + fig2 + fig3) + patchwork::plot_layout(ncol = 3, width = c(1, 1, 1), height = c(0.5, 0.5, 0.5))
+
 ```
-
-
 
 ## 데이터 값 넣기
 
+앞서 생성한 막대 그래프들에는 각각의 데이터 값이 표현되지 않아 데이터들을 비교하기가 어렵다. 각각의 막대 그래프의 타입에 따라 데이터 값을 표현하는 방법도 다 다르다.[^1]
+
+[^1]: fill 형태의 막대 그래프에 대한 데이터 값 넣기는 다음장에서 설명한다.
+
+### stack 막대 그래프의 데이터 값 넣기
+
+stack 막대 그래프에 데이터 값을 넣으려면 가장 효과적인 것이 각각의 세부 막대 중간에 해당 데이터 값을 표현하고 전체 데이터 값을 맨위에 표현해 주는 방법이다. 이를 위해서는 두번의 작업이 필요하다.
+
+우선 막대를 구성하는 그룹별 합계값을 구해야 한다. 앞의 막대들은 대계열 막대를 과정구분으로 나누었기 때문에 대계열별 과정구분별 데이터 값(취업자수)가 필요하다. 이후 막대 그래프를 그리고 이 안에 `geom_text()`로 데이터 값을 표현한다.
+
+각 그룹의 중간에 데이터를 표현하기 위해서는 `position_stack()`을 사용한다. 이 함수는 각각의 그룹 위에 기하요소를 올려서 표현해 주는 함수이다.
+
+```{r eval = FALSE}
+position_stack(vjust = 1, reverse = FALSE)
+  - vjust : 수직 정렬 위치 설정
+  - reverse : 순서의 역순을 설정하는 논리값
+```
+
+이 함수는 `geom_col()`, `geom_bar()`이외의 기하요소에서도 사용할 수 있기 때문에 데이터 값을 표현하는데 사용하는 `geom_text()`와 `geom_label()`에 사용하면 해당 그룹에 데이터 값을 표현할 수 있다. 또 각 막대의 중간에 표현해야 하니 수평정렬 매개변수인 `vjust`를 0.5로 설정하면 중간에 위치하는 데이터 값을 표현할 수 있다.
 
 ```{r}
-p_col_data <- df_취업통계_계열별 |> group_by(과정구분, 대계열) |>
+## 데이터 값을 표현하기 위해 대계열별 과정구분으로 그루핑하고
+p_bar_data_stack <- df_취업통계_계열별 |> group_by(대계열, 과정구분) |>
+  ## 합계값을 산출
   summarise(취업자 = sum(취업자)) |>
   ggplot() +
-  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분)) +
+  ## X축이 대계열, Y축이 취업자, fill이 과정구분으로 매핑되고 position이 stack으로 설정된 geom_col 레이어 생성
+  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'stack') +
+  ## X축이 대계열, Y축이 취업자, lable이 comma형 취업자, fill은 과정구분으로 매핑되고 position은 position_stack()으로 vjust가 0.5인 stack형으로 설정한 geom_text 레이어 추가
   geom_text(aes(x = 대계열, y = 취업자, label = scales::comma(취업자, accuracy = 1), fill =과정구분), position = position_stack(vjust = 0.5), size = 2)
 
-p_col_data
+p_bar_data_stack
 ```
 
+다음으로 전체 데이터 값을 표현해보자. 앞서 세부 그룹의 합계값을 구했기 때문에 이들의 합계값을 산출해주면 된다. 이를 위해 `fun`을 sum으로 설정한 `stat_summary()`를 사용한다.
 
 ```{r}
-p_col_data1 <-  p_col_data + 
-  stat_summary(aes(x = 대계열, y = 취업자, label = scales::comma(..y.., accuracy = 1)), fun = 'sum', geom = 'text', color = 'red', vjust = -0.5, size = 2,  inherit.aes = FALSE) + 
+p_bar_data_stack1 <-  p_bar_data_stack +
+  ## X축이 대계열, Y축이 취업자, lable이 comma형 ..y..(fun으로 설정한 함수의 결과값)으로 매핑되고 적용할 함수(fun)은 sum, 표현할 기하요소는 text, vjust는 0.5, size는 2인 stat_summary 레이어 생성 
+  stat_summary(aes(x = 대계열, y = 취업자, label = scales::comma(..y.., accuracy = 1)), fun = 'sum', geom = 'text', color = 'red', vjust = -0.5, size = 2) + 
   scale_y_continuous(labels = scales::comma)
 
-p_col_data1
+p_bar_data_stack1
 ```
 
+### dodge 막대 그래프의 데이터 값 넣기
 
+dodge 막대 그래프는 stack 막대 그래프보다는 데이터 값을 넣기가 쉽다. 앞서 stack 막대 그래프에 `geom_text()`의 위치를 설정하는데에는 `postion_stack()`을 사용했다면 dodge 막대 그래프에는 `position_dodge()`를 사용한다.
 
+```{r eval=FALSE}
+position_dodge(width = NULL, preserve = c("total", "single"))
+  - width : 옆으로 배열되는 너비 설정, 기본적인 막대의 너비는 0.9임
+  - preserve : 막대 너비를 전체에 맞출지 각각의 개벌 막대에 맞출지 설정
+```
+
+```{r}
+## 데이터 값을 표현하기 위해 대계열별 과정구분으로 그루핑하고
+p_bar_data_dodge <- df_취업통계_계열별 |> group_by(대계열, 과정구분) |>
+  ## 합계값을 산출
+  summarise(취업자 = sum(취업자)) |>
+  ggplot() +
+  ## X축이 대계열, Y축이 취업자, fill이 과정구분으로 매핑되고 position이 stack으로 설정된 geom_col 레이어 생성
+  geom_col(aes(x = 대계열, y = 취업자, fill = 과정구분), position = 'dodge') +
+  ## X축이 대계열, Y축이 취업자, lable이 comma형 취업자, fill은 과정구분으로 매핑되고 position은 position_stack()으로 vjust가 0.5인 stack형으로 설정한 geom_text 레이어 추가
+  geom_text(aes(x = 대계열, y = 취업자, label = scales::comma(취업자, accuracy = 1), fill =과정구분), position = position_dodge(width = 0.9), size = 2, vjust = -1)
+
+p_bar_data_dodge
+```
 
 ## 축 라벨에 이미지 넣기
 
-```{r eval=FALSE}
-library(readxl)
-df_nation <- read_xlsx('파일경로/연도별 유학국가별 유학생수.xlsx', sheet = 'Sheet0', skip = 2, col_types = c('numeric', 'text', rep('numeric', 25)), col_names = TRUE)
+축에 이미지를 넣어 표현하면 시각화를 보다 보기 좋게 꾸며줄 수 있다. 이 방법은 단지 막대 그래프에서만 사용할 수 있는 방법이 아니고 축을 가진 모든 시각화에서 사용이 가능하다. 축 라벨에 이미지를 넣는 실습을 위해 국가별 데이터가 포함된 데이터를 사용하도록 하겠다. 다음과 같이 전처리한 데이터를 사용한다. 
 
+```{r eval=FALSE}
+## 연도별 유학국가별 유학생수 엑셀파일에서 
+df_nation <- read_xlsx('파일경로/연도별 유학국가별 유학생수.xlsx',
+                       ## Sheet0 시트에서 처음 2라인을 스킵하고
+                       sheet = 'Sheet0', skip = 2, 
+                       ## 열 타입을 설정
+                       col_types = c('numeric', 'text', rep('numeric', 25)),
+                       ## 첫번째 행은 열 이름
+                       col_names = TRUE)
+
+## 읽어온 데이터에서
 df_nation <- df_nation |>
+  ## 학년도가 NA가 아니면서 학제가 '소계'인 데이터를 필터링하고
   filter(!is.na(학년도), 학제 == '소계') |>
+  ## 필요하지 않는 열은 제거
   select(!contains(c('계', '학제', '기타', '미확인', '그외동남아', '남미'))) |>
-  gather('국가명', '유학생수', -'학년도')
+  ## 학년도 열을 제외한 모든 열을 국가명열로, 데이터는 유학생수로 설정하는 긴 형태의 데이터 변화
+  pivot_longer(-'학년도', names_to = '국가명', values_to = '유학생수')
 
 df_nation_top10 <- df_nation |>
+  ## 국가명으로 그루핑하고
   group_by(국가명) |>
+  ## 유학생수의 합계를 산출
   summarise(sum = sum(유학생수)) |>
+  ## 합계의 역순으로 정렬하고
   arrange(desc(sum)) |>
+  ## 위에서 10개의 행만 저장
   top_n(10)
 
 df_nation_top10
@@ -200,7 +303,7 @@ df_nation <- read_xlsx('c:/R/git/datavisualization/chap5/연도별 유학국가�
 df_nation <- df_nation |>
   filter(!is.na(학년도), 학제 == '소계') |>
   select(!contains(c('계', '학제', '기타', '미확인', '그외동남아', '남미'))) |>
-  gather('국가명', '유학생수', -'학년도')
+  pivot_longer(-'학년도', names_to = '국가명', values_to = '유학생수')
 
 df_nation_top10 <- df_nation |>
   group_by(국가명) |>
@@ -212,7 +315,6 @@ df_nation_top10
 
 ```
 
-
 ```{r}
 p_nation_top10 <- df_nation_top10 |>
   ggplot(aes(x = 국가명, y = sum)) +
@@ -220,8 +322,6 @@ p_nation_top10 <- df_nation_top10 |>
   geom_text(aes(x = 국가명, y = sum, label = sum), vjust = -0.5) + 
   labs(title = '국가별 유학생수 Top 10', y = '유학생수')
 ```
-
-
 
 ```{r eval=FALSE}
 flag_usa <- '아이콘 이미지 저장 폴더 경로/usa.png'
@@ -279,7 +379,6 @@ p_nation_top10_1 +
 
 ```
 
-
 # 순위 막대 그래프
 
 ```{r}
@@ -294,7 +393,6 @@ df_nation_top10 |>
   theme(axis.text.x = ggtext::element_markdown())
 
 ```
-
 
 # 롤리팝 그래프
 
