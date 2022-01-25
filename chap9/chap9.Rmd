@@ -90,22 +90,24 @@ theme_set(theme(
   ))
 ```
 
-구성의 시각화는 특정 데이터를 구성하는 각 부분의 비율을 시각화하는 것이다. 보통의 경우 비율이나 백분율을 통해 시각화하며 막대나 원을 세분화하여 그 비율을 보여준다. 여러개의 세부 범주로 나누어진 많은 범주들의 구성 비율을 나타내는데 비율 누적 막대 그래프가 많이 사용된다. 반면 단 하나의 범주에 대한 세부 범주의 구성 비율을 나타낼 때는 누적 막대 그래프 보다는 동그란 파이 차트나 도넛 차트로 나타낼 수 있다. 하지만 시각화 전문가들은 파이 차트나 도넛 차트는 권장하지 않는다. 사람의 시각으로는 파이 차트나 도넛 차트의 그 비율을 정확히 인지하기가 어렵기 때문이다. 이에 대한 대안으로 트리맵이나 와플 차트가 이용된다. 
+구성의 시각화는 특정 데이터를 구성하는 각 부분의 비율을 시각화하는 것이다. 보통의 경우 비율이나 백분율을 통해 시각화하며 막대나 원을 세분화하여 그 비율을 보여준다. 여러개의 세부 범주로 나누어진 많은 범주들의 구성 비율을 나타내는데 비율 누적 막대 그래프가 많이 사용된다. 반면 단 하나의 범주에 대한 세부 범주의 구성 비율을 나타낼 때는 누적 막대 그래프 보다는 동그란 파이 차트나 도넛 차트로 나타낼 수 있다. 하지만 시각화 전문가들은 파이 차트나 도넛 차트는 권장하지 않는다. 사람의 시각으로는 파이 차트나 도넛 차트의 그 비율을 정확히 인지하기가 어렵기 때문이다. 이에 대한 대안으로 트리맵이나 와플 차트가 이용된다.
 
 # 비율 누적 막대 그래프
 
-앞 장에서 막대 그래프의 타입에 stack, dodge, fill의 세가지가 있다고 설명하였다. 이중 stack과 dodge의 예는 이미 살펴보았지만 fill 타입은 설명하지 않았다. 이 fill 타입의 막대그래프가 비율 누적 막대 그래프이다. 앞선 두 타입의 막대 그래프와 다른 것은 stack과 dodge 타입의 막대 그래프는 데이터 값만큼 막대의 길이가 결정되지만 비율 누적 막대 그래프는 막대 길이가 모두 1로 같게 그려진다는 것이다. 결국 세부 분류의 비율의 합은 1이라는 의미이다. 따라서 전체 데이터 값의 비교가 불가능하고 단지 그 세부 분류의 비율만을 확인할 수 있다는 것이다. 
+앞 장에서 막대 그래프의 타입에 stack, dodge, fill의 세가지가 있다고 설명하였다. 이중 stack과 dodge의 예는 이미 살펴보았지만 fill 타입은 설명하지 않았다. 이 fill 타입의 막대그래프가 비율 누적 막대 그래프이다. 앞선 두 타입의 막대 그래프와 다른 것은 stack과 dodge 타입의 막대 그래프는 데이터 값만큼 막대의 길이가 결정되지만 비율 누적 막대 그래프는 막대 길이가 모두 1로 같게 그려진다는 것이다. 결국 세부 분류의 비율의 합은 1이라는 의미이다. 따라서 전체 데이터 값의 비교가 불가능하고 단지 그 세부 분류의 비율만을 확인할 수 있다는 것이다.
 
-비율 누적 막대 그래프는 `geom_col()`이나 `geom_bar()`에서 `position` 매개변수를 'fill'로 설정하면 내부적으로 세부 구분들의 비율이 계산되어 막대 그래프로 표시된다. 
+비율 누적 막대 그래프는 `geom_col()`이나 `geom_bar()`에서 `position` 매개변수를 'fill'로 설정하면 내부적으로 세부 구분들의 값이 비율로 변환되어 막대의 길이로 표시된다.
 
 ```{r fig.cap='비율 누적 막대 그래프'}
 ## df_입학자_long의 데이터 중 일부를 필터링
-p_col_fill <- df_입학자_long |>
+df_col_fill <- df_입학자_long |>
   filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
   ### 표시 순서를 맞추기 위해 fct_relevel로 레벨을 재조정
   mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |>
   ## X축 스케일을 날짜형으로 맞추기 위해 연도를 as.Date()를 사용해 날짜형으로 변환
-  mutate(연도 = as.Date(연도, format = '%Y')) |>
+  mutate(연도 = as.Date(연도, format = '%Y'))
+
+p_col_fill <- df_col_fill |>
   ggplot()
 
 p_col_fill1 <- p_col_fill +
@@ -120,59 +122,109 @@ p_col_fill1 <- p_col_fill +
 p_col_fill1
 ```
 
-
+앞의 그래프는 각 연도별 입학생수의 학교구분별 비율을 표현한 막대 그래프이다. 이 그래프에 데이터 값이 표현되지 않으니 뭔가 허전하다. 다만 비율 누적 막대 그래프에서는 자체 데이터 값을 표시하는 것은 의미가 없고 전체 중의 비율을 표시하는 것이 의미가 있다. 이를 위해서 각각의 비율을 먼저 산출해 주어야 한다. 앞서 전처리한 데이터와 동일하게 필터링한 데이터에 연도별로 그루핑하고 `mutate()`를 사용하여 각각의 연도내에서의 비율을 산출한 데이터를 저장해 둔다.
 
 ```{r}
-p_col_hor2 <- p_col_hor1 + 
-  geom_text(data = (df_입학자_long |>
+df_col_fill_rate <- df_입학자_long |>
   filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
   mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |>
   group_by(연도) |>
-  mutate(비율 = 입학생수 / sum(입학생수)) |>
-  ungroup()), 
-  aes(x = 연도, y = 비율, label = scales::percent(비율, accuracy = 0.1), fill = 학교종류), position = position_stack(vjust = 0.5), size = 2)
-
-p_col_hor2
+  mutate(비율 = 입학생수 / sum(입학생수), 연도 = as.Date(연도, format = '%Y')) |>
+  ungroup()
 ```
 
-```{r}
-p_col_hor3 <- p_col_hor2 + 
-  coord_flip()
+산출한 비율을 `geom_text()`를 사용하여 표시해주는데 `position`을 `position_stack()`을 사용하여 위치를 설정해준다.
 
-p_col_hor3
+```{r fig.cap='비율이 표시된 비율 누적 막대 그래프'}
+p_col_fill2 <- p_col_fill1 + 
+  ## geom_text()에 비율이 저장된 df_col_fill_rate를 사용
+  geom_text(data = df_col_fill_rate,
+            ## X축은 연도, Y축은 비율, label은 비율을 퍼센트 형식, fill은 학교종류로 매핑
+            aes(x = 연도, y = 비율, label = scales::percent(비율, accuracy = 0.1), fill = 학교종류), 
+            ## position은 position_stack()을 사용하여 stack형 위치를 설정하고 수직위치(Vjust)를 중간(0.5), size를 2로 설정
+            position = position_stack(vjust = 0.5), size = 2) +
+  labs(title = '비율이 표시된 비율 누적 막대 그래프')
+
+p_col_fill2
 ```
 
-```{r}
-p_col_hor3 + 
-    scale_y_continuous(labels = scales::percent_format(suffix = "%", prefix = "")) +
-  scale_x_discrete(limits=rev) +
-  #  scale_y_discrete(labels = scales::percent_format()) +
-  labs(y="학교별 구성비") +
-  theme(axis.line = element_line(size=1, colour = "black"),
-        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.border = element_blank(), panel.background = element_blank()) + scale_fill_brewer(palette="Paired")
+비율이 잘 들어간 것으로 보이는가? 글자가 너무 작아서 잘 눈에 띄이지 않는 듯하다. 하지만 글자를 키우면 글자가 막대 밖으로 빠져나와 보기가 안좋아진다. 보통 보고서의 종이는 가로보다는 세로가 길기 때문에 이를 세로로 길게 늘여뜨리면 보고서에 넣기가 좋아진다. 따라서 축을 다음과 같이 전환해보자.
 
-```
-
-```{r}
- p_col_hor1 + 
-  geom_text(data = (df_입학자_long |>
-  filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
-  mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |>
-  group_by(연도) |>
-  mutate(비율 = 입학생수 / sum(입학생수)) |>
-  ungroup()), 
-  aes(x = 연도, y = 비율, label = ifelse(비율 > 0.04, paste0(round(비율, 3) * 100,"%"), ''), fill = 학교종류), position = position_stack(vjust = 0.5), size = 2) + 
+```{r fig.cap='수평형 막대 그래프'}
+p_col_fill3 <- p_col_fill2 + 
   coord_flip() + 
-    scale_y_continuous(labels = scales::percent_format(suffix = "%", prefix = "")) +
-  scale_x_discrete(limits=rev) +
-  #  scale_y_discrete(labels = scales::percent_format()) +
-  labs(y="학교별 구성비") +
+  labs(title = '수평형 막대 그래프')
+
+p_col_fill3
+```
+
+앞의 그래프에서 하나 눈에 거슬리는 부분이 좌측 하단의 1\~4%정도 구간의 비율이 막대 범위를 벗어나고 있다. 이 부분을 수정하기 위해서는 `geom_text()`의 `label`이 4를 넘는 곳에는 비율을 넣고 `label`이 4보다 작으면 `label`을 없애주도록 하려면 다음과 같이 할 수 있다.
+
+```{r fig.cap='4% 이상이 표기된 수평형 막대 그래프'}
+p_col_fill3 <- p_col_fill1 + 
+  ## geom_text()에 비율이 저장된 df_col_fill_rate를 사용
+  geom_text(data = df_col_fill_rate,
+            ## X축은 연도, Y축은 비율로 매핑
+            aes(x = 연도, y = 비율, 
+                ## label은 0.04보다 크면 비율을 소수점 3자리에서 반올림한 후 100을 곱해서 '%'를 붙여주고 아니면 공란을 매핑
+                label = ifelse(비율 > 0.04, paste0(round(비율, 3) * 100,"%"), ''),
+                ## fill은 학교종류로 매핑
+                fill = 학교종류), 
+            ## position은 position_stack()을 사용하여 stack형 위치를 설정하고 수직위치(Vjust)를 중간(0.5), size를 2로 설정
+            position = position_stack(vjust = 0.5), size = 2) +
+  ## 축을 전환
+  coord_flip() + 
+  labs(title = '4% 이상이 표기된 수평형 막대 그래프')
+
+p_col_fill3
+
+```
+
+앞의 그래프를 보면 연도의 배열이 내림차순으로 정렬되어 있다. 보통 연도는 오름차순으로 정렬된다. 이를 전환하기 위해서는 `scale_x_date()`를 다시 설정해야한다. 하지만 현재 `ggplot2`에서 제공하는 `scale_x_date()`에서는 세로축에 표현된 날짜형 타입을 오름차순으로 정렬해주는 옵션을 제공하지 않는다. 따라서 이를 위해서는 두가지 방법을 사용할 수 있다. 첫번쨰 방법은 연도를 다시 수치형 변수로 바꾸어 오름차순으로 정렬하는 방법이 있고 나머지 하나의 방법은 특별한 변환 객체를 사용하는 방법이다. 이 변환 객체는 `ggplot2`의 개발자인 Hadley Wickham이 직접 제공한 것으로 차후 `ggplot2` 패키지에 반영하겠다고 하였지만 아직 반영되지 않았다.[^1] 여기서는 첫번째 방법을 설며아겠다. 
+
+[^1]: Hadley Wickham이 제안한 방법은 필자의 블로그를 참조하라
+
+앞에서 생성한 `ggplot` 객체에 이미 `scale_x_date()`가 설정되어 있기 때문에 다시 X축에 대한 스케일 함수를 적용하면 중복적 스케일의 적용이라는 에러를 내게 된다. 따라서 처음부터 다시 만드는 것은 앞선 코드들을 되짚어서 만들여야 한다.[^2]
+
+[^2]: ggplot 객체에서 미적요소를 제거하는 방법도 있다. 이 방법은 필자의 블로그를 참조하라.
+
+먼저 연도 정렬에 사용하기 위해 날짜형 변수에서 연도를 추출한 변수를 만들어준다. 이후 이 변수를 X축에 매핑한 후  X축의 스케일을 연속형으로 설정(`scale_x_continuous()`)하고 2021부터 1999까지 -2마다 하나씩 눈금(`breaks = seq(from = 1999, to = 2021, by = 2)`)을 만들어준다. 
+
+```{r fig.cap='연도 오름차순의 수평형 막대 그래프'}
+p_col_fill4 <- df_col_fill_rate |>
+  ## 연도 정렬에 사용할 열을 생성
+  mutate(연도_char = lubridate::year(연도)) |>
+  ggplot() +
+  ## X축을 연도_char, Y축을 입학생수, fill을 학교종류로 매핑하고 position을 fill로 설정
+  geom_col(aes(x = 연도_char, y = 입학생수, fill = 학교종류), position = 'fill') +
+  geom_text(
+            ## X축은 연도_char, Y축은 비율로 매핑
+            aes(x = 연도_char, y = 비율, 
+                ## label은 0.04보다 크면 비율을 소수점 3자리에서 반올림한 후 100을 곱해서 '%'를 붙여주고 아니면 공란을 매핑
+                label = ifelse(비율 > 0.04, paste0(round(비율, 3) * 100,"%"), ''),
+                ## fill은 학교종류로 매핑
+                fill = 학교종류), 
+            ## position은 position_stack()을 사용하여 stack형 위치를 설정하고 수직위치(Vjust)를 중간(0.5), size를 2로 설정
+            position = position_stack(vjust = 0.5), size = 2) +
+  ## 축을 전환
+  coord_flip() + 
+  ## X축 스케일의 눈금을 1999부터 2021까지 2마다 한번씩 설정
+  scale_x_continuous(breaks = seq(from = 2021, to = 1999, by = -2)) +
+  ## Y축 스케일을 퍼센트형으로 설정
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = '연도 오름차순의 수평형 막대 그래프', x = '연도')
+
+p_col_fill4
+```
+
+
+
+```{r}
+p_col_fill4 +
   theme(axis.line = element_line(size=1, colour = "black"),
         panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.border = element_blank(), panel.background = element_blank()) + scale_fill_brewer(palette="Paired")
 ```
-
 
 # 파이 차트
 
@@ -341,6 +393,7 @@ df_treemap_multi |> ggplot(aes(area = 취업자, fill = 취업자, label = paste
   theme(plot.title = element_text(hjust = 0.5, size = 15))
 
 ```
+
 # 와플차트
 
 ```{r}
@@ -361,6 +414,3 @@ ggplot(df_waffle, aes(x = x, y = y, fill = category)) +
   scale_fill_brewer(palette = "Set3")
 
 ```
-
-
-
