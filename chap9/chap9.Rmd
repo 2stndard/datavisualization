@@ -10,8 +10,8 @@ output:
       topcaption: false
       caption:
         style: Image Caption
-        pre: 'Figure '
-        sep: ': '
+        pre: '실행결과 9- '
+        sep: '. '
         tnd: 0
         tns: '-'
         fp_text: !expr officer::fp_text_lite(bold = TRUE)
@@ -90,21 +90,36 @@ theme_set(theme(
   ))
 ```
 
-
+구성의 시각화는 특정 데이터를 구성하는 각 부분의 비율을 시각화하는 것이다. 보통의 경우 비율이나 백분율을 통해 시각화하며 막대나 원을 세분화하여 그 비율을 보여준다. 여러개의 세부 범주로 나누어진 많은 범주들의 구성 비율을 나타내는데 비율 누적 막대 그래프가 많이 사용된다. 반면 단 하나의 범주에 대한 세부 범주의 구성 비율을 나타낼 때는 누적 막대 그래프 보다는 동그란 파이 차트나 도넛 차트로 나타낼 수 있다. 하지만 시각화 전문가들은 파이 차트나 도넛 차트는 권장하지 않는다. 사람의 시각으로는 파이 차트나 도넛 차트의 그 비율을 정확히 인지하기가 어렵기 때문이다. 이에 대한 대안으로 트리맵이나 와플 차트가 이용된다. 
 
 # 비율 누적 막대 그래프
 
-```{r}
-p_col_hor <- df_입학자_long |>
+앞 장에서 막대 그래프의 타입에 stack, dodge, fill의 세가지가 있다고 설명하였다. 이중 stack과 dodge의 예는 이미 살펴보았지만 fill 타입은 설명하지 않았다. 이 fill 타입의 막대그래프가 비율 누적 막대 그래프이다. 앞선 두 타입의 막대 그래프와 다른 것은 stack과 dodge 타입의 막대 그래프는 데이터 값만큼 막대의 길이가 결정되지만 비율 누적 막대 그래프는 막대 길이가 모두 1로 같게 그려진다는 것이다. 결국 세부 분류의 비율의 합은 1이라는 의미이다. 따라서 전체 데이터 값의 비교가 불가능하고 단지 그 세부 분류의 비율만을 확인할 수 있다는 것이다. 
+
+비율 누적 막대 그래프는 `geom_col()`이나 `geom_bar()`에서 `position` 매개변수를 'fill'로 설정하면 내부적으로 세부 구분들의 비율이 계산되어 막대 그래프로 표시된다. 
+
+```{r fig.cap='비율 누적 막대 그래프'}
+## df_입학자_long의 데이터 중 일부를 필터링
+p_col_fill <- df_입학자_long |>
   filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
+  ### 표시 순서를 맞추기 위해 fct_relevel로 레벨을 재조정
   mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |>
+  ## X축 스케일을 날짜형으로 맞추기 위해 연도를 as.Date()를 사용해 날짜형으로 변환
+  mutate(연도 = as.Date(연도, format = '%Y')) |>
   ggplot()
 
-p_col_hor1 <- p_col_hor +
-  geom_col(aes(x = 연도, y = 입학생수, fill = 학교종류), position = 'fill')
+p_col_fill1 <- p_col_fill +
+  ## X축을 연도, Y축을 입학생수, fill을 학교종류로 매핑하고 position을 fill로 설정
+  geom_col(aes(x = 연도, y = 입학생수, fill = 학교종류), position = 'fill') +
+  ## X축 스케일을 날짜형으로 설정하고 눈금은 2년마다 라벨은 2자리 연도로 표기
+  scale_x_date(date_breaks = '2 years', date_labels = '%y') +
+  ## Y축 스케일을 퍼센트형으로 설정
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = '비율 누적 막대 그래프')
 
-p_col_hor1
+p_col_fill1
 ```
+
 
 
 ```{r}
