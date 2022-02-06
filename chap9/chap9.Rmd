@@ -10,8 +10,8 @@ output:
       topcaption: false
       caption:
         style: Image Caption
-        pre: '실행결과 9- '
-        sep: '. '
+        pre: '실행결과 9-'
+        sep: ''
         tnd: 0
         tns: '-'
         fp_text: !expr officer::fp_text_lite(bold = TRUE)
@@ -76,23 +76,40 @@ df_취업통계_sample$과정구분 <- fct_relevel(df_취업통계_sample$과정
 ## 대계열의 순서를 맞추기 위해 과정구분을 팩터로 설정하고 레벨의 순서를 설정
 df_취업통계_sample$대계열 <- fct_relevel(df_취업통계_sample$대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')
 
-theme_set(theme(
+theme_set(
+  theme(
+    ## 축의 눈금자(ticks)를 모두 제거
     axis.ticks = element_blank(),
+    ## 축의 선을 grey50으로 설정
     axis.line = element_line(colour = "grey50"),
-    panel.grid = element_line(color = "#b4aea9"),
+    ## 전체 제목의 크기를 15, 수평 정렬은 중간, 아래 여백을 20으로 설정
+    plot.title = element_text(size = 15, vjust = 0.5, margin = margin(b = 10)), 
+    ## 패널의 눈금선의 색을 'wheat3'로 설정
+    panel.grid = element_line(color = "wheat3"), ###b4aea9
+    ## 패널의 부눈금선을 제거
     panel.grid.minor = element_blank(),
+    ## 패널의 X축 주눈금선을 제거
     panel.grid.major.x = element_blank(),
+    ## 패널의 Y축 주눈금선을 'dashed'형태로 설정
     panel.grid.major.y = element_line(linetype = "dashed"),
-    panel.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
-    plot.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"), 
-    legend.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"), 
-    legend.key = element_rect(fill = "#fbf9f4", color = NA)
-  ))
+    ## 패널의 배경색과 선색을 'seashell'으로 설정
+    panel.background = element_rect(fill = "snow", color = "snow"),
+    ## 전체 배경색과 선색을 'seashell'으로 설정
+    plot.background = element_rect(fill = "snow", color = "snow"),
+    ## 범례 배경색과 선색을 'seashell'으로 설정
+    legend.background = element_rect(fill = "snow", color = "snow"),
+    ## 범례 키의 배경색과 'seashell', 선색을 제거
+    legend.key = element_rect(fill = "snow", color = NA),  #fbf9f4
+    legend.title = element_text(hjust = 0.5)
+    )
+  )
 ```
 
 구성의 시각화는 특정 데이터를 구성하는 각 부분의 비율을 시각화하는 것이다. 보통의 경우 비율이나 백분율을 통해 시각화하며 막대나 원을 세분화하여 그 비율을 보여준다. 여러개의 세부 범주로 나누어진 많은 범주들의 구성 비율을 나타내는데 비율 누적 막대 그래프가 많이 사용된다. 반면 단 하나의 범주에 대한 세부 범주의 구성 비율을 나타낼 때는 누적 막대 그래프 보다는 동그란 파이 차트나 도넛 차트로 나타낼 수 있다. 하지만 시각화 전문가들은 파이 차트나 도넛 차트는 권장하지 않는다. 사람의 시각으로는 파이 차트나 도넛 차트의 그 비율을 정확히 인지하기가 어렵기 때문이다. 이에 대한 대안으로 트리맵이나 와플 차트가 이용된다.
 
 # 비율 누적 막대 그래프
+
+------------------------------------------------------------------------
 
 앞 장에서 막대 그래프의 타입에 stack, dodge, fill의 세가지가 있다고 설명하였다. 이중 stack과 dodge의 예는 이미 살펴보았지만 fill 타입은 설명하지 않았다. 이 fill 타입의 막대그래프가 비율 누적 막대 그래프이다. 앞선 두 타입의 막대 그래프와 다른 것은 stack과 dodge 타입의 막대 그래프는 데이터 값만큼 막대의 길이가 결정되지만 비율 누적 막대 그래프는 막대 길이가 모두 1로 같게 그려진다는 것이다. 결국 세부 분류의 비율의 합은 1이라는 의미이다. 따라서 전체 데이터 값의 비교가 불가능하고 단지 그 세부 분류의 비율만을 확인할 수 있다는 것이다.
 
@@ -122,7 +139,7 @@ p_col_fill1 <- p_col_fill +
 p_col_fill1
 ```
 
-앞의 그래프는 각 연도별 입학생수의 학교구분별 비율을 표현한 막대 그래프이다. 이 그래프에 데이터 값이 표현되지 않으니 뭔가 허전하다. 다만 비율 누적 막대 그래프에서는 자체 데이터 값을 표시하는 것은 의미가 없고 전체 중의 비율을 표시하는 것이 의미가 있다. 이를 위해서 각각의 비율을 먼저 산출해 주어야 한다. 앞서 전처리한 데이터와 동일하게 필터링한 데이터에 연도별로 그루핑하고 `mutate()`를 사용하여 각각의 연도내에서의 비율을 산출한 데이터를 저장해 둔다.
+앞의 그래프는 각 연도별 입학생수의 학교구분별 비율을 표현한 막대 그래프이다. 이 그래프에 데이터 값이 표현되지 않으니 뭔가 허전하다. 다만 비율 누적 막대 그래프에서는 자체 데이터 값을 표시하는 것은 의미가 없고 전체 중의 비율을 표시하는 것이 의미가 있다. 이를 위해서 각각의 비율을 먼저 산출해 주어야 한다. 앞서 전처리한 데이터와 동일하게 필터링한 데이터에 연도별로 그룹화하고 `mutate()`를 사용하여 각각의 연도내에서의 비율을 산출한 데이터를 저장해 둔다.
 
 ```{r}
 df_col_fill_rate <- df_입학자_long |>
@@ -152,6 +169,7 @@ p_col_fill2
 
 ```{r fig.cap='수평형 막대 그래프'}
 p_col_fill3 <- p_col_fill2 + 
+  ## 축 전환
   coord_flip() + 
   labs(title = '수평형 막대 그래프')
 
@@ -219,6 +237,8 @@ p_col_fill4
 
 # 파이 차트
 
+------------------------------------------------------------------------
+
 파이 차트(원 그래프라고도 한다.)는 전체에서 차지하는 비중을 나타내는 아주 고전적인 방법이다. 이 방법은 과거에 많이 사용되었지만 데이터 시각화 전문가들은 권장하는 방법이 아니다. 표현되는 데이터의 양이 많지 않다. 하지만 더 큰 단점은 사람의 시각적 인지는 각도를 측정하는데 익숙치 않다는 것이다. 길이의 경우는 동일 축에 같은 시작점을 가진다면 쉽게 인지가 가능하지만 각도는 같은 축에 동일한 시작점을 가지더라도 옆에 나열되면 각도의 크기를 시각적으로 판단하기가 쉽지 않다. 다음의 예를 살펴보자. 
 
 ```{r echo = FALSE, fig.cap='파이 차트의 나쁜예'}
@@ -246,7 +266,7 @@ fig2 <- ggplot(df_pie_disadv1, aes(x = name, y = value, fill = name)) +
 
 단일 파이 차트프는 우리가 지금까지 흔히 봐왔던 파이 차트의 형태이다. 단일 변수의 변량의 구성 비율을 하나의 원으로 나타낸 그래프를 말한다. 다음과 같이 막대 그래프를 그린 후 극 좌표계로 변환하면 파이 차트가 만들어 진다. 
 
-```{r fig.cap='단일 파이 차트를 위한 단일 막대 그래프 생성'}
+```{r fig.cap='단일 파이 차트를 위한 단일 막대 그래프'}
 ## df_입학자_long의 데이터를 필터링하여 파이 차트를 위한 데이터를 생성
 df_pie <- df_입학자_long |>
   ## 학교종류에서 일부 데이터만 필터링하고
@@ -279,21 +299,21 @@ p_pie1 +
   theme_void() +
   ## 표 제목의 수평 정렬을 중간으로 설정
   theme(plot.title = element_text(hjust = 0.5)) +
-  labs(title = '2021년 입학생 구성비')
+  labs(title = '2021년 입학생 구성비 - 단일 파이 차트')
 ```
 
 ## 다중 파이 차트
 
 다중 파이 차트는 앞서 만들었던 단일 파이 차트를 `facet_*()`을 사용하여 여러 파이 차트로 분할한 차트이다. 다중 파이 차트를 생성하는 방법은 앞서 생성했던 단일 파이 차트에 분할을 위한 변수로 `facet_*()`을 적용함으로써 생성할 수 있다. 
 
-```{r fig.cap='다중 파이 차트를 위한 단일 막대 그래프 생성'}
+```{r fig.cap='다중 파이 차트를 위한 다중 막대 그래프 생성'}
 ## df_입학자_long의 데이터를 필터링하여 파이 차트를 위한 데이터를 생성
 df_pie_all <- df_입학자_long |>
   ## 학교종류에서 일부 데이터만 필터링하고
   filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
   ## fct_level로 학교종류 순서를 맞추고
   mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |>
-  ## facet을 적용하기 위해 연도로 그루핑해주고
+  ## facet을 적용하기 위해 연도로 그룹화해주고
   group_by(연도) |>
   ## 각 그룹마다의 비율을 산출하고
   mutate(비율 = 입학생수 / sum(입학생수)) |>
@@ -304,94 +324,124 @@ df_pie_all <- df_입학자_long |>
 p_pie_all <- df_pie_all |>
   ggplot()
 
-## 앞서 그린 막대 그래프와 동일하게 생성하는데 막대 그래프가 정상적으로 나오지 않음
+## 앞서 그린 막대 그래프와 동일한 막대 그래프를 연도별로 분할하여 생성
 p_pie_all1 <- p_pie_all +
   geom_col(aes(x = 1, y = 입학생수, fill = 학교종류), position = 'fill') +
-  geom_text(aes(x = 1, y = 비율, label = scales::percent(비율, accuracy = 0.1), fill = 학교종류), position = position_stack(vjust = 0.5), size = 2)
+  geom_text(aes(x = 1, y = 비율, label = scales::percent(비율, accuracy = 0.1), fill = 학교종류), position = position_stack(vjust = 0.5), size = 2) +
+  ## 연도별로 분할
+  facet_wrap(~연도)
 
 p_pie_all1
 ```
 
+앞서 그린 다중 막대 그래프의 Y축을 극좌표계로 적용하는 코드는 다음과 같다. 
+
 ```{r fig.cap='다중 파이 차트'}
 ## 앞서 생성한 막대 그래프를 
 p_pie_all1 +
-  ## 연도별로 분할
-  facet_wrap(~연도) +
   ## 극 좌표계로 Y축을 변환
-  coord_polar(theta = "y") +
+  coord_polar(theta = "y", direction = -1) +
   ## theme_void()로 배경등을 모두 없애주고
   theme_void() +
   ## 표 제목의 수평 정렬을 중간으로 설정
   theme(plot.title = element_text(hjust = 0.5)) +
-  labs(title = '연도별 입학생 구성비')
+  labs(title = '연도별 입학생 구성비 - 다중 파이 차트')
 ```
 
 # 도넛 차트
 
+------------------------------------------------------------------------
+
 도넛 차트는 파이 차트와 유사한 시각화 방법이지만 파이 차트는 원을 사용하는데 반해 도넛 차트는 링의 형태로 표현한다. 도넛 차트도 파이 차트와 마찬가지 단점이 존재한다. 하지만 단 하나의 차이는 링의 중간에 공간이 발생하기 때문에 이 공간을 이용해 추가적인 데이터를 표현할 수 있다는 것이다. 표의 제목을 넣을수도 있고 요약 데이터 값을 넣을 수 있다.
 
-도넛 차트는 단일 파이 차트와 같이 막대를 극좌표계롤 돌린다는 점에서 동일하다. 막대를 그리는 방법이 조금 다르다. 파이 차트에서는 막대 그래프를 그린 다음에 극좌표계를 사용해 둥글게 돌려주었다. 하지만 도넛 차트에서는 중간에 공간을 두어야 하기 때문에 막대와 X축의 0점간의 사이에 약간의 간격을 두어야 한다.  
+도넛 차트는 단일 파이 차트와 같이 막대를 극좌표계롤 돌린다는 점에서 동일하다. 막대를 그리는 방법이 조금 다르다. 파이 차트에서는 막대 그래프를 그린 다음에 극좌표계를 사용해 둥글게 돌려주었다. 하지만 도넛 차트에서는 중간에 공간을 두어야 하기 때문에 막대와 X축의 0점간의 사이에 약간의 간격을 두어야 한다. 간격을 두려면 `xlim()`를 사용해 X축의 범위를 조절한다. 
 
 ## 단일 도넛 차트
 
-단일   
+단일 도넛 차트는 도넛 차트 하나로 데이터를 시각화하는 방법을 말한다. `geom_bar()`나 `geom_col()`을 사용하여 막대 그래프 하나를 그리는데 `xlim()`을 이용해서 X축 원점과의 간격을 만든 후 이를 Y축을 중심으로 극좌표계로 만들면 생성된다. 차근차근 도넛 차트를 만들어 보자. 우선 하나의 막대를 가지는 막대 그래프를 그리고 `xlim()`을 사용해 X축과의 간격을 만드는 코드는 다음과 같다. 
 
-```{r}
+```{r fig.cap='단일 도넛 차트를 위한 기본 막대 그래프'}
 ## p_pie 객체에서
 p_donut <- p_pie +
-  ## X축을 2, Y축을 입학생수, fill을 학교종류로 매핑하고 비율로 표현하기 위해 position을 fill로 설정한 geom_col 레이어를 생성
+  ## X축을 1, Y축을 입학생수, fill을 학교종류로 매핑하고 비율로 표현하기 위해 position을 fill로 설정한 geom_col 레이어를 생성
   geom_col(aes(x = 1, y = 입학생수, fill = 학교종류), position = 'fill') +
   ## X축을 연도, Y축을 비율, label을 백분률로 만들되 정확성을 소수점 한자리, fill을 학교종류로 매핑하고 텍스트 위치를 설정하기 위해 position을 position_stack()으로 수직정렬을 0.5로 설정하고 크기를 3으로 설정한 geom_text 레이어 추가
   geom_text(aes(x = 1, y = 비율, label = scales::percent(비율, accuracy = 0.1), fill = 학교종류), position = position_stack(vjust = 0.5), size = 3) + 
-  ## 극 좌표계로 Y축을 변환하는데 데이터를 시계방향으로 설정
-#  coord_polar(theta = "y", direction = -1) +
+  ## X축을 0부터 2까지로 한정
   xlim(0,2)
 
 p_donut
 ```
 
-```{r}
-p_donut1 <- p_donut +  
-  coord_polar(theta = "y", direction = -1) +
-  theme_void()
+앞의 막대 그래프는 하나의 막대만 표현되었고 X축이 0부터 시작되는데 막대의 X축 값은 1이기 떄문에 다소 여유가 보인다. 이를 Y축을 기준으로 극과표계를 적용하는데 시계방향으로 적용하면 다음과 같다. 별로 시각화에 도움이 되지 않는 요소들은 `theme_void()`로 제거한다. 
 
-```
-
-```{r}
-p_donut1 <- p_donut +  
+```{r fig.cap='단일 도넛 차트'}
+## p_pie 객체에서
+p_donut1 <- p_donut +
+  ## 극 좌표계로 Y축을 변환하는데 데이터를 시계방향으로 설정
   coord_polar(theta = "y", direction = -1) +
-  theme_void() + 
-  annotate(geom = 'text', x = 0, y = 0, label = 'aaa')
+  theme_void() +
+  ## 표 제목의 수평 정렬을 중간으로 설정
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = '2021년 입학생 구성비 - 단일 도넛 차트')
 
 p_donut1
 ```
 
-## 분할 도넛 차트
+앞서 설명한 바와 같이 파이 차트와 다른 점을 부각하기 위해 가운데 빈 곳을 활용해보자 다음과 같이 `geom_text()`를 사용하면 강조할 문구를 넣을 수 있다. 
 
-```{r}
+```{r fig.cap='주석이 추가된 단일 도넛 차트'}
+p_donut2 <- p_donut1 +
+  ## label이 연도, X, Y가 0으로 매핑되고 size가 5, fontface는 굵게 설정한 geom_text 레이어 추가
+  geom_text(aes(label = 연도, x = 0, y = 0), size = 5, fontface='bold') +
+  labs(title = '입학생 구성비 - 단일 도넛 차트')
+
+p_donut2
+```
+
+## 다중 도넛 차트
+
+다중 도넛 차트는 다중 파이 차트와 동일한 방식으로 생성된다. 각각의 그룹으로 막대 그래프를 분할하여 그리고 이를 Y축을 중심으로 극좌표계를 적용한다. 여기에 앞에서 추가했던 연도 주석을 가운데에 추가하는 코드는 다음과 같다 .  
+
+```{r fig.cap='다중 도넛 차트를 위한 분할 막대 그래프'}
+## df_입학자_long 데이터에서
 df_donut_all <- df_입학자_long |>
+  ## 일부 데이터만 필터링
   filter(학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 지역 == '전체') |>
+  ## 표시 순서를 설정
   mutate(학교종류 = fct_relevel(학교종류, '전문대학', '일반대학', '석사', '박사')) |> 
+  ## 연도별로 그룹화
   group_by(연도) |>
-  mutate(비율 = 입학생수 / sum(입학생수), ymax = cumsum(df_donut$비율), ymin = lag(df_donut$ymax, 1, default = 0), middle = (df_donut$ymin + df_donut$ymax) / 2) |>
-  ungroup() |>
-  mutate(비율 = round(입학생수 / sum(입학생수), 3))
+  ## 각 연도별로 학교 종류별 비율을 계산
+  mutate(비율 = 입학생수 / sum(입학생수)) |>
+  ungroup()
 
 p_donut_all <- df_donut_all |>
   ggplot()
 
 p_donut_all1 <- p_donut_all +
-  geom_rect(aes(xmin = 3, xmax = 4, ymin = ymin, ymax = ymax, fill = 학교종류)) + 
-  geom_text(aes(x = 3.5, y = middle, label = scales::percent(비율, accuracy = 0.1)), size = 2)
-
+  ## X축을 1, Y축을 입학생수, fill을 학교종류로 매핑하고 비율로 표현하기 위해 position을 fill로 설정한 geom_col 레이어를 생성
+  geom_col(aes(x = 1, y = 입학생수, fill = 학교종류), position = 'fill') +
+  ## X축을 1, Y축을 비율, label을 비율을 소수점 첫째자리의 정확성을 가진 퍼센트 형식, fill을 학교종류로 매핑하고 position을 position_stack()으로 위치, size를 2로 설정한 geom_text() 레이어 생성
+  geom_text(aes(x = 1, y = 비율, label = scales::percent(비율, accuracy = 0.1), fill = 학교종류), position = position_stack(vjust = 0.5), size = 2) + 
+  ## X축을 0부터 2까지로 한정
+  xlim(0,2) +
+  facet_wrap(~연도)
 
 p_donut_all1
+```
 
+앞서 그린 분할 막대 그래프를 도넛 차트로 만들기 위해 Y축을 기준으로 극좌표계를 적용하고 시각화에 방해되는 요소들은 `theme_void()`로 제거한다. 그 가운데에 각각의 연도를 표현하기 위해 `geom_text()` 레이어를 추가한다 .이를 구현하는 코드는 다음과 같다. 
+
+```{r fig.cap='주석이 추가된 다중 도넛 차트'}
 p_donut_all1 +
-  facet_wrap(~연도) + 
-  lims(x = c(2, 4)) +
-  coord_polar(theta = "y") +
+  ## Y축을 중심으로 시계방향 극좌표계 적용
+  coord_polar(theta = "y", direction = -1) +
+  ## label을 연도, X축을 0, Y축을 0에 매핑한 geom_text 레이어 추가
+  geom_text(aes(label = 연도, x = 0, y = 0), size = 2, fontface='bold') +
+  ## 테마 요소 제거
   theme_void() +
+  ## 전체 제목을 중간으로 설정
   theme(plot.title = element_text(hjust = 0.5)) +
   labs(title = '연도별 입학생 구성비')
 
@@ -400,65 +450,191 @@ p_donut_all1 +
 
 # 트리맵
 
-## 단일 그룹 트리맵
+------------------------------------------------------------------------
+
+대부분의 보고문서들은 네모난 종이위에 표현되거나 네모난 화면위에 표현된다. 앞서 기술한 파이 차트나 도넛 차트는 원형으로 표현되기 떄문에 네모난 종이나 화면에 표현하면 시각화에 사용되지 못하는 공간이 많아져서 전체 영역을 호과적으로 사용하지 못한다. 이러한 단점을 극복하기 위해 네모난 사각형을 사용하여 전체의 비율을 표현한 시각화 방법이 트리맵이다. 트리맵은 `treemapify` 패키지나 `ggplotify` 패키지를 사용하여 생성할 수 있다. 여기서는 `treemapify` 패키지를 사용하는 방법에 대해 설명하겠다. 그러려면 먼저 `treemapity` 패키지를 설치하여야 한다. 
 
 ```{r}
+## treemapify 패키지 설치 
 if(!require(treemapify)) {
   install.packages('treemapify')
   library(treemapify)
 }
+```
 
-df_treemap <- df_취업통계 |> filter(대계열 == '공학계열') |> group_by(중계열) |>
+## 단일 트리맵
+
+단일 트리맵은 앞서 설명했던 단일 파이 차트나 단일 도넛 차트와 같이 단일 그룹에 대한 비율을 산출하기 위해 사용되는 트리맵이다. 트리맵을 산출하기 위해서는 `treemapify` 패키지의 `geom_treemap()`을 사용한다. 
+
+```{r eval = FALSE}
+geom_treemap(mapping = NULL, data = NULL, stat = "identity",  position = "identity", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE, layout = "squarified", start = "bottomleft", radius = grid::unit(0, "pt"),...)
+  - mapping, data, stat, position, na.rm, show.legend, inherit.aes, ...	: geom_rect()와 동일한 설정
+  - layout : 트리맵의 레이아웃을 설정, 'squarified', 'scol', 'srow','fixed' 중에 하나 설정
+  - start : 트리맵의 시작위치 설정
+  - radius : 사각형 귀퉁이를 둥글게 설정
+
+```
+
+`geom_treemap()`에서 사용할 수 있는 미적요소는 area, alpha, color, fill, linetype, subgroup, subgroup2, subgroup3이다. 이중 area는 필수적 미적 요소로써 사각형의 크기를 결정하는데 사용할 변수를 매핑하는 미적요소이고 subgroup, subgroup2, subgroup3는 다중 트리맵을 설정하기 위한 세부 그룹을 매핑하는 미적 요소이다. 
+
+공학계열의 중계열에 해당하는 취업자의 분포를 트리맵으로 시각화하는 코드는 다음과 같다. 
+
+```{r}
+## df_취업통계 데이터에서
+df_treemap <- df_취업통계 |>
+  ## 공학계열만 필터링
+  filter(대계열 == '공학계열') |> 
+  ## 중계열 별로 그룹화
+  group_by(중계열) |>
+  ## 취업자 합계를 산출
   summarise(취업자 = sum(취업자_합계_계))
+```
 
-df_treemap |> ggplot(aes(area = 취업자, fill = 취업자, label = paste0(중계열, "\n", scales::comma(취업자)))) +
-  geom_treemap() +
-  geom_treemap_text(colour = "white",
+```{r fig.cap='기본 트리맵'}
+p_treemap <- df_treemap |> 
+  ggplot() +
+  ## area, fill을 취업자, label을 중계열와 콤마형 취업자를 붙여 매핑한 geom_treemap 레이어 생성
+  geom_treemap(aes(area = 취업자, fill = 취업자, label = paste0(중계열, "\n", scales::comma(취업자))))
+
+p_treemap
+```
+
+앞의 트리맵은 전체에서의 크기를 사각형으로만 표현했고 그 사각형이 무엇을 표현하는지 크기가 얼마나되는지가 전혀 나타나지 않아 데이터를 인식할 수 없다. 이 트리맵에 해당 사각형의 변량과 크기에 해당하는 전체의 비율을 표시하기 위해서는 `geom_treemap_text()`를 사용한다. 
+
+```{r eval = FALSE}
+geom_treemap_text(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, show.legend = FALSE, inherit.aes = TRUE, padding.x = grid::unit(1, "mm"), padding.y = grid::unit(1, "mm"), place = "topleft", min.size = 4, grow = FALSE, reflow = FALSE, layout = "squarified", start = "bottomleft", ...)
+  - mapping, data, stat, position, na.rm, show.legend, inherit.aes, ... : geom_text와 동일한 설정 
+  - padding.x, padding.y : 수평, 수직 방향으로 문자와 경계선과의 거리 설정
+  - place : 문자가 사각형 안에서 위치하는 장소
+  - min.size : 문자의 최소 크기
+  - grow : 문자의 크기를 사각형의 크기에 따라 조절할 지를 결정하는 논리값
+  - reflow : 문자를 사각형에 더 잘 맞춰줄지를 결정하는 논리값
+
+```
+
+`geom_treemap_text()`에서 매핑이 가능한 미적요소는 area, label, subgroup, (subgroup2 또는 subgroup3), color, size, alpha, family, fontface, angle 등이 있다. 이중 area와 label은 필수 미적요소이다. 
+
+앞서 그린 트리맵에 변량과 취업자수를 표기하는 코드는 다음과 같다. 
+
+```{r fig.cap='변량이 포기된 트리맵'}
+p_treemap +
+  ## area는 취업자수, label은 중계열과 취업자수를 매핑
+  geom_treemap_text(aes(area = 취업자, label = paste0(중계열, "\n", scales::comma(취업자))), 
+                    ## 문자색은 하얀색 
+                    colour = "white",
+                    ## 위치는 중간
                     place = "centre",
-                    size = 10, grow =TRUE) +
+                    ## 사각형의 크기에 따라 문자 크기 조절
+                    grow =TRUE, 
+                    ## 가로방향으로 경계선과 문자 간격을 3mm 설정
+                    padding.x = grid::unit(3, "mm")) +
   labs(title = '공학계열 취업자 현황') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
 
 ```
 
-## 다중 그룹 트리맵
+## 다중 트리맵
 
-```{r}
+다중 파이 차트나 다중 도넛 차트는 `facet_*()`을 사용하여 그룹 변수를 사용해 차트를 분할함으로서 다중 차트를 만들었다. 하지만 트리맵은 `facet_*()`을 사용할 수 없다. 대신 `treemapify` 패키지에서는 `geom_treemap()`의 `subgroup`, `subgroup2`, `subgroup3` 미적요소에 변수를 매핑함으로써 다중 트리맵을 생성할 수 있고 서브 그룹의 경계선 설정은 `geom_tree_subgroup_border()`, 서브그룹의 문자 설정은  `geom_tree_subgroup_text()`를 사용한다. 
 
-df_treemap_multi <- df_취업통계 |> group_by(대계열, 중계열) |>
+```{r eval = FALSE}
+geom_tree_subgroup_border(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE, layout = "squarified", start = "bottomleft", level = "subgroup", ...)
+  - level : 어떤 서브그룹에 대한 설정일지를 설정, 'subgroup', 'subgroup2', 'subgroup3' 중에 하나 설정
+
+geom_treemap_subgroup_text(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, show.legend = FALSE, inherit.aes = TRUE, padding.x = grid::unit(1, "mm"), padding.y = grid::unit(1, "mm"), place = "bottom", min.size = 4, grow = FALSE, reflow = FALSE, layout = "squarified", start = "bottomleft", level = "subgroup", ...)
+  - mapping, data, stat, position, na.rm, show.legend, inherit.aes, ... : geom_text와 동일한 설정 
+  - padding.x, padding.y : 수평, 수직 방향으로 문자와 경계선과의 거리 설정
+  - place : 문자가 사각형 안에서 위치하는 장소
+  - min.size : 문자의 최소 크기
+  - grow : 문자의 크기를 사각형의 크기에 따라 조절할 지를 결정하는 논리값
+  - reflow : 문자를 사각형에 더 잘 맞춰줄지를 결정하는 논리값
+```
+
+`geom_tree_subgroup_border()`에서 매핑이 가능한 미적요소는 area, subgroup, (subgroup2 or subgroup3), color, size, linetype, alpha 등이고 `geom_tree_subgroup_text()`에서 매핑이 가능한 미적요소는 area, subgroup(subgroup2 or subgroup3), colour, size, alpha, family, fontface, angle 등이다. 이 중 area와 서브그룹 설정(subgroup, subgroup2, subgroup3)은 필수 미적요소이다. 
+
+다음은 서브 그룹을 대계열과 중계열로 설정한 다중 트리맵을 생성하는 코드이다. 
+
+```{r fig.cap='변량이 표기된 다중 트리맵'}
+
+df_treemap_multi <- df_취업통계 |> 
+  ## 대계열과 중계열로 그룹화
+  group_by(대계열, 중계열) |>
+  ## 취업자_합계_계 열을 합계로 요약
   summarise(취업자 = sum(취업자_합계_계))
 
-df_treemap_multi |> ggplot(aes(area = 취업자, fill = 취업자, label = paste0(중계열, "\n", scales::comma(취업자)), subgroup = 대계열)) +
-  geom_treemap() + 
-  geom_treemap_subgroup_border(colour = "white", size = 5) +
-  geom_treemap_subgroup_text(place = "centre", grow = TRUE,
-                             alpha = 0.25, colour = "black") +
-  geom_treemap_text(colour = "white", place = "centre",
-                    size = 10, grow = TRUE)
-
-
+df_treemap_multi |> 
+  ggplot() +
+  ## area, fill을 취업자, label을 중계열명과 취업자, subgroup을 대계열로 매핑한 geom_treemap 레이어 생성
+  geom_treemap(aes(area = 취업자, fill = 취업자, label = paste0(중계열, "\n", scales::comma(취업자)), subgroup = 대계열)) + 
+  ## area를 취업자, label을 중계열명과 취업자, subgroup을 대계열로 매핑한 geom_treemap_border 레이어 생성
+  geom_treemap_subgroup_border(aes(area = 취업자, label = paste0(중계열, "\n", scales::comma(취업자)), subgroup = 대계열), colour = "white", size = 5) +
+  ## area를 취업자, label을 중계열명과 취업자, subgroup을 대계열로 매핑한 geom_treemap_text 레이어 생성
+  geom_treemap_subgroup_text(aes(area = 취업자, label = paste0(중계열, "\n", scales::comma(취업자)), subgroup = 대계열), place = "centre", grow = TRUE, alpha = 0.25, colour = "black") +
+  ## area를 취업자, label을 중계열명과 취업자, subgroup을 대계열로 매핑한 geom_treemap_text 레이어 생성
+  geom_treemap_text(aes(area = 취업자, label = paste0(중계열, "\n", scales::comma(취업자)), subgroup = 대계열), colour = "white", place = "centre",
+                    size = 10, grow = TRUE) +
   labs(title = '공학계열 취업자 현황') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
 
 ```
 
-# 와플차트
+# 와플 차트(Waffle Chart)
+
+------------------------------------------------------------------------
+
+와플은 아마도 한번 정도는 먹어본 음식일 것이다. 아이스크림이나 달콤한 시럽이 얹혀진 이 파이인듯, 빵인듯, 케이크인 둣한 음식의 표면은 작은 네모들로 가득하다. 여기에서 영감을 얻은 것같은 와플 차트는 작은 사각형으로 전체 영역을 나누고 각 변량이 차지하는 비율만큼 사각형을 각 변량에 포함시킴으로써 데이터를 시각화한다. 
+
+이를 위해서는 다른 시각화에는 수행하지 않았던 전처리 작업이 필요하다. 먼저 와플 차트에서 사용할 사각형의 갯수를 결정해야 하고 전체 비율을 이 사각형의 갯수로 변환하는 작업이다. 예를 들어 전체 사각형이 100개인 와플 차트라면 비율을 소수점 한자리에서 반올림해 소수점을 없애고 각각의 백분률만큼 사각형을 배치하면 되겠지만 150개인 와플차트라면 각각의 비율에 1.5를 곱해야 할 것이다. 
+
+`ggplot2`에서는 와플 차트를 위한 전용 함수를 제공하지 않는다. 대신 `geom_tile()`을 사용해서 만들 수 있는데 어쩌면 `geom_tile()`이 와플 차트를 위한 함수로 특화된 것은 아닌지 생각도 든다. 
+
+```{r eval = FALSE}
+geom_tile(mapping = NULL, data = NULL, stat = "identity", position = "identity", ..., linejoin = "mitre", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'
+  - position : 시각화에 적용될 위치요소, 기본값은 'identity'
+  - ... : 미적요소의 설정
+  - linejoin : 사각형의 꼭지점의 처리 방법 설정(round, mitre, bevel)
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값
+  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
+
+```
+
+`geom_tile()`의 매개변수는 대부분 다른 기하요소의 설명에 사용되었던 매개변수이기 때문에 특별히 설명하지 않았다. 또 매핑이 가능한 미적요소도 다른 기하요소들과 유사한데 x, y, alpha, color, fill, group, height, linetype, size, width 등이 있다. 
 
 ```{r}
-var <- df_취업통계 |> filter(대계열 == '공학계열') |> select(중계열) |> pull()  # the categorical data 
+vec_waffle <- df_취업통계 |> 
+  filter(대계열 == '공학계열') |> 
+  ## 와플 차트에 사용할 변량 하나를 선택
+  select(중계열) |> 
+  ## 필터링한 데이터를 벡터로 변환
+  pull()  # the categorical data 
 
+## 와플 차트의 사각형 행수 설정
 nrows <- 20
 
+## expand.grid는 모든 조합에 대한 데이터 프레임을 만드는 함수로 X, Y 두 변수 20개씩 총 400개의 조합을 가진 데이터 프레임 생성
 df_waffle <- expand.grid(y = 1:nrows, x = 1:nrows)
 
-categ_table <- round(table(var) * ((nrows*nrows)/(length(var))))
+## 중계열로 생성된 벡터들의 비율 데이터프레임 생성
+## table(vec_waffle)로 vec_waffle의 각각의 데이터에 대한 빈도 산출
+## nrows*nrows는 전체 사각형의 갯수, length(vec_waffle)은 vec_waffle의 데이터 갯수로 여기서는 nrows*nrows는 400, vec_waffle 2589로 사각형 하나당 0.15의 비중을 가짐
+freq_table <- round(table(vec_waffle) * ((nrows*nrows)/(length(vec_waffle))))
 
-df_waffle$category <- factor(rep(names(categ_table), categ_table))
+## freq_table에서 산출된 중계열별 빈도수만큼 반복한 행을 만듦
+df_waffle$중계열 <- factor(rep(names(freq_table), freq_table))
 
-ggplot(df_waffle, aes(x = x, y = y, fill = category)) + 
+## X축을 x, Y축을 y, fill을 category로 매핑한 ggplot 객체 생성
+df_waffle |> ggplot(aes(x = x, y = y, fill = 중계열)) + 
+  ## color를 black, size를 0.5로 설정
   geom_tile(color = "black", size = 0.5) +
+  ## 색 팔레트를 'Set3'로 설정
+  scale_fill_brewer(palette = "Set3") +
+  ## 모든 미적요소를 제거
   theme_void() +
-  labs(title="공학계열 중계열 학과수 Waffle Chart", fill = '중계열') +
-  scale_fill_brewer(palette = "Set3")
-
+  labs(title="공학계열 중계열 학과수 Waffle Chart", fill = '중계열')
 ```
+
+

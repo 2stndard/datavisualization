@@ -11,7 +11,7 @@ output:
       caption:
         style: Image Caption
         pre: '실행결과 5-'
-        sep: '. '
+        sep: ''
         tnd: 0
         tns: '-'
         fp_text: !expr officer::fp_text_lite(bold = TRUE)
@@ -26,6 +26,9 @@ library(tidyverse)
 library(readxl)
 library(scales)
 library(patchwork)
+library(officer)
+library(officedown)
+
 
 df_입학자 <- read_excel('c:/R/git/datavisualization/chap3/2021_연도별 입학자수.xlsx', 
                  ## 'data' 시트의 데이터를 불러오는데,
@@ -45,7 +48,33 @@ df_입학자 <- df_입학자 |> filter(!is.na(지역))
 
 df_입학자_long <- df_입학자 |> pivot_longer(3:10, names_to = '학교종류', values_to = '입학생수')
 
-
+theme_set(
+  theme(
+    ## 축의 눈금자(ticks)를 모두 제거
+    axis.ticks = element_blank(),
+    ## 축의 선을 grey50으로 설정
+    axis.line = element_line(colour = "grey50"),
+    ## 전체 제목의 크기를 15, 수평 정렬은 중간, 아래 여백을 20으로 설정
+    plot.title = element_text(size = 15, vjust = 0.5, margin = margin(b = 10)), 
+    ## 패널의 눈금선의 색을 'wheat3'로 설정
+    panel.grid = element_line(color = "wheat3"), ###b4aea9
+    ## 패널의 부눈금선을 제거
+    panel.grid.minor = element_blank(),
+    ## 패널의 X축 주눈금선을 제거
+    panel.grid.major.x = element_blank(),
+    ## 패널의 Y축 주눈금선을 'dashed'형태로 설정
+    panel.grid.major.y = element_line(linetype = "dashed"),
+    ## 패널의 배경색과 선색을 'seashell'으로 설정
+    panel.background = element_rect(fill = "snow", color = "snow"),
+    ## 전체 배경색과 선색을 'seashell'으로 설정
+    plot.background = element_rect(fill = "snow", color = "snow"),
+    ## 범례 배경색과 선색을 'seashell'으로 설정
+    legend.background = element_rect(fill = "snow", color = "snow"),
+    ## 범례 키의 배경색과 'seashell', 선색을 제거
+    legend.key = element_rect(fill = "snow", color = NA),  #fbf9f4
+    legend.title = element_text(hjust = 0.5)
+    )
+  )
 ```
 
 ```{r include=FALSE}
@@ -73,7 +102,7 @@ str(df_취업통계)
 
 [^1]: <https://www.reneshbedre.com/blog/correlation-analysis-r.html>
 
-![Pearson_Correlation_Coefficient_and_associated_scatterplots](Pearson_Correlation_Coefficient_and_associated_scatterplots.png "상관관계와 상관계수")
+![그림 5-1 상관관계와 상관계수](C:/R/git/datavisualization/fig/5-1.png)
 
 데이터의 상관관계를 확인하기 위한 시각화를 살펴보기 전에 이번 장에서 사용할 데이터를 다음과 같이 준비한다.
 
@@ -84,36 +113,26 @@ df_취업통계$과정구분 <- fct_relevel(df_취업통계$과정구분, '전�
 ## 대계열의 순서를 맞추기 위해 대계열을 팩터로 설정하고 레벨의 순서를 설정
 df_취업통계$대계열 <- fct_relevel(df_취업통계$대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')
 
-## 시각화에 사용할 전체 테마를 설정
-theme_set(
-  theme(
-    axis.ticks = element_blank(),
-    axis.line = element_line(colour = "grey50"),
-    panel.grid = element_line(color = "#b4aea9"),
-    panel.grid.minor = element_blank(),
-    panel.grid.major.x = element_blank(),
-    panel.grid.major.y = element_line(linetype = "dashed"),
-    panel.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
-    plot.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
-    legend.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
-    legend.key = element_rect(fill = "#fbf9f4", color = NA)
-    )
-  )
-
 ```
 
 # 산점도(Scatter Plot)
 
+------------------------------------------------------------------------
+
 산점도는 x, y 두개의 변수에 따른 데이터의 위치를 점으로 표현한 시각화 방법이다. 산점도를 통해 데이터의 전반적 분포와 X축의 독립변수에 따른 Y축의 종속변수가 어떻게 분포하는지를 한눈에 확인할 수 있고 그 분포 모양에 따라 상관관계와 상관강도를 알아볼 수 있다.
 
-`ggplot2`에서 산점도를 시각화하기 위해서는 `geom_point()`를 사용한다.
+## 기본 산점도
 
-```{r fig.cap='오버플로팅된 산점도'}
+`ggplot2`에서 산점도를 만들기 위해서는 `geom_point()`를 사용한다.
+
+```{r fig.cap='기본 산점도'}
 df_취업통계 |> 
   ggplot() +
+  ## X축이 졸업자_계, Y축이 취업자_합계_계에 매핑된 geom_point 레이어 생성
   geom_point(aes(x = 졸업자_계, y = 취업자_합계_계)) + 
+  ## X축과 Y축의 범위를 설정
   lims(x = c(0, 2500), y = c(0, 2000)) +
-  labs(title = '오버플로팅된 산점도', x = '졸업자수', y = '취업자수')
+  labs(title = '기본 산점도', x = '졸업자수', y = '취업자수')
 
 ```
 
@@ -304,6 +323,7 @@ fig4 <- df_취업통계_sample |>
 ```{r fig.cap=' 세가지 미적요소 조절을 통한 오버플로팅 제거'}
 df_취업통계_sample |> 
   ggplot() +
+  ## X축을 졸업자_계, Y축을 취업자_합계_계로 매핑하고 size와 alpha를 설정한 geom_point 레이어 생성
   geom_point(aes(x = 졸업자_계, y = 취업자_합계_계), size = 0.5, alpha = 0.5) + 
   labs(title = '산점도(n = 2000, alpha = 0.5, size = 0.5)', x = '졸업자수', y = '취업자수')
 
@@ -322,9 +342,9 @@ p_scatter <- df_취업통계_sample |>
   labs(x = '졸업자수', y = '취업자수')
 
 p_scatter1 <- p_scatter +
-  ## geom_point로 산점도 레이어 생성
+  ## X축을 졸업자_계, Y축을 취업자_합계_계로 매핑한 geom_point로 산점도 레이어 생성
   geom_point(aes(x = 졸업자_계, y = 취업자_합계_계)) +
-  ## geom_smooth로 추세선 레이어 생성
+  ## X축을 졸업자_계, Y축을 취업자_합계_계로 매핑한 geom_smooth로 추세선 레이어 생성
   geom_smooth(aes(x = 졸업자_계, y = 취업자_합계_계)) +
   ## 제목, X축 제목, Y축 제목 설정
   labs(title = '추세선이 추가된 산점도')
@@ -332,13 +352,13 @@ p_scatter1 <- p_scatter +
 p_scatter1
 ```
 
-앞의 실행결과 같이 추세선은 전체를 대상으로 생성할 수도 있지만 그룹별로 추세선을 생성할 수도 있다. 다음은 앞선 산점도를 대계열별로 그루핑하고 각각의 그룹에 대한 추세선을 추가한 산점도이다.
+앞의 실행결과 같이 추세선은 전체를 대상으로 생성할 수도 있지만 그룹별로 추세선을 생성할 수도 있다. 다음은 앞선 산점도를 대계열별로 그룹화하고 각각의 그룹에 대한 추세선을 추가한 산점도이다.
 
 ```{r fig.cap=' 그룹별 추세선이 포함된 산점도'}
 p_scatter2 <- p_scatter +
-  ## color로 그루핑한 geom_point로 산점도 레이어 생성
+  ## X축을 졸업자_계, Y축을 취업자_합계_계, color를 대계열로 매핑한 geom_point로 산점도 레이어 생성
   geom_point(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열)) + 
-  ## 각 그룹별 geom_smooth로 추세선 레이어 생성
+  ## X축을 졸업자_계, Y축을 취업자_합계_계, color를 대계열로 매핑한 geom_smooth로 추세선 레이어 생성
   geom_smooth(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열)) +
   labs(title = '그룹별 추세선이 포함된 산점도')
 
@@ -352,17 +372,26 @@ p_scatter2
 러그(rug)는 '바닥에 까는 발판'으로 X축과 Y축의 바닥에 막대를 표현함으로써 데이터의 밀도를 표현하는 방법이다. `ggplot2`에서 러그를 표현하기 위해서는 `geom_rug()`를 사용할 수 있다.
 
 ```{r eval=FALSE}
-geom_rug(mapping = NULL, data = NULL, stat = "identity", position = "identity",   outside = FALSE, sides = "bl", length = unit(0.03, "npc"), ...)
+geom_rug(mapping = NULL, data = NULL, stat = "identity", position = "identity", ...,  outside = FALSE, sides = "bl", length = unit(0.03, "npc"), na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'
+  - position : 시각화에 적용될 위치요소, 기본값은 'identity'
+  - ... : 미적요소의 설정
   - outside : 러그를 플로팅 지역 밖에 그릴지 설정하는 논리값
   - sides : 러그를 축의 양쪽에 그릴지 설정하는 논리값
   - length : 러그의 길이 설정
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값
+  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
+
 ```
 
 앞의 산점도에 러그를 추가한 산점도는 다음과 같다.
 
 ```{r fig.cap=' 러그가 포함된 산점도'}
 p_scatter3 <- p_scatter2 + 
-  ## geom_reg로 러그 레이처 추가
+  ## X축을 졸업자_계, Y축을 취업자_합계_계, color를 대계열로 매핑한 geom_reg 레이처 추가
   geom_rug(aes(x = 졸업자_계, y = 취업자_합계_계), col= "steelblue", alpha=0.5) +
   labs(title = '러그가 포함된 산점도')
 
@@ -375,7 +404,7 @@ p_scatter3
 
 ```{r fig.cap=' 경영학부가 강조된 산점도'}
 p_scatter4 <- p_scatter3 + 
-  ## geom_point()로 '경영학부' 데이터 포인트 레이어 추가
+  ## '경영학부' 로 필터링된 데이터에서 X축을 졸업자_계, Y축을 취업자_합계_계, color를 대계열로 매핑하고 color와 size를 설정한 geom_point 레이어 추가
   geom_point(data = df_취업통계_sample |> filter(학과명 == '경영학부'), aes(x = 졸업자_계, y = 취업자_합계_계), color = 'black', size = 2) + 
   labs(title = '경영학부가 강조된 산점도')
 
@@ -392,7 +421,7 @@ if(!require(ggrepel)) {
 }
 
 p_scatter5 <- p_scatter4 +
-  ## geom_text_reple()을 사용하여 '경영학부' 데이터 포인트에 학제를 표시하는 레이어 추가
+  ## '경영학부' 로 필터링된 데이터에서 X축을 졸업자_계, Y축을 취업자_합계_계, label을 학제로 매핑한 geom_text_repel 레이어 추가
   geom_text_repel(data = df_취업통계_sample |> filter(학과명 == '경영학부'), aes(x = 졸업자_계, y = 취업자_합계_계, label = 학제)) + 
   labs(title = 'ggrepel을 사용한 산점도')
 
@@ -403,13 +432,21 @@ p_scatter5
 
 [^2]: ggrepel의 사용법은 해당 패키지의 vignette 사이트([https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html)를](https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html)를){.uri} 참조하라.
 
+## 클러스터 스캐터 플롯(Cluster Scatter Plot)
 
-## encircle 스캐터 플롯(scatter plot)
-
-청중에게 특정 데이터 그룹의 분포를 전달하기 위해서 해당 그룹에 대한 범위를 표현해야할 경우가 발생한다. 이 경우에 산점도에 원으로 해당 그룹을 표시해 줄 수 있다. 이런 시각화를 위해서 `ggalt` 패키지의 `geom_encircle()`을 사용할 수 있다. `geom_encircle()`은 `data` 매개변수로 전달된 데이터를 둘러싸는 원을 그려주는 함수이다. 
+청중에게 특정 데이터 그룹의 분포를 전달하기 위해서 해당 그룹에 대한 범위를 표현해야할 경우가 발생한다. 이 경우에 산점도에 원으로 해당 그룹을 표시해 줄 수 있다. 이런 시각화를 위해서 `ggalt` 패키지의 `geom_encircle()`을 사용할 수 있다. `geom_encircle()`은 `data` 매개변수로 전달된 데이터를 둘러싸는 원을 그려주는 함수이다.
 
 ```{r eval = FALSE}
-geom_encircle(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, show.legend = NA, ...)
+geom_encircle(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE, ...)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'
+  - position : 시각화에 적용될 위치요소, 기본값은 'identity'
+  - ... : 미적요소의 설정
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값
+  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
+
 ```
 
 다음 코드는 앞에서 강조했던 '경영학부' 데이터를 감싸는 원을 그리는 코드이다.
@@ -430,14 +467,17 @@ p_scatter6
 
 # 거품형 차트(Bubble Chart)
 
-산점도는 X축과 Y축의 2차원 데이터를 사용하는 시각화 방법이다. 단 두개의 변수만의 관계를 살펴보는 것은 데이터의 관계성을 찾는데 한계가 있어 추가적인 변수들을 표현하는 방법들이 많이 제공되고 있다. 이에 대표적으로 사용되는 시각화 방법이 거품형 차트이다. 거품형 차트는 2018년 발간된 한스 로슬링의 '팩트풀니스(Factfullness)'에서 주로 사용되며 유명세를 탄 사각화 방법이다. X축과 Y축의 변수에 기초하여 표현되는 산점도 데이터 포인트의 크기를 매핑한 추가적 변수를 사용함으로써 3차원 산점도를 표현하는 방법이다. 거품형 차트는 특별한 함수가 제공되는 것이 아니고 `geom_point()`에 `size` 미적요소를 매핑하여 크기를 조절하여 생성한다. 다음은 졸업자수와 취업자수의 산점도에 취업률을 추가로 매핑한 거품 차트를 생성하는 코드이다. 
+------------------------------------------------------------------------
+
+산점도는 X축과 Y축의 2차원 데이터를 사용하는 시각화 방법이다. 단 두개의 변수만의 관계를 살펴보는 것은 데이터의 관계성을 찾는데 한계가 있어 추가적인 변수들을 표현하는 방법들이 많이 제공되고 있다. 이에 대표적으로 사용되는 시각화 방법이 거품형 차트이다. 거품형 차트는 2018년 발간된 한스 로슬링의 '팩트풀니스(Factfullness)'에서 주로 사용되며 유명세를 탄 사각화 방법이다. X축과 Y축의 변수에 기초하여 표현되는 산점도 데이터 포인트의 크기를 매핑한 추가적 변수를 사용함으로써 3차원 산점도를 표현하는 방법이다. 거품형 차트는 특별한 함수가 제공되는 것이 아니고 `geom_point()`에 `size` 미적요소를 매핑하여 크기를 조절하여 생성한다. 다음은 졸업자수와 취업자수의 산점도에 취업률을 추가로 매핑한 거품 차트를 생성하는 코드이다.
 
 ```{r fig.cap=' 거품형 차트'}
 p_bubble <- df_취업통계_sample |> filter(대계열 == '인문계열') |> 
   ggplot()
 
 p_bubble +
-  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계, size = 취업률_계, color = 취업률_계)) + 
+  ##  X축을 졸업자_계, Y축을 취업자_합계_계, size를 취업률_계, color를 취업률_계로 매핑한 geom_point 레이어 생성
+  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계, size = 취업률_계^3, color = 취업률_계)) + 
   labs(title = '거품형 차트', x = '졸업자수', y = '취업자수', color = '취업률', size = '취업률') 
   
 
@@ -445,34 +485,42 @@ p_bubble +
 
 # 상관도
 
-앞에서 살펴본 산점도들은 데이터의 전반적인 분포에 따라 상관 정도를 육안으로 확인하는데 사용된다. 하지만 사용자가 미리 선택한 변수들 간의 상관관계를 확인할 수 있고 그 상관관계가 어느 정도 강한지에 대해서는 알기가 어렵다. 이를 위해 사용하는 것이 상관도이다. 상관도는 여러개의 변수들을 대상으로 각각의 변수들끼리 상관관계가 어느 정도인지를 수치로 표현함으로서 변수들간의 상관강도를 확인할 수 있다. 
+------------------------------------------------------------------------
 
-상관도를 생성하는 함수는 여러개가 있다. 여기서는 `ggcorrplot` 패키지에서 제공하는 `ggcorrplot()`을 사용하여 상관도를 생성하도록 하겠다. 
+앞에서 살펴본 산점도들은 데이터의 전반적인 분포에 따라 상관 정도를 육안으로 확인하는데 사용된다. 하지만 사용자가 미리 선택한 변수들 간의 상관관계를 확인할 수 있고 그 상관관계가 어느 정도 강한지에 대해서는 알기가 어렵다. 이를 위해 사용하는 것이 상관도이다. 상관도는 여러개의 변수들을 대상으로 각각의 변수들끼리 상관관계가 어느 정도인지를 수치로 표현함으로서 변수들간의 상관강도를 확인할 수 있다.
+
+상관도를 생성하는 함수는 여러개가 있다. 여기서는 `ggcorrplot` 패키지에서 제공하는 `ggcorrplot()`을 사용하여 상관도를 생성하도록 하겠다.
 
 ```{r eval = FALSE}
-ggcorrplot(corr, method = c("square", "circle"), type = c("full", "lower", "upper"), ggtheme = ggplot2::theme_minimal, title = "", legend.title = "Corr", colors = c("blue", "white", "red"), outline.color = "gray", ...)
+ggcorrplot(corr, method = c("square", "circle"), type = c("full", "lower", "upper"), ggtheme = ggplot2::theme_minimal, title = "", show.legend = TRUE, legend.title = "Corr", show.diag = FALSE, colors = c("blue", "white", "red"), outline.color = "gray", hc.order = FALSE, hc.method = "complete", lab = FALSE,   lab_col = "black", lab_size = 4, p.mat = NULL, sig.level = 0.05, insig = c("pch", "blank"), pch = 4, pch.col = "black", pch.cex = 5, tl.cex = 12, tl.col = "black", tl.srt = 45, digits = 2)
   - corr : 시각화할 상관 행렬
   - method : 상관관계 표현에 사용될 도형의 형태
   - type : 상관도의 표현 방법, full은 전체 매트릭스, lower는 아래쪽 대각선 부분만, upper는 위쪽 대각선 부분만 상관도 표현
   - ggtheme : 상관도 표현에 사용할 테마 선택
+  - title : 상관도의 제목 설정
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값
   - legend.title : 상관도의 범례 제목 설정
+  - show.diag : 상관 계수를 주대각선에 표시할지 여부를 설정하는 논리값
   - colors : 상관도에 사용할 색 설정
   - outline.color : 상관도의 외부 선 색 설정
+  - hc.order, hc.method : hclust 함수를 사용한 순서 및 응집 결정 방법 설정
+  - lab, lab_col, lab_size : 상관 계수 라벨의 크기와 색상
 
 ```
 
-`ggcorrplot()`은 지금까지 사용했던 `ggplot2`의 함수들과 다른 것이 다른 `ggplot2` 함수들은 `ggplot`객체를 첫번째 매개변수로 사용했지만 `ggcorrplot()`은 `ggplot` 객체가 아닌 상관 행렬을 첫번째 매개변수로 사용한다. 그렇다면 상관 행렬을 만들어야 하겠다. 
+`ggcorrplot()`은 지금까지 사용했던 `ggplot2`의 함수들과 다른 것이 다른 `ggplot2` 함수들은 `ggplot`객체를 첫번째 매개변수로 사용했지만 `ggcorrplot()`은 `ggplot` 객체가 아닌 상관 행렬을 첫번째 매개변수로 사용한다. 그렇다면 상관 행렬을 만들어야 하겠다.
 
-상관행렬은 상관도를 생성하기 위해 필요한 변수들이 각각 가로, 세로로 설정되어 가로, 세로에 해당하는 변수들의 상관계수로 표현된 행렬을 말한다. 같은 변수들이 가로, 세로로 표현되기 때문에 대각선에는 자기 자신과의 상관관계이기 때문에 상관계수가 1이 되고 이 대각선을 사이에 두고 양쪽으로 구분된 지역들은 서로 같은 상관계수를 가지게 된다. 이 상관행렬을 생성하기 위해서는 `cor()`를 사용한다. 
+상관행렬은 상관도를 생성하기 위해 필요한 변수들이 각각 가로, 세로로 설정되어 가로, 세로에 해당하는 변수들의 상관계수로 표현된 행렬을 말한다. 같은 변수들이 가로, 세로로 표현되기 때문에 대각선에는 자기 자신과의 상관관계이기 때문에 상관계수가 1이 되고 이 대각선을 사이에 두고 양쪽으로 구분된 지역들은 서로 같은 상관계수를 가지게 된다. 이 상관행렬을 생성하기 위해서는 `cor()`를 사용한다.
 
 ```{r eval=FALSE}
 cor(x, use = "everything", method = c("pearson", "kendall", "spearman")
   - x : 수치형 벡터
   - use : 결측치 발생시 처리 방법 설정
   - method : 상관계수를 계산하는데 사용할 방법 설정 
+  
 ```
 
-앞서 생성했던 df_취업통계_sample을 사용하여 상관도를 생성하는 코드는 다음과 같다. 
+앞서 생성했던 df_취업통계_sample을 사용하여 상관도를 생성하는 코드는 다음과 같다.
 
 ```{r fig.cap=' 취업 상세 정보의 상관도'}
 ## ggcorrplot 패키지 설치
@@ -485,24 +533,37 @@ if(!require('ggcorrplot')) {
 corr <- round(cor(df_취업통계_sample[, 13:19]), 1)
 
 ## 상관도 생성
-ggcorrplot(corr, type = "lower", 
-           lab = TRUE, 
-           lab_size = 3, 
-           method="square", 
-           colors = c("tomato1", "white", "skyblue1"), 
-           title="취업 상세 정보의 상관도", 
+ggcorrplot(corr, 
+           type = "lower",  ## 하부 대각선만 표시 
+           lab = TRUE,   ## 상관계수 표시
+           lab_size = 3, ## 상관계수 라벨 크기
+           method="square", ## 상관도 표시방법
+           colors = c("tomato1", "white", "skyblue1"),  ## 상관도 표시 색 설정 
+           title="취업 상세 정보의 상관도", ## 상관도 제목 설정
            ggtheme=theme_bw)
 ```
 
 # 히트맵
 
-히트 맵(heat map)은 X축과 Y축의 일정한 간격으로 나누고 해당 셀안에 위치하는 데이터의 개수에 따른 온도(Heat)를 표현하는 시각화 방법이다. 일반적으로 X축과 Y축에 골고루 분포한 데이터의 밀도를 시각화하는 방법으로 `ggplot2`의 `geom_tile()`을 사용하여 생성할 수 있다. 
+------------------------------------------------------------------------
+
+히트 맵(heat map)은 X축과 Y축의 일정한 간격으로 나누고 해당 셀안에 위치하는 데이터의 개수에 따른 온도(Heat)를 표현하는 시각화 방법이다. 일반적으로 X축과 Y축에 골고루 분포한 데이터의 밀도를 시각화하는 방법으로 `ggplot2`의 `geom_tile()`을 사용하여 생성할 수 있다.
 
 ```{r eval=FALSE}
-geom_tile(mapping = NULL, data = NULL, stat = "identity", position = "identity",   linejoin = "mitre", na.rm = FALSE, show.legend = NA, ...)
+geom_tile(mapping = NULL, data = NULL, stat = "identity", position = "identity", ..., linejoin = "mitre", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
+  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'
+  - position : 시각화에 적용될 위치요소, 기본값은 'identity'
+  - ... : 미적요소의 설정
+  - linejoin : 선 겹침 스타일 설정
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값
+  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
+  
 ```
 
-다음은 3장에서 생성한 긴 형태의 입학자 데이터를 히트맵으로 표한한 코드이다. 
+다음은 3장에서 생성한 긴 형태의 입학자 데이터를 히트맵으로 표한한 코드이다.
 
 ```{r fig.cap=' 히트맵'}
 ## df_입학자_long의 데이터를 필터링하고 ggplot 객체로 생성
@@ -512,7 +573,84 @@ df_입학자_long |> filter(지역 != '전체') |> filter(학교종류 == '일�
   geom_tile(aes(x = 연도, y = 지역, fill = 입학생수)) + 
   labs(title = '히트맵') +
   ## 색 타입을 설정
-  scale_fill_continuous(type = "viridis")
+  scale_fill_continuous(type = "viridis") +
+  theme(axis.text.x = element_text(angle = 45))
+
 ```
 
+# 종합
 
+------------------------------------------------------------------------
+
+목표 : 비교의 대상이 되는 두 개의 그룹에 대한 산점도와 추세선을 각각 그리고 추세선의 선형회귀 방정식을 표현하여 각각의 그룹의 분포를 서로 비교하고 통계적 유의성을 전달
+
+```{r echo=FALSE}
+library(grid)
+
+df_의약 <- df_취업통계 |> filter(대계열 == '의약계열')
+df_인문 <- df_취업통계 |> filter(대계열 == '인문계열')
+
+model_lm_의약 <- lm(df_의약$취업자_합계_계 ~ df_의약$졸업자_계)
+model_lm_인문 <- lm(df_인문$취업자_합계_계 ~ df_인문$졸업자_계)
+
+glance_의약 <- broom::glance(model_lm_의약)
+glance_인문 <- broom::glance(model_lm_인문)
+
+tidy_의약 <- broom::tidy(model_lm_의약)
+tidy_인문 <- broom::tidy(model_lm_인문)
+
+equ_의약 <- paste0('의약계열 : y = ', round(tidy_의약$estimate[2], 2), 'x + ', round(tidy_의약$estimate[1], 2), ', R\u00B2', ' = ',round(glance_의약$r.squared, 3))
+
+equ_인문 <- paste0('인문계열 : y = ', round(tidy_인문$estimate[2], 2), 'x + ', round(tidy_인문$estimate[1], 2), ', R\u00B2', ' = ',round(glance_인문$r.squared, 3))
+
+df_취업통계 |> 
+  ggplot() +
+  ## X축이 졸업자_계, Y축이 취업자_합계_계에 매핑된 geom_point 레이어 생성
+  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계), color = 'grey75', alpha = 0.5) + 
+  geom_smooth(aes(x = 졸업자_계, y = 취업자_합계_계), color = 'grey75', se = F, method = 'lm') + 
+  geom_point(data = df_인문,
+             aes(x = 졸업자_계, y = 취업자_합계_계, color = '인문계열'), alpha = 0.5) + 
+  geom_smooth(data = df_인문,
+              aes(x = 졸업자_계, y = 취업자_합계_계, color = '인문계열'), se = F, method = 'lm') + 
+  geom_point(data = df_의약,
+             aes(x = 졸업자_계, y = 취업자_합계_계, color = '의약계열'), alpha = 0.5) + 
+  geom_smooth(data = df_의약,
+             aes(x = 졸업자_계, y = 취업자_합계_계, color = '의약계열'), se = F, method = 'lm') + 
+  geom_encircle(data = df_의약, 
+                aes(x = 졸업자_계, y = 취업자_합계_계, color='의약계열')) + 
+  geom_rug(data = df_의약,
+           aes(x = 졸업자_계, y = 취업자_합계_계), col= "steelblue", alpha=0.5) + 
+  ## X축과 Y축의 범위를 설정
+  labs(title =  '의약계열 졸업현황', x = '졸업자수', y = '취업자수', subtitle = '졸업자수 대비 취업자수', caption = '출처 : 실전에서 바로쓰는 데이터 시각화 in R') +
+  scale_x_continuous(breaks = c(100, 300, 500), labels = c(100, 300, 500), limits = c(0, 500)) + 
+  scale_y_continuous(breaks = c(100, 300, 500), labels = c(100, 300, 500), limits = c(0, 500)) + 
+  scale_color_manual(name = NULL, values = c('의약계열' = '#4169E1', '인문계열' = '#FA8072'), 
+                     labels = c(equ_의약, equ_인문)) +
+  theme(strip.text.x = element_blank(),
+        strip.background = element_rect(colour="white", fill="white"),
+        legend.position=c(.2,.9), 
+        legend.background = element_rect(fill = NA), 
+        legend.key = element_rect(fill = NA), 
+        plot.title = element_text(size = 20, family = 'NanumBarunGothicBold'),
+        plot.subtitle = element_text(vjust = 0.5, size = 12, family = 'NanumBarunGothic'),
+        axis.line = element_blank(), 
+        plot.background = element_rect(fill = '#FFFAFA'), 
+        panel.background = element_rect(fill = '#FFFAFA'), 
+        plot.margin = margin(0.025, 0.01, 0.01, 0.01, "npc")
+  )
+
+grid.lines(
+  x = c(0, 1),
+  y = 1,
+  gp = gpar(col = "#e5001c", lwd = 4)
+)
+
+grid.rect(
+  x = 0,
+  y = 1,
+  width = 0.1,
+  height = 0.025,
+  just = c("left", "top"),
+  gp = gpar(fill = "#e5001c", col = "#e5001c", lwd = 0)
+)
+```

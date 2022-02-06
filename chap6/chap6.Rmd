@@ -11,7 +11,7 @@ output:
       caption:
         style: Image Caption
         pre: '실행결과 6-'
-        sep: '. '
+        sep: ''
         tnd: 0
         tns: '-'
         fp_text: !expr officer::fp_text_lite(bold = TRUE)
@@ -72,19 +72,31 @@ df_취업통계$과정구분 <- fct_relevel(df_취업통계$과정구분, '전�
 ## 대계열의 순서를 맞추기 위해 대계열을 팩터로 설정하고 레벨의 순서를 설정
 df_취업통계$대계열 <- fct_relevel(df_취업통계$대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')
 
-## 시각화에 사용할 전체 테마를 설정
 theme_set(
   theme(
+    ## 축의 눈금자(ticks)를 모두 제거
     axis.ticks = element_blank(),
+    ## 축의 선을 grey50으로 설정
     axis.line = element_line(colour = "grey50"),
-    panel.grid = element_line(color = "#b4aea9"),
+    ## 전체 제목의 크기를 15, 수평 정렬은 중간, 아래 여백을 20으로 설정
+    plot.title = element_text(size = 15, vjust = 0.5, margin = margin(b = 10)), 
+    ## 패널의 눈금선의 색을 'wheat3'로 설정
+    panel.grid = element_line(color = "wheat3"), ###b4aea9
+    ## 패널의 부눈금선을 제거
     panel.grid.minor = element_blank(),
+    ## 패널의 X축 주눈금선을 제거
     panel.grid.major.x = element_blank(),
+    ## 패널의 Y축 주눈금선을 'dashed'형태로 설정
     panel.grid.major.y = element_line(linetype = "dashed"),
-    panel.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
-    plot.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
-    legend.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
-    legend.key = element_rect(fill = "#fbf9f4", color = NA)
+    ## 패널의 배경색과 선색을 'seashell'으로 설정
+    panel.background = element_rect(fill = "snow", color = "snow"),
+    ## 전체 배경색과 선색을 'seashell'으로 설정
+    plot.background = element_rect(fill = "snow", color = "snow"),
+    ## 범례 배경색과 선색을 'seashell'으로 설정
+    legend.background = element_rect(fill = "snow", color = "snow"),
+    ## 범례 키의 배경색과 'seashell', 선색을 제거
+    legend.key = element_rect(fill = "snow", color = NA),  #fbf9f4
+    legend.title = element_text(hjust = 0.5)
     )
   )
 
@@ -98,6 +110,8 @@ df_취업통계_sample <- df_취업통계 |>
 분포의 시각화는 전체 데이터가 어떻게 세부적으로 분포하는지를 표현하는 시각화 방법을 말한다. 보통 전체 데이터를 특정 구분자에 의해 분류하고 이에 대한 사례수나 비율을 나타내는 시각화가 이에 속한다. 대표적인 분포의 시각화는 히스토그램, 밀도 분포 그래프, 박스 플롯 등이 있다.
 
 # 히스토그램(Histogram)
+
+------------------------------------------------------------------------
 
 히스토그램은 데이터의 특정 변수에 따른 사례수를 나타내는 시각화이다. 특정 변수의 일정한 급간에 몇개의 사례가 있는지는 도수분포라고하고 이를 시각화한 것이 도수분포표, 즉 히스토그램니다. 분포의 시각화에 가장 대표적인 시각화가 히스토그램이고 우리가 그래프를 배울때 가장 먼저 배우는 그래프가 막대그래프를 사용한 히스토그램이다.
 
@@ -233,6 +247,7 @@ fig4 <- p_histo +
 p_histo_bin <- p_histo +
   ## bin = 3으로 설정한 geom_histogram 생성
   geom_histogram(aes(x = 취업률_계), bins = 3) +
+  ## stat_bin()을 사용하여 빈도수 텍스트 레이어 생성
   stat_bin(aes(x = 취업률_계, y=..count.., label=..count..), bins = 3, geom="text", vjust=-.5) + 
   labs(title = 'bin = 3인 히스토그램')
 
@@ -271,11 +286,17 @@ p_histo_bin +
 
 ```{r fig.cap='보조선이 추가된 히스토그램 2'}
 p_histo_bin + 
+  ## X축이 50인 곳에 수직선 레이어 추가
   geom_vline(xintercept = 50, color = 'yellow', linetype = 2) + 
+  ## X축이 0인 곳에 수직선 레이어 추가
   geom_vline(xintercept = 0, color = 'yellow', linetype = 2) + 
+  ## X축이 100인 곳에 수직선 레이어 추가
   geom_vline(xintercept = 100, color = 'yellow', linetype = 2) + 
+  ## X축이 25인 곳에 수직선 레이어 추가
   geom_vline(xintercept = 25, color = 'red') + ## X축의 1/4 위치 
+  ## X축이 75인 곳에 수직선 레이어 추가
   geom_vline(xintercept = 75, color = 'red') + ## X축의 3/4 위치
+  ## X축 스케일의 눈금 설정
   scale_x_continuous(breaks = c(min(df_취업통계$취업률_계), 
                                 range.x/2/2, 
                                 range.x/2,
@@ -349,7 +370,7 @@ fig4 <- p_histo +
 
 치우친 데이터는 아래의 그림과 같이 데이터의 분포가 한쪽으로 몰려있는 경우를 의미한다. 아래의 그림처럼 데이터가 왼쪽이나 오른쪽으로 치우쳐 있고 반대쪽으로 꼬리가 길게 늘어뜨려진 데이터의 형태이다. 이런 치우친 데이터는 앞에서 언급한 바와 같이 주로 데이터의 사례수를 표현하는 히스토그램 시각화에서 많이 나타나게 된다. 다음 그림은 치우침이 비교적 심하지 않아 적절히 데이터의 분포를 확인할 수 있겠지만 데이터의 치우침이 큰 경우에는 히스토그램의 시각화가 큰 의미가 없을 떄도 있다. 이와 같이 데이터의 치우침을 계산할 때 '왜도'라는 지수를 사용한다. R에서는 왜도 함수를 통해 데이터의 왜도를 비교할 수 있다.
 
-![<https://d1zx6djv3kb1v7.cloudfront.net/wp-content/media/2019/09/What-do-you-mean-by-the-terms-Skewed-Data-Outliers-Missing-Values-and-Null-Values-1-i2tutorials.jpg>](skew.jfif)
+![그림 6-1 치우친 히스토그램의 예 (출처 : <https://d1zx6djv3kb1v7.cloudfront.net/wp-content/media/2019/09/What-do-you-mean-by-the-terms-Skewed-Data-Outliers-Missing-Values-and-Null-Values-1-i2tutorials.jpg>)](C:/R/git/datavisualization/fig/6-2.jfif)
 
 다음의 코드는 df_취업통계_sample 데이터의 히스토그램이다. 오른쪽으로 매우 치우쳐진 히스토그램이 표현되었고 그 왜도가 매우 심해보인다.
 
@@ -359,6 +380,7 @@ p_histo_trans <- df_취업통계 |>
   labs(x = '졸업자', y = '학과수')
 
 p_histo_trans1 <- p_histo_trans +
+  ## X축을 졸업자_계에 매핑하고 bins가 50인 geom_histogram 레이어 추가
   geom_histogram(aes(x = 졸업자_계), bins = 50) + 
   labs(title = '치우친 히스토그램')
 
@@ -368,17 +390,20 @@ p_histo_trans1
 이 데이터에 대한 왜도는 다음과 같이 산출이 가능하다. 왜도의 정도를 `moments` 패키지의 `skewness()`를 사용하여 측정하면 다음과 같다.
 
 ```{r}
+## 왜도 측정을 위한 moments 패키지 설치
 if(!require(moments)) {
   install.packages('moments')
   library(moments)
 }
 
+## df_취업통계$졸업자_계의 왜도를 측정
 skewness(df_취업통계$졸업자_계)
 ```
 
 왜도 값이 플러스 값이 나왔다. 이는 왼쪽의 봉우리가 높고 오른쪽으로 꼬리가 길게 치우쳐진 히스토그램 의미한다. 그리고 값은 18이 넘게 나온다. 이 값은 매우 큰 값이다. 값의 정도를 비교해 보기 위해 다음의 예를 살펴보자.
 
 ```{r fig.cap='skew 시뮬레이션'}
+## 랜덤 변수를 위한 시드값 설정
 set.seed(123)
 
 ##  베타 확률분포 함수를 이용하여 왼쪽으로 치우친(left skewed) 데이터 10000개를 생성
@@ -390,6 +415,7 @@ sim.data <- data.frame(samples)
 ## 왜도 산출
 skewness(sim.data$samples)
 
+## 시뮬레이션 데이터에 대한 히스토그램 생성
 sim.data |> ggplot(aes(x = samples)) + geom_histogram()
 ```
 
@@ -399,8 +425,9 @@ sim.data |> ggplot(aes(x = samples)) + geom_histogram()
 
 앞서 보았던 p_histo_trans1를 다시 한번 살펴보자. 히스토그램을 잘 이해하기 위해 아래와 같이 그래프를 수정해보자.
 
-```{r}
+```{r fig.cap='데이터 값이 추가된 치우친 히스토그램'}
 p_histo_trans1 + 
+  ## 히스토그램에 데이터 값이 표시되는 text 레이어 추가
   stat_bin(aes(x = 졸업자_계, y=..count.., label=..count..), geom="text", vjust=-.5, bins = 50)
 
 ```
@@ -409,6 +436,7 @@ p_histo_trans1 +
 
 ```{r eval = FALSE, fig.cap='log10 변환'}
 p_histo_trans1 +
+  ## X축 스케일을 log10으로 변환
   scale_x_log10() +
   labs(title = 'log10 변환')
 ```
@@ -423,6 +451,7 @@ X축의 스케일을 log10 변환하기 위해서는 `scale_x_log10()`을 사용
 
 ```{r, fig.cap='sqrt 변환'}
 p_histo_trans1 +
+  ## X축 스케일을 sqrt로 변환
   scale_x_sqrt() +
   labs(title = 'sqrt 변환')
 
@@ -466,7 +495,9 @@ df_취업통계$취업률_그룹 <- cut(df_취업통계$취업률_계, breaks = 
 
 df_취업통계 |>
   ggplot() +
+  ## cut()으로 구분된 취업률 그룹을 X축으로 매핑하고 Y축에 사례수를 매핑한 geom_bar 레이어 생성
   geom_bar(aes(x = 취업률_그룹, y = ..count..)) + 
+  ## 사례수를 표시하는 text 레이어 추가
   stat_count(aes(x = 취업률_그룹, y=..count.., label=..count..), geom="text", vjust=-.5) +
   labs(title = 'cut을 사용한 사용자 정의 히스토그램1', x = '취업률', y = '학과수')
 ```
@@ -479,7 +510,9 @@ df_취업통계$취업률_그룹 <- cut(df_취업통계$취업률_계, breaks = 
 
 df_취업통계 |>
   ggplot() +
+  ## cut()으로 구분된 취업률 그룹을 X축으로 매핑하고 Y축에 사례수를 매핑한 geom_bar 레이어 생성
   geom_bar(aes(x = 취업률_그룹, y = ..count..)) + 
+  ## 사례수를 표시하는 text 레이어 추가
   stat_count(aes(x = 취업률_그룹, y=..count.., label=..count..), geom="text", vjust=-.5) +
   labs(title = 'cut을 사용한 사용자 정의 히스토그램2', x = '취업률', y = '학과수')
 
@@ -511,7 +544,9 @@ df_취업통계$취업률_그룹 <-  fct_relevel(df_취업통계$취업률_그�
 
 df_취업통계 |>
   ggplot() +
+  ## case_when()으로 구분된 취업률 그룹을 X축으로 매핑하고 Y축에 사례수를 매핑한 geom_bar 레이어 생성
   geom_bar(aes(x = 취업률_그룹, y = ..count..)) + 
+  ## 사례수를 표시하는 text 레이어 추가
   stat_count(aes(x = 취업률_그룹, y=..count.., label=..count..), geom="text", vjust=-.5) +
   labs(title = 'case_when을 사용한 사용자 정의 히스토그램', x = '취업률', y = '학과수')
 
@@ -519,6 +554,8 @@ df_취업통계 |>
 ```
 
 # 밀도 분포 플롯
+
+------------------------------------------------------------------------
 
 밀도 분포 플롯는 히스토그램의 또 다른 표현 방법이다. 히스토그램은 막대로 도수분포가 표현되기 때문에 다소 딱딱한 감이 있지만 밀도 분포 플롯은 전체 분포가 곡선으로 표현되어 히스토그램보다 부드럽게 표현된다는 장점이 있다. 또 도수분포에 대한 사례수를 직접적으로 사용하는 것이 아니고 확률 밀도 함수에 따른 확률값을 사용하기 때문에 0부터 1사이의 값으로 표현된다는 것이 히스토그램과의 차이다.
 
@@ -534,6 +571,7 @@ p_density <- df_취업통계 |>
   labs(x = '취업률', y = '분포 확률')
 
 p_density_multi1 <- p_density +
+  ## X축을 취업률_계, color, fill, linetype을 과정구분으로 매핑하고 미적요소를 설정한 geom_density 레이어 추가
   geom_density(aes(x = 취업률_계, color = 과정구분, fill = 과정구분, linetype = 과정구분), alpha=0.4, position = 'identity') +
   labs(title = '매핑을 사용한 다중 밀도 분포 플롯')
 
@@ -544,7 +582,9 @@ p_density_multi1
 
 ```{r fig.cap='facet을 사용한 다중 밀도 분포 플롯'}
 p_density +
+  ## X축을 취업률_계로 매핑하고 미적요소를 설정한 geom_density 레이어 추가
   geom_density(aes(x = 취업률_계), alpha=0.4, position = 'identity') +  
+  ## 대계열별로 다중 밀도 플롯 생성
   facet_wrap(~대계열) + 
   labs(title = 'facet을 사용한 다중 밀도 분포 플롯')
 
@@ -554,7 +594,9 @@ p_density +
 
 ```{r fig.cap = '매핑과 facet을 사용한 다중 밀도 분포 플롯'}
 p_density +
+  ## X축을 취업률_계, color, fill, linetype을 과정구분으로 매핑하고 미적요소를 설정한 geom_density 레이어 추가
   geom_density(aes(x = 취업률_계, color = 과정구분, fill = 과정구분, linetype = 과정구분), alpha=0.4, position = 'identity') +
+  ## 대계열별로 다중 밀도 플롯 생성
   facet_wrap(~대계열) + 
   labs(title = '매핑과 facet을 사용한 다중 밀도 분포 플롯')
 
@@ -576,7 +618,7 @@ if(!require('ggridges')) {
 }
 
 p_density +
-## geom)density_ridge()로 등선 플롯 생성
+## X축을 취업률_계, Y축, fill을 대계열로 매핑한 geom_density_ridge 레이어 생성
   geom_density_ridges(aes(x = 취업률_계, y = 대계열, fill = 대계열), alpha=0.4, position = 'identity') + 
   ## 범례 순서와 맞추기 위해 Y축 순서를 반전
   scale_y_discrete(limits = rev) + 
@@ -593,7 +635,7 @@ p_density +
 이 가장자리 플롯은 `ggplot2`에서 직접적으로 사용하지는 못하고 `ggExtra` 패키지를 통해 사용할 수 있다. `ggExtra` 패키지는 `ggplot2`의 기능적 향상을 위해 개발된 패키지로 이 패키지의 가장 주된 기능은 `ggMarginal`이다. `ggMarginal`은 `ggplot2` 산점도의 X축과 Y축의 가장자리에 히스토그램, 박스플롯, 밀도 플롯을 추가시키는 함수이다.
 
 ```{r eval=FALSE}
-ggMarginal(p, data, x, y, type = c("density", "histogram", "boxplot", "violin", "densigram"), margins = c("both", "x", "y"), xparams = list(), yparams = list(), groupColour = FALSE, groupFill = FALSE, size = 5, ...)
+ggMarginal(p, data, x, y, type = c("density", "histogram", "boxplot", "violin", "densigram"), margins = c("both", "x", "y"), xparams = list(), yparams = list(), groupColour = FALSE, groupFill = FALSE, size = 5)
   - p : 가장자리 플롯을 추가할 산점도 ggplot 객체
   - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
   - x : X축에 매핑된 변수명
@@ -623,12 +665,14 @@ p_marginal <- df_취업통계_sample |>
   geom_point(aes(x = 졸업자_계, y = 취업자_합계_계)) + 
   labs(x = '졸업자', y = '취업자')
 
-## 히스토그램을 가장자리 플롯으로 추가
+##  가장자리 플롯으로 히스토그램을 추가
 ggMarginal(p_marginal, x = 졸업자_계, y = 취업자_합계_계, type = 'histogram') 
 
 ```
 
 # 박스 플롯과 바이올린 플롯
+
+------------------------------------------------------------------------
 
 박스플롯은 연속된 수치형 데이터의 전체 분포를 완벽하게 보여줄 수 있는 플롯이다. 이 박스플롯은 중앙값, 데이터의 25%, 75%의 위치, IQR의 1.5배, -1.5배 위치의 다섯가지의 요약통계를 사용하여 데이터의 전체 분포를 시각화한다. 이러한 박스를 사용하여 그룹된 이산형 변수들의 분포를 비교할 수 있다.
 
@@ -646,8 +690,8 @@ p_boxplot <- df_취업통계 |> filter(졸업자_계 >= 3) |>
   ggplot() + 
   labs(x = '대계열', y = '취업률')
 
-## 박스플롯 생성
 p_boxplot1 <- p_boxplot +
+  ## X축을 대계열, Y축을 취업률_계로 매핑한 geom_boxplot 레이어 생성
   geom_boxplot(aes(x = 대계열, y = 취업률_계)) +
   labs(title = '박스 플롯')
 
@@ -659,6 +703,7 @@ p_boxplot1
 ```{r fig.cap='기본 바이올린플롯'}
 ## 바이올린플롯 생성
 p_violin1 <- p_boxplot +
+  ## X축을 대계열, Y축을 취업률_계로 매핑한 geom_violin 레이어 생성
   geom_violin(aes(x = 대계열, y = 취업률_계), scale = 'count') +
   labs(title = '바이올린플롯')
 
@@ -755,21 +800,20 @@ p_violin_highlight +
 
 ```
 
-## 그루핑된 박스플롯
+## 그룹화된 박스플롯
 
-박스플롯은 대부분이 X축은 이산형 데이터, Y축은 연속형 수치 데이터로 구성된다. X축이 이산형 데이터이기 때문에 추가적인 변수를 매핑함으로써 이산형 데이터를 다시 세분화할 수 있다. 이렇게 단계적으로 구성된 이산형 데이터는 하위 단계까지 그루핑해서 박스플롯을 만들수 있다. 이런 그루핑 박스플롯은 특별한 함수를 사용하는 것이 아니고 color나 fill로 추가 변수를 매핑함으로써 만들수 있다. 다음은 앞서 만든 박스플롯을 '과정구분' 변수로 세부 그룹화하여 만든 박스플롯이다.
+박스플롯은 대부분이 X축은 이산형 데이터, Y축은 연속형 수치 데이터로 구성된다. X축이 이산형 데이터이기 때문에 추가적인 변수를 매핑함으로써 이산형 데이터를 다시 세분화할 수 있다. 이렇게 단계적으로 구성된 이산형 데이터는 하위 단계까지 그룹화해서 박스플롯을 만들수 있다. 이런 그룹화 박스플롯은 특별한 함수를 사용하는 것이 아니고 color나 fill로 추가 변수를 매핑함으로써 만들수 있다. 다음은 앞서 만든 박스플롯을 '과정구분' 변수로 세부 그룹화하여 만든 박스플롯이다.
 
-```{r fig.cap='그루핑된 박스플롯'}
-
+```{r fig.cap='그룹화된 박스플롯'}
 p_boxplot_highlight +
   geom_boxplot(aes(x = 대계열, y = 취업률_계, fill = 과정구분)) +
-  labs(title = '그루핑된 박스플롯')
+  labs(title = '그룹화된 박스플롯')
 
 ```
 
-앞의 박스플롯은 색이 전반적으로 각 그룹별로 설정되어 있기 때문에 특정 계열의 강조가 사라졌다. 그루핑한 박스플롯에 특정 계열을 강조하기 위해서는 다음과 같이 사용할 수 있다.
+앞의 박스플롯은 색이 전반적으로 각 그룹별로 설정되어 있기 때문에 특정 계열의 강조가 사라졌다. 그룹화한 박스플롯에 특정 계열을 강조하기 위해서는 다음과 같이 사용할 수 있다.
 
-```{r fig.cap='그루핑되고 강조된 박스플롯'}
+```{r fig.cap='그룹화되고 강조된 박스플롯'}
 p_boxplot_highlight +
   ## color 매핑을 대계열로 추가한 geom_box 레이어 생성
   geom_boxplot(aes(x = 대계열, y = 취업률_계, color = 과정구분, fill = as.factor(highlight))) +
@@ -777,12 +821,12 @@ p_boxplot_highlight +
   scale_fill_manual(values = c('0' = 'grey', '1' = 'dodgerblue1'), guide = FALSE) +
   ## color 값을 직접 정의
   scale_color_manual(values = c('전문대학과정' = 'grey20', '대학과정' = 'grey40', '대학원과정' = 'grey60')) +
-  labs(title = '그루핑되고 강조된 박스플롯')
+  labs(title = '그룹화되고 강조된 박스플롯')
 ```
 
-## facet boxplot
+## 분할된 박스 플롯(facet boxplot)
 
-앞의 그루핑된 박스플롯은 그루핑된 변수의 변량이 적을때는 효과적으로 보이지만 변량이 많아져서 박스플롯이 많아지면 효과적인 시각화가 되지 않는다. 이럴 경우는 `facet_*()`을 사용하여 플롯을 분리시켜주는게 효과적이다.
+앞의 그룹화된 박스플롯은 그룹화된 변수의 변량이 적을때는 효과적으로 보이지만 변량이 많아져서 박스플롯이 많아지면 효과적인 시각화가 되지 않는다. 이럴 경우는 `facet_*()`을 사용하여 플롯을 분리시켜주는게 효과적이다.
 
 ```{r fig.cap='facet을 사용한 그룹 박스플롯'}
 p_boxplot_highlight +
@@ -802,10 +846,13 @@ p_boxplot_highlight +
 
 ```{r fig.cap=' 산점도를 병합한 박스플롯'}
 p_boxplot +
+  ## geom_jitter 레이어를 먼저 생성
   geom_jitter(aes(x = 대계열, y = 취업률_계), alpha = 0.2, color = 'orange') +
+  ## geom_jitter 레이어 위에 geom_boxplot 레이어 추가
   geom_boxplot(aes(x = 대계열, y = 취업률_계), alpha = 0) +
-  ## alpha를 0.2, color를 'orange'로 설정한 geom_jitter 레이어 생성 
+  ## geom_jitter, geom_boxplot레이어 위에 geom_point 레이어 추가 
   geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun.y = 'mean', color = 'tomato3', shape = 4) + 
+  ## 마지막으로 geom_text 레이어 추가
   geom_text(aes(x = 대계열, y = 취업률_계, label = round(..y.., 1)), stat = 'summary', fun.y = 'mean', color = 'tomato3', vjust = 1.5) + 
   labs(title = ' 산점도를 병합한 박스플롯')
   
@@ -815,10 +862,13 @@ p_boxplot +
 
 ```{r fig.cap=' 산점도를 마지막에 병합한 박스플롯'}
 p_boxplot +
+  ## geom_boxplot 레이어를 맨 처음 생성
   geom_boxplot(aes(x = 대계열, y = 취업률_계)) +
-  ## alpha를 0.2, color를 'orange'로 설정한 geom_jitter 레이어 생성 
+  ## geom_boxplot 레이어 위에 geom_point 레이어 추가 
   geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun.y = 'mean', color = 'tomato3', shape = 4) + 
-  geom_text(aes(x = 대계열, y = 취업률_계, label = round(..y.., 1)), stat = 'summary', fun.y = 'mean', color = 'tomato3', vjust = 1.5) + 
+  ## geom_boxplot, geom_point 레이어 위에 geom_text 레이어 추가
+  geom_text(aes(x = 대계열, y = 취업률_계, label = round(..y.., 1)), stat = 'summary', fun.y = 'mean', color = 'tomato3', vjust = 1.5) +
+  ## 마지막으로 geom_jitter 레이어 추가
   geom_jitter(aes(x = 대계열, y = 취업률_계), alpha = 0.2, color = 'orange') +
   labs(title = ' 산점도를 마지막에 병합한 박스플롯')
   
@@ -834,10 +884,15 @@ p_violin_merge <- df_취업통계 |>
   labs(x = '대계열', y = '취업률')
   
 p_violin_merge +
+  ## geom_violin 레이어 생성
   geom_violin(aes(x = 대계열, y = 취업률_계, fill = as.factor(highlight)), color = 'grey', scale = 'count', show.legend = FALSE) +
+  ## geom_violin 레이어 위에 geom_boxplot 레이어 추가
   geom_boxplot(aes(x = 대계열, y = 취업률_계), width=0.2, color="black", alpha=0.2) +
+  ## 평균점을 찍기 위한 geom_point 레이어 추가
   geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun.y = 'mean', color = 'tomato3', shape = 4) + 
+  ## 평균값을 표기하기 위한 geom_text 레이어 추가
   geom_text(aes(x = 대계열, y = 취업률_계, label = round(..y.., 1)), stat = 'summary', fun.y = 'mean', color = 'tomato3', vjust = 1.5) +
+  ## fill의 스케일 설정
   scale_fill_manual(values=c("grey", "dodgerblue1")) + 
   labs(title = '박스플롯과 바이올린플롯의 병합')
   
@@ -845,7 +900,11 @@ p_violin_merge +
 
 # 피라미드 플롯
 
-피라미드 플롯은 주로 인구의 분포를 시각화는데 많이 사용된다. 아마도 아래의 그림과 같은 플롯을 한번쯤은 본적이 있을 것이다. ![https://sgis.kostat.go.kr/jsp/pyramid/pyramid1.jsp](pyramid.png)
+------------------------------------------------------------------------
+
+피라미드 플롯은 주로 인구의 분포를 시각화는데 많이 사용된다. 아마도 아래의 그림과 같은 플롯을 한번쯤은 본적이 있을 것이다.
+
+![그림 6-2 인구 피라미드 플롯 ( 출처 : <https://sgis.kostat.go.kr/jsp/pyramid/pyramid1.jsp>)](C:/R/git/datavisualization/fig/6-2.png)
 
 `ggplot2`에서는 피라미드 플롯을 구현하는 함수를 제공하지는 않는다. 이 피라미드 플롯을 생성하려면 대비되는 두개의 그룹을 특정 변수로 분리하고 한쪽에는 양의 값으로 나머지 한쪽은 음의 값을 가지는 값으로 설정하고 축을 돌려줌으로써 생성할 수 있다. 다음은 입학자의 연도별 변화를 전문대학과 일반대학의 그룹으로 분리하고 피라미드 플롯을 그린 코드이다.
 
@@ -878,5 +937,51 @@ p_pyramid +
   coord_flip() + 
   ## 색 팔레트를 설정
   scale_fill_brewer(palette = "Dark2")
+
+```
+
+
+# 종합
+
+```{r}
+
+font_add('NanumBarunGothicBold', 'c:/windows/fonts/NanumBarunGothicBold.ttf')
+
+df_전체_요약 <- df_취업통계 |>
+  summarise(mean = mean(취업률_계), median = median(취업률_계), n = n())
+
+subtitle <- paste0('전체 사례수 : ', scales::comma(df_전체_요약$n, accuracy = 1))
+
+df_계열_요약 <- df_취업통계 |>
+  group_by(대계열) |>
+  summarise(median = median(취업률_계), n = n())
+
+labels <- paste0('<span style= "font-family: NanumBarunGothicBold;font-size: 12pt" >', df_계열_요약$대계열, '</span> <br>', '중앙값 : ', scales::percent(df_계열_요약$median, scale = 1), '<br>', '사례수 : ', scales::comma(df_계열_요약$n, accuracy = 1))
+
+labels_name <- pull(df_계열_요약, 대계열)
+
+df_취업통계 |>
+  ggplot(aes(x = 대계열, y = 취업률_계)) +
+  geom_jitter(aes(color = 대계열), width = 0.1, alpha = 0.1, show.legend = F) +
+  geom_hline(yintercept = df_전체_요약$median, color = 'blue', linetype = 3) + 
+  geom_hline(yintercept = df_전체_요약$mean, color = 'red', linetype = 2) + 
+  geom_boxplot(fill = NA, width = 0.4) +
+  geom_violin(fill = NA, width = 0.4) +
+  geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun.y = 'mean', color = 'tomato3', size = 4) +
+  geom_label(aes(x = 대계열, y = 취업률_계, label = paste0('평균 : ', round(..y.., 1))), stat = 'summary', fun.y = 'mean', color = 'tomato3', size = 4, nudge_y = -7) + 
+  labs(title = '대계열 학과별 취업률 분포', x = NULL, y = '취업률', subtitle = subtitle) +
+  scale_x_discrete(expand = expansion(add = c(0.5, 0.5)), labels = setNames(labels, labels_name)) +
+  theme(strip.text.x = element_blank(),
+        strip.background = element_rect(colour="white", fill="white"),
+        legend.position=c(.2,.9), 
+        legend.background = element_rect(fill = NA), 
+        legend.key = element_rect(fill = NA), 
+        plot.title = element_text(size = 20, family = 'NanumBarunGothicBold'),
+        plot.subtitle = element_text(vjust = 0.5, size = 12, family = 'NanumBarunGothic'),
+        axis.line = element_blank(), 
+        plot.background = element_rect(fill = 'lemonchiffon'), 
+        panel.background = element_rect(fill = 'lemonchiffon'), 
+        axis.text.x = ggtext::element_markdown()
+  )
 
 ```

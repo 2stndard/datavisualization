@@ -10,8 +10,8 @@ output:
       topcaption: false
       caption:
         style: Image Caption
-        pre: 'Figure '
-        sep: ': '
+        pre: '실행결과 4-'
+        sep: ''
         tnd: 0
         tns: '-'
         fp_text: !expr officer::fp_text_lite(bold = TRUE)
@@ -54,15 +54,17 @@ str(df_취업통계)
 
 # 표(table)란?
 
-표는 행과 열로 이루어진 데이터의 모음이다. 행은 각각의 개별 사례2나 개별 사례를 적절히 그루핑한 요약된 데이터가 표현된다. 열은 각각의 사례를 설명하기 위해 필요한 속성이 나열된다. 행과 열은 이 만나는 곳이 사용자가 알고 싶어하는 데이터가 위치하고 이 곳을 칸, 혹은 셀이라고 한다.
+------------------------------------------------------------------------
+
+표는 행과 열로 이루어진 데이터의 모음이다. 행은 각각의 개별 사례2나 개별 사례를 적절히 그룹화한 요약된 데이터가 표현된다. 열은 각각의 사례를 설명하기 위해 필요한 속성이 나열된다. 행과 열은 이 만나는 곳이 사용자가 알고 싶어하는 데이터가 위치하고 이 곳을 칸, 혹은 셀이라고 한다.
 
 표는 그 구성 방법에 따라 1차원 표와 다차원 표로 구성된다. 1차원 표는 단순히 데이터의 나열인 경우를 말한다. 이런 테이블을 '단순 표(simple table)'이라고도 한다. 다차원 표는 1차원 표를 적절한 변환(추상화)하여 표에서 제공하는 몇가지 차원의 정보를 모두 가져야 데이터를 해석할 수 있는 표를 말한다. 다차원 표 중에서 가장 흔하게 보이는 표가 2차원 표, 교차표(cross table)이다. 2차원 표는 행(X축)과 열(Y축)의 정보를 가지고 해당 칸(셀)의 정보를 해석할 수 있다.
 
 아래의 그림은 1차원 표와 2차원 표의 예를 보이고 있다.
 
-![<https://docs.tibco.com/pub/spotfire/6.5.2/doc/html/images/cross_example_table.png>](4-1.png)
+![그림 4-1 1차원 표의 예 (출처 : https://docs.tibco.com/pub/spotfire/6.5.2/doc/html/images/cross_example_table.png)](C:/R/git/datavisualization/fig/4-1.png)
 
-![<https://docs.tibco.com/pub/spotfire/6.5.2/doc/html/images/cross_example_cross_table.png>](4-2.png)
+![그림 4-2 2차원 표의 예 (출처 : https://docs.tibco.com/pub/spotfire/6.5.2/doc/html/images/cross_example_cross_table.png)](C:/R/git/datavisualization/fig/4-2.png)
 
 위의 그림에서 보면 1차원 표의 경우는 데이터를 설명하는 속성이 위쪽에만 설정되어 있다. 하지만 2차원 표의 경우는 데이터를 설명하는 속성이 위쪽과 왼쪽에 모두 설정되어 있다. 특정 칸의 데이터를 해석하기 위해서는 행과 열의 속성 정보를 모두 알아야 한다는 것이다.
 
@@ -70,7 +72,8 @@ str(df_취업통계)
 
 표의 구성 방법과 요소는 사용자가 표현하고 싶은 데이터와 형태에 따라 표현방식이 매우 다르기 때문에 어느 하나로 정의하기가 어렵다. 다음 그림은 논문의 작성에서 대표적으로 사용되는 미국 심리학회의 표 구성 가이드라인이다.
 
-![<https://libapps.s3.amazonaws.com/customers/836/qu/e1d262992c7ea1e2aa109305faf24d59.png>](4-3.png)
+
+![그림 4-3 미국 심리학회 표 구성 (출처 : https://libapps.s3.amazonaws.com/customers/836/qu/e1d262992c7ea1e2aa109305faf24d59.png)](C:/R/git/datavisualization/fig/4-3.png)
 
 모든 표를 APA 가이드라인에 맞춰 그릴 수는 없겠지만 APA 가이드라인을 보면 표에 꼭 들어가야 할 몇가지 요소들을 알 수 있다.
 
@@ -92,21 +95,24 @@ str(df_취업통계)
 
 # gt 패키지
 
+------------------------------------------------------------------------
+
 R에서 표를 만들기 위해 사용되는 패키지 중에 하나가 `gt` 패키지이다. `gt` 패키지는 표의 세부 구성들을 상세히 구분하고 이들을 구조적으로 조화롭게 구성시켜서 표를 만드는 다양한 함수와 매개 변수들을 제공한다. `gt` 패키지에서 사용하는 표의 세부 파트는 다음의 그림과 같다.
 
-![<https://gt.rstudio.com/reference/figures/gt_parts_of_a_table.svg>](4-4.png)
+![그림 4-4 gt 표의 구성 (출처 : https://gt.rstudio.com/reference/figures/gt_parts_of_a_table.svg)](C:/R/git/datavisualization/fig/4-4.png)
 
 표의 구성을 보면 앞에서 살펴보았던 APA 가이드라인상의 표와 유사한 형태를 보인다. 이와 같이 표를 세부적인 파트로 구분하고 이들을 각각 설정함으로써 표를 만들 수 있다.
 
 `gt` 패키지에서 권장하는 표 생성 방식은 다음의 그림과 같다
 
-![<https://gt.rstudio.com/reference/figures/gt_workflow_diagram.svg>](4-5.png)
+![그림 4-5 gt 패키지의 워크플로 (출처 : https://gt.rstudio.com/reference/figures/gt_workflow_diagram.svg)](C:/R/git/datavisualization/fig/4-5.png)
 
 우선 표를 만들기 위한 기초 데이터를 생성해야 한다. `gt` 패키지로 생성되는 표는 `tidyverse` 방식을 준용하여 생성하는 것이 편하다. 따라서 `gt` 표를 생성하기 위해 만드는 기초 데이터도 `tidyverse` 의 `tibble` 이나 R의 기초 데이터 셋인 `data.frame` 으로 생성한다. 이렇게 생성된 기초 데이터 셋은 `gt` 객체로 변환되고 `gt` 패키지에서 제공되는 다양한 함수와 매개변수를 설정하여 사용자가 원하는 형태의 표로 만들게 된다. 마지막으로 이 표를 다른 문서에서 활용하기 위해 html, pdf 등의 문서로 변환하여 활용한다.
 
 우선 `gt` 패키지를 사용하기 위해서는 `gt` 패키지를 설치하고 로딩하여야 한다.
 
 ```{r}
+## gt 패키지 설치
 if(!require('gt')) {
   install.packages('gt')
   library(gt)
@@ -123,7 +129,7 @@ if(!require('gt')) {
 ```{r}
 ## df_취업통계를 전처리하여 df_gt로 저장
 df_gt <- df_취업통계 |>
-  ## 과정구분과 대계열로 그루핑
+  ## 과정구분과 대계열로 그룹화
   group_by(과정구분, 대계열) |>
   ## 각각의 열단위로 합계값으로 요약된 열 생성 
   summarise(졸업자 = sum(졸업자_계), 
@@ -171,16 +177,21 @@ df_gt_grand_summary <- df_gt |>
 gt 패키지를 사용하여 표를 그리려면 먼저 gt 패키지의 `gt()` 함수를 사용하여 gt 객체를 생성한다.
 
 ```{r eval=FALSE}
-gt(data, rowname_col = "rowname", groupname_col = dplyr::group_vars(data), ...)
+gt(data, rowname_col = "rowname", groupname_col = dplyr::group_vars(data), caption = NULL, rownames_to_stub = FALSE, auto_align = TRUE, id = NULL, row_group.sep = getOption("gt.row_group.sep", " - "))
   - data : 표에 사용할 데이터프레임이나 tibble
   - rowname_col : 표 스텁으로 사용할 열 이름
-  - groupname_col : 행 그룹으로 그루핑할 열 이름
+  - groupname_col : 행 그룹으로 그룹화할 열 이름
+  - caption : R 마크다운에서 사용되는 추가적인 캡션 설정
+  - rownames_to_stub : 입력 데이터 테이블에서 행 캡션을 표 스텁에 표시하는 설정
+  - auto_align : 각각의 셀 데이터의 특성에 따라 자동 정렬 설정
+  - id : 표 ID
+  - row_group.sep : 표시된 스텁 행 그룹 이름에서 연속된 그룹 이름 사이에 사용할 구분 기호
 
 ```
 
-매개변수 없이 `gt()`만으로도 `gt` 객체가 생성된다. 이 경우는 앞서 설명한 1차원 표의 형태인 단순 표(simple table)의 형태이다. 하지만 2차원 표의 형태를 만들기 위해서는 행에 대한 이름(Stub)을 붙여주고 유사한 행들을 그루핑(row group)하여야 한다. 행 그룹으로 사용할 열은 `groupname_col`로, 표의 스텁(Stub)으로 사용할 열인 `rowname_col`을 설정해주면 표의 전반적인 기본 형태를 볼 수 있기 때문에 가급적이면 `gt` 객체를 생성할 때 설정해 주는 것이 좋다.
+매개변수 없이 `gt()`만으로도 `gt` 객체가 생성된다. 이 경우는 앞서 설명한 1차원 표의 형태인 단순 표(simple table)의 형태이다. 하지만 2차원 표의 형태를 만들기 위해서는 행에 대한 이름(Stub)을 붙여주고 유사한 행들을 그룹화(row group)하여야 한다. 행 그룹으로 사용할 열은 `groupname_col`로, 표의 스텁(Stub)으로 사용할 열인 `rowname_col`을 설정해주면 표의 전반적인 기본 형태를 볼 수 있기 때문에 가급적이면 `gt` 객체를 생성할 때 설정해 주는 것이 좋다.
 
-```{r}
+```{r fig.cap = '기본 gt 테이블'}
 ## df_gt 데이터를 사용해 생성된 gt 객체를 gt_table1에 저장
 gt_table1 <- df_gt |>
   ## gt()로 rowname_col을 과정구분, groupname_col을 대계열로 설정한 gt 객체 생성
@@ -191,7 +202,7 @@ gt_table1
 
 ```
 
-![](4-6.emf)
+![그림 4-6 기본 gt 표](C:/R/git/datavisualization/fig/4-6.emf)
 
 ## 표제 생성하기
 
@@ -206,7 +217,7 @@ gt_table2 <- gt_table1 |>
 gt_table2
 ```
 
-![](4-7.emf)
+![그림 4-7 표제가 설정된 gt 표](C:/R/git/datavisualization/fig/4-7.emf)
 
 ## 데이터 포맷 설정
 
@@ -221,6 +232,7 @@ gt_table2
 | [fmt_percent()](https://gt.rstudio.com/reference/fmt_percent.html)         | 백분률 포맷을 설정        |
 | [fmt_currency()](https://gt.rstudio.com/reference/fmt_currency.html)       | 통화기호 포맷을 설정      |
 | [fmt()](https://gt.rstudio.com/reference/fmt.html)                         | 사용자 정의형 포맷을 설정 |
+: 표 4 - 1 주요 fmt_*()의 종류
 
 `fmt_*()` 의 주요 매개변수는 다음과 같다.
 
@@ -232,6 +244,7 @@ fmt_*(data, columns, rows = everything(), decimals = 2, sep_mark = ",", dec_mark
   - sep_mark : 천단위 구분자로 사용할 기호 설정
   - dec_mark : 소수점 구분자로 사용할 기호 설정
   - use_seps : 천단위 구분자를 사용할지를 결정하는 논리값
+  - ... : 그 외 데이터 타입에 따라 설정하는 세부 포맷
 
 ```
 
@@ -248,7 +261,7 @@ gt_table3 <- gt_table2 |>
 gt_table3
 ```
 
-![](4-8.emf)
+![그림 4-8 데이터 포맷이 설정된 gt 표](C:/R/git/datavisualization/fig/4-8.emf)
 
 ## 표 헤드 설정
 
@@ -268,6 +281,7 @@ gt_table3
 | cols_hide()          | 열을 감춤             |
 | cols_unhide()        | 감춘 열을 보임        |
 | cols_merge()         | 열을 묶음(Merge)      |
+: 표 4 - 2 주요 표 헤드설정을 위한 주요 함수
 
 앞에서 만든 표는 `gt` 객체에 사용한 df_gt의 열 이름이 그대로 사용되어 헤드가 한줄로만 표현되었다. 이 중 교외 취업자, 교내 취업자 등 5열부터 11열까지는 취업자의 상세 내용이고 12열부터 18열까지는 비취업자의 상세 내용이기 때문에 이 두 부분을 각각 스패너로 묶어주면 좋을 듯 하다. 헤드의 스패너를 생성하기 위해서는 `tab_spanner()` 를 사용한다.
 
@@ -294,14 +308,15 @@ gt_table4 <- gt_table3 |>
 gt_table4
 ```
 
-![](4-9.emf)
+![그림 4-9 스패너가 설정된 gt 표](C:/R/git/datavisualization/fig/4-9.emf)
 
-앞선 전처리 과정에서 '1인창(사)업자' 열은 열이름의 맨 앞이 숫자이고 특수문자가 들어가기 때문에 열이름을 '일인창사업자로' 설정했다. '1인창(사)업자'와 같이 숫자가 맨앞에 들어가는 열은 '\`'을 사용하여 접근이 가능하지만 여러모로 불편한점이 있다. 하지만 표에서의 표기는 원상태대로 해주겠다. `col_label()`을 이용하여 헤더에 표함된 열이름을 바꾸어 줄 수 있다.
+앞선 전처리 과정에서 '1인창(사)업자' 열은 열이름의 맨 앞이 숫자이고 특수문자가 들어가기 때문에 열 이름을 '일인창사업자로' 설정했다. '1인창(사)업자'와 같이 숫자가 맨앞에 들어가는 열은 '\`'을 사용하여 접근이 가능하지만 여러모로 불편한점이 있다. 하지만 표에서의 표기는 원상태대로 해주겠다. `col_label()`을 이용하여 헤더에 표함된 열 이름을 바꾸어 줄 수 있다.
 
 ```{r eval=FALSE}
-cols_label(.data, ...)
+cols_label(.data, ..., .list = list2(...))
   - data : 표에 사용할 gt 객체
-  - ... : 바꾸어줄 열의 이름과 바꿀 이름의 페어
+  - ... : 열 이름 설정에 사용할 하나 이상의 매개변수
+  - list : ...대신 열 이름 설정에 사용할 리스트
 
 ```
 
@@ -313,7 +328,7 @@ gt_table5 <- gt_table4 |>
 gt_table5
 ```
 
-![](4-10.emf)
+![그림 4-10 열 이름이 변경된 gt 표](C:/R/git/datavisualization/fig/4-10.emf)
 
 ## 행 그룹 설정
 
@@ -338,20 +353,21 @@ gt_table6 <- gt_table5 |>
 gt_table6
 ```
 
-![](4-11.emf)
+![그림 4-11 행 그룹 순서가 변경된 gt 표](C:/R/git/datavisualization/fig/4-11.emf)
 
 ## 요약 행 생성
 
 우리가 사용하는 많은 표들은 각 행 그룹이나 전체 표의 마지막에 소계, 총계, 평균과 같은 요약 행를 넣는 경우가 많다. `gt` 패키지는 각 행그룹과 전체 표의 요약행을 넣어주는 기능을 제공한다. 각 행그룹의 요약행을 넣는 함수는 `summary_rows()`이고 전체 요약행을 넣는 함수는 `grand_summary_rows()`이다.
 
 ```{r eval = FALSE}
-summary_rows(data, groups , columns = everything(), fns, missing_text = "---",formatter = fmt_number, ...)
+summary_rows(data, groups , columns = everything(), fns, missing_text = "---", formatter = fmt_number, ...)
   - data : 표에 사용할 gt 객체
   - groups : 요약행을 넣어줄 그룹 지정, 그룹명을 지정할 수도 있지만 TRUE를 지정하면 모든 행 그룹에 적용
   - columns : 요약 함수를 적용할 열 지정
   - fns : 요약에 사용할 함수, 일반적 요약 함수(mean, median, max, min 등)와 사용자 정의 함수 모두 가능
   - missing_text : 누락치의 표현에 사용할 문자열
   - formatter : 요약 행에 적용할 포맷 지정, fmt_*()를 사용할 수 있음
+  - ... : formatter 함수에 전달할 매개변수
 
 ```
 
@@ -455,7 +471,7 @@ gt_table7 <- gt_table6 |>
 gt_table7
 ```
 
-![](4-12.emf)
+![그림 4-12 소계가 설정된 gt 표](C:/R/git/datavisualization/fig/4-12.emf)
 
 각 행 그룹별 요약행이 생성되면 전체 요약행을 생성한다. 전체 요약행은 `grand_summary_rows()`를 사용한다.
 
@@ -466,6 +482,7 @@ grand_summary_rows(data, columns = everything(), fns, missing_text = "---", form
   - fns : 요약에 사용할 함수, 일반적 요약 함수(mean, median, max, min 등)와 사용자 정의 함수 모두 가능
   - missing_text : 누락치의 표현에 사용할 문자열
   - formatter : 요약 행에 적용할 포맷 지정, fmt_*()를 사용할 수 있음
+  - ... : formatter 함수에 전달할 매개변수
 
 ```
 
@@ -504,7 +521,7 @@ gt_table8 <- gt_table7 |>
 gt_table8
 ```
 
-![](4-13.emf)
+![그림 4-13 총계가 설정된 gt 표](C:/R/git/datavisualization/fig/4-13.emf)
 
 ## 전체 표 꾸미기
 
@@ -529,6 +546,7 @@ gt_table8
 +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------+
 | summary_row.background.color, summary_row.text_transform, summary_row.padding, summary_row.border.style, summary_row.border.width, summary_row.border.color, grand_summary_row.background.color, grand_summary_row.text_transform, grand_summary_row.padding, grand_summary_row.border.style, grand_summary_row.border.width, grand_summary_row.border.color, footnotes.background.color,                                                                                                                                                                        | 요약 행의 특성 설정을 위한 매개변수       |
 +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------+
+: 표 4 - 3 tabs_option()의 주요 특성
 
 위에서 생성한 표의 주요 속성을 설정하는 코드는 다음과 같다.[^4]
 
@@ -562,7 +580,7 @@ gt_table8
 gt_table9
 ```
 
-![](4-14.emf)
+![그림 4-14 전체 표 옵션이 설정된 gt 표](C:/R/git/datavisualization/fig/4-14.emf)
 
 ## 개별 셀 꾸미기
 
@@ -589,6 +607,7 @@ tab_style(data, style, locations)
 +------------------+-------------------------------------------------------------------+----------------------------------------------------------------+
 | `cell_borders()` | 셀의 테두리 설정                                                  | `sides`, `color`, `style`, `weight`                            |
 +------------------+-------------------------------------------------------------------+----------------------------------------------------------------+
+: 표 4 - 4 tab_style() 의 위치 설정 도움 함수
 
 셀의 위치(`locations`)를 설정할 때 사용하는 도움 함수는 다음과 같다.
 
@@ -607,6 +626,7 @@ tab_style(data, style, locations)
 | `cells_stub_grand_summary()` | 전체 요약 구분 셀 선택        | rows                  |
 | `cells_footnotes()`          | 각주 셀 선택                  |                       |
 | `cells_source_notes()`       | 출처 셀 선택                  |                       |
+: 표 4 - 5 셀의 위치 설정 도움 함수
 
 그러면 이제 차근차근 표를 꾸며보자. 먼저 표 제목을 굵게하고 크기를 25로 부제목을 크기 15로 다음과 같이 설정한다.
 
@@ -637,7 +657,7 @@ gt_table10 <- gt_table9 |>
 gt_table10
 ```
 
-![](4-15.emf)
+![그림 4-15 개별 셀이 설정된 gt 표](C:/R/git/datavisualization/fig/4-15.emf)
 
 다음으로는 헤드에 대한 특성을 설정한다. 헤드는 열 라벨과 스패너로 구성되어 있다. '취업 상세' 스패너와 '비취업 상세' 스패너의 상세 특성 설정과 나머지 라벨들의 세부 설정 코드는 다음과 같다. 자세히 살펴보면 `cell_text()`로 설정하지 않은 "vertical-align:middle" 특성이 있다. 이는 CSS에서 사용하는 특성 설정으로 CSS 속성을 사용할 수 있다.
 
@@ -687,7 +707,8 @@ gt_table11 <- gt_table10 |>
 gt_table11
 ```
 
-![](4-16.emf)
+![그림 4-16 헤드 속성이 설정된 gt 표](C:/R/git/datavisualization/fig/4-16.emf)
+
 
 이번에는 행 그룹 셀, 행그룹 요약 셀, 전체 요약 셀, 요약 스텁 셀에 대한 세부 특성을 설정하도록 한다.
 
@@ -733,7 +754,7 @@ gt_table12 <- gt_table11 |>
 gt_table12
 ```
 
-![](4-17.emf)
+![그림 4-17 요약 행 속성이 설정된 gt 표](C:/R/git/datavisualization/fig/4-17.emf)
 
 셀에 대한 세부 특성 설정을 완료되고 나서 보면 열의 너비가 제각각이어서 보기가 좋지 않다. `cols_width()`로 전체 셀의 너비를 설정할 수 있다. `cols_width()`의 사용에서 하나 주의해야할 것은 열의 선택과 열의 너비를 선택하는 좌측과 우측을 모두 함수를 사용하여야 한다는 것과 할당 연산자인 `=` 나 `<-`를 사용하지 않고 `~`를 사용한다는 것이다. 좌측에는 열의 선택에 사용하는 `starts_with()`, `ends_with()` 와 같은 함수나 열 이름으로 벡터를 만들기 위해 `c()`를 사용하고 우측에는 `px()`를 사용한다.
 
@@ -745,7 +766,7 @@ gt_table13 <- gt_table12 |>
 gt_table13
 ```
 
-![](4-18.emf)
+![그림 4-18 열 너비가 설정된 gt 표](C:/R/git/datavisualization/fig/4-18.emf)
 
 ## 셀 배경색을 통한 데이터 강조
 
@@ -772,6 +793,7 @@ data_color(data, columns, colors, alpha = NULL, apply_to = c("fill", "text"), au
 | `scales::col_quantile()` | 데이터 값을 지정된 분위(기본값은 4)에 따라 색상으로 매핑       |
 | `scales::col_bin()`      | 데이터 값을 기반으로 구간을 나누고(bins) 이에 따라 색상을 매핑 |
 | `scales::col_factor()`   | 매핑될 데이터가 팩터인 경우 팩터값에 따라 색상을 매핑          |
+: 표 4 - 6 scales 패키지의 색상 매핑 함수
 
 `scales` 패키지의 색상 매핑 함수는 적절한 색상 팔레트를 정의해야 한다. 하지만 사용자가 색상 팔레트를 일일이 정의하는 것은 쉽지 않은 일이다. 따라서 R에서 제공하는 다양한 팔레트를 이용하는 것이 효율적인데 팔레트 설정을 위해 많이 사용되는 패키지가 `paletteer` 패키지이다. `paletteer` 패키지에서 제공하는 `paletteer_d()`는 R에서 제공하는 패키지에 포함되어 있는 팔레트 정보를 벡터로 추출해오는 함수이다. 따라서 이 함수를 사용하면 다양한 패키지에서 제공하는 팔레트를 표 색상을 설정하는데 사용할 수 있다. 다만 이 함수를 사용하는데 하나 주의해야 할 것이 결과값이 수치형 벡터이기 때문에 이를 문자형 벡터로 변환시켜 주는 과정이 필요하다는 점이다. `paletteer::paletteer_d()`를 사용하여 데이터 강조색을 설정하는 코드는 다음과 같다.
 
@@ -790,9 +812,11 @@ gt_table14 <- gt_table13  |>
 gt_table14
 ```
 
-![](4-19.emf)
+![그림 4-19 열 색상이 설정된 gt 표](C:/R/git/datavisualization/fig/4-19.emf)
 
 # gtExtras 패키지
+
+------------------------------------------------------------------------
 
 앞의 절에서 그린 표는 워드프로세서에서 그리는 것이 가능한 것이지만 `data_color()`를 사용하여 데이터 색 강조는 워드프로세서에서는 불가능한 기능이다. 그러나 `data_color()`의 기능은 엑셀에서는 지원한다. 결국 지금까지 `gt` 패키지를 이용해서 그린 표는 엑셀에서도 그리는게 가능했다는 것이다. 하지만 이번 절에서 소개하는 `gtExtras` 패키지에서 제공하는 기능은 워드프로세서도 엑셀도 지원하지 못하는 기능이다.
 
@@ -812,7 +836,7 @@ remotes::install_github("jthomasmock/gtExtras")
 
 간혹 위의 코드를 실행하면 `gtExtras` 패키지를 설치하는데 필요한 몇가지 패키지를 업데이트하라는 메세지가 나온다. 그러면 'All'을 선택하여 전체 패키지를 업데이트해 주는 것이 좋지만 그냥 엔터를 쳐서 skip할 수도 있다.
 
-![](4-20.png)
+![그림 4-20 패키지 업데이트 화면](C:/R/git/datavisualization/fig/4-20.png)
 
 ## 표 테마 사용
 
@@ -835,14 +859,15 @@ remotes::install_github("jthomasmock/gtExtras")
 +-----------------------+----------------------------------------------------------------------------------------------------------------+
 | gt_theme_excel()      | 엑셀 형태의 표                                                                                                 |
 +-----------------------+----------------------------------------------------------------------------------------------------------------+
+: 표 4 - 7 gtExtras 패키지 제공 테마
 
-![](4-21.png)
+![그림 4-21 gtExtras에서 제공하는 gt 테마](C:/R/git/datavisualization/fig/4-21.png)
 
 ## 표에 그래프 넣기
 
 `gtExtras`에서 제공하는 그래프 중에 가장 독특한 기능이 표안에 그래프를 넣을수 있다는 점이다. `gtExtras` 패키지에서 넣을 수 있는 그래프는 여러가지가 있다. 다음 그림은 `gtExtras` 패키지에서 제공하는 그래프이다.
 
-![](4-22.png)
+![그림 4-22 gtExtras에서 제공하는 그래프](C:/R/git/datavisualization/fig/4-22.png)
 
 이 중 백분률을 점으로 표시하는 백분률 도트 플롯의 사용 예를 보겠다. 백분률 도트 플롯은 `gt_plt_percentile()` 로 만들 수 있다.
 
@@ -884,7 +909,7 @@ gtextras_table1 <- gt_table14 |>
 gtextras_table1
 ```
 
-![](4-23.emf)
+![그림 4-23 막대그래프가 추가된 gt 표](C:/R/git/datavisualization/fig/4-23.emf)
 
 이번에는 `gtExtras` 패키지에서 제공하는 컬러박스 그래프를 사용하는 예를 보겠다. 컬러박스는 앞 절에서 설명한 `data_color()`와 유사하게 색을 사용하여 데이터의 내용을 시각화한다는 점에서 유사하나 `data_color()`는 셀의 배경색을 사용하여 시각화하는 것이고 `geExtras` 패키지에서 제공하는 `gt_color_box()`는 수치 앞에 조그만 색 상자를 사용하여 데이터를 표현하는 것이 다르다. `gt_color_box()`의 사용법은 다음과 같다.
 
@@ -915,7 +940,7 @@ gtextras_table2 <- gtextras_table1 |>
 gtextras_table2
 ```
 
-![](4-24.emf)
+![그림 4-24 컬러 박스가 추가된 gt 표](C:/R/git/datavisualization/fig/4-24.emf)
 
 ## 열 병합하기
 
@@ -928,6 +953,7 @@ gtextras_table2
 |            | [cols_merge_n\_pct()](https://gt.rstudio.com/reference/cols_merge_n_pct.html)            | 백분률을 표현하는 열을 병합하는 함수, 백분률은 ()로 묶어줌                    |
 |            | [cols_merge()](https://gt.rstudio.com/reference/cols_merge.html)                         | 두개의 열을 병합하는 함수                                                     |
 | `gtExtras` | [gt_merge_stack()](https://jthomasmock.github.io/gtExtras/reference/gt_merge_stack.html) | 두개의 열을 병합하는 함수, 두번째 열을 첫번째 열의 아래쪽에 표시              |
+: 표 4 - 8 gtExtras 패키지의 열 병합 함수
 
 이 중 데이터와 백분률을 함께 표현하는 열이 많이 사용되는데 이는 `cols_merge_n_pct()` 통해 생성할 수 있다. `cols_merge_n_pct()` 의 사용법은 다음과 같다.
 
@@ -980,7 +1006,7 @@ gtextras_table3 <- gtextras_table2 |>
 gtextras_table3
 ```
 
-![](4-25.emf)
+![그림 4-25 열이 병합된 gt 표](C:/R/git/datavisualization/fig/4-25.emf)
 
 위에서는 취업자 열에 대해 비율 열을 생성하고 이를 병합하는 코드를 보았다. 이를 전체 열에 대해 설정하는 방법을 알아보겠다.
 
@@ -1009,11 +1035,10 @@ gtextras_table4 <- gtextras_table3 |>
         paste0(round(prop.table(x) * 100, 1), '%')
       })
 
-
 gtextras_table4
 ```
 
-![](4-26.emf)
+![그림 4-26 열이 복제된 gt 표](C:/R/git/datavisualization/fig/4-26.emf)
 
 위의 표를 보면 각각의 열에 대한 비율이 계산된 열이 우측에 생성되었음을 확인할 수 있다. 이 열들을 앞선 개체수 열과 병합하는데 for loop를 사용하여 다음과 같이 구현할 수 있다. 
 
@@ -1036,4 +1061,4 @@ gtextras_table5 <- temp
 gtextras_table5
 ```
 
-![](4-27.emf)
+![그림 4-27 열이 병합된 최종 gt 표](C:/R/git/datavisualization/fig/4-27.emf)

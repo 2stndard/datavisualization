@@ -1,0 +1,33 @@
+library(ggthemes)
+fig1 <- theme_element + labs(title = 'theme_wsj()') + theme_wsj()
+fig2 <- theme_element + labs(title = 'theme_tufte()') + theme_tufte()
+fig3 <- theme_element + labs(title = 'theme_stata()') + theme_stata()
+fig4 <- theme_element + labs(title = 'theme_solid()') + theme_solid()
+fig5 <- theme_element + labs(title = 'theme_solarized()') + theme_solarized()
+fig6 <- theme_element + labs(title = 'theme_map()') + theme_map()
+fig7 <- theme_element + labs(title = 'theme_igray()') + theme_igray()
+fig8 <- theme_element + labs(title = 'theme_hc()') + theme_hc()
+fig9 <- theme_element + labs(title = 'theme_gdocs()') + theme_gdocs()
+fig10 <- theme_element + labs(title = 'theme_fivethirtyeight()') + theme_fivethirtyeight()
+fig11 <- theme_element + labs(title = 'theme_few()') + theme_few()
+fig12 <- theme_element + labs(title = 'theme_excel()') + theme_excel()
+fig13 <- theme_element + labs(title = 'theme_economist()') + theme_economist()
+fig14 <- theme_element + labs(title = 'theme_calc()') + theme_calc()
+
+fig1 + fig2 + fig3 + fig4 + fig5 + fig6 + fig7 + fig8 + fig9 + fig10 + fig11 + fig12 + fig13 + fig14 + plot_spacer() +  plot_layout(widths = 3, heights = 3)
+
+fig1 <- theme_element + labs(title = 'theme_grey()') + theme_grey()
+fig2 <- theme_element + labs(title = 'theme_bw()') + theme_bw()
+fig3 <- theme_element + labs(title = 'theme_linedraw()') + theme_linedraw()
+fig4 <- theme_element + labs(title = 'theme_light()') + theme_light()
+fig5 <- theme_element + labs(title = 'theme_dark()') + theme_dark()
+fig6 <- theme_element + labs(title = 'theme_minimal()') + theme_minimal()
+fig7 <- theme_element + labs(title = 'theme_classic()') + theme_classic()
+fig8 <- theme_element + labs(title = 'theme_void()') + theme_void()
+fig9 <- theme_element + labs(title = 'theme_test()') + theme_test()
+
+(fig1 + fig2 + fig3+fig4 + fig5 + fig6+fig7 + fig8 + fig9 +fig10 + fig11 + fig12)
+
+gridExtra::grid.arrange(fig0, fig1, fig2, fig3, fig4, fig5,fig6, fig7, fig8, newpage = T)
+
+,fig7, fig8, fig9, fig10, fig11, fig12, fig13, fig14, ncol = 2)

@@ -11,7 +11,7 @@ output:
       caption:
         style: Image Caption
         pre: '실행결과 7-'
-        sep: '. '
+        sep: ''
         tnd: 0
         tns: '-'
         fp_text: !expr officer::fp_text_lite(bold = TRUE)
@@ -26,6 +26,16 @@ library(tidyverse)
 library(readxl)
 library(scales)
 library(patchwork)
+
+library(officedown)
+library(officer)
+
+fp <- fp_par(
+  text.align = "center", 
+  padding.bottom = 20, padding.top = 120, 
+  border.bottom = fp_border())
+
+ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
 
 df_입학자 <- read_excel('c:/R/git/datavisualization/chap3/2021_연도별 입학자수.xlsx', 
                  ## 'data' 시트의 데이터를 불러오는데,
@@ -76,25 +86,55 @@ df_취업통계_sample$과정구분 <- fct_relevel(df_취업통계_sample$과정
 ## 대계열의 순서를 맞추기 위해 과정구분을 팩터로 설정하고 레벨의 순서를 설정
 df_취업통계_sample$대계열 <- fct_relevel(df_취업통계_sample$대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')
 
-theme_set(theme(
+theme_set(
+  theme(
+    ## 축의 눈금자(ticks)를 모두 제거
     axis.ticks = element_blank(),
+    ## 축의 선을 grey50으로 설정
     axis.line = element_line(colour = "grey50"),
-    panel.grid = element_line(color = "#b4aea9"),
+    ## 전체 제목의 크기를 15, 수평 정렬은 중간, 아래 여백을 20으로 설정
+    plot.title = element_text(size = 15, vjust = 0.5, margin = margin(b = 10)), 
+    ## 패널의 눈금선의 색을 'wheat3'로 설정
+    panel.grid = element_line(color = "wheat3"), ###b4aea9
+    ## 패널의 부눈금선을 제거
     panel.grid.minor = element_blank(),
+    ## 패널의 X축 주눈금선을 제거
     panel.grid.major.x = element_blank(),
+    ## 패널의 Y축 주눈금선을 'dashed'형태로 설정
     panel.grid.major.y = element_line(linetype = "dashed"),
-    panel.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
-    plot.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"), 
-    legend.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"), 
-    legend.key = element_rect(fill = "#fbf9f4", color = NA)
-  ))
+    ## 패널의 배경색과 선색을 'seashell'으로 설정
+    panel.background = element_rect(fill = "snow", color = "snow"),
+    ## 전체 배경색과 선색을 'seashell'으로 설정
+    plot.background = element_rect(fill = "snow", color = "snow"),
+    ## 범례 배경색과 선색을 'seashell'으로 설정
+    legend.background = element_rect(fill = "snow", color = "snow"),
+    ## 범례 키의 배경색과 'seashell', 선색을 제거
+    legend.key = element_rect(fill = "snow", color = NA),  #fbf9f4
+    legend.title = element_text(hjust = 0.5)
+    )
+  )
 ```
+
+
+Table of content
+
+<!---BLOCK_TOC--->
+
+List of figures
+
+<!---BLOCK_TOC{seq_id: 'fig'}--->
+
+
+\newpage
+
 
 추세(Trend)란 데이터의 흐름에 따라 발생하는 데이터의 변화를 말한다. 보통 추세는 시간적 흐름에 따라 발생한 데이터를 말하는 경우가 많지만 추세가 꼭 시간의 흐름에 종속되지는 않는다. 예를 들자면 회차(물론 이 또한 시간의 흐름과 무관하지 않지만)나 이벤트의 발생과 같은 흐름도 추세에 속할 수 있다. 하지만 추세에 측정에 있어 하나 중요한 것은 그것이 시간이든 회차이든 특정 이벤트이던 그들의 흐름을 측정하는 간격이나 성질이 일정해야 한다는 것이다. 시간의 경우 추세를 측정하기위해서는 시간적 간격, 즉, 연도별, 월별, 일별 등의 간격이 동일해야 하고 회차의 경우 1회, 2회와 같이 연속된 회차로 기록되어야 유의미하다. 만약 시간의 간격이 어느 구간에서는 연도별, 어느 구간에서는 월별로 표현된다면 추세를 정확히 파악하기 어렵다. 따라서 추세에는 데이터의 흐름, 특히 흐름의 측정 간격이 매우 중요하다.
 
 추세를 시각화할 때는 데이터의 포인트와 해당 데이터의 바로 전 데이터와 다음 데이터를 연결하는 선 그래프가 많이 사용되지만 막대그래프도 많이 사용된다.
 
 # 선 그래프
+
+------------------------------------------------------------------------
 
 선 그래프 (또는 꺾은 선형 차트)는 특정한 변량의 흐름에 따라 변화되는 데이터 값들을 선으로 연결하여 그 변화량을 보여주는 시각화 방법이다. 이 선그래프가 가장 효과적으로 사용되는 시각화가 시간의 흐름에 따라 변화하는 시계열 데이터에 대한 시각화 방법이다. 각각의 시간에 관측된 데이터 포인트들을 같은 변수이나 변량끼리 선으로 연결하였기 때문에 그 기본은 산점도에 있다고 할수도 있다.
 
@@ -107,15 +147,23 @@ as.Date(x, format, tryFormats = c("%Y-%m-%d", "%Y/%m/%d"), ...)
   - x : 시간형 데이터 포맷으로 변경할 문자형 또는 수치형 벡터
   - format : x를 읽어들여 시간형으로 변환하기 위한 포맷(%Y : 4자리 연도, %y : 두자리 연도, %m : 두자리 월, %d : 두자리 일 등)
   - tryformat : format이 설정되지 않은 경우 적용할 포맷
+```
 
-scale_x_date(name = waiver(), breaks = waiver(), date_breaks = waiver(), labels = waiver(), date_labels = waiver(), minor_breaks = waiver(), date_minor_breaks = waiver(), limits = NULL, expand = waiver(), oob = censor, guide = waiver(), position = "bottom", sec.axis = waiver())
+날짜형 포맷으로 설정된 변수를 X축과 Y축에 매핑시키면 `scale_*_date()`와 `scale_*_datetime()`을 사용하여 스케일을 날자형이나 시간형 스케일로 설정할 수 있다. 
+
+```{r eval=FALSE}
+scale_*_date(name = waiver(), breaks = waiver(), date_breaks = waiver(), labels = waiver(), date_labels = waiver(), minor_breaks = waiver(), date_minor_breaks = waiver(), limits = NULL, expand = waiver(), oob = censor, guide = waiver(), position = "bottom", sec.axis = waiver())
 
 scale_*_datetime(name = waiver(), breaks = waiver(), date_breaks = waiver(), labels = waiver(), date_labels = waiver(), minor_breaks = waiver(), date_minor_breaks = waiver(), timezone = NULL, limits = NULL, expand = waiver(), oob = censor, guide = waiver(), position = "bottom", sec.axis = waiver())
-  - date_breaks : 눈금자를 만들 시간 간격 설정(ex. '2 years', '3 months' 등)
-  - date_labels : 시간간격에 따라 만들어진 눈금자에 표기할 라벨
+  - name : 축 제목 설정
+  - braek : 축의 눈금 설정
+  - date_breaks : 축의 눈금을 만들 시간 간격 설정(ex. '2 years', '3 months' 등)
+  - label : 축 눈금의 라벨 설정
+  - date_labels : 시간 간격에 따라 만들어진 눈금에 표기할 라벨
   - date_minor_breaks : 보조 눈금자를 만들 시간 간격 설정
   - oob : 한계를 넘어가는 데이터 값을 처리할 함수 설정
   - timezone : 국가별 시간대의 지정
+  - sec.axis : 두번째 축에 대한 설정
 
 ```
 
@@ -153,7 +201,9 @@ p_line +
 
 ```{r fig.cap='산점도와 병합된 선 그래프'}
 p_line_scatter <- p_line +
+  ## X축을 연도, Y축을 입학생수/1000, group과 color를 학교종류로 매핑한 geom_line 레이어 생성
   geom_line(aes(x = 연도, y = (입학생수)/1000, group = 학교종류, color = 학교종류)) +
+  ## X축을 연도, Y축을 입학생수/1000, color를 학교종류로 매핑한 geom_point 레이어 추가
   geom_point(aes(x = 연도, y = (입학생수)/1000, color = 학교종류)) + 
   labs(title = '산점도와 병합된 선 그래프')
 
@@ -164,6 +214,7 @@ p_line_scatter
 
 ```{r}
 p_line_scatter +
+  ## X축을 연도, Y축을 입학생수/1000, color를 학교종류, label을 유효숫자가 1인 입학생수를 콤마형으로 매핑한 geom_text 레이어 추가
   geom_text(aes(x = 연도, y = (입학생수)/1000, color = 학교종류, label = scales::comma(입학생수, accuracy = 1)), size = 2, vjust = -1.5)
 
 ```
@@ -172,8 +223,9 @@ p_line_scatter +
 
 ```{r}
 p_line_scatter1 <- p_line_scatter +
-  ## df_입학자_long에서 2021년만 필터링한 데이터를 사용하는 geom_text()레이어 추가
+  ## df_입학자_long에서 2021년만 필터링한 데이터를 사용하고 
   geom_text(data = df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '교육대학', '산업대학', '석사', '박사'), lubridate::year(연도) == '2021'),
+  ## X축을 연도, Y축을 입학생수/1000, color를 학교종류, label을 유효숫자가 1인 입학생수를 콤마형으로 매핑한 geom_text 레이어 추가
             aes(x = 연도, y = (입학생수)/1000, color = 학교종류, label = scales::comma(입학생수, accuracy = 1)), 
             size = 3, vjust = -1.5, show.legend = FALSE)
 
@@ -244,7 +296,7 @@ p_line +
   labs(title = '특정 범주를 강조한 선 그래프')
 ```
 
-### 분할(facet)과 특정 범주 강조
+### 분할(facet)과 특정 범주 강조(범프 차트)
 
 강조를 사용한 스파게티 선 그래프는 변수의 전체 범주에서 특정 범주를 확인하는데 적절하다. 하지만 한번에 하나의 강조만을 사용할 수 밖에 없다는 단점이 있는데 모든 범주에 대해 각각의 강조 선 그래프를 그리려면 어떻게 해야할까?
 
@@ -253,6 +305,8 @@ p_line +
 이를 위해서는 먼저 임시로 사용될 데이터프레임이 하나 필요하다. 이 데이터프레임은 원본 데이터 프레임과 동일한 구조를 지니지만 하나 다른점은 `facet_wrap()`에서 사용되는 분할 변수 열 이름을 달리 저장한다는 점이다. 여기서 하나 주의해야할 것이 임시로 만든 데이터프레임에 분할 변수로 사용할 열과 동일한 열을 제거해야 한다는 것이다. 만약 분할 변수와 동일한 열이 있으면 정상적으로 생성되지 않는다.[^2]
 
 이 코드의 원리는 `facet_wrap()`의 분할 변수를 통해 그래프를 분할 시키고 동일한 범주를 가졌지만 열 이름이 다른 데이터로 흐릿한 선들을 그려준다. 흐릿한 선들은 `facet_wrap()`에 지정되는 분할 열과 동일한 열이름이 아니기 때문에 분할되어 그려지지 않고 전체 분할 그래프에 공통적으로 그려지게 된다.
+
+이러한 형태의 그래프를 범프 차트(Bump Chart)라고 한다. 범프 차트의 장점은 전체 변량 사이에서의 모든 변량의 확인이 가능하다는 것이다. 하지만 일반적 선 그래프는 선들이 모여있다보니 강조되는 특정 범주의 데이터를 확인하기 쉽지만 전체 범주의 변화를 각각 확인하기 어렵다. 
 
 [^2] : 만약 이 부분이 이해되지 않는다면 df_입학자_long_temp 생성 코드에서 `select(-학교종류)`를 제외하고 실행해보라.
 
@@ -268,7 +322,7 @@ df_입학자_long_temp <- df_입학자_long |>
 head(df_입학자_long_temp)
 
 p_line +
-  ## 임시데이터프레임 데이터로 X축을 연도, Y축을 입학생수/1000, group을 학교종류1으포 매핑하고 color를 'grey75'로 설정한 geom_line 레이어 생성
+  ## 임시데이터프레임 데이터로 X축을 연도, Y축을 입학생수/1000, group을 학교종류1으로 매핑하고 color를 'grey75'로 설정한 geom_line 레이어 생성
   geom_line(data = df_입학자_long_temp, aes(x = 연도, y = (입학생수)/1000, group = 학교종류1), color = 'grey75') + 
   ## 원 데이터를 사용하여 각각의 그룹에 color를 darkred로 설정한  geom_line 레이어 추가
   geom_line(aes(x = 연도, y = (입학생수)/1000, group = 1), color = 'darkred') +
@@ -295,6 +349,7 @@ p_dual_axis <- df_입학자_long |> filter(지역 == '전체', 학교종류 %in%
   labs(x = '연도', y = '입학생수(천명)')
 
 p_dual_axis +
+  ## X축을 연도, Y축을 입학생수/1000, group을 학교종류로 매핑한 geom_line 레이어 생성
   geom_line(aes(x = 연도, y = (입학생수)/1000, group = 학교종류, color = 학교종류)) + 
   labs(title = '이중축 선 기초 그래프')
 
@@ -350,10 +405,10 @@ p_dual_axis1
 
 ```{r eval=FALSE}
 sec_axis(trans = NULL, name = waiver(), breaks = waiver(), labels = waiver(),  guide = waiver())
-  - trans : 첫번째 축에 대비하여 두번째 축을 설정할 변환식 설정
-  - name : 두번째 축의 이름 설정
-  - breaks : 두번째 축의 눈금 설정
-  - labels : 두번째 축의 눈금 라벨 설정
+  - trans : 첫 번째 축에 대비하여 두 번째 축을 설정할 변환식 설정
+  - name : 두 번째 축의 이름 설정
+  - breaks : 두 번째 축의 눈금 설정
+  - labels : 두 번째 축의 눈금 라벨 설정
   - guide : 범례 설정
 
 ```
@@ -362,11 +417,13 @@ trans는 설정된 Y축의 값을 어떻게 변환할 지에 대한 함수식을
 
 ```{r fig.cap='이중축이 표현된 선 그래프'}
 p_dual_axis2 <- p_dual_axis1 +
-  scale_y_continuous(name = "일반대학 입학생수(천명)",  ## 첫번째 Y축 이름 설정
+  scale_y_continuous(name = "일반대학 입학생수(천명)",  ## 첫 번째 Y축 이름 설정
                      labels = scales::comma, 
-                     ## 두번째 Y축 변환식과 이름 설정
+                     ## 두 번째 Y축 변환식과 이름 설정
                      sec.axis = sec_axis(trans=~ ./ratio, 
-                                         name="박사 입학생수(천명)", 
+                                         ##두 번째 축의 제목 설정
+                                         name="박사 입학생수(천명)",
+                                         ## 라벨은 콤마형
                                          labels = scales::comma) 
     ) +
   labs(title = '이중축이 표현된 선 그래프')
@@ -379,13 +436,20 @@ p_dual_axis2
 
 ```{r fig.cap='이중축의 세부설정이 된 선 그래프'}
 p_dual_axis2 +
-  theme(legend.position = 'bottom', 
+  theme(legend.position = 'bottom', ## 범례의 위치는 아래
+        ## 왼쪽 축의 선 색은 다크 그린
         axis.line.y.left = element_line(color = 'darkgreen'), 
+        ## 왼쪽 축의 글자 색은 다크 그린
         axis.text.y.left = element_text(color = 'darkgreen'), 
+        ## 왼쪽 축의 제목 색은 다크 그린
         axis.title.y.left = element_text(color = 'darkgreen'),
+        ## 패널의 Y축 주 눈금선 색은 다크 그린
         panel.grid.major.y = element_line(color = 'darkgreen'), 
+        ## 오른쪽 축의 선 색은 다크 그린
         axis.line.y.right = element_line(color = 'darkred'), 
+        ## 오른쪽 축의 글자 색은 다크 그린
         axis.text.y.right = element_text(color = 'darkred'), 
+        ## 오른쪽 축의 제목 색은 다크 그린
         axis.title.y.right = element_text(color = 'darkred')
         ) + 
   labs(title = '이중축의 세부설정이 된 선 그래프')
@@ -431,7 +495,10 @@ p_cut_axis +
 
 ```
 
+\newpage
 # 기울기 차트(Slope Chart)
+
+------------------------------------------------------------------------
 
 기울기 차트는 시간의 흐름에 따라 데이터를 선으로 표현한다는 점에서 선 그래프와 유사하지만 주요 변곡점이 되는 두개 혹은 세개의 시간을 선정하여 해당 기간동안의 값의 변화를 시각화하는 방법이다. 보통 두개의 시간을 두고 이 두 시간의 값을 선으로 이어주면 이 선의 기울기가 표현되는데 이 기울기를 위주로 데이터를 시각화하는 방법이다. 기울기 혹은 시작점의 데이터, 마지막점의 데이터에 따른 순위 변화도 표현이 가능한 시각화 방법이다. 
 
@@ -449,8 +516,9 @@ df_입학자_long |> filter(지역 == '전체', lubridate::year(연도) %in% c(s
   labs(title = '슬로프 그래프', x = '연도', y = '입학생수(천명)')
 
 ```
-
 # 세그먼트 라인 그래프
+
+------------------------------------------------------------------------
 
 세그먼트 라인 그래프는 산점도와 같이 연속형 X축과 Y축으로 설정된 공간에서 순차적으로 기록된 데이터를 세그먼트 라인으로 연결한 시각화 방법이다. 이 세그먼트 라인 그래프는 연결된 산점도(Connected Scatter Plot)라고도 불리는데, 산점도와 같이 연속형 X축과 Y축으로 매핑된 두 변수 간의 관계를 데이터의 순차적 순서에 의해 보여준다. 
 
@@ -467,13 +535,17 @@ df_입학자 |> filter(지역 == '전체') |>
                   ),
                   arrow=arrow(length=unit(0.3,"cm"))
       ) + 
+  ## X축의 라벨을 콤마형으로 설정
   scale_x_continuous(labels = scales::comma) + 
+  ## Y축의 라벨을 콤마형으로 설정
   scale_y_continuous(labels = scales::comma) +
   labs(title = '석사 및 박사 입학생의 세그먼트 라인 그래프', x = '석사 입학생', y = '박사 입학생')
 
 ```
 
 # 덤벨 차트
+
+------------------------------------------------------------------------
 
 덤벨 차트는 양쪽 끝이 동그란 포인트로 이루어진 세그먼트 차트를 말한다. 생긴 모양이 운동할 떄 사용하는 아령(Dumbbell)과 닮았다고 해서 붙여진 이름이다. 덤델 차트는 두 시점간의 데이터 양의 차이의 크기를 시각화하거나 두 지점 사이의 상대적 위치(증가 혹은 하락)을 표현할 때 효과적인 시각화 방법이다. 
 
@@ -508,5 +580,237 @@ df_dumbbell |>
   scale_x_continuous(label=scales::comma) + 
   scale_color_manual(values = c('2016' = 'skyblue', '2021' = 'darkblue')) +
   labs(x=NULL, y=NULL, title="덤벨 차트")
+
+```
+
+# 종합
+
+------------------------------------------------------------------------
+
+```{r}
+library(ggtext)
+library(grid)
+
+theme_set(
+  theme_grey()
+)
+
+df_total_line <- df_입학자_long |> filter(지역 == '전체', lubridate::year(연도) %in% c(seq(from = 2001, to = 2021, by = 5)),  학교종류 %in% c('전문대학', '일반대학', '석사', '박사')) 
+
+data_labels <- bind_rows(df_total_line |> filter(lubridate::year(연도) == 2001, 학교종류 %in% c('일반대학', '석사', '박사')), df_total_line |> filter(lubridate::year(연도) == 2006, 학교종류 %in% c('전문대학')))
+
+df_total_line |>
+  ggplot(aes(x = 연도, y = (입학생수)/1000)) + 
+  ## geom_line 레이어를 생성
+  geom_line(aes(group = 학교종류, color = 학교종류), size = 2.4) +
+  geom_point(aes(fill = 학교종류), size = 5, 
+    shape = 21, # Type of point that allows us to have both color (border) and fill.
+    color = "white", 
+    stroke = 1 # The width of the border, i.e. stroke.
+  ) + 
+  scale_x_date(
+    expand = c(0, 0), # The horizontal axis does not extend to either side
+    limits = c(as.Date('2000-01-01'), as.Date('2022-12-01')), 
+    breaks = seq(from = as.Date("2001-01-01"), to = as.Date("2021-01-01"),
+                 by = "5 years"), 
+    labels = lubridate::year(seq(from = as.Date("2001-01-01"), to = as.Date("2021-01-01"),
+                 by = "5 years"))  # Set custom break locations
+    # Set custom break locations
+#    labels = c("2008", "12", "16", "20") # And custom labels on those breaks!
+  ) + 
+  scale_y_continuous(
+    limits = c(0, 380),
+    expand = c(0, 0)
+  ) -> line_ch7_1
+
+line_ch7_1 +
+  theme(
+    # Set background color to white
+    panel.background = element_rect(fill = "white"),
+    # Remove all grid lines
+    panel.grid = element_blank(),
+    # But add grid lines for the vertical axis, customizing color and size 
+    panel.grid.major.y = element_line(color = "#A8BAC4", size = 0.3),
+    # Remove tick marks on the vertical axis by setting their length to 0
+    axis.ticks.length.y = unit(0, "mm"), 
+    # But keep tick marks on horizontal axis
+    axis.ticks.length.x = unit(2, "mm"),
+    # Remove the title for both axes
+    axis.title = element_blank(),
+    # Only the bottom line of the vertical axis is painted in black
+    axis.line.x.bottom = element_line(color = "black"),
+    # Remove labels from the vertical axis
+    axis.text.y = element_blank(),
+    # But customize labels for the horizontal axis
+    axis.text.x = element_text(family = "Econ Sans Cnd", size = 16)
+  ) -> line_ch7_2
+
+
+
+line_ch7_2 + 
+  geom_text(data = data_labels, aes(x = 연도, y = (입학생수/1000) + 20, label = 학교종류, color  = 학교종류), show.legend = F) + 
+  geom_text(
+    data = data.frame(x = as.Date('2022-09-01'), y = seq(0, 300, by = 100)),
+    aes(x, y, label = y),
+    hjust = 1, # Align to the right
+    vjust = -0.5, # Align to the bottom
+    family = "Econ Sans Cnd",
+    size = 3, 
+    color = 'grey50'
+  ) + 
+  theme(legend.position = 'none') +
+  labs(
+    title = "**교육과정별 졸업생수(k)**",
+  ) + 
+  theme(
+    # theme_markdown() is provided by ggtext and means the title contains 
+    # Markdown that should be parsed as such (the '**' symbols)
+    plot.title = element_markdown(
+      family = "Econ Sans Cnd", 
+      size = 12
+    )
+  ) -> line_ch7_3
+
+
+ggplot(df_total_line) +
+  # color = "white" indicates the color of the lines between the areas
+  geom_area(aes(x = 연도, y = (입학생수)/1000, group = 학교종류, fill = 학교종류), color = "white") +
+#  scale_fill_manual(values = c('grey', 'brown', 'green', 'blue')) +
+  theme(legend.position = "None") + # no legend +
+  scale_x_date(
+  expand = c(0, 0), # The horizontal axis does not extend to either side
+  limits = c(as.Date('2000-01-01'), as.Date('2022-12-01')), 
+  breaks = seq(from = as.Date("2001-01-01"), to = as.Date("2021-01-01"),
+               by = "5 years"), 
+  labels = lubridate::year(seq(from = as.Date("2001-01-01"), to = as.Date("2021-01-01"),
+                               by = "5 years"))  # Set custom break locations
+  # Set custom break locations
+  #    labels = c("2008", "12", "16", "20") # And custom labels on those breaks!
+  ) + 
+  scale_y_continuous(
+    limits = c(0, 790),
+    expand = c(0, 0)
+  )  -> area_ch7_1
+
+area_ch7_1 + 
+  theme(
+    # Set background color to white
+    panel.background = element_rect(fill = "white"),
+    # Remove all grid lines
+    panel.grid = element_blank(),
+    # But add grid lines for the vertical axis, customizing color and size 
+    panel.grid.major.y = element_line(color = "#A8BAC4", size = 0.3),
+    # Remove tick marks on the vertical axis by setting their length to 0
+    axis.ticks.length.y = unit(0, "mm"), 
+    # But keep tick marks on horizontal axis
+    axis.ticks.length.x = unit(2, "mm"),
+    # Remove the title for both axes
+    axis.title = element_blank(),
+    # Only the bottom line of the vertical axis is painted in black
+    axis.line.x.bottom = element_line(color = "black"),
+    # Remove labels from the vertical axis
+    axis.text.y = element_blank(),
+    # But customize labels for the horizontal axis
+    axis.text.x = element_text(family = "Econ Sans Cnd", size = 16)
+  ) -> area_ch7_2
+
+area_ch7_2 + 
+  geom_text(aes(x = as.Date('2011-01-01'), y = 600), label = '전문대학', color = 'white') + 
+  geom_text(aes(x = as.Date('2011-01-01'), y = 300), label = '일반대학', color = 'white') + 
+  geom_text(aes(x = as.Date('2011-01-01'), y = 80), label = '석사', color = 'white') + 
+  geom_text(aes(x = as.Date('2014-01-01'), y = 80), label = '박사', color = 'white') + 
+  geom_segment(aes(x = as.Date('2014-01-01'), xend = as.Date('2014-01-01'), y = 12, yend = 60), color = 'white', arrow = arrow(angle = 30, length = unit(0.1, "inches"))) + 
+  geom_text(
+    data = data.frame(x = as.Date('2022-09-01'), y = seq(0, 800, by = 200)),
+    aes(x, y, label = y),
+    hjust = 1, # Align to the right
+    vjust = -0.5, # Align to the bottom
+    family = "Econ Sans Cnd",
+    size = 3, 
+    color = 'grey50'
+  ) + 
+  theme(legend.position = 'none') + 
+  labs(
+    title = "고등교육기관 졸업생 수(k)",
+  ) + 
+  theme(
+    plot.title = element_markdown(
+      family = "Econ Sans Cnd", 
+      size = 12
+    )
+  ) -> area_ch7_3
+
+
+plt1 <- line_ch7_3 + theme(plot.margin = margin(0, 0.05, 0, 0, "npc"))
+plt2 <- area_ch7_3 + theme(plot.margin = margin(0, 0, 0.05, 0, "npc"))
+plt <- plt1 | plt2
+
+title_theme <- theme(
+  plot.title = element_text(
+    hjust = 0.02,
+    size = 15,
+    margin = margin(0.8, 0, 0.3, 0, "npc")
+  ),
+  plot.subtitle = element_text(
+    hjust = 0.02,
+    size = 12,
+    margin = margin(0.4, 0, 0.5, 0, "npc")
+  )
+)
+
+plt <- plt + plot_annotation(
+  title = "전문대학의 위기",
+  subtitle = "전문대학 학생수 감소 추세",
+  theme = title_theme
+) +
+  theme(
+    plot.margin = margin(0.075, 0, 0.1, 0, "npc"),
+  )
+ 
+plt
+
+# Add line on top of the chart
+grid.lines(
+  x = c(0, 1),
+  y = 1,
+  gp = gpar(col = "#e5001c", lwd = 4)
+)
+
+# Add rectangle on top-left
+# lwd = 0 means the rectangle does not have an outer line
+# 'just' gives the horizontal and vertical justification
+grid.rect(
+  x = 0,
+  y = 1,
+  width = 0.05,
+  height = 0.025,
+  just = c("left", "top"),
+  gp = gpar(fill = "#e5001c", col = "#e5001c", lwd = 0)
+)
+# Add first caption
+grid.text(
+  '출처: 실전에서 바로쓰는 데이터 시각화 in R', 
+  x = 0.005, 
+  y = 0.06, 
+  just = c("left", "bottom"),
+  gp = gpar(
+    col = "grey50",
+    fontsize = 10,
+    fontfamily = "Econ Sans Cnd"
+  )
+)
+
+# Add third caption
+grid.text(
+  "참조 : https://www.r-graph-gallery.com/", 
+  x = 0.995, 
+  y = 0.06, 
+  just = c("right", "bottom"),
+  gp = gpar(
+    col = "grey50",
+    fontsize = 10,
+    fontfamily = "Econ Sans Cnd"
+  )
+)
 
 ```
