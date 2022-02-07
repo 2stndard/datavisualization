@@ -803,7 +803,6 @@ R을 사용하여 데이터 분석을 하려면 먼저 데이터가 필요하다
 
 ::: {custom-style="comment"}
 read_excel(path, sheet = NULL, range = NULL, col_names = TRUE,  col_types = NULL, na = "", trim_ws = TRUE, skip = 0, …)  
-
   - path : 읽어들일 엑셀이 저장된 디렉토리와 파일명  
   - sheet : 불러들일 데이터가 저장된 시트명  
   - range : 데이터를 불러들일 셀 범위  
