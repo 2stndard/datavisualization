@@ -1,15 +1,25 @@
 ---
-date: "`r Sys.Date()`"
-author: "Your Name"
-title: "officedown template"
-output: 
+title : 실전 시각화
+output:
   officedown::rdocx_document:
-    mapstyles:
+    reference_docx: C:/R/git/datavisualization/bookdown.docx
+    plots:
+      style: Normal
+      align: center
+      fig.lp: 'fig:'
+      topcaption: false
+      caption:
+        style: Image Caption
+        pre: '실행결과 12-'
+        sep: ''
+        tnd: 0
+        tns: '-'
+        fp_text: !expr officer::fp_text_lite(bold = TRUE)
       Normal: ['First Paragraph']
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.cap = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, out.width = '100%', dpi = 120, fig.width = 6.5, fig.cap = TRUE)
 library(officedown)
 library(officer)
 
@@ -19,109 +29,501 @@ fp <- fp_par(
   border.bottom = fp_border())
 
 ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
+
+library(showtext)
+showtext_auto()
+library(tidyverse)
+library(readxl)
+library(scales)
+library(patchwork)
+
+
+df_입학자 <- read_excel('c:/R/git/datavisualization/chap3/2021_연도별 입학자수.xlsx', 
+                 ## 'data' 시트의 데이터를 불러오는데,
+                 sheet = 'Sheet0',
+                 ## 앞의 10행을 제외하고
+                 skip = 3, 
+                 ## 첫번째 행은 열 이름을 설정
+                 col_names = FALSE, 
+                 ## 열의 타입을 설정, 처음 8개는 문자형으로 다음 56개는 수치형으로 설정
+                 col_types = c(rep('text', 2), rep('numeric', 30)))
+df_입학자 <- df_입학자 |> select(1, 2, 5, 7, 9, 11, 13, 19, 29, 31)
+
+## df_입학자의 열이름을 적절한 이름으로 설정
+colnames(df_입학자) <- c('연도', '지역', '전문대학', '교육대학', '일반대학', '방송통신대학', '산업대학', '원격및사이버대학', '석사', '박사')
+
+df_입학자 <- df_입학자 |> filter(!is.na(지역))
+
+df_입학자_long <- df_입학자 |> pivot_longer(3:10, names_to = '학교종류', values_to = '입학생수')
+
+theme_set(
+  theme(
+    ## 축의 눈금자(ticks)를 모두 제거
+    axis.ticks = element_blank(),
+    ## 축의 선을 grey50으로 설정
+    axis.line = element_line(colour = "grey50"),
+    ## 전체 제목의 크기를 15, 수평 정렬은 중간, 아래 여백을 20으로 설정
+    plot.title = element_text(size = 15, vjust = 0.5, margin = margin(b = 10)), 
+    ## 패널의 눈금선의 색을 'wheat3'로 설정
+    panel.grid = element_line(color = "wheat3"), ###b4aea9
+    ## 패널의 부눈금선을 제거
+    panel.grid.minor = element_blank(),
+    ## 패널의 X축 주눈금선을 제거
+    panel.grid.major.x = element_blank(),
+    ## 패널의 Y축 주눈금선을 'dashed'형태로 설정
+    panel.grid.major.y = element_line(linetype = "dashed"),
+    ## 패널의 배경색과 선색을 'seashell'으로 설정
+    panel.background = element_rect(fill = "snow", color = "snow"),
+    ## 전체 배경색과 선색을 'seashell'으로 설정
+    plot.background = element_rect(fill = "snow", color = "snow"),
+    ## 범례 배경색과 선색을 'seashell'으로 설정
+    legend.background = element_rect(fill = "snow", color = "snow"),
+    ## 범례 키의 배경색과 'seashell', 선색을 제거
+    legend.key = element_rect(fill = "snow", color = NA),  #fbf9f4
+    legend.title = element_text(hjust = 0.5)
+    )
+  )
+
+df_입학자_long$연도 <- as.Date(df_입학자_long$연도, '%Y')
+
+## 학교종류의 순서 설정을 위해 레벨 설정
+df_입학자_long$학교종류 <- fct_relevel(df_입학자_long$학교종류, '전문대학', '일반대학', '교육대학', '산업대학',  '방송통신대학', '원격및사이버대학', '석사', '박사')
+
 ```
 
+```{r include=FALSE}
+df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
+                     ## '학과별' 시트의 데이터를 불러오는데,
+                     sheet = '학과별',
+                     ## 앞의 13행을 제외하고
+                     skip = 13, 
+                     ## 첫번째 행은 열 이름으로 설정
+                     col_names = TRUE, 
+                     ## 열의 타입을 설정, 처음 9개는 문자형으로 다음 79개는 수치형으로 설정
+                     col_types = c(rep('text', 9), rep('numeric', 79)))
 
-\newpage
-
-This document presents most of the features of the package `r ftext("officedown", ft)`. 
-`r fp`
-
-## Table of content
-
-<!---BLOCK_TOC--->
-
-## List of figures
-
-<!---BLOCK_TOC{seq_id: 'fig'}--->
-
-## List of tables
-
-<!---BLOCK_TOC{seq_id: 'tab'}--->
+## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
+df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 
 
-\newpage
+```
 
-## Sections
+# 비교 그룹간 분포 비교와 회귀 방정식 표기
 
-### A two columns section
+------------------------------------------------------------------------
 
-::: {custom-style="comment"}
-This is some text.
+::: {custom-style="boxBorder"}
+목표 : 비교의 대상이 되는 두 개의 그룹에 대한 산점도와 추세선을 각각 그리고 추세선의 선형회귀 방정식을 표현하여 각각의 그룹의 분포를 서로 비교하고 통계적 유의성을 전달  
+활용 시각화 :  산점도, 회귀선, 클러스터 산점도, 러그 플롯, 선형회귀  
 :::
 
-<!---BLOCK_MULTICOL_START--->
+```{r echo=FALSE}
+library(grid)
+library(ggalt)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. 
+df_의약 <- df_취업통계 |> filter(대계열 == '의약계열')
+df_인문 <- df_취업통계 |> filter(대계열 == '인문계열')
 
-`r run_columnbreak()`Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+model_lm_의약 <- lm(df_의약$취업자_합계_계 ~ df_의약$졸업자_계)
+model_lm_인문 <- lm(df_인문$취업자_합계_계 ~ df_인문$졸업자_계)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+glance_의약 <- broom::glance(model_lm_의약)
+glance_인문 <- broom::glance(model_lm_인문)
 
-<!---BLOCK_MULTICOL_STOP{widths: [3,3], space: 0.2, sep: true}--->
+tidy_의약 <- broom::tidy(model_lm_의약)
+tidy_인문 <- broom::tidy(model_lm_인문)
 
-### End of two columns section
+equ_의약 <- paste0('의약계열 : y = ', round(tidy_의약$estimate[2], 2), 'x + ', round(tidy_의약$estimate[1], 2), ', R\u00B2', ' = ',round(glance_의약$r.squared, 3))
 
+equ_인문 <- paste0('인문계열 : y = ', round(tidy_인문$estimate[2], 2), 'x + ', round(tidy_인문$estimate[1], 2), ', R\u00B2', ' = ',round(glance_인문$r.squared, 3))
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. 
+df_취업통계 |> 
+  ggplot() +
+  ## X축이 졸업자_계, Y축이 취업자_합계_계에 매핑된 geom_point 레이어 생성
+  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계), color = 'grey75', alpha = 0.5) + 
+  geom_smooth(aes(x = 졸업자_계, y = 취업자_합계_계), color = 'grey75', se = F, method = 'lm') + 
+  geom_point(data = df_인문,
+             aes(x = 졸업자_계, y = 취업자_합계_계, color = '인문계열'), alpha = 0.5) + 
+  geom_smooth(data = df_인문,
+              aes(x = 졸업자_계, y = 취업자_합계_계, color = '인문계열'), se = F, method = 'lm') + 
+  geom_point(data = df_의약,
+             aes(x = 졸업자_계, y = 취업자_합계_계, color = '의약계열'), alpha = 0.5) + 
+  geom_smooth(data = df_의약,
+             aes(x = 졸업자_계, y = 취업자_합계_계, color = '의약계열'), se = F, method = 'lm') + 
+  geom_encircle(data = df_의약, 
+                aes(x = 졸업자_계, y = 취업자_합계_계, color='의약계열')) + 
+  geom_rug(data = df_의약,
+           aes(x = 졸업자_계, y = 취업자_합계_계), col= "steelblue", alpha=0.5) + 
+  ## X축과 Y축의 범위를 설정
+  labs(title =  '의약계열 졸업현황', x = '졸업자수', y = '취업자수', subtitle = '졸업자수 대비 취업자수', caption = '출처 : 실전에서 바로쓰는 데이터 시각화 in R') +
+  scale_x_continuous(breaks = c(100, 300, 500), labels = c(100, 300, 500), limits = c(0, 500)) + 
+  scale_y_continuous(breaks = c(100, 300, 500), labels = c(100, 300, 500), limits = c(0, 500)) + 
+  scale_color_manual(name = NULL, values = c('의약계열' = '#4169E1', '인문계열' = '#FA8072'), 
+                     labels = c(equ_의약, equ_인문)) +
+  theme(strip.text.x = element_blank(),
+        strip.background = element_rect(colour="white", fill="white"),
+        legend.position=c(.2,.9), 
+        legend.background = element_rect(fill = NA), 
+        legend.key = element_rect(fill = NA), 
+        plot.title = element_text(size = 20, family = 'NanumBarunGothicBold'),
+        plot.subtitle = element_text(vjust = 0.5, size = 12, family = 'NanumBarunGothic'),
+        axis.line = element_blank(), 
+        plot.background = element_rect(fill = '#FFFAFA'), 
+        panel.background = element_rect(fill = '#FFFAFA'), 
+        plot.margin = margin(0.025, 0.01, 0.01, 0.01, "npc")
+  )
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+grid.lines(
+  x = c(0, 1),
+  y = 1,
+  gp = gpar(col = "#e5001c", lwd = 4)
+)
 
-<!---BLOCK_LANDSCAPE_START--->
-
-### Landscape section
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. 
-
-```{r, echo=FALSE}
-barplot(1:5, col=1:5)
+grid.rect(
+  x = 0,
+  y = 1,
+  width = 0.1,
+  height = 0.025,
+  just = c("left", "top"),
+  gp = gpar(fill = "#e5001c", col = "#e5001c", lwd = 0)
+)
 ```
 
-<!---BLOCK_LANDSCAPE_STOP--->
 
-### Normal section
+# 전체 그룹의 비교 시각화와 설명문 삽입
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+------------------------------------------------------------------------
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+::: {custom-style="boxBorder"}
+목표 : 전체 데이터의 그룹별 분포와 기술 통계를 시각화하여 전달하고 시각화를 통해 전달하고자 하는 인사이트를 삽입
+활용 시각화 :  박스 플롯, 바이올린 플롯, 산점도(jitter)
+:::
+
+```{r}
+
+library(ggtext)
+font_add('NanumBarunGothicBold', 'c:/windows/fonts/NanumBarunGothicBold.ttf')
+
+font_add('NanumBarunGothic', 'c:/windows/fonts/NanumBarunGothic.ttf')
+
+df_전체_요약 <- df_취업통계 |>
+  summarise(mean = mean(취업률_계), median = median(취업률_계), n = n())
+
+subtitle <- paste0('전체 사례수 : ', scales::comma(df_전체_요약$n, accuracy = 1))
+
+df_계열_요약 <- df_취업통계 |>
+  group_by(대계열) |>
+  summarise(median = median(취업률_계), n = n())
+
+labels <- paste0('<span style= "font-family: NanumBarunGothicBold;font-size: 12pt" >', df_계열_요약$대계열, '</span> <br>', '중앙값 : ', scales::percent(df_계열_요약$median, scale = 1), '<br>', '사례수 : ', scales::comma(df_계열_요약$n, accuracy = 1))
+
+labels_name <- pull(df_계열_요약, 대계열)
+
+title <- "<b><span style= 'font-family: NanumBarunGothicBold;font-size: 15pt'>대학의 계열별 학과 취업률 분포</b>"
+
+subtitle <- "<span style = 'font-size:10pt'>전체 대학의 취업률 평균은 11.11%인데 <span style = 'color:red;'>의약계열</span>의 평균이 <span style = 'color:red;'> 75.8%</span> 중앙값이 <span style = 'color:red;'> 81.4%</span>로 가장 높게 나타나고 전체적인 분포도 높게 분포함.</span>"
+
+df_취업통계$대계열 = reorder(df_취업통계$대계열, df_취업통계$취업률_계, mean)
+
+df_취업통계 |>
+  ggplot(aes(x = 대계열, y = 취업률_계)) +
+  geom_jitter(aes(color = 대계열), width = 0.1, alpha = 0.1, show.legend = F) +
+  geom_boxplot(fill = NA, width = 0.4) +
+  geom_violin(fill = NA, width = 0.4) +
+  geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun.y = 'mean', color = 'tomato3', size = 4) +
+  geom_label(aes(x = 대계열, y = 취업률_계, label = paste0('평균 : ', round(..y.., 1))), stat = 'summary', fun.y = 'mean', color = 'tomato3', size = 4, nudge_y = -7) + 
+  labs(title = title, x =  NULL, y =  NULL, subtitle = subtitle) +
+  scale_x_discrete(expand = expansion(add = c(0.5, 0.5)), labels = setNames(labels, labels_name), limits = rev) +
+  theme(strip.text.x = element_blank(),
+        strip.background = element_rect(colour="white", fill="white"),
+        legend.position=c(.2,.9), 
+        legend.background = element_rect(fill = NA), 
+        legend.key = element_rect(fill = NA), 
+        plot.title = element_textbox_simple(halign = 0.5),
+        plot.subtitle = element_textbox_simple(width = unit(0.95, "npc"), size = 13,
+                                        lineheight = 1,
+                                        padding = margin(5.5, 0.5, 5.5, 5.5),
+                                        margin = margin(10, 0, 5.5, 0),
+                                        halign = 0.5, 
+                                        box.color = 'red',
+                                        r = grid::unit(8, "pt"),
+                                        linetype = 1),
+        axis.line = element_blank(), 
+        plot.background = element_rect(fill = 'lemonchiffon'), 
+        panel.background = element_rect(fill = 'lemonchiffon'), 
+        axis.text.x = element_markdown(), 
+        plot.margin = margin(0.025, 0, 0.075, 0, "npc"),
+  )
 
 
-## Tables
+grid.text(
+  '출처: 실전에서 바로쓰는 데이터 시각화 in R', 
+  x = 0.005, 
+  y = 0.03, 
+  just = c("left", "bottom"),
+  gp = gpar(
+    col = "grey50",
+    fontsize = 10,
+    fontfamily = "Econ Sans Cnd"
+  )
+)
 
-### Table 1
+# Add third caption
+grid.text(
+  "참조 : https://www.r-graph-gallery.com/", 
+  x = 0.995, 
+  y = 0.03, 
+  just = c("right", "bottom"),
+  gp = gpar(
+    col = "grey50",
+    fontsize = 10,
+    fontfamily = "Econ Sans Cnd"
+  )
+)
 
-
-```{r tab.cap="caption 1", tab.id="mtcars"}
-head(mtcars)
 ```
 
-### Table 2
 
-```{r tab.cap="iris"}
-head(iris)
+# 종합
+
+------------------------------------------------------------------------
+
+::: {custom-style="boxBorder"}
+목표 : 비교의 대상이 되는 두 개의 그룹에 대한 산점도와 추세선을 각각 그리고 추세선의 선형회귀 방정식을 표현하여 각각의 그룹의 분포를 서로 비교하고 통계적 유의성을 전달
+활용 시각화 :  박스 플롯, 바이올린 플롯, 산점도
+:::
+
+
+
+```{r}
+library(ggtext)
+library(grid)
+library(tidyverse)
+
+theme_set(
+  theme_grey()
+)
+
+df_total_line <- df_입학자_long |> filter(지역 == '전체', lubridate::year(연도) %in% c(seq(from = 2001, to = 2021, by = 5)), 학교종류 %in% c('전문대학', '일반대학', '석사', '박사')) 
+
+data_labels <- bind_rows(df_total_line |> filter(lubridate::year(연도) == 2001, 학교종류 %in% c('일반대학', '석사', '박사')), df_total_line |> filter(lubridate::year(연도) == 2006, 학교종류 %in% c('전문대학')))
+
+df_total_line |>
+  ggplot(aes(x = 연도, y = (입학생수)/1000)) + 
+  ## geom_line 레이어를 생성
+  geom_line(aes(group = 학교종류, color = 학교종류), size = 2.4) +
+  geom_point(aes(fill = 학교종류), size = 5, 
+    shape = 21, # Type of point that allows us to have both color (border) and fill.
+    color = "white", 
+    stroke = 1 # The width of the border, i.e. stroke.
+  ) + 
+  scale_x_date(
+    expand = c(0, 0), # The horizontal axis does not extend to either side
+    limits = c(as.Date('2000-01-01'), as.Date('2022-12-01')), 
+    breaks = seq(from = as.Date("2001-01-01"), to = as.Date("2021-01-01"),
+                 by = "5 years"), 
+    labels = lubridate::year(seq(from = as.Date("2001-01-01"), to = as.Date("2021-01-01"),
+                 by = "5 years"))  # Set custom break locations
+    # Set custom break locations
+#    labels = c("2008", "12", "16", "20") # And custom labels on those breaks!
+  ) + 
+  scale_y_continuous(
+    limits = c(0, 380),
+    expand = c(0, 0)
+  ) -> line_ch7_1
+
+line_ch7_1 +
+  theme(
+    # Set background color to white
+    panel.background = element_rect(fill = "white"),
+    # Remove all grid lines
+    panel.grid = element_blank(),
+    # But add grid lines for the vertical axis, customizing color and size 
+    panel.grid.major.y = element_line(color = "#A8BAC4", size = 0.3),
+    # Remove tick marks on the vertical axis by setting their length to 0
+    axis.ticks.length.y = unit(0, "mm"), 
+    # But keep tick marks on horizontal axis
+    axis.ticks.length.x = unit(2, "mm"),
+    # Remove the title for both axes
+    axis.title = element_blank(),
+    # Only the bottom line of the vertical axis is painted in black
+    axis.line.x.bottom = element_line(color = "black"),
+    # Remove labels from the vertical axis
+    axis.text.y = element_blank(),
+    # But customize labels for the horizontal axis
+    axis.text.x = element_text(family = "Econ Sans Cnd", size = 16)
+  ) -> line_ch7_2
+
+
+
+line_ch7_2 + 
+  geom_text(data = data_labels, aes(x = 연도, y = (입학생수/1000) + 20, label = 학교종류, color  = 학교종류), show.legend = F) + 
+  geom_text(
+    data = data.frame(x = as.Date('2022-09-01'), y = seq(0, 300, by = 100)),
+    aes(x, y, label = y),
+    hjust = 1, # Align to the right
+    vjust = -0.5, # Align to the bottom
+    family = "Econ Sans Cnd",
+    size = 3, 
+    color = 'grey50'
+  ) + 
+  theme(legend.position = 'none') +
+  labs(
+    title = "**교육과정별 졸업생수(k)**",
+  ) + 
+  theme(
+    # theme_markdown() is provided by ggtext and means the title contains 
+    # Markdown that should be parsed as such (the '**' symbols)
+    plot.title = element_markdown(
+      family = "Econ Sans Cnd", 
+      size = 12
+    )
+  ) -> line_ch7_3
+
+
+ggplot(df_total_line) +
+  # color = "white" indicates the color of the lines between the areas
+  geom_area(aes(x = 연도, y = (입학생수)/1000, group = 학교종류, fill = 학교종류), color = "white") +
+#  scale_fill_manual(values = c('grey', 'brown', 'green', 'blue')) +
+  theme(legend.position = "None") + # no legend +
+  scale_x_date(
+  expand = c(0, 0), # The horizontal axis does not extend to either side
+  limits = c(as.Date('2000-01-01'), as.Date('2022-12-01')), 
+  breaks = seq(from = as.Date("2001-01-01"), to = as.Date("2021-01-01"),
+               by = "5 years"), 
+  labels = lubridate::year(seq(from = as.Date("2001-01-01"), to = as.Date("2021-01-01"),
+                               by = "5 years"))  # Set custom break locations
+  # Set custom break locations
+  #    labels = c("2008", "12", "16", "20") # And custom labels on those breaks!
+  ) + 
+  scale_y_continuous(
+    limits = c(0, 790),
+    expand = c(0, 0)
+  )  -> area_ch7_1
+
+area_ch7_1 + 
+  theme(
+    # Set background color to white
+    panel.background = element_rect(fill = "white"),
+    # Remove all grid lines
+    panel.grid = element_blank(),
+    # But add grid lines for the vertical axis, customizing color and size 
+    panel.grid.major.y = element_line(color = "#A8BAC4", size = 0.3),
+    # Remove tick marks on the vertical axis by setting their length to 0
+    axis.ticks.length.y = unit(0, "mm"), 
+    # But keep tick marks on horizontal axis
+    axis.ticks.length.x = unit(2, "mm"),
+    # Remove the title for both axes
+    axis.title = element_blank(),
+    # Only the bottom line of the vertical axis is painted in black
+    axis.line.x.bottom = element_line(color = "black"),
+    # Remove labels from the vertical axis
+    axis.text.y = element_blank(),
+    # But customize labels for the horizontal axis
+    axis.text.x = element_text(family = "Econ Sans Cnd", size = 16)
+  ) -> area_ch7_2
+
+area_ch7_2 + 
+  geom_text(aes(x = as.Date('2011-01-01'), y = 600), label = '전문대학', color = 'white') + 
+  geom_text(aes(x = as.Date('2011-01-01'), y = 300), label = '일반대학', color = 'white') + 
+  geom_text(aes(x = as.Date('2011-01-01'), y = 80), label = '석사', color = 'white') + 
+  geom_text(aes(x = as.Date('2014-01-01'), y = 80), label = '박사', color = 'white') + 
+  geom_segment(aes(x = as.Date('2014-01-01'), xend = as.Date('2014-01-01'), y = 12, yend = 60), color = 'white', arrow = arrow(angle = 30, length = unit(0.1, "inches"))) + 
+  geom_text(
+    data = data.frame(x = as.Date('2022-09-01'), y = seq(0, 800, by = 200)),
+    aes(x, y, label = y),
+    hjust = 1, # Align to the right
+    vjust = -0.5, # Align to the bottom
+    family = "Econ Sans Cnd",
+    size = 3, 
+    color = 'grey50'
+  ) + 
+  theme(legend.position = 'none') + 
+  labs(
+    title = "고등교육기관 졸업생 수(k)",
+  ) + 
+  theme(
+    plot.title = element_markdown(
+      family = "Econ Sans Cnd", 
+      size = 12
+    )
+  ) -> area_ch7_3
+
+
+plt1 <- line_ch7_3 + theme(plot.margin = margin(0, 0.05, 0, 0, "npc"))
+plt2 <- area_ch7_3 + theme(plot.margin = margin(0, 0, 0.05, 0, "npc"))
+plt <- plt1 | plt2
+
+title_theme <- theme(
+  plot.title = element_text(
+    hjust = 0.02,
+    size = 15,
+    margin = margin(0.8, 0, 0.3, 0, "npc")
+  ),
+  plot.subtitle = element_text(
+    hjust = 0.02,
+    size = 12,
+    margin = margin(0.4, 0, 0.5, 0, "npc")
+  )
+)
+
+plt <- plt + plot_annotation(
+  title = "전문대학의 위기",
+  subtitle = "전문대학 학생수 감소 추세",
+  theme = title_theme
+) +
+  theme(
+    plot.margin = margin(0.075, 0, 0.1, 0, "npc"),
+  )
+ 
+plt
+
+# Add line on top of the chart
+grid.lines(
+  x = c(0, 1),
+  y = 1,
+  gp = gpar(col = "#e5001c", lwd = 4)
+)
+
+# Add rectangle on top-left
+# lwd = 0 means the rectangle does not have an outer line
+# 'just' gives the horizontal and vertical justification
+grid.rect(
+  x = 0,
+  y = 1,
+  width = 0.05,
+  height = 0.025,
+  just = c("left", "top"),
+  gp = gpar(fill = "#e5001c", col = "#e5001c", lwd = 0)
+)
+# Add first caption
+grid.text(
+  '출처: 실전에서 바로쓰는 데이터 시각화 in R', 
+  x = 0.005, 
+  y = 0.06, 
+  just = c("left", "bottom"),
+  gp = gpar(
+    col = "grey50",
+    fontsize = 10,
+    fontfamily = "Econ Sans Cnd"
+  )
+)
+
+# Add third caption
+grid.text(
+  "참조 : https://www.r-graph-gallery.com/", 
+  x = 0.995, 
+  y = 0.06, 
+  just = c("right", "bottom"),
+  gp = gpar(
+    col = "grey50",
+    fontsize = 10,
+    fontfamily = "Econ Sans Cnd"
+  )
+)
+
 ```
 
-### Table 3
-
-```{r tab.cap="cars", tab.id="cars"}
-head(cars)
-```
-
-
-## figures 
-
-
-### A boxplot
-
-```{r fig.cap="A boxplot", fig.id = "boxplot"}
-boxplot(1:8)
-```
-
-### A barplot
-
-```{r fig.cap="What a barplot", fig.id = "barplot"}
-barplot(1:8)
-```
 
 ## Lists
 

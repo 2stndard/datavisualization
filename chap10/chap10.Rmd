@@ -2,7 +2,7 @@
 title: 지도의 시각화
 output:
   officedown::rdocx_document:
-    reference_docx: bookdown.docx
+    reference_docx: C:/R/git/datavisualization/bookdown.docx
     plots:
       style: Normal
       align: center

@@ -2,7 +2,7 @@
 title : 그외의 시각화와 시각화 마무리
 output:
   officedown::rdocx_document:
-    reference_docx: bookdown.docx
+    reference_docx: C:/R/git/datavisualization/bookdown.docx
     plots:
       style: Normal
       align: center

@@ -2,7 +2,7 @@
 title : 상관(Correlation)의 시각화
 output:
   officedown::rdocx_document:
-    reference_docx: bookdown.docx
+    reference_docx: C:/R/git/datavisualization/bookdown.docx
     plots:
       style: Normal
       align: center
@@ -28,6 +28,12 @@ library(scales)
 library(patchwork)
 library(officer)
 library(officedown)
+fp <- fp_par(
+  text.align = "center", 
+  padding.bottom = 20, padding.top = 120, 
+  border.bottom = fp_border())
+
+ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
 
 
 df_입학자 <- read_excel('c:/R/git/datavisualization/chap3/2021_연도별 입학자수.xlsx', 
@@ -365,7 +371,7 @@ p_scatter2 <- p_scatter +
 p_scatter2
 ```
 
-## 러그 산점도(rug scatter plot)
+## 러그 플롯(rug plot)
 
 사실 산점도는 아무리 오버플로팅을 제거하려고 노력해도 산점도 자체가 가진 한계로 인해 완전히 제거하기란 매우 힘들다. 그래서 앞서 언급한 바와 같이 샘플수를 조절한다던지 투명도를 조절한다던지 하는 방법이 사용되지만 이로 충분치는 않다. 결국 중첩되어 표현된 부분에 얼마나 많은 데이터가 중첩되는지를 알아내는 방법이 필요한데 러그 산점도가 이에 대한 대안이 될 수 있다.
 
@@ -578,79 +584,3 @@ df_입학자_long |> filter(지역 != '전체') |> filter(학교종류 == '일�
 
 ```
 
-# 종합
-
-------------------------------------------------------------------------
-
-목표 : 비교의 대상이 되는 두 개의 그룹에 대한 산점도와 추세선을 각각 그리고 추세선의 선형회귀 방정식을 표현하여 각각의 그룹의 분포를 서로 비교하고 통계적 유의성을 전달
-
-```{r echo=FALSE}
-library(grid)
-
-df_의약 <- df_취업통계 |> filter(대계열 == '의약계열')
-df_인문 <- df_취업통계 |> filter(대계열 == '인문계열')
-
-model_lm_의약 <- lm(df_의약$취업자_합계_계 ~ df_의약$졸업자_계)
-model_lm_인문 <- lm(df_인문$취업자_합계_계 ~ df_인문$졸업자_계)
-
-glance_의약 <- broom::glance(model_lm_의약)
-glance_인문 <- broom::glance(model_lm_인문)
-
-tidy_의약 <- broom::tidy(model_lm_의약)
-tidy_인문 <- broom::tidy(model_lm_인문)
-
-equ_의약 <- paste0('의약계열 : y = ', round(tidy_의약$estimate[2], 2), 'x + ', round(tidy_의약$estimate[1], 2), ', R\u00B2', ' = ',round(glance_의약$r.squared, 3))
-
-equ_인문 <- paste0('인문계열 : y = ', round(tidy_인문$estimate[2], 2), 'x + ', round(tidy_인문$estimate[1], 2), ', R\u00B2', ' = ',round(glance_인문$r.squared, 3))
-
-df_취업통계 |> 
-  ggplot() +
-  ## X축이 졸업자_계, Y축이 취업자_합계_계에 매핑된 geom_point 레이어 생성
-  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계), color = 'grey75', alpha = 0.5) + 
-  geom_smooth(aes(x = 졸업자_계, y = 취업자_합계_계), color = 'grey75', se = F, method = 'lm') + 
-  geom_point(data = df_인문,
-             aes(x = 졸업자_계, y = 취업자_합계_계, color = '인문계열'), alpha = 0.5) + 
-  geom_smooth(data = df_인문,
-              aes(x = 졸업자_계, y = 취업자_합계_계, color = '인문계열'), se = F, method = 'lm') + 
-  geom_point(data = df_의약,
-             aes(x = 졸업자_계, y = 취업자_합계_계, color = '의약계열'), alpha = 0.5) + 
-  geom_smooth(data = df_의약,
-             aes(x = 졸업자_계, y = 취업자_합계_계, color = '의약계열'), se = F, method = 'lm') + 
-  geom_encircle(data = df_의약, 
-                aes(x = 졸업자_계, y = 취업자_합계_계, color='의약계열')) + 
-  geom_rug(data = df_의약,
-           aes(x = 졸업자_계, y = 취업자_합계_계), col= "steelblue", alpha=0.5) + 
-  ## X축과 Y축의 범위를 설정
-  labs(title =  '의약계열 졸업현황', x = '졸업자수', y = '취업자수', subtitle = '졸업자수 대비 취업자수', caption = '출처 : 실전에서 바로쓰는 데이터 시각화 in R') +
-  scale_x_continuous(breaks = c(100, 300, 500), labels = c(100, 300, 500), limits = c(0, 500)) + 
-  scale_y_continuous(breaks = c(100, 300, 500), labels = c(100, 300, 500), limits = c(0, 500)) + 
-  scale_color_manual(name = NULL, values = c('의약계열' = '#4169E1', '인문계열' = '#FA8072'), 
-                     labels = c(equ_의약, equ_인문)) +
-  theme(strip.text.x = element_blank(),
-        strip.background = element_rect(colour="white", fill="white"),
-        legend.position=c(.2,.9), 
-        legend.background = element_rect(fill = NA), 
-        legend.key = element_rect(fill = NA), 
-        plot.title = element_text(size = 20, family = 'NanumBarunGothicBold'),
-        plot.subtitle = element_text(vjust = 0.5, size = 12, family = 'NanumBarunGothic'),
-        axis.line = element_blank(), 
-        plot.background = element_rect(fill = '#FFFAFA'), 
-        panel.background = element_rect(fill = '#FFFAFA'), 
-        plot.margin = margin(0.025, 0.01, 0.01, 0.01, "npc")
-  )
-
-grid.lines(
-  x = c(0, 1),
-  y = 1,
-  gp = gpar(col = "#e5001c", lwd = 4)
-)
-
-grid.rect(
-  x = 0,
-  y = 1,
-  width = 0.1,
-  height = 0.025,
-  just = c("left", "top"),
-  gp = gpar(fill = "#e5001c", col = "#e5001c", lwd = 0)
-)
-```
