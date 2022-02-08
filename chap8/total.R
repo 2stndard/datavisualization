@@ -1,5 +1,6 @@
 library(tidyverse)
 library(patchwork)
+showtext_auto()
 
 
 df_취업통계$대계열 = fct_relevel(df_취업통계$대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')
@@ -7,7 +8,7 @@ df_취업통계$대계열 = fct_relevel(df_취업통계$대계열, '인문계열
 df_취업통계$과정구분 = fct_relevel(df_취업통계$과정구분, '전문대학과정', '대학과정',  '대학원과정')
 
 
-df_취업통계_계열별 <- df_취업통계 |> 
+df_취업통계_계열별 <- df_취업통계 |>
   group_by(과정구분, 대계열) |>  
   summarise(졸업자 = sum(졸업자_계), 
                취업자 = sum(취업자_합계_계), 
@@ -30,7 +31,12 @@ df_취업통계_계열별 <- df_취업통계 |>
   ## 계열의 표시 순서를 설정하기 위해 레벨을 재조정
   arrange(과정구분, 대계열) |>
   ungroup() |>
-  mutate(id = seq(1:21))
+  mutate(id = seq(1:n())) |>
+  mutate(angle = 90 - (id-0.5)/n() * 360) |>
+  mutate(angle1 = case_when(
+    id > n()/2 ~ angle + 180, 
+    id <= n()/2 ~ angle
+  ))
 
 
 df_취업통계_과정별 <- df_취업통계 |> 
@@ -56,16 +62,14 @@ df_취업통계_과정별 <- df_취업통계 |>
   ## 계열의 표시 순서를 설정하기 위해 레벨을 재조정
   arrange(과정구분) |>
   ungroup() |>
-  mutate(id = seq(1:3))
-
-
-
-df_취업통계_계열별 <- df_취업통계_계열별 |>
+  mutate(id = seq(1:n())) |>
   mutate(angle = 90 - (id-0.5)/n() * 360) |>
   mutate(angle1 = case_when(
-    id > n()/2 ~ angle + 180, 
-    id <= n()/2 ~ angle
+    id >= n()/2 ~ angle + 270, 
+    id < n()/2 ~ angle -90, 
   ))
+
+View(df_취업통계_과정별)
 
 #View(df_취업통계_계열별)
 # angle <- 90 - (df_취업통계_계열별$id-0.5)/nrow(df_취업통계_계열별) * 360
@@ -78,7 +82,7 @@ df_취업통계_계열별 <- df_취업통계_계열별 |>
 
 # flip angle BY to make them readable
 #label_data$angle<-ifelse(angle < -90, angle+180, angle)
-
+library(geomtextpath)
 
 df_취업통계_계열별 |>
   ggplot(aes(x = id, y = 취업률, fill = 대계열)) +
@@ -87,15 +91,16 @@ df_취업통계_계열별 |>
   annotate(xmin = 0.5, xmax = 7.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'red') +
   annotate(xmin = 7.5, xmax = 14.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'green') +
   annotate(xmin = 14.5, xmax = 21.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'blue') +
-  geom_text(data = df_취업통계_과정별,aes(x = 3.5+((id-1)*7), y = 1.2, label = paste0(과정구분, '\n', round(취업률*100, 1), '%'), color = as.factor(id)), inherit.aes = F, size = rel(4), show.legend = F) +
- geom_text(data = df_취업통계_계열별, aes(x=id, y=(취업률)+0.2, label=paste0(대계열, '\n', round(취업률*100, 1), '%'), angle= angle1), color="black", inherit.aes = FALSE, size = rel(3) ) +
+  geom_text(data = df_취업통계_과정별,aes(x = 4+((id-1)*7), y = 1.2, label = paste0(과정구분, ', ', round(취업률*100, 1), '%'), color = as.factor(id), angle = angle1), inherit.aes = F, show.legend = F, rich = TRUE) +
+ geom_text(data = df_취업통계_계열별, aes(x=id, y=0.5, label=paste0(대계열, ', ', round(취업률*100, 1), '%'), angle= angle1), color="black", inherit.aes = FALSE, size = rel(3), hjust = 0.5) +
   geom_segment(data = df_취업통계_과정별, aes(x = 0.5+((id-1)*7), xend = 7.5+((id-1)*7), y = 취업률, yend = 취업률, color = as.factor(id)), inherit.aes = F, show.legend = F) + 
   scale_fill_brewer(palette = 'Set3') + 
-  coord_polar() +
-  theme_void()
+  coord_curvedpolar() +
+  theme_void() + 
+  labs(title = '계열별 취업률')+ 
+  theme(plot.title = element_text(hjust = 0.5, size = 20), 
+        plot.margin = margin(0.25, 0, 0, 0))
 
 
-View(df_취업통계_과정별)
-
-
-
+library(stringi)
+stri_unescape_unicode("\\uac00")
