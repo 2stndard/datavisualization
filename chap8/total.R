@@ -88,11 +88,7 @@ df_취업통계_계열별 |>
   annotate(xmin = 7.5, xmax = 14.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'green') +
   annotate(xmin = 14.5, xmax = 21.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'blue') +
   geom_text(data = df_취업통계_과정별,aes(x = 3.5+((id-1)*7), y = 1.2, label = paste0(과정구분, '\n', round(취업률*100, 1), '%'), color = as.factor(id)), inherit.aes = F, size = rel(4), show.legend = F) +
-#  annotate(x = 3.5, y = 1.2, geom = 'text', label = '전문대학', alpha = 0.6) +
-#  annotate(x = 10.5, y = 1.2, geom = 'text', label = '대학', alpha = 0.6) +
-#  annotate(x = 17.5, y = 1.2, geom = 'text', label = '대학원', alpha = 0.6) +
-#  geom_text(data=label_data, aes(x=id, y=(취업률)+0.1, label=paste0(대계열, '\n', round(취업률*100, 1), '%'), hjust=hjust), color="black", angle= label_data$angle, inherit.aes = FALSE, size = rel(3) ) +
-  geom_text(data = df_취업통계_계열별, aes(x=id, y=(취업률)+0.2, label=paste0(대계열, '\n', round(취업률*100, 1), '%'), angle= angle1), color="black", inherit.aes = FALSE, size = rel(3) ) +
+ geom_text(data = df_취업통계_계열별, aes(x=id, y=(취업률)+0.2, label=paste0(대계열, '\n', round(취업률*100, 1), '%'), angle= angle1), color="black", inherit.aes = FALSE, size = rel(3) ) +
   geom_segment(data = df_취업통계_과정별, aes(x = 0.5+((id-1)*7), xend = 7.5+((id-1)*7), y = 취업률, yend = 취업률, color = as.factor(id)), inherit.aes = F, show.legend = F) + 
   scale_fill_brewer(palette = 'Set3') + 
   coord_polar() +
