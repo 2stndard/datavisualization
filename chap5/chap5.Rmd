@@ -2,7 +2,7 @@
 title : 상관(Correlation)의 시각화
 output:
   officedown::rdocx_document:
-    reference_docx: C:/R/git/datavisualization/bookdown.docx
+    reference_docx: bookdown.docx
     plots:
       style: Normal
       align: center
@@ -98,8 +98,6 @@ df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과�
 ## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
 df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 
-## df_취업통계 정보 확인
-str(df_취업통계)
 ```
 
 상관관계(Correlation)의 시각화는 X축과 Y축으로 표현된 데이터가 전반적으로 어떠한 관계를 가지는지를 표현한 시각화이다. 관계의 시각화는 단순히 X축 데이터의 분포에 따라 Y축 데이터의 분포가 어떻게 분포하는지를 위주로 표현되는데 관계의 시각화에 따라 나타나는 상관관계는 부가적인 통계 처리 정보가 보완되지 않는다면 단순 관계에 불과할 뿐 인과관계를 표현하는 것은 아니다. 상관관계의 시각화를 설명하기 위해 앞으로 졸업자수에 따른 취업자 수의 시각화를 볼 것이다. 당연히 졸업자가 많은 학과는 상대적으로 취업자 수도 많게 될 것이다. 하지만 이러한 시각화 결과 만으로 단순히 졸업자가 많은 과는 취업자도 많다는 결론에 도달해서는 안된다는 것이다. 이를 증명하기 위해 다양한 통계적 검증 과정이 필요하고 이 검증 과정을 통해 독립변수가 종속 변수를 변화시키는 원인이라는 결론에 도달해야 한다. 그렇다면 관계의 시각화는 필요없는 것일까? 그렇지 않다. 어떤 독립 변수가 어떤 종속 변수와 밀접하게 관계가 있는지를 먼저 관계의 시각화를 통해 확인하여야 통계적 검증을 수행할 수 있다. 그저 데이터가 존재한다는 이유만으로 모든 변수간의 인과 관계를 검증할 수는 없는 것이다. 과거 컴퓨터 시스템이 발달하지 못했던 떄는 여러가지 통계적 방법론을 사용하여 이 상관관계를 확인하였지만 1장에서 본 바와 같이 통계적 방법론이 동일해도 시각화의 결과 큰 관계가 없는 경우도 있다. 따라서 상관관계를 확인하기 위한 통계치와 시각화 결과를 반드시 같이 확인해야 한다.
@@ -377,21 +375,21 @@ p_scatter2
 
 러그(rug)는 '바닥에 까는 발판'으로 X축과 Y축의 바닥에 막대를 표현함으로써 데이터의 밀도를 표현하는 방법이다. `ggplot2`에서 러그를 표현하기 위해서는 `geom_rug()`를 사용할 수 있다.
 
-```{r eval=FALSE}
-geom_rug(mapping = NULL, data = NULL, stat = "identity", position = "identity", ...,  outside = FALSE, sides = "bl", length = unit(0.03, "npc"), na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)
-  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
-  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'
-  - position : 시각화에 적용될 위치요소, 기본값은 'identity'
-  - ... : 미적요소의 설정
-  - outside : 러그를 플로팅 지역 밖에 그릴지 설정하는 논리값
-  - sides : 러그를 축의 양쪽에 그릴지 설정하는 논리값
-  - length : 러그의 길이 설정
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
+::: {custom-style="comment"}
+geom_rug(mapping = NULL, data = NULL, stat = "identity", position = "identity", ...,  outside = FALSE, sides = "bl", length = unit(0.03, "npc"), na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)  
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
+  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'  
+  - position : 시각화에 적용될 위치요소, 기본값은 'identity'  
+  - ... : 미적요소의 설정  
+  - outside : 러그를 플로팅 지역 밖에 그릴지 설정하는 논리값  
+  - sides : 러그를 축의 양쪽에 그릴지 설정하는 논리값  
+  - length : 러그의 길이 설정  
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
+  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
 
-```
+:::
 
 앞의 산점도에 러그를 추가한 산점도는 다음과 같다.
 
@@ -442,18 +440,18 @@ p_scatter5
 
 청중에게 특정 데이터 그룹의 분포를 전달하기 위해서 해당 그룹에 대한 범위를 표현해야할 경우가 발생한다. 이 경우에 산점도에 원으로 해당 그룹을 표시해 줄 수 있다. 이런 시각화를 위해서 `ggalt` 패키지의 `geom_encircle()`을 사용할 수 있다. `geom_encircle()`은 `data` 매개변수로 전달된 데이터를 둘러싸는 원을 그려주는 함수이다.
 
-```{r eval = FALSE}
-geom_encircle(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE, ...)
-  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
-  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'
-  - position : 시각화에 적용될 위치요소, 기본값은 'identity'
-  - ... : 미적요소의 설정
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
+::: {custom-style="comment"}
+geom_encircle(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE, ...)  
+  - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
+  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'  
+  - position : 시각화에 적용될 위치요소, 기본값은 'identity'  
+  - ... : 미적요소의 설정  
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
+  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
 
-```
+:::
 
 다음 코드는 앞에서 강조했던 '경영학부' 데이터를 감싸는 원을 그리는 코드이다.
 
@@ -497,22 +495,22 @@ p_bubble +
 
 상관도를 생성하는 함수는 여러개가 있다. 여기서는 `ggcorrplot` 패키지에서 제공하는 `ggcorrplot()`을 사용하여 상관도를 생성하도록 하겠다.
 
-```{r eval = FALSE}
-ggcorrplot(corr, method = c("square", "circle"), type = c("full", "lower", "upper"), ggtheme = ggplot2::theme_minimal, title = "", show.legend = TRUE, legend.title = "Corr", show.diag = FALSE, colors = c("blue", "white", "red"), outline.color = "gray", hc.order = FALSE, hc.method = "complete", lab = FALSE,   lab_col = "black", lab_size = 4, p.mat = NULL, sig.level = 0.05, insig = c("pch", "blank"), pch = 4, pch.col = "black", pch.cex = 5, tl.cex = 12, tl.col = "black", tl.srt = 45, digits = 2)
-  - corr : 시각화할 상관 행렬
-  - method : 상관관계 표현에 사용될 도형의 형태
-  - type : 상관도의 표현 방법, full은 전체 매트릭스, lower는 아래쪽 대각선 부분만, upper는 위쪽 대각선 부분만 상관도 표현
-  - ggtheme : 상관도 표현에 사용할 테마 선택
-  - title : 상관도의 제목 설정
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값
-  - legend.title : 상관도의 범례 제목 설정
-  - show.diag : 상관 계수를 주대각선에 표시할지 여부를 설정하는 논리값
-  - colors : 상관도에 사용할 색 설정
-  - outline.color : 상관도의 외부 선 색 설정
-  - hc.order, hc.method : hclust 함수를 사용한 순서 및 응집 결정 방법 설정
-  - lab, lab_col, lab_size : 상관 계수 라벨의 크기와 색상
+::: {custom-style="comment"}
+ggcorrplot(corr, method = c("square", "circle"), type = c("full", "lower", "upper"), ggtheme = ggplot2::theme_minimal, title = "", show.legend = TRUE, legend.title = "Corr", show.diag = FALSE, colors = c("blue", "white", "red"), outline.color = "gray", hc.order = FALSE, hc.method = "complete", lab = FALSE,   lab_col = "black", lab_size = 4, p.mat = NULL, sig.level = 0.05, insig = c("pch", "blank"), pch = 4, pch.col = "black", pch.cex = 5, tl.cex = 12, tl.col = "black", tl.srt = 45, digits = 2)  
+  - corr : 시각화할 상관 행렬  
+  - method : 상관관계 표현에 사용될 도형의 형태  
+  - type : 상관도의 표현 방법, full은 전체 매트릭스, lower는 아래쪽 대각선 부분만, upper는 위쪽 대각선 부분만 상관도 표현  
+  - ggtheme : 상관도 표현에 사용할 테마 선택  
+  - title : 상관도의 제목 설정  
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
+  - legend.title : 상관도의 범례 제목 설정  
+  - show.diag : 상관 계수를 주대각선에 표시할지 여부를 설정하는 논리값  
+  - colors : 상관도에 사용할 색 설정  
+  - outline.color : 상관도의 외부 선 색 설정  
+  - hc.order, hc.method : hclust 함수를 사용한 순서 및 응집 결정 방법 설정  
+  - lab, lab_col, lab_size : 상관 계수 라벨의 크기와 색상  
 
-```
+:::
 
 `ggcorrplot()`은 지금까지 사용했던 `ggplot2`의 함수들과 다른 것이 다른 `ggplot2` 함수들은 `ggplot`객체를 첫번째 매개변수로 사용했지만 `ggcorrplot()`은 `ggplot` 객체가 아닌 상관 행렬을 첫번째 매개변수로 사용한다. 그렇다면 상관 행렬을 만들어야 하겠다.
 

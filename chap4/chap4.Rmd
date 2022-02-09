@@ -2,7 +2,7 @@
 title : 표의 시각화
 output:
   officedown::rdocx_document:
-    reference_docx: C:/R/git/datavisualization/bookdown.docx
+    reference_docx: bookdown.docx
     plots:
       style: Normal
       align: center
@@ -50,8 +50,34 @@ df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과�
 ## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
 df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 
-## df_취업통계 정보 확인
-str(df_취업통계)
+theme_set(
+  theme(
+    ## 축의 눈금자(ticks)를 모두 제거
+    axis.ticks = element_blank(),
+    ## 축의 선을 grey50으로 설정
+    axis.line = element_line(colour = "grey50"),
+    ## 전체 제목의 크기를 15, 수평 정렬은 중간, 아래 여백을 20으로 설정
+    plot.title = element_text(size = 15, vjust = 0.5, margin = margin(b = 10)), 
+    ## 패널의 눈금선의 색을 'wheat3'로 설정
+    panel.grid = element_line(color = "wheat3"), ###b4aea9
+    ## 패널의 부눈금선을 제거
+    panel.grid.minor = element_blank(),
+    ## 패널의 X축 주눈금선을 제거
+    panel.grid.major.x = element_blank(),
+    ## 패널의 Y축 주눈금선을 'dashed'형태로 설정
+    panel.grid.major.y = element_line(linetype = "dashed"),
+    ## 패널의 배경색과 선색을 'seashell'으로 설정
+    panel.background = element_rect(fill = "snow", color = "snow"),
+    ## 전체 배경색과 선색을 'seashell'으로 설정
+    plot.background = element_rect(fill = "snow", color = "snow"),
+    ## 범례 배경색과 선색을 'seashell'으로 설정
+    legend.background = element_rect(fill = "snow", color = "snow"),
+    ## 범례 키의 배경색과 'seashell', 선색을 제거
+    legend.key = element_rect(fill = "snow", color = NA),  #fbf9f4
+    legend.title = element_text(hjust = 0.5)
+    )
+  )
+
 ```
 
 데이터 시각화를 한다고 하면 대부분 떠올리는 작업이 그래프를 그리는 작업이다. 그래서 데이터 시각화를 시작할 때는 먼저 데이터를 대상으로 할지, 어떤 그래프를 써서 데이터를 예쁘고 직관적으로 표현할지를 고민하게 된다. 하지만 데이터 시각화 결과가 들어갈 보고문서에는 대부분 그래프와 함께 표가 들어가는 경우가 대부분이지만 데이터를 설명하는 데이터 시각화를 해야할 때 많은 사람들은 표까지 생각하지는 않는 듯하다. 인터넷 상의 표의 정의[^1]를 보면 '시각적 의사소통과 자료의 정렬 양식'으로 나와 있다. 결국 표도 데이터 시각화의 일부인 것이다.

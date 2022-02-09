@@ -2,7 +2,7 @@
 title : 구성(Composition)의 시각화
 output:
   officedown::rdocx_document:
-    reference_docx: C:/R/git/datavisualization/bookdown.docx
+    reference_docx: bookdown.docx
     plots:
       style: Normal
       align: center
@@ -63,8 +63,6 @@ df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과�
 ## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
 df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 
-## df_취업통계 정보 확인
-str(df_취업통계)
 
 set.seed(123)
 df_취업통계_sample <- df_취업통계 |> filter(취업률_계 != 100, 졸업자_계 >= 1) |>
@@ -466,14 +464,14 @@ if(!require(treemapify)) {
 
 단일 트리맵은 앞서 설명했던 단일 파이 차트나 단일 도넛 차트와 같이 단일 그룹에 대한 비율을 산출하기 위해 사용되는 트리맵이다. 트리맵을 산출하기 위해서는 `treemapify` 패키지의 `geom_treemap()`을 사용한다. 
 
-```{r eval = FALSE}
-geom_treemap(mapping = NULL, data = NULL, stat = "identity",  position = "identity", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE, layout = "squarified", start = "bottomleft", radius = grid::unit(0, "pt"),...)
-  - mapping, data, stat, position, na.rm, show.legend, inherit.aes, ...	: geom_rect()와 동일한 설정
-  - layout : 트리맵의 레이아웃을 설정, 'squarified', 'scol', 'srow','fixed' 중에 하나 설정
-  - start : 트리맵의 시작위치 설정
-  - radius : 사각형 귀퉁이를 둥글게 설정
+::: {custom-style="comment"}
+geom_treemap(mapping = NULL, data = NULL, stat = "identity",  position = "identity", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE, layout = "squarified", start = "bottomleft", radius = grid::unit(0, "pt"),...)  
+  - mapping, data, stat, position, na.rm, show.legend, inherit.aes, ...	: geom_rect()와 동일한 설정  
+  - layout : 트리맵의 레이아웃을 설정, 'squarified', 'scol', 'srow','fixed' 중에 하나 설정  
+  - start : 트리맵의 시작위치 설정  
+  - radius : 사각형 귀퉁이를 둥글게 설정  
 
-```
+:::
 
 `geom_treemap()`에서 사용할 수 있는 미적요소는 area, alpha, color, fill, linetype, subgroup, subgroup2, subgroup3이다. 이중 area는 필수적 미적 요소로써 사각형의 크기를 결정하는데 사용할 변수를 매핑하는 미적요소이고 subgroup, subgroup2, subgroup3는 다중 트리맵을 설정하기 위한 세부 그룹을 매핑하는 미적 요소이다. 
 
@@ -501,16 +499,16 @@ p_treemap
 
 앞의 트리맵은 전체에서의 크기를 사각형으로만 표현했고 그 사각형이 무엇을 표현하는지 크기가 얼마나되는지가 전혀 나타나지 않아 데이터를 인식할 수 없다. 이 트리맵에 해당 사각형의 변량과 크기에 해당하는 전체의 비율을 표시하기 위해서는 `geom_treemap_text()`를 사용한다. 
 
-```{r eval = FALSE}
-geom_treemap_text(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, show.legend = FALSE, inherit.aes = TRUE, padding.x = grid::unit(1, "mm"), padding.y = grid::unit(1, "mm"), place = "topleft", min.size = 4, grow = FALSE, reflow = FALSE, layout = "squarified", start = "bottomleft", ...)
-  - mapping, data, stat, position, na.rm, show.legend, inherit.aes, ... : geom_text와 동일한 설정 
-  - padding.x, padding.y : 수평, 수직 방향으로 문자와 경계선과의 거리 설정
-  - place : 문자가 사각형 안에서 위치하는 장소
-  - min.size : 문자의 최소 크기
-  - grow : 문자의 크기를 사각형의 크기에 따라 조절할 지를 결정하는 논리값
-  - reflow : 문자를 사각형에 더 잘 맞춰줄지를 결정하는 논리값
+::: {custom-style="comment"}
+geom_treemap_text(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, show.legend = FALSE, inherit.aes = TRUE, padding.x = grid::unit(1, "mm"), padding.y = grid::unit(1, "mm"), place = "topleft", min.size = 4, grow = FALSE, reflow = FALSE, layout = "squarified", start = "bottomleft", ...)  
+  - mapping, data, stat, position, na.rm, show.legend, inherit.aes, ... : geom_text와 동일한 설정  
+  - padding.x, padding.y : 수평, 수직 방향으로 문자와 경계선과의 거리 설정  
+  - place : 문자가 사각형 안에서 위치하는 장소  
+  - min.size : 문자의 최소 크기  
+  - grow : 문자의 크기를 사각형의 크기에 따라 조절할 지를 결정하는 논리값  
+  - reflow : 문자를 사각형에 더 잘 맞춰줄지를 결정하는 논리값  
 
-```
+:::
 
 `geom_treemap_text()`에서 매핑이 가능한 미적요소는 area, label, subgroup, (subgroup2 또는 subgroup3), color, size, alpha, family, fontface, angle 등이 있다. 이중 area와 label은 필수 미적요소이다. 
 
@@ -537,18 +535,19 @@ p_treemap +
 
 다중 파이 차트나 다중 도넛 차트는 `facet_*()`을 사용하여 그룹 변수를 사용해 차트를 분할함으로서 다중 차트를 만들었다. 하지만 트리맵은 `facet_*()`을 사용할 수 없다. 대신 `treemapify` 패키지에서는 `geom_treemap()`의 `subgroup`, `subgroup2`, `subgroup3` 미적요소에 변수를 매핑함으로써 다중 트리맵을 생성할 수 있고 서브 그룹의 경계선 설정은 `geom_tree_subgroup_border()`, 서브그룹의 문자 설정은  `geom_tree_subgroup_text()`를 사용한다. 
 
-```{r eval = FALSE}
+::: {custom-style="comment"}
 geom_tree_subgroup_border(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE, layout = "squarified", start = "bottomleft", level = "subgroup", ...)
-  - level : 어떤 서브그룹에 대한 설정일지를 설정, 'subgroup', 'subgroup2', 'subgroup3' 중에 하나 설정
+  - level : 어떤 서브그룹에 대한 설정일지를 설정, 'subgroup', 'subgroup2', 'subgroup3' 중에 하나 설정  
 
-geom_treemap_subgroup_text(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, show.legend = FALSE, inherit.aes = TRUE, padding.x = grid::unit(1, "mm"), padding.y = grid::unit(1, "mm"), place = "bottom", min.size = 4, grow = FALSE, reflow = FALSE, layout = "squarified", start = "bottomleft", level = "subgroup", ...)
-  - mapping, data, stat, position, na.rm, show.legend, inherit.aes, ... : geom_text와 동일한 설정 
-  - padding.x, padding.y : 수평, 수직 방향으로 문자와 경계선과의 거리 설정
-  - place : 문자가 사각형 안에서 위치하는 장소
-  - min.size : 문자의 최소 크기
-  - grow : 문자의 크기를 사각형의 크기에 따라 조절할 지를 결정하는 논리값
-  - reflow : 문자를 사각형에 더 잘 맞춰줄지를 결정하는 논리값
-```
+geom_treemap_subgroup_text(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, show.legend = FALSE, inherit.aes = TRUE, padding.x = grid::unit(1, "mm"), padding.y = grid::unit(1, "mm"), place = "bottom", min.size = 4, grow = FALSE, reflow = FALSE, layout = "squarified", start = "bottomleft", level = "subgroup", ...)  
+  - mapping, data, stat, position, na.rm, show.legend, inherit.aes, ... : geom_text와 동일한 설정   
+  - padding.x, padding.y : 수평, 수직 방향으로 문자와 경계선과의 거리 설정  
+  - place : 문자가 사각형 안에서 위치하는 장소  
+  - min.size : 문자의 최소 크기  
+  - grow : 문자의 크기를 사각형의 크기에 따라 조절할 지를 결정하는 논리값  
+  - reflow : 문자를 사각형에 더 잘 맞춰줄지를 결정하는 논리값  
+
+:::
 
 `geom_tree_subgroup_border()`에서 매핑이 가능한 미적요소는 area, subgroup, (subgroup2 or subgroup3), color, size, linetype, alpha 등이고 `geom_tree_subgroup_text()`에서 매핑이 가능한 미적요소는 area, subgroup(subgroup2 or subgroup3), colour, size, alpha, family, fontface, angle 등이다. 이 중 area와 서브그룹 설정(subgroup, subgroup2, subgroup3)은 필수 미적요소이다. 
 
@@ -588,19 +587,19 @@ df_treemap_multi |>
 
 `ggplot2`에서는 와플 차트를 위한 전용 함수를 제공하지 않는다. 대신 `geom_tile()`을 사용해서 만들 수 있는데 어쩌면 `geom_tile()`이 와플 차트를 위한 함수로 특화된 것은 아닌지 생각도 든다. 
 
-```{r eval = FALSE}
-geom_tile(mapping = NULL, data = NULL, stat = "identity", position = "identity", ..., linejoin = "mitre", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)
+::: {custom-style="comment"}
+geom_tile(mapping = NULL, data = NULL, stat = "identity", position = "identity", ..., linejoin = "mitre", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)  
   - mapping : aes()를 사용하여 매핑할 미적요소, 생략되면 ggplot()에 정의된 미적매핑 사용
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용
-  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'
-  - position : 시각화에 적용될 위치요소, 기본값은 'identity'
-  - ... : 미적요소의 설정
-  - linejoin : 사각형의 꼭지점의 처리 방법 설정(round, mitre, bevel)
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
+  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
+  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'  
+  - position : 시각화에 적용될 위치요소, 기본값은 'identity'  
+  - ... : 미적요소의 설정  
+  - linejoin : 사각형의 꼭지점의 처리 방법 설정(round, mitre, bevel)  
+  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
+  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
+  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
 
-```
+:::
 
 `geom_tile()`의 매개변수는 대부분 다른 기하요소의 설명에 사용되었던 매개변수이기 때문에 특별히 설명하지 않았다. 또 매핑이 가능한 미적요소도 다른 기하요소들과 유사한데 x, y, alpha, color, fill, group, height, linetype, size, width 등이 있다. 
 

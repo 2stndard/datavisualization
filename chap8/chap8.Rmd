@@ -2,7 +2,7 @@
 title : 비교(Compare)의 시각화
 output:
   officedown::rdocx_document:
-    reference_docx: C:/R/git/datavisualization/bookdown.docx
+    reference_docx: bookdown.docx
     plots:
       style: Normal
       align: center
@@ -62,9 +62,6 @@ df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과�
 
 ## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
 df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
-
-## df_취업통계 정보 확인
-str(df_취업통계)
 
 set.seed(123)
 df_취업통계_sample <- df_취업통계 |> filter(취업률_계 != 100, 졸업자_계 >= 1) |>
@@ -222,11 +219,11 @@ stack 막대 그래프에 데이터 값을 넣으려면 가장 효과적인 것�
 
 각 그룹의 중간에 데이터를 표현하기 위해서는 `position_stack()`을 사용한다. 이 함수는 각각의 그룹 위에 기하요소를 올려서 표현해 주는 함수이다.
 
-```{r eval = FALSE}
-position_stack(vjust = 1, reverse = FALSE)
-  - vjust : 수직 정렬 위치 설정
-  - reverse : 순서의 역순을 설정하는 논리값
-```
+::: {custom-style="comment"}
+position_stack(vjust = 1, reverse = FALSE)  
+  - vjust : 수직 정렬 위치 설정  
+  - reverse : 순서의 역순을 설정하는 논리값  
+:::
 
 이 함수는 `geom_col()`, `geom_bar()`이외의 기하요소에서도 사용할 수 있기 때문에 데이터 값을 표현하는데 사용하는 `geom_text()`와 `geom_label()`에 사용하면 해당 그룹에 데이터 값을 표현할 수 있다. 또 각 막대의 중간에 표현해야 하니 수평정렬 매개변수인 `vjust`를 0.5로 설정하면 중간에 위치하는 데이터 값을 표현할 수 있다.
 
@@ -259,11 +256,12 @@ p_bar_data_stack1
 
 dodge 막대 그래프는 stack 막대 그래프보다는 데이터 값을 넣기가 쉽다. 앞서 stack 막대 그래프에 `geom_text()`의 위치를 설정하는데에는 `postion_stack()`을 사용했다면 dodge 막대 그래프에는 `position_dodge()`를 사용한다.
 
-```{r eval=FALSE}
-position_dodge(width = NULL, preserve = c("total", "single"))
-  - width : 옆으로 배열되는 너비 설정, 기본적인 막대의 너비는 0.9임
-  - preserve : 막대 너비를 전체에 맞출지 각각의 개벌 막대에 맞출지 설정
-```
+::: {custom-style="comment"}
+position_dodge(width = NULL, preserve = c("total", "single"))  
+  - width : 옆으로 배열되는 너비 설정, 기본적인 막대의 너비는 0.9임  
+  - preserve : 막대 너비를 전체에 맞출지 각각의 개벌 막대에 맞출지 설정  
+  
+:::
 
 ```{r fig.cap='dodge형 막대그래프에 데이터 값 표현'}
 ## 데이터 값을 표현하기 위해 대계열별 과정구분으로 그룹화하고
@@ -429,15 +427,15 @@ p_nation_top10_1 +
 
 막대그래프를 정렬하기 위해서는 먼저 데이터의 순서대로 X축의 변량을 정렬해주어야 한다. 이를 위해 `fct_reorder()`를 사용하였다. `fct_reorder()`는 `tidyverse` 패키지 중 `forcats` 패키지에서 제공하는 함수로 팩터나 문자열 벡터의 순서를 다시 설정해주는 함수이다.
 
-```{r eval = FALSE}
-fct_reorder(.f, .x, .fun = median, ..., .desc = FALSE)
-  - .f : 순서를 조절할 팩터나 문자열 벡터
-  - .x : 정렬의 기준이 될 팩터나 문자열 벡터
-  - fun : 정렬에 사용할 함수 설정
-  - ... : 정렬에 사용할 함수에 필요한 매개변수
-  - .desc : 내림차순으로 정렬할지를 설정하는 논리값
+::: {custom-style="comment"}
+fct_reorder(.f, .x, .fun = median, ..., .desc = FALSE)  
+  - .f : 순서를 조절할 팩터나 문자열 벡터  
+  - .x : 정렬의 기준이 될 팩터나 문자열 벡터  
+  - fun : 정렬에 사용할 함수 설정  
+  - ... : 정렬에 사용할 함수에 필요한 매개변수  
+  - .desc : 내림차순으로 정렬할지를 설정하는 논리값  
 
-```
+:::
 
 앞선 막대 그래프에서 X축으로 사용했던 국가명을 유학생 합계(sum)을 기준으로 내림차순으로 순서를 다시 정렬한 후 그래프를 다시 그려주면 유학생수로 정렬된 막대그래프가 그려진다.
 
@@ -508,19 +506,19 @@ if(!require(ggupset)) {
 
 업셋 그래프를 그리는 코드는 다음과 같다. 먼저 학과명의 조합 리스트로 구성된 학과명을 X축으로 매핑한 geom_bar 레이어를 생성한다. 이후 X축의 스케일를 업셋  스케일로 바꾸어주면 업셋의 기본 그래프가 생성된다. 축의 스케일을 업셋 스케일로 바꾸려면 `scale_x_upset()`을 사용한다.
 
-```{r eval=FALSE}
-scale_x_upset(order_by = c("freq", "degree"), n_sets = Inf, n_intersections = Inf, sets = NULL, intersections = NULL, reverse = FALSE, ytrans = "identity", ..., position = "bottom")
-  - order_by : X축의 순서 설정을 어떻게 할지 설정
-  - n_sets : 전체 셋의 최대값 설정
-  - n_intersections : 표시될 교차 셋의 최대값 설정
-  - sets : 표시하고 싶은 셋의 이름 벡터 설정
-  - intersections : 표시될 교차 셋의 이름 벡터 설정
-  - reverse : 교차값의 역순으로 설정할 논리값 설정
-  - ytrans : Y축의 변환 설정
-  - ... : 이산형 스케일과 관련한 추가 매개변수
-  - position : X축을 아래에 위치할 것인지 위에 위치할 것인지 설정
+::: {custom-style="comment"}
+scale_x_upset(order_by = c("freq", "degree"), n_sets = Inf, n_intersections = Inf, sets = NULL, intersections = NULL, reverse = FALSE, ytrans = "identity", ..., position = "bottom")  
+  - order_by : X축의 순서 설정을 어떻게 할지 설정  
+  - n_sets : 전체 셋의 최대값 설정  
+  - n_intersections : 표시될 교차 셋의 최대값 설정  
+  - sets : 표시하고 싶은 셋의 이름 벡터 설정  
+  - intersections : 표시될 교차 셋의 이름 벡터 설정  
+  - reverse : 교차값의 역순으로 설정할 논리값 설정  
+  - ytrans : Y축의 변환 설정  
+  - ... : 이산형 스케일과 관련한 추가 매개변수  
+  - position : X축을 아래에 위치할 것인지 위에 위치할 것인지 설정  
 
-```
+:::
 
 빈도수를 표현하는 `geom_bar()`의 X축 스케일을 `scale_x_upset()`으로 설정하여 업셋 그래프를 그리는 코드는 다음과 같다. 
 
@@ -547,21 +545,22 @@ ggplot(df_과정구분_upset, aes(x=학제리스트)) +
 
 기본 업셋 그래프가 만들어졌으니 이제 세부 설정을 해서 그래프를 꾸며보겠다. 업셋 그래프에서 사용하는 추가적인 테마를 설정하기 위해서는 `theme_combmatrix()`를 사용한다. 
 
-```{r eval=FALSE}
-theme_combmatrix(combmatrix.label.make_space = TRUE, combmatrix.label.width = NULL, combmatrix.label.height = NULL, combmatrix.label.extra_spacing = 3, combmatrix.label.total_extra_spacing = unit(10, "pt"), combmatrix.label.text = NULL, combmatrix.panel.margin = unit(c(1.5, 1.5), "pt"), combmatrix.panel.striped_background = TRUE, combmatrix.panel.striped_background.color.one = "white", combmatrix.panel.striped_background.color.two = "#F7F7F7", combmatrix.panel.point.size = 3, combmatrix.panel.line.size = 1.2, combmatrix.panel.point.color.fill = "black", combmatrix.panel.point.color.empty = "#E0E0E0", ...)
-  - combmatrix.label.make_space : Y축 라벨이 없어져도 업셋 스케일의 매트릭스를 남길것인지를 설정하는 논리값
-  - combmatrix.label.width, combmatrix.label.height : 업셋 라벨의 너비와 높이 설정
-  - combmatrix.label.extra_spacing : 라벨 행의 높이에 추가할 공간의 설정
-  - combmatrix.label.text : element_text()를 사용하여 X축 라벨의 세부 설정
-  - combmatrix.panel.margin	: 조합 매트릭스와 플롯간의 여백 설정
-  - combmatrix.panel.striped_background	: 플롯의 배경을 줄무늬 형태로 설정하는 논리값
-  - combmatrix.panel.striped_background.color.one, combmatrix.panel.striped_background.color.two	: 줄무의 배경을 설정할 경우 설정할 색 설정
-  - combmatrix.panel.point.size	: 조합 매트릭스에 사용할 포인트의 크기 설정
-  - combmatrix.panel.line.size	: 조합 매트릭스에 사용할 선의 크기 설정
-  - combmatrix.panel.point.color.fill	: 조합 매트릭스에 사용할 포인트의 내부 색 설정
-  - combmatrix.panel.point.color.empty : 조합 매트릭스에 사용할 빈 포인트의 내부 색 설정
-  - ... : theme()의 추가적인 매개변수
-```
+::: {custom-style="comment"}
+theme_combmatrix(combmatrix.label.make_space = TRUE, combmatrix.label.width = NULL, combmatrix.label.height = NULL, combmatrix.label.extra_spacing = 3, combmatrix.label.total_extra_spacing = unit(10, "pt"), combmatrix.label.text = NULL, combmatrix.panel.margin = unit(c(1.5, 1.5), "pt"), combmatrix.panel.striped_background = TRUE, combmatrix.panel.striped_background.color.one = "white", combmatrix.panel.striped_background.color.two = "#F7F7F7", combmatrix.panel.point.size = 3, combmatrix.panel.line.size = 1.2, combmatrix.panel.point.color.fill = "black", combmatrix.panel.point.color.empty = "#E0E0E0", ...)  
+  - combmatrix.label.make_space : Y축 라벨이 없어져도 업셋 스케일의 매트릭스를 남길것인지를 설정하는 논리값  
+  - combmatrix.label.width, combmatrix.label.height : 업셋 라벨의 너비와 높이 설정  
+  - combmatrix.label.extra_spacing : 라벨 행의 높이에 추가할 공간의 설정  
+  - combmatrix.label.text : element_text()를 사용하여 X축 라벨의 세부 설정  
+  - combmatrix.panel.margin	: 조합 매트릭스와 플롯간의 여백 설정  
+  - combmatrix.panel.striped_background	: 플롯의 배경을 줄무늬 형태로 설정하는 논리값  
+  - combmatrix.panel.striped_background.color.one, combmatrix.panel.striped_background.color.two	: 줄무의 배경을 설정할 경우 설정할 색 설정  
+  - combmatrix.panel.point.size	: 조합 매트릭스에 사용할 포인트의 크기 설정  
+  - combmatrix.panel.line.size	: 조합 매트릭스에 사용할 선의 크기 설정  
+  - combmatrix.panel.point.color.fill	: 조합 매트릭스에 사용할 포인트의 내부 색 설정  
+  - combmatrix.panel.point.color.empty : 조합 매트릭스에 사용할 빈 포인트의 내부 색 설정  
+  - ... : theme()의 추가적인 매개변수  
+
+:::
 
  `theme_combmatrix()`를 사용하여 세부설정한 업셋 그래프의 코드는 다음과 같다. 
 
@@ -700,6 +699,7 @@ p_dot <- df_lolipop|>
   ggplot()+
   labs(x = '중계열', y = '취업자수')
 ```
+
 ```{r fig.cap='도트 플롯'}
 p_dot1 <- p_dot +
   ## X축을 중계열, Y축을 취업자, group을 중계열로 매핑한 geom_point 레이어 생성

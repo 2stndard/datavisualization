@@ -2,7 +2,7 @@
 title: 지도의 시각화
 output:
   officedown::rdocx_document:
-    reference_docx: C:/R/git/datavisualization/bookdown.docx
+    reference_docx: bookdown.docx
     plots:
       style: Normal
       align: center
@@ -93,22 +93,22 @@ Shape 형태의 지도 데이터를 불러 들이는데는 여러가지 방법�
 
 시도 행정구역의 shape 파일(TL_SCCO_CTPRVN.shp)을 R로 불러 들이기 위해서는 먼저 `sf` 패키지의 `read_sf()`를 사용할 수 있다. `read_sf()`로 읽어들인 Shape 파일은 앞서 설명한 sf(Simple Feature) 객체로 저장된다.
 
-```{r eval = FALSE}
-read_sf(dsn,layer, ..., query = NA, options = NULL, quiet = FALSE, geometry_column = 1L, type = 0, promote_to_multi = TRUE, int64_as_string = FALSE, check_ring_dir = FALSE, fid_column_name = character(0), drivers = character(0), wkt_filter = character(0), quiet = TRUE, stringsAsFactors = FALSE, as_tibble = TRUE)
-  - dsn : 데이터 소스 이름 설정
-  - layer : 레이어 이름, 특별한 지정이 없다면 dsn의 확장자를 뗀 파일 이름을 사용
-  - ... : st_as_sf()에 사용할 매개변수
-  - options : 데이터 소스를 읽을 때 사용할 옵션 설정
-  - geometry_coulumn : 지형정보가 들어있는 열 이름 설정
-  - as.tibble : sf 객체를 tibble로 설정할지에 대한 논리값 설정하는 논리값
-  - type : simple feature type의 ISO 번호
-  - promote_to_multi : 전체 다각형을 Multi형 다각형으로 설정하는 논리값
-  - int64_as_string : 문자열 수치를 int64로 변환하는 논리값
-  - check_ring_dir : 다각형 링의 방향을 설정하는 논리값 
-  - fid_column_name : Feature ID로 사용할 열 이름 설정
-  - wkt_filter : WKT의 표현에 사용할 필터 설정
+::: {custom-style="comment"}
+read_sf(dsn,layer, ..., query = NA, options = NULL, quiet = FALSE, geometry_column = 1L, type = 0, promote_to_multi = TRUE, int64_as_string = FALSE, check_ring_dir = FALSE, fid_column_name = character(0), drivers = character(0), wkt_filter = character(0), quiet = TRUE, stringsAsFactors = FALSE, as_tibble = TRUE)  
+  - dsn : 데이터 소스 이름 설정  
+  - layer : 레이어 이름, 특별한 지정이 없다면 dsn의 확장자를 뗀 파일 이름을 사용  
+  - ... : st_as_sf()에 사용할 매개변수  
+  - options : 데이터 소스를 읽을 때 사용할 옵션 설정  
+  - geometry_coulumn : 지형정보가 들어있는 열 이름 설정  
+  - as.tibble : sf 객체를 tibble로 설정할지에 대한 논리값 설정하는 논리값  
+  - type : simple feature type의 ISO 번호  
+  - promote_to_multi : 전체 다각형을 Multi형 다각형으로 설정하는 논리값  
+  - int64_as_string : 문자열 수치를 int64로 변환하는 논리값  
+  - check_ring_dir : 다각형 링의 방향을 설정하는 논리값  
+  - fid_column_name : Feature ID로 사용할 열 이름 설정  
+  - wkt_filter : WKT의 표현에 사용할 필터 설정  
 
-```
+:::
 
 Shape 파일을 읽어 `sf` 객체로 저장하는 코드는 다음과 같다.
 
@@ -138,7 +138,7 @@ if(!require(sf)) {
 }
 
 ## read_sf()을 사용하여 TL_SCCO_CTPRVN.shp 파일을 읽어옴
-spdf_shp <- st_read('C:/R/git/datavisualization/chap10/TL_SCCO_CTPRVN.shp', options = 'ENCODING=CP949')
+spdf_shp <- st_read('D:/R/git/datavisualization/chap10/TL_SCCO_CTPRVN.shp', options = 'ENCODING=CP949')
 
 ## spdf_shp 클래스 확인
 class(spdf_shp)
@@ -200,7 +200,7 @@ if(!require(geojsonio)) {
 }
 
 ## geojson_read()을 사용하여 TL_SCCO_CTPRVN.json 파일을 읽어옴
-spdf_geojson <- geojson_read('C:/R/git/datavisualization/map/TL_SCCO_SIG.json',  what = "sp")
+spdf_geojson <- geojson_read('C:/R/git/datavisualization/chap10/TL_SCCO_SIG.json',  what = "sp")
 
 ## spdf_korea의 클래스 확인
 class(spdf_geojson)
@@ -323,7 +323,7 @@ if(!require(sp)) {
 }
 
 ## geojson_read()을 사용하여 TL_SCCO_CTPRVN.json 파일을 읽어옴
-spdf_geojson_시도 <- geojson_read('C:/R/git/datavisualization/map/TL_SCCO_CTPRVN.json',  what = "sp")
+spdf_geojson_시도 <- geojson_read('C:/R/git/datavisualization/chap10/TL_SCCO_CTPRVN.json',  what = "sp")
 
 class(spdf_geojson_시도)
 
@@ -331,25 +331,25 @@ class(spdf_geojson_시도)
 
 앞의 실행결과에서 보다시피 geojson 파일의 데이터를 SpatialPolygonsDataFrame 객체로 가져왔다. 이를 `ggplot2`에서는 바로 시각화할 수 없다. R에서 기본적으로 제공되는 `plot()`을 이용하면 간단히 볼 수 있다.
 
-```{r}
+```{r fig.cap='json을 이용한 지도 시각화'}
 plot(spdf_geojson_시도)
 ```
 
 하지만 데이터 시각화를 위해 `ggplot2` 방식으로 시각화하는 것이 좋겠다. `ggplot2`에서는 `SpatialPolygonsDataFrame`객체를 직접적으로 그릴 수 없다. 따라서 `ggplot2`에서 그릴수 있는 `sf` 패키지 기반의 객체로 바꾸어 그릴 수 있다. `sf` 객체로 변환하기 위해서는 `sf` 패키지의 `st_as_sf()`를 사용한다.
 
-```{r eval = FALSE}
-st_as_sf(x, ..., agr = NA_agr_, coords, wkt, dim = "XYZ", remove = TRUE, na.fail = TRUE, sf_column_name = NULL)
-  - x : sf 클래스 객체로 변환할 객체
-  - ... : `st_sf()` 함수에서 사용하는 매개변수
-  - agr : attribute-geometry-relationship의 준말로 지형 기하요소와 속성값의 관계를 설정
-  - coords : 좌표계 설정을 위한 좌표계 이름이나 번호
-  - wkt : Well- Known Text(WKT, 벡터 기하학 객체 를 표현하기 위한 텍스트 마크업 언어)으로 기술된 열의 이름이나 번호
-  - dim : 포인트의 설정(`st_point`)에 필요한 설정
-  - remove : coords나 wkt가 주어질때 해당 열을 제거할지를 설정하는 논리값
-  - na.fail : 결측치 발생시 에러를 낼지에 대한 논리값
-  - sf_column_name : sf 객체로 표현되는 리스트 열의 이름
+::: {custom-style="comment"}
+st_as_sf(x, ..., agr = NA_agr_, coords, wkt, dim = "XYZ", remove = TRUE, na.fail = TRUE, sf_column_name = NULL)  
+  - x : sf 클래스 객체로 변환할 객체  
+  - ... : `st_sf()` 함수에서 사용하는 매개변수  
+  - agr : attribute-geometry-relationship의 준말로 지형 기하요소와 속성값의 관계를 설정  
+  - coords : 좌표계 설정을 위한 좌표계 이름이나 번호  
+  - wkt : Well- Known Text(WKT, 벡터 기하학 객체 를 표현하기 위한 텍스트 마크업 언어)으로 기술된 열의 이름이나 번호  
+  - dim : 포인트의 설정(`st_point`)에 필요한 설정  
+  - remove : coords나 wkt가 주어질때 해당 열을 제거할지를 설정하는 논리값  
+  - na.fail : 결측치 발생시 에러를 낼지에 대한 논리값  
+  - sf_column_name : sf 객체로 표현되는 리스트 열의 이름  
 
-```
+:::
 
 다음과 같이 `st_as_sf()`를 사용하여 SpartialPolygonDataFrame 객체를 Simple Feature 객체로 변환해준다.
 
@@ -428,12 +428,12 @@ df_univ_loc |> select(ends_with(c('위도', '경도'))) |> head()
 
 따라서 `sf` 객체에 저장된 CRS를 'WSG84'로 변환하야 한다. `sf` 객체의 좌표계를 바꾸는 데에는 `st_transform()`을 사용한다.
 
-```{r eval = FALSE}
-st_transform(x, crs = st_crs(x))
-  - x : 변환의 대상이 되는 sf 객체
-  - crs : 목표 CRS 시스템의 값 설정
+::: {custom-style="comment"}
+st_transform(x, crs = st_crs(x))  
+  - x : 변환의 대상이 되는 sf 객체  
+  - crs : 목표 CRS 시스템의 값 설정  
 
-```
+:::
 
 'WSG84'를 의미하는 CRS 코드 값은 'EPSG:4326'이다. 이 코드 값으로 `sf` 객체의 좌표계를 바꾸는 코드는 다음과 같다.
 
@@ -555,19 +555,19 @@ sf_spdf_seoul_joined |> ggplot() +
 
 이제 데이터가 표현된 서울 지도가 준비되었다. 이 맵을 육각 지도로 바꾸어 보겠다. 먼저 육각 지도의 표현에 필요한 `geogrid` 패키지를 설치해야 한다. `geogrid` 패키지는 지형과 같이 불규칙한 다각형(polygon)을 사각형 또는 육각형 그리드로 전환하는데 사용되는 함수들을 제공한다. 여기서는 `calculate_grid()`와 `assign_polygons()`를 사용한다. `calculate_grid()`는 지형 다각형을 육각형이나 사각형 그리드로 변환하데 사용하고 `assign_polygons()`은 `calculate_grid()`에서 변환된 다각형의 위치를 지형 데이터에 매핑한 위치로 할당하는데 사용한다. 
 
-```{r eval=FALSE}
-calculate_grid(shape, learning_rate = 0.03, grid_type = c("hexagonal", "regular"), seed = NULL, verbose = FALSE)
-  - shape : 다각형으로 표현할 `SpatialPolygonsDataFrame`나 `sf` 객체
-  - learning_rate : 최적의 셀 크기를 찾는 비율
-  - grid_type : 육각형 또는 사각형의 다각형 형태 설정
-  - seed : 그리드 계산 알고리즘에 사용될 랜덤 시드값
-  - verbose : 알고리즘 반복시 메세지 출력을 설정하는 논리값
+::: {custom-style="comment"}
+calculate_grid(shape, learning_rate = 0.03, grid_type = c("hexagonal", "regular"), seed = NULL, verbose = FALSE)  
+  - shape : 다각형으로 표현할 `SpatialPolygonsDataFrame`나 `sf` 객체  
+  - learning_rate : 최적의 셀 크기를 찾는 비율  
+  - grid_type : 육각형 또는 사각형의 다각형 형태 설정  
+  - seed : 그리드 계산 알고리즘에 사용될 랜덤 시드값  
+  - verbose : 알고리즘 반복시 메세지 출력을 설정하는 논리값  
+  
+assign_polygons(shape, new_polygons)  
+  - shape : 다각형으로 표현할 `SpatialPolygonsDataFrame`나 `sf` 객체  
+  - new_polygons : calculate_grid에서 생성된 geogrid 객체  
 
-assign_polygons(shape, new_polygons)
-  - shape : 다각형으로 표현할 `SpatialPolygonsDataFrame`나 `sf` 객체
-  - new_polygons : calculate_grid에서 생성된 geogrid 객체
-
-```
+:::
 
 `calculate_grid()`와 `assign_polygons()`을 사용하여 서울 지형을 육각형으로 변환하는 코드는 다음과 같다.  
 

@@ -6,7 +6,7 @@ output:
     plots:
       style: Normal
       align: center
-      fig.lp: 'fig.'
+      fig.lp: 'fig:'
       topcaption: false
       caption:
         style: Image Caption
@@ -73,9 +73,6 @@ df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과�
 ## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
 df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 
-## df_취업통계 정보 확인
-str(df_취업통계)
-
 set.seed(123)
 df_취업통계_sample <- df_취업통계 |> filter(취업률_계 != 100, 졸업자_계 >= 1) |>
   filter(졸업자_계 < 500) |>
@@ -115,19 +112,6 @@ theme_set(
   )
 ```
 
-
-Table of content
-
-<!---BLOCK_TOC--->
-
-List of figures
-
-<!---BLOCK_TOC{seq_id: 'fig'}--->
-
-
-\newpage
-
-
 추세(Trend)란 데이터의 흐름에 따라 발생하는 데이터의 변화를 말한다. 보통 추세는 시간적 흐름에 따라 발생한 데이터를 말하는 경우가 많지만 추세가 꼭 시간의 흐름에 종속되지는 않는다. 예를 들자면 회차(물론 이 또한 시간의 흐름과 무관하지 않지만)나 이벤트의 발생과 같은 흐름도 추세에 속할 수 있다. 하지만 추세에 측정에 있어 하나 중요한 것은 그것이 시간이든 회차이든 특정 이벤트이던 그들의 흐름을 측정하는 간격이나 성질이 일정해야 한다는 것이다. 시간의 경우 추세를 측정하기위해서는 시간적 간격, 즉, 연도별, 월별, 일별 등의 간격이 동일해야 하고 회차의 경우 1회, 2회와 같이 연속된 회차로 기록되어야 유의미하다. 만약 시간의 간격이 어느 구간에서는 연도별, 어느 구간에서는 월별로 표현된다면 추세를 정확히 파악하기 어렵다. 따라서 추세에는 데이터의 흐름, 특히 흐름의 측정 간격이 매우 중요하다.
 
 추세를 시각화할 때는 데이터의 포인트와 해당 데이터의 바로 전 데이터와 다음 데이터를 연결하는 선 그래프가 많이 사용되지만 막대그래프도 많이 사용된다.
@@ -142,30 +126,31 @@ List of figures
 
 [^1]: 날짜형 포맷은 시간형 포맷을 포함한다.
 
-```{r eval=FALSE}
-as.Date(x, format, tryFormats = c("%Y-%m-%d", "%Y/%m/%d"), ...)
-  - x : 시간형 데이터 포맷으로 변경할 문자형 또는 수치형 벡터
-  - format : x를 읽어들여 시간형으로 변환하기 위한 포맷(%Y : 4자리 연도, %y : 두자리 연도, %m : 두자리 월, %d : 두자리 일 등)
-  - tryformat : format이 설정되지 않은 경우 적용할 포맷
-```
+::: {custom-style="comment"}
+as.Date(x, format, tryFormats = c("%Y-%m-%d", "%Y/%m/%d"), ...)  
+  - x : 시간형 데이터 포맷으로 변경할 문자형 또는 수치형 벡터  
+  - format : x를 읽어들여 시간형으로 변환하기 위한 포맷(%Y : 4자리 연도, %y : 두자리 연도, %m : 두자리 월, %d : 두자리 일 등)  
+  - tryformat : format이 설정되지 않은 경우 적용할 포맷  
+  
+:::
 
 날짜형 포맷으로 설정된 변수를 X축과 Y축에 매핑시키면 `scale_*_date()`와 `scale_*_datetime()`을 사용하여 스케일을 날자형이나 시간형 스케일로 설정할 수 있다. 
 
-```{r eval=FALSE}
-scale_*_date(name = waiver(), breaks = waiver(), date_breaks = waiver(), labels = waiver(), date_labels = waiver(), minor_breaks = waiver(), date_minor_breaks = waiver(), limits = NULL, expand = waiver(), oob = censor, guide = waiver(), position = "bottom", sec.axis = waiver())
+::: {custom-style="comment"}
+scale_*_date(name = waiver(), breaks = waiver(), date_breaks = waiver(), labels = waiver(), date_labels = waiver(), minor_breaks = waiver(), date_minor_breaks = waiver(), limits = NULL, expand = waiver(), oob = censor, guide = waiver(), position = "bottom", sec.axis = waiver())  
+  
+scale_*_datetime(name = waiver(), breaks = waiver(), date_breaks = waiver(), labels = waiver(), date_labels = waiver(), minor_breaks = waiver(), date_minor_breaks = waiver(), timezone = NULL, limits = NULL, expand = waiver(), oob = censor, guide = waiver(), position = "bottom", sec.axis = waiver())  
+  - name : 축 제목 설정  
+  - braek : 축의 눈금 설정  
+  - date_breaks : 축의 눈금을 만들 시간 간격 설정(ex. '2 years', '3 months' 등)  
+  - label : 축 눈금의 라벨 설정  
+  - date_labels : 시간 간격에 따라 만들어진 눈금에 표기할 라벨  
+  - date_minor_breaks : 보조 눈금자를 만들 시간 간격 설정  
+  - oob : 한계를 넘어가는 데이터 값을 처리할 함수 설정  
+  - timezone : 국가별 시간대의 지정  
+  - sec.axis : 두번째 축에 대한 설정  
 
-scale_*_datetime(name = waiver(), breaks = waiver(), date_breaks = waiver(), labels = waiver(), date_labels = waiver(), minor_breaks = waiver(), date_minor_breaks = waiver(), timezone = NULL, limits = NULL, expand = waiver(), oob = censor, guide = waiver(), position = "bottom", sec.axis = waiver())
-  - name : 축 제목 설정
-  - braek : 축의 눈금 설정
-  - date_breaks : 축의 눈금을 만들 시간 간격 설정(ex. '2 years', '3 months' 등)
-  - label : 축 눈금의 라벨 설정
-  - date_labels : 시간 간격에 따라 만들어진 눈금에 표기할 라벨
-  - date_minor_breaks : 보조 눈금자를 만들 시간 간격 설정
-  - oob : 한계를 넘어가는 데이터 값을 처리할 함수 설정
-  - timezone : 국가별 시간대의 지정
-  - sec.axis : 두번째 축에 대한 설정
-
-```
+:::
 
 ## 기본 그래프
 
@@ -212,7 +197,7 @@ p_line_scatter
 
 여기에 정확한 데이터의 값을 보여주는 레이어를 다음과 같이 추가하겠다. 
 
-```{r}
+```{r fig.cap='데이터 값이 표시된 선 그래프'}
 p_line_scatter +
   ## X축을 연도, Y축을 입학생수/1000, color를 학교종류, label을 유효숫자가 1인 입학생수를 콤마형으로 매핑한 geom_text 레이어 추가
   geom_text(aes(x = 연도, y = (입학생수)/1000, color = 학교종류, label = scales::comma(입학생수, accuracy = 1)), size = 2, vjust = -1.5)
@@ -403,15 +388,15 @@ p_dual_axis1
 
 `sec_axis()`에 사용되는 사용법과 주요 매개변수는 다음과 같다. 
 
-```{r eval=FALSE}
-sec_axis(trans = NULL, name = waiver(), breaks = waiver(), labels = waiver(),  guide = waiver())
-  - trans : 첫 번째 축에 대비하여 두 번째 축을 설정할 변환식 설정
-  - name : 두 번째 축의 이름 설정
-  - breaks : 두 번째 축의 눈금 설정
-  - labels : 두 번째 축의 눈금 라벨 설정
-  - guide : 범례 설정
+::: {custom-style="comment"}
+sec_axis(trans = NULL, name = waiver(), breaks = waiver(), labels = waiver(),  guide = waiver())  
+  - trans : 첫 번째 축에 대비하여 두 번째 축을 설정할 변환식 설정  
+  - name : 두 번째 축의 이름 설정  
+  - breaks : 두 번째 축의 눈금 설정  
+  - labels : 두 번째 축의 눈금 라벨 설정  
+  - guide : 범례 설정  
 
-```
+:::
 
 trans는 설정된 Y축의 값을 어떻게 변환할 지에 대한 함수식을 전달하는 매개변수이다. 여기서 중요하게 사용되는 키워드는 ~.인데 두번째 Y축값에 대응되는 첫번째 Y축의 값이라고 생각하면 쉽다.
 
@@ -468,7 +453,7 @@ p_dual_axis2 +
 
 우선 앞의 이중 축 선 그래프에서 사용된 데이터에 석사 입학생을 추가한다. 
 
-```{r fig.cap='축자르기를 위한 기초 선 그래프'}
+```{r fig.cap='축 자르기를 위한 기초 선 그래프'}
 p_cut_axis <- df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('일반대학', '석사', '박사')) |>
   ggplot(aes(x = 연도, y = (입학생수)/1000)) + 
   geom_line(aes(group = 학교종류, color = 학교종류)) +
@@ -479,7 +464,7 @@ p_cut_axis
 
 ```
 
-```{r}
+```{r fig.cap='축을 자른 선 그래프'}
 ## ggbreak 패키지 설치
 if(!require(ggbreak)) {
   install.packages('ggbreak')
@@ -495,7 +480,6 @@ p_cut_axis +
 
 ```
 
-\newpage
 # 기울기 차트(Slope Chart)
 
 ------------------------------------------------------------------------
@@ -516,6 +500,7 @@ df_입학자_long |> filter(지역 == '전체', lubridate::year(연도) %in% c(s
   labs(title = '슬로프 그래프', x = '연도', y = '입학생수(천명)')
 
 ```
+
 # 세그먼트 라인 그래프
 
 ------------------------------------------------------------------------

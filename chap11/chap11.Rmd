@@ -2,7 +2,7 @@
 title : 그외의 시각화와 시각화 마무리
 output:
   officedown::rdocx_document:
-    reference_docx: C:/R/git/datavisualization/bookdown.docx
+    reference_docx: bookdown.docx
     plots:
       style: Normal
       align: center
@@ -61,9 +61,6 @@ df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과�
 
 ## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
 df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
-
-## df_취업통계 정보 확인
-str(df_취업통계)
 
 set.seed(123)
 df_취업통계_sample <- df_취업통계 |> filter(취업률_계 != 100, 졸업자_계 >= 1) |>
@@ -153,24 +150,24 @@ if(!require(ggVennDiagram)) {
 
 `ggVennDiagram` 패키지에서 제공하는 `ggVennDiagram()`의 사용법은 다음과 같다.
 
-```{r eval=FALSE}
-ggVennDiagram(x, category.names = names(x), show_intersect = FALSE, set_color = "black", set_size = NA, label = c("both", "count", "percent", "none"), label_alpha = 0.5, label_geom = c("label", "text"), label_color = "black", label_size = NA,  label_percent_digit = 0, label_txtWidth = 40, edge_lty = "solid", edge_size = 1,  ...)
-  - x : 벤다이어그램에 사용 할 벡터 리스트
-  - category.names : 각각의 원에 해당하는 카테고리의 이름 설정
-  - show_intersect : 인터랙티브 플롯(plotly)으로 생성할지 여부를 결정하는 논리값
-  - set_color : 벤다이어그램 안의 텍스트 라벨 색 설정
-  - set_size : 벤다이어그램 안의 텍스트 라벨 크기 설정
-  - label : 텍스트 라벨의 표시 형태 설정, "both", "count", "percent", "none" 중에 하나 설정
-  - label_alpha : 벤다이어그램 안의 텍스트 라벨 투명도 설정
-  - label_geom : 벤다이어그램 안의 텍스트 기하요소 설정, "label", "text" 중에 하나 설정
-  - label_color : 벤다이어그램 안의 텍스트 색 설정
-  - label_size : 벤다이어그램 안의 라벨 크기 설정
-  - label_percent_digit : 라벨 타입이 'percent'일 경우 소수점 아래 몇자리까지 출력할지 설정
-  - label_txtWidth : 벤다이어그램 교차부분의 텍스트 너비 설정
-  - edge_lty : 벤다이어그램 가장자리 라인 타입 설정
-  - edge_size : 벤다이어그램 가장자리 라인 굵기 설정
+::: {custom-style="comment"}
+ggVennDiagram(x, category.names = names(x), show_intersect = FALSE, set_color = "black", set_size = NA, label = c("both", "count", "percent", "none"), label_alpha = 0.5, label_geom = c("label", "text"), label_color = "black", label_size = NA,  label_percent_digit = 0, label_txtWidth = 40, edge_lty = "solid", edge_size = 1,  ...)  
+  - x : 벤다이어그램에 사용 할 벡터 리스트  
+  - category.names : 각각의 원에 해당하는 카테고리의 이름 설정  
+  - show_intersect : 인터랙티브 플롯(plotly)으로 생성할지 여부를 결정하는 논리값  
+  - set_color : 벤다이어그램 안의 텍스트 라벨 색 설정  
+  - set_size : 벤다이어그램 안의 텍스트 라벨 크기 설정  
+  - label : 텍스트 라벨의 표시 형태 설정, "both", "count", "percent", "none" 중에 하나 설정  
+  - label_alpha : 벤다이어그램 안의 텍스트 라벨 투명도 설정  
+  - label_geom : 벤다이어그램 안의 텍스트 기하요소 설정, "label", "text" 중에 하나 설정  
+  - label_color : 벤다이어그램 안의 텍스트 색 설정  
+  - label_size : 벤다이어그램 안의 라벨 크기 설정  
+  - label_percent_digit : 라벨 타입이 'percent'일 경우 소수점 아래 몇자리까지 출력할지 설정  
+  - label_txtWidth : 벤다이어그램 교차부분의 텍스트 너비 설정  
+  - edge_lty : 벤다이어그램 가장자리 라인 타입 설정  
+  - edge_size : 벤다이어그램 가장자리 라인 굵기 설정  
 
-```
+:::
 
 벤다이어그램은 보통 3개의 원으로 표현되는 것이 효율적이다. 그 이상의 원으로 표현은 가능하겠지만 오히려 데이터의 특징을 전반적으로 확인하는데 방해되는 경우도 많다.
 
@@ -227,14 +224,14 @@ ggVennDiagram(list_venn_diagram) +
 
 `ggVenDiagram()`을 `ggplot` 객체로 편집하기 위해서는 먼저 데이터를 벤다이어그램의 형태로 전처리해주어야 한다. 이를 위해서는 `Venn()`을 사용하여 Venn 객체를 생성한 후 `process_data()`로 플롯을 위한 데이터를 얻어내야 한다.
 
-```{r eval=FALSE}
-Venn(sets)
-  - sets : 벤다이어그램을 만들 벡터 리스트
+::: {custom-style="comment"}
+Venn(sets)  
+  - sets : 벤다이어그램을 만들 벡터 리스트  
+  
+process_data(venn, ...)  
+  - venn : Venn 객체  
 
-process_data(venn, ...)
-  - venn : Venn 객체
-
-```
+:::
 
 위의 함수를 사용해 플롯 데이터를 만드는 코드는 다음과 같다.
 
@@ -394,21 +391,21 @@ links <- data.frame(
 
 이제 데이터의 전처리가 끝났으니 `networkD3`패키지의 `sankeyNetwork()`를 사용하여 산키 다이어그램을 생성한다. `sankeyNetwork()`의 사용법은 다음과 같다.
 
-```{r eval = FALSE}
-sankeyNetwork(Links, Nodes, Source, Target, Value, NodeID, NodeGroup = NodeID, LinkGroup = NULL, units = "", colorScale =  JS("d3.scaleOrdinal(d3.schemeCategory20);"), fontSize = 7, fontFamily = NULL, nodeWidth = 15, nodePadding = 10, margin = NULL, height = NULL, width = NULL, iterations = 32, sinksRight = TRUE)
-  - Links : 노드간의 링크 정보를 가진 데이터프레임
-  - Nodes : 노드의 id와 속성을 가진 데이터프레임
-  - Source : Links 데이터프레임에서 왼쪽 링크를 가르키는 열
-  - Target : Links 데이터프레임에서 오른쪽 링크를 가르키는 열
-  - Value : Links 데이터프레임에서 링크의 두께를 결정하는 열
-  - NodeID : Nodes 데이터프레임에서 노드 이름을 가지는 열
-  - NodeGroup : Nodes 데이터프레임에서 노드들의 그룹 이름을 가지는 열
-  - LinkGroup : Links 데이터프레임에서 링크들의 그룹 이름을 가지는 열
-  - units : 값에 대한 물리적인 단위 설정
-  - colorscale : 노드 색에 대한 스케일 설정
-  - iterations : 각각의 노드 위치를 결정하기 위해 반복적으로 실행하는 계산의 수, 0으로 설정하면 데이터의 위치를 사용자가 설정한 대로 표시
+::: {custom-style="comment"}
+sankeyNetwork(Links, Nodes, Source, Target, Value, NodeID, NodeGroup = NodeID, LinkGroup = NULL, units = "", colorScale =  JS("d3.scaleOrdinal(d3.schemeCategory20);"), fontSize = 7, fontFamily = NULL, nodeWidth = 15, nodePadding = 10, margin = NULL, height = NULL, width = NULL, iterations = 32, sinksRight = TRUE)  
+  - Links : 노드간의 링크 정보를 가진 데이터프레임  
+  - Nodes : 노드의 id와 속성을 가진 데이터프레임  
+  - Source : Links 데이터프레임에서 왼쪽 링크를 가르키는 열  
+  - Target : Links 데이터프레임에서 오른쪽 링크를 가르키는 열  
+  - Value : Links 데이터프레임에서 링크의 두께를 결정하는 열  
+  - NodeID : Nodes 데이터프레임에서 노드 이름을 가지는 열  
+  - NodeGroup : Nodes 데이터프레임에서 노드들의 그룹 이름을 가지는 열  
+  - LinkGroup : Links 데이터프레임에서 링크들의 그룹 이름을 가지는 열  
+  - units : 값에 대한 물리적인 단위 설정  
+  - colorscale : 노드 색에 대한 스케일 설정  
+  - iterations : 각각의 노드 위치를 결정하기 위해 반복적으로 실행하는 계산의 수, 0으로 설정하면 데이터의 위치를 사용자가 설정한 대로 표시  
 
-```
+:::
 
 ```{r fig.cap='networkD3를 사용한 산키 다이어그램'}
 ## networkD3 패키지 설치
@@ -494,17 +491,16 @@ fig1 / fig2
 
 하나로 합쳐진 플롯에 대한 다양한 설명에 대한 주석을 붙이려면 `plot_annotation()`을 사용한다. `plot_annotation()`에서 설정할 수 있는 주석은 다음과 같다.
 
-```{r eval=FALSE}
-plot_annotation(title = NULL, subtitle = NULL, caption = NULL, tag_levels = NULL, tag_prefix = NULL, tag_suffix = NULL, tag_sep = NULL, theme = NULL)
+::: {custom-style="comment"}
+plot_annotation(title = NULL, subtitle = NULL, caption = NULL, tag_levels = NULL, tag_prefix = NULL, tag_suffix = NULL, tag_sep = NULL, theme = NULL)  
+  - title : 하나로 합쳐진 플롯에 대한 플롯 제목을 설정  
+  - subtitle : 하나로 합쳐진 플롯에 대한 플롯 부제목을 설정  
+  - caption : 하나로 합쳐진 플롯에 대한 플롯 캡션을 설정  
+  - tag_levels : 플롯들에 붙이는 번호를 설정, ‘a’, ‘A’, ‘1’, ‘i’, ’I’등의 번호를 설정  
+  - tag_prefix, tag_surfix : 플롯들에 붙이는 번호의 접두어나 접미어를 를 설정  
+  - theme : ggplot에서 사용하는 주석에 대한 theme 명세를 기술  
 
-  - title : 하나로 합쳐진 플롯에 대한 플롯 제목을 설정
-  - subtitle : 하나로 합쳐진 플롯에 대한 플롯 부제목을 설정
-  - caption : 하나로 합쳐진 플롯에 대한 플롯 캡션을 설정
-  - tag_levels : 플롯들에 붙이는 번호를 설정, ‘a’, ‘A’, ‘1’, ‘i’, ’I’등의 번호를 설정
-  - tag_prefix, tag_surfix : 플롯들에 붙이는 번호의 접두어나 접미어를 를 설정
-  - theme : ggplot에서 사용하는 주석에 대한 theme 명세를 기술
-
-```
+:::
 
 `plot_annotation()`를 사용하여 플롯을 다음과 같이 꾸며본다.
 
@@ -521,11 +517,12 @@ plot_annotation(title = NULL, subtitle = NULL, caption = NULL, tag_levels = NULL
 
 `patchwork` 패키지와 유사한 기능을 제공하는 패키지로 `gridExtra`패키지가 있다. `gridExtra` 패키지도 `patchwork` 패키지와 유사한 기능을 제공하지만 `patchwork`에서는 `+`, `/`연산자를 사용하였지만 `gridExtra` 패키지에서는 `grid.arrange()`를 이용한다.
 
-```{r eval=FALSE}
-grid.arrange(..., newpage = TRUE)
-  - ... : 이어서 그릴 ggplot 객체
-  - newpage : 새로운 페이지를 사용할 것인지를 설정하는 논리값
-```
+::: {custom-style="comment"}
+grid.arrange(..., newpage = TRUE)  
+  - ... : 이어서 그릴 ggplot 객체  
+  - newpage : 새로운 페이지를 사용할 것인지를 설정하는 논리값  
+  
+:::
 
 `grid.arrange()`를 사용하여 앞서 만든 `ggplot`를 붙이는 코드는 다음과 같다.
 
@@ -546,19 +543,19 @@ grid.arrange(fig1, fig2, fig3, fig4)
 
 `cowplot` 패키지에서 `ggplot` 객체를 이어 붙이기 위해서는 `plot_grid()`를 사용한다.
 
-```{r eval=FALSE}
-plot_grid(..., plotlist = NULL, align = c("none", "h", "v", "hv"), axis = c("none", "l", "r", "t", "b", "lr", "tb", "tblr"), nrow = NULL, ncol = NULL, rel_widths = 1, rel_heights = 1, labels = NULL, label_size = 14, label_fontfamily = NULL, label_fontface = "bold", label_colour = NULL, label_x = 0, label_y = 1,   hjust = -0.5, vjust = 1.5, scale = 1, greedy = TRUE, byrow = TRUE)
-  - ... : 이어 붙일 플롯
-  - plotlist : 이어 붙일 플롯 리스트
-  - align : 그래프를 가로("h") 또는 세로("v")로 정렬할지 여부를 설정
-  - axis : 그래프를 왼쪽("l"), 오른쪽("r"), 위쪽("t") 또는 아래쪽("b") 여백으로 정렬할지 여부를 설정
-  - nrow, ncol : 플롯 그리드의 행, 열 갯수 설정
-  - rel_width, rel_height : 상대적인 열의 너비와 높이 설정, 숫자형 벡터로 설정
-  - labels, label_size, label_fontfamily, label_fontface, label_colour, label_x, label_y, hjust, vjust : 플롯 그리드의 라벨 특성 설정
-  - scale : 플롯의 크기를 설정하는 수치값 또는 수치 벡터
-  - byrow : 플롯을 행(기본값) 또는 열로 정렬해야 하는지 여부를 나타내는 논리값
+::: {custom-style="comment"}
+plot_grid(..., plotlist = NULL, align = c("none", "h", "v", "hv"), axis = c("none", "l", "r", "t", "b", "lr", "tb", "tblr"), nrow = NULL, ncol = NULL, rel_widths = 1, rel_heights = 1, labels = NULL, label_size = 14, label_fontfamily = NULL, label_fontface = "bold", label_colour = NULL, label_x = 0, label_y = 1,   hjust = -0.5, vjust = 1.5, scale = 1, greedy = TRUE, byrow = TRUE)  
+  - ... : 이어 붙일 플롯  
+  - plotlist : 이어 붙일 플롯 리스트  
+  - align : 그래프를 가로("h") 또는 세로("v")로 정렬할지 여부를 설정  
+  - axis : 그래프를 왼쪽("l"), 오른쪽("r"), 위쪽("t") 또는 아래쪽("b") 여백으로 정렬할지 여부를 설정  
+  - nrow, ncol : 플롯 그리드의 행, 열 갯수 설정  
+  - rel_width, rel_height : 상대적인 열의 너비와 높이 설정, 숫자형 벡터로 설정  
+  - labels, label_size, label_fontfamily, label_fontface, label_colour, label_x, label_y, hjust, vjust : 플롯 그리드의 라벨 특성 설정  
+  - scale : 플롯의 크기를 설정하는 수치값 또는 수치 벡터  
+  - byrow : 플롯을 행(기본값) 또는 열로 정렬해야 하는지 여부를 나타내는 논리값  
 
-```
+:::
 
 `cowplot`으로 `ggplot`객체를 이어 붙이는 코드는 다음과 같다. 먼저 `cowplot`패키지를 설치하고 `plot_grid()`를 사용하여 플롯을 이어 붙인다.
 
@@ -579,26 +576,27 @@ plot_grid(fig1, fig2, fig3, fig4)
 
 `ggplot2`에서 제공하는 `annotate()`를 사용하여 주석을 넣을 수 있지만 `cowplot`에서도 간단히 사용할 수 있는 유용한 주석 넣기 기능이 있다. 그 중 가장 유용한 것이 워터마크 주석을 넣는 기능이다. 간혹 진행중인 프로젝트에서 생성된 문서나 대외비 문서를 강조하기 위해 그래프나 문서의 중간에 크게 'DRAFT'나 '대외비'라고 하는 문구를 본적이 있을 것이다. 이를 위해서 `cowplot`의 기본 플롯을 생성하는 `ggdraw()`와 기본 플롯 위에 라벨 레이어를 추가하는 `draw_label()`을 사용한다.
 
-```{r eval = FALSE}
-ggdraw(plot = NULL, xlim = c(0, 1), ylim = c(0, 1), clip = "off")
-  - plot : 기본 레이어로 생성할 플롯 설정 
-  - xlim : X축의 범위
-  - ylim : Y축의 범위
-  - clip : 플롯이 설정된 범위를 벗어나면 자를지를 설정하는 논리값
-
-draw_label(label, x = 0.5, y = 0.5, hjust = 0.5, vjust = 0.5, fontfamily = "", fontface = "plain", color = "black", size = 14, angle = 0, lineheight = 0.9, alpha = 1)
-  - label : 라벨로 사용할 문자열
-  - x : 라벨의 X축 위치
-  - y : 라벨의 Y축 위치
-  - hjust : 라벨의 수평 위치 정렬값
-  - vjust : 라벨의 수직 위치 정렬값
-  - fontfamily, fontface : 라벨의 폰트 설정
-  - color : 라벨의 색 설정
-  - size : 라벨의 크기 설정
-  - angle : 라벨의 각도 설정
-  - lineheight : 라벨의 선 높이 설정
-  - alpha : 라벨의 투명도 설정
-```
+::: {custom-style="comment"}
+ggdraw(plot = NULL, xlim = c(0, 1), ylim = c(0, 1), clip = "off")  
+  - plot : 기본 레이어로 생성할 플롯 설정  
+  - xlim : X축의 범위  
+  - ylim : Y축의 범위  
+  - clip : 플롯이 설정된 범위를 벗어나면 자를지를 설정하는 논리값  
+  
+draw_label(label, x = 0.5, y = 0.5, hjust = 0.5, vjust = 0.5, fontfamily = "", fontface = "plain", color = "black", size = 14, angle = 0, lineheight = 0.9, alpha = 1)  
+  - label : 라벨로 사용할 문자열  
+  - x : 라벨의 X축 위치  
+  - y : 라벨의 Y축 위치  
+  - hjust : 라벨의 수평 위치 정렬값  
+  - vjust : 라벨의 수직 위치 정렬값  
+  - fontfamily, fontface : 라벨의 폰트 설정  
+  - color : 라벨의 색 설정  
+  - size : 라벨의 크기 설정  
+  - angle : 라벨의 각도 설정  
+  - lineheight : 라벨의 선 높이 설정  
+  - alpha : 라벨의 투명도 설정  
+  
+:::
 
 `ggdraw()`와 `draw_label()`을 사용하여 다음과 같이 워터마크 주석을 넣을 수 있다.
 
@@ -614,18 +612,18 @@ ggdraw(fig1) +
 
 `cowplot` 패키지에서는 `ggplot`의 안에 `ggplot`를 넣는 기능을 제공한다. 사실 이 기능은 `patchwork`나 `gridExtra` 패키지에서도 제공하는 기능이다. `ggdraw()`를 사용해 기본 플롯을 그리고 이 위에 `draw_plot()`을 사용하여 덧붙여 그리는 형태이다.
 
-```{r eval = FALSE}
-draw_plot(plot, x = 0, y = 0, width = 1, height = 1, scale = 1, hjust = 0, vjust = 0, halign = 0.5, valign = 0.5)
-  - plot : 덧붙일 플롯 설정
-  - x : 플롯의 X축 위치 설정
-  - y : 플롯의 Y축 위치 설정
-  - width : 플롯의 너비 설정
-  - height : 플롯의 높이 설정
-  - scale : 플롯의 크기 배수 설정
-  - hjust, vjust : 플롯의 수평, 수직 정렬 설정
-  - halign, valign : 플롯 박스안에서의 수평, 수직 정렬 설정
+::: {custom-style="comment"}
+draw_plot(plot, x = 0, y = 0, width = 1, height = 1, scale = 1, hjust = 0, vjust = 0, halign = 0.5, valign = 0.5)  
+  - plot : 덧붙일 플롯 설정  
+  - x : 플롯의 X축 위치 설정  
+  - y : 플롯의 Y축 위치 설정  
+  - width : 플롯의 너비 설정  
+  - height : 플롯의 높이 설정  
+  - scale : 플롯의 크기 배수 설정  
+  - hjust, vjust : 플롯의 수평, 수직 정렬 설정  
+  - halign, valign : 플롯 박스안에서의 수평, 수직 정렬 설정  
 
-```
+:::
 
 `ggplot`에 넣은 `ggplot`를 그리는 코드는 다음과 같다.
 
@@ -763,17 +761,17 @@ p_mix2
 
 `ggplot` 객체를 이미지 파일로 저장하기 위해서는 `ggsave()`를 사용한다.
 
-```{r eval=FALSE}
-ggsave(filename, plot = last_plot(), device = NULL, path = NULL, scale = 1, width = NA, height = NA, units = c("in", "cm", "mm", "px"), dpi = 300, limitsize = TRUE, bg = NULL, ...)
-  - filename : ggplot 객체가 저장될 파일 이름
-  - plot : 저장할 ggplot 객체, 생략되면 마지막으로 출력된 플롯
-  - device : 저장에 사용할 디바이스(파일 포맷) 설정
-  - scale : 저장시 사용할 스케일 배수
-  - width, height : 너비와 높이 설정
-  - unit : 너비와 높이 설정에 사용되는 단위 설정(인치, 센치미터, 밀리미터, 픽셀)
-  - dpi : 저장에 사용되는 해상도, 수치로 설정하거나 미리 정의된("retina" (320), "print" (300), or "screen" (72)) 문자열 사용가능
+::: {custom-style="comment"}
+ggsave(filename, plot = last_plot(), device = NULL, path = NULL, scale = 1, width = NA, height = NA, units = c("in", "cm", "mm", "px"), dpi = 300, limitsize = TRUE, bg = NULL, ...)  
+  - filename : ggplot 객체가 저장될 파일 이름  
+  - plot : 저장할 ggplot 객체, 생략되면 마지막으로 출력된 플롯  
+  - device : 저장에 사용할 디바이스(파일 포맷) 설정  
+  - scale : 저장시 사용할 스케일 배수  
+  - width, height : 너비와 높이 설정  
+  - unit : 너비와 높이 설정에 사용되는 단위 설정(인치, 센치미터, 밀리미터, 픽셀)  
+  - dpi : 저장에 사용되는 해상도, 수치로 설정하거나 미리 정의된("retina" (320), "print" (300), or "screen" (72)) 문자열 사용가능  
 
-```
+:::
 
 앞에서 만든 병합 그래프를 비트맵 이미지 파일로 저장하는 코드는 다음과 같다.
 

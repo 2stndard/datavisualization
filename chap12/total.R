@@ -2,6 +2,11 @@ library(readxl)
 library(geojsonio)
 library(sf)
 library(tidyverse)
+library(ggpp)
+showtext_auto()
+
+font_add('NanumBarunGothic', 'c:/windows/fonts/NanumBarunGothic.ttf')
+font_add('NanumBarunGothicBold', 'c:/windows/fonts/NanumBarunGothicBold.ttf')
 
 df_seoul_grid <- read_excel('c:/R/git/datavisualization/chap12/seoul_grid.xlsx', 
                       ## 'sheet0' 시트의 데이터를 불러오는데,
@@ -23,53 +28,12 @@ df_행정구역 <- df_행정구역 |> filter(...1 == '서울',  ...2 != '소계'
   select(1, 2, 3, 4, 5, 10)
 
 ## 열 이름을 적절히 설정
-names(df_행정구역) <- c('시도', '행정구역', '과정구분', '학제구분', '대학수', '재적학생수')
+names(df_행정구역) <- c('시도', 'code', '과정구분', '학제구분', '대학수', '재적학생수')
 
 ## 구이음 열에서 '서울 ' 문자열을 ''으로 치환
-df_행정구역$행정구역 <- gsub('서울 ', '', df_행정구역$행정구역)
-
-df_행정구역_grid <- inner_join(df_seoul_grid, df_행정구역, by = c('name' = '행정구역'))
-
-myplot <- df_행정구역_grid |>
-  ggplot() +
-  geom_col(aes(x = 과정구분, y = 재적학생수)) + 
-  geom_text_npc(aes(npcx = 0.5, npcy = 0.9, label = name)) +
-  facet_grid(rows = vars(row), cols = vars(col),drop=T) + 
-  theme_void() +
-  theme(
-    strip.text.x = element_blank(),
-    strip.text.y = element_blank(), 
-    strip.background = element_blank(),
-    panel.border = element_rect(color = 'red', fill = NA)
-    )
-
-g <- ggplotGrob(myplot)
+df_행정구역$code <- gsub('서울 ', '', df_행정구역$code)
 
 
-
-library(cowplot)
-library(grid)
-
-grob <- ggplotGrob(myplot);
-
-View(grob)
-
-grob$layout$name
-
-idx <- which(grob$layout$name %in% c("panel-2-1", "panel-3-1", "panel-3-2"));
-for (i in idx) grob$grobs[[i]] <- nullGrob();
-
-
-
-
-
-
-
-
-
-install.packages('ggpp')
-library(ggpp)  
-  
 ## geojson_read()을 사용하여 TL_SCCO_CTPRVN.json 파일을 읽어옴
 spdf_geojson <- geojson_read('C:/R/git/map/TL_SCCO_SIG.json',  what = "sp")
 
@@ -121,9 +85,9 @@ sf_spdf_seoul_joined |>
   ggplot() +
   geom_col(aes(x = 과정구분, y = 재적학생수)) + 
   facet_grid(rows = vars(row), cols = vars(col))
-  
-  
-  facet_geo(~행정구역, grid = "kr_seoul_district_grid1")
+
+
+facet_geo(~행정구역, grid = "kr_seoul_district_grid1")
 
 
 library(geofacet)
@@ -134,7 +98,116 @@ sf_spdf_seoul_joined |> ggplot(aes(variable, rank, fill = variable)) +
   theme_bw() +
   facet_grid(~ state, grid = "kr_seoul_district_grid1")
 
-str(eu_grid1)
+str(kr_seoul_district_grid1)
 head(state_unemp)
 
-grid_design(data = seoul_grid)
+grid_design(data = df_seoul_grid)
+
+df_seoul_grid$code = df_seoul_grid$name
+
+grid_preview(df_seoul_grid)
+
+grid_design(data = df_seoul_grid)
+
+mygrid <- data.frame(
+  name = c("강북구", "도봉구", "은평구", "종로구", "성북구", "노원구", "중랑구", "강서구", "양천구", "마포구", "서대문구", "중구", "동대문구", "광진구", "강동구", "구로구", "영등포구", "동작구", "용산구", "성동구", "송파구", "금천구", "관악구", "서초구", "강남구"),
+  row = c(1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5),
+  col = c(5, 6, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 2, 3, 4, 5, 6, 7, 3, 4, 5, 6),
+  code = c("강북구", "도봉구", "은평구", "종로구", "성북구", "노원구", "중랑구", "강서구", "양천구", "마포구", "서대문구", "중구", "동대문구", "광진구", "강동구", "구로구", "영등포구", "동작구", "용산구", "성동구", "송파구", "금천구", "관악구", "서초구", "강남구"),
+  stringsAsFactors = FALSE
+)
+
+grid_submit(mygrid, name = "mygrid", desc = "An awesome grid...")
+
+
+
+
+
+
+df_행정구역 |>
+  ggplot() +
+  geom_col(aes(x = 과정구분, y = 재적학생수, fill = 과정구분)) +
+  facet_geo(~code, grid = mygrid) + 
+  theme(
+    strip.background = element_blank(), 
+    axis.line = element_blank(), 
+    axis.text = element_blank(),
+    strip.text = element_textbox_simple(family = 'NanumBarunGothicBold', 
+                                        size = 10,
+                                        color = "white", fill = "dodgerblue4", box.color = "#4A618C",
+                                        halign = 0.5, linetype = 1, r = unit(5, "pt"), width = unit(1, "npc"),
+                                        padding = margin(2, 0, 1, 0), margin = margin(3, 3, 3, 3)), 
+    panel.border = element_rect(color = 'red', fill = NA)
+  ) +
+  labs(x = NULL, y = NULL)
+  
+  
+  
+  
+  
+  geom_text_npc(aes(npcx = 0.5, npcy = 0.9, label = name)) +
+  facet_grid(rows = vars(row), cols = vars(col),drop=T) + 
+  theme_void() +
+  theme(
+    strip.text.x = element_blank(),
+    strip.text.y = element_blank(), 
+    strip.background = element_blank(),
+    panel.border = element_rect(color = 'red', fill = NA)
+    )
+
+g <- ggplotGrob(myplot)
+
+
+
+library(cowplot)
+library(grid)
+
+grob <- ggplotGrob(myplot);
+
+View(grob)
+
+grob$layout$name
+
+idx <- which(grob$layout$name %in% c("panel-2-1", "panel-3-1", "panel-3-2"));
+for (i in idx) grob$grobs[[i]] <- nullGrob();
+
+
+
+
+
+
+
+
+
+install.packages('ggpp')
+library(ggpp)  
+  
+
+seoul_grid1 <- kr_seoul_district_grid1
+install.packages("statebins", repos = c("https://cinc.rud.is", "https://cloud.r-project.org/"))
+install.packages('statebin')
+install.packages('cdcfluview')
+
+library(statebins)
+library(cdcfluview)
+library(hrbrthemes)
+library(tidyverse)
+
+
+setwd("D:/R/git/datavisualization/starwars")
+adat <- read_csv("D:/R/git/datavisualization/starwars/wapo.csv")
+
+mutate(
+  adat, 
+  share = cut(avgshare94_00, breaks = 4, labels = c("0-1", "1-2", "2-3", "3-4"))
+) %>% 
+  statebins(
+    value_col = "share", 
+    ggplot2_scale_function = scale_fill_brewer,
+    name = "Share of workforce with jobs lost or threatened by trade"
+  ) +
+  labs(title = "1994-2000") +
+  theme_statebins()
+
+geom_statebins()
+

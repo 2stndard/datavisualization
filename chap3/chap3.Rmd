@@ -2,7 +2,7 @@
 title : 데이터 시각화를 위한 ggplot2
 output: 
   officedown::rdocx_document:
-    reference_docx: C:/R/git/datavisualization/bookdown.docx
+    reference_docx: bookdown.docx
     plots:
       style: Normal
       align: center
@@ -2048,13 +2048,13 @@ theme_set(
     ## 패널의 Y축 주눈금선을 'dashed'형태로 설정
     panel.grid.major.y = element_line(linetype = "dashed"),
     ## 패널의 배경색과 선색을 'seashell'으로 설정
-    panel.background = element_rect(fill = "seashell", color = "seashell"),
+    panel.background = element_rect(fill = "snow", color = "snow"),
     ## 전체 배경색과 선색을 'seashell'으로 설정
-    plot.background = element_rect(fill = "seashell", color = "seashell"),
+    plot.background = element_rect(fill = "snow", color = "snow"),
     ## 범례 배경색과 선색을 'seashell'으로 설정
-    legend.background = element_rect(fill = "seashell", color = "seashell"),
+    legend.background = element_rect(fill = "snow", color = "snow"),
     ## 범례 키의 배경색과 'seashell', 선색을 제거
-    legend.key = element_rect(fill = "seashell", color = NA),  #fbf9f4
+    legend.key = element_rect(fill = "snow", color = NA),  #fbf9f4
     legend.title = element_text(hjust = 0.5)
     )
   )
