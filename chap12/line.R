@@ -3,7 +3,7 @@ library(readxl)
 library(showtext)
 showtext_auto()
 
-df <- read_excel('D:/R/git/univ_data/학교별합본.xlsx', skip = 4, na = '-', col_names = T, col_types = c(rep('text', 14), rep('numeric', 60)))
+df <- read_excel('C:/R/git/univ_data/학교별합본.xlsx', skip = 4, na = '-', col_names = T, col_types = c(rep('text', 14), rep('numeric', 60)))
 
 
 
