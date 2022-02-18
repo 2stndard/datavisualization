@@ -108,14 +108,58 @@ df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 
 ```
 
+이번 장에서는 지금까지 살펴본 시각화 방법을 사용하여 실전에사 사용할 수 있는 시각화 응용 사례를 살펴보도록 하겠다. 앞의 실습에서도 `ggplot2`이외에 추가적인 패키지를 사용했지만 이번 장에서도 `ggplot2`를 확장 지원하는 몇가지 패키지를 추가적으로 사용한다. 
+
 # 비교 그룹간 분포 비교와 회귀 방정식 표기
 
 ------------------------------------------------------------------------
 
 ::: {custom-style="boxBorder"}
-목표 : 비교의 대상이 되는 두 개의 그룹에 대한 산점도와 추세선을 각각 그리고 추세선의 선형회귀 방정식을 표현하여 각각의 그룹의 분포를 서로 비교하고 통계적 유의성을 전달  
-활용 시각화 :  산점도, 회귀선, 클러스터 산점도, 러그 플롯, 선형회귀  
+-   목표 : 비교의 대상이 되는 두 개의 그룹에 대한 산점도와 추세선을 각각 그리고 추세선의 선형회귀 방정식을 표현하여 각각의 그룹의 분포를 서로 비교하고 통계적 유의성을 전달  
+-   활용 시각화 :  산점도, 회귀선, 클러스터 산점도, 러그 플롯, 선형회귀
+-   사용 패키지 : ggplot2, ggalt, grid
+
 :::
+
+데이터 시각화는 데이터 자체를 표시하는 경우도 있지만 데이터 분석을 위해 생성한 데이터 분석 모델의 결과를 표시해야할 경우도 많다. 데이터 분석 모델에는 여러가지가 있고 데이터 모델을 지원하는 패키지에 해당 데이터 모델을 가장 잘 표현할 수 있는 데이터 시각화 함수를 포함하는 경우가 많지만 시각화 품질이 떨어져서 `ggplot2`를 사용하는 경우도 많다. 이번 절에서는 선형회귀 방정식을 `ggplot2` 시각화에 표현하는 방법을 알아보겠다. 
+
+이번 절에서 최종 생성되는 목표 시각화는 다음과 같다. 전체 학과의 졸업자수 대비 취업자수 산점도를 기본으로 의약계열 졸업자와 취업자의 선형회귀 모델을 생성한다. 이 그룹에 대조 그룹으로 인문계열 졸업자와 취업자의 선형회귀 모델을 생성하여 붉은 색으로 표현한 후 각각의 범례 라벨에 선형회귀 방정식을 표현한다. 마지막으로 의약계열의 졸업자와 취업자의 밀집도를 확인하기 위해 러그 플롯을 가장자리에 붙이도록 하겠다. 
+
+![그림12-1](12-1.png)
+
+먼저 의약계열과 인문계열의 선형회귀 모델 생성을 위한 데이터 전처리를 해야한다. 선형회귀 모델 생성을 위해서는 R 기본 패키지 중에 하나인 `stats`패키지의 `lm()`을 사용한다. `lm()`으로 생성된 선형회귀 모델에서 필요한 회귀 계수를 산출하기 위해 `broom` 패키지의 `glance()`와 `tidy()` 패키지를 사용한다. 
+
+`broom` 패키지는 `tidyverse` 생태계에서 모델링 및 기계 학습을 위해 제공하는 `Tidymodels` 프레임워크에 포함된 패키지이다. `broom` 패키지는 `tibble`을 사용하여 생성된 모델에 대한 주요 정보를 요약하는 세개의 함수(`glance()`, `tidy()`, `argument()`)를 제공한다. `glance()`는 전체 모델을 한 행으로 요약한 `tibble`을 돌려주는 함수로써 적합도 측정값(fit measures), 잔차에 대한 가설 검정을 위한 p-값, 또는 모델 수렴 정보를 제공한다. 
+
+:::{custom-style="comment"}
+glance(x, ...)
+  - x : `stats:lm()`으로 생성한 `lm` 객체
+  - ... : 추가적인 매개변수
+
+:::
+
+`tidy()`는 모델에 사용된 각각의 독립 변수들에 주요 정보들을 제공하는 함수이다. 회귀 모델의 경우는 회귀 계수를 중심으로 표준 오차, p-값등을 제공한다. 
+
+
+```{r}
+if(!require(boorm)) {
+  install.packages('broom')
+  library(broom)
+}
+
+df_의약 <- df_취업통계 |> filter(대계열 == '의약계열')
+df_인문 <- df_취업통계 |> filter(대계열 == '인문계열')
+
+model_lm_의약 <- lm(df_의약$취업자_합계_계 ~ df_의약$졸업자_계)
+model_lm_인문 <- lm(df_인문$취업자_합계_계 ~ df_인문$졸업자_계)
+
+glance_의약 <- broom::glance(model_lm_의약)
+glance_인문 <- broom::glance(model_lm_인문)
+
+tidy_의약 <- broom::tidy(model_lm_의약)
+tidy_인문 <- broom::tidy(model_lm_인문)
+
+```
 
 ```{r}
 library(grid)
@@ -155,22 +199,23 @@ df_취업통계 |>
   geom_rug(data = df_의약,
            aes(x = 졸업자_계, y = 취업자_합계_계), col= "steelblue", alpha=0.5) + 
   ## X축과 Y축의 범위를 설정
-  labs(title =  '의약계열 졸업현황', x = '졸업자수', y = '취업자수', subtitle = '졸업자수 대비 취업자수', caption = '출처 : 실전에서 바로쓰는 데이터 시각화 in R') +
+  labs(title =  expression(underline('의약계열 졸업현황')), x = '졸업자수', y = '취업자수', subtitle = "졸업자수 대비 취업자수", caption = '출처 : 실전에서 바로쓰는 데이터 시각화 in R') +
   scale_x_continuous(breaks = c(100, 300, 500), labels = c(100, 300, 500), limits = c(0, 500)) + 
   scale_y_continuous(breaks = c(100, 300, 500), labels = c(100, 300, 500), limits = c(0, 500)) + 
   scale_color_manual(name = NULL, values = c('의약계열' = '#4169E1', '인문계열' = '#FA8072'), 
                      labels = c(equ_의약, equ_인문)) +
   theme(strip.text.x = element_blank(),
         strip.background = element_rect(colour="white", fill="white"),
-        legend.position=c(.2,.9), 
+        legend.position=c(.25,.9), 
         legend.background = element_rect(fill = NA), 
         legend.key = element_rect(fill = NA), 
-        plot.title = element_text(size = 20, family = 'NanumBarunGothicBold'),
-        plot.subtitle = element_text(vjust = 0.5, size = 12, family = 'NanumBarunGothic'),
+        plot.title = element_text(size = 15, family = 'NanumBarunGothicBold', face = NULL),
+        plot.subtitle = element_text(vjust = 0.5, size = 10, family = 'NanumBarunGothic', color = 'grey30'),
         axis.line = element_blank(), 
         plot.background = element_rect(fill = '#FFFAFA'), 
         panel.background = element_rect(fill = '#FFFAFA'), 
-        plot.margin = margin(0.025, 0.01, 0.01, 0.01, "npc")
+        plot.margin = margin(0.025, 0.01, 0.01, 0.01, "npc"), 
+        plot.caption = element_text(color = 'grey50', size = 5, hjust = 1)
   )
 
 grid.lines(

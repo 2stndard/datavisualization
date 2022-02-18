@@ -6,6 +6,12 @@ df_취업통계 |>
   ## X축이 졸업자_계, Y축이 취업자_합계_계에 매핑된 geom_point 레이어 생성
   geom_point() +
   geom_mark_rect() 
+
+df_의약 |> 
+  ggplot(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열)) +
+  ## X축이 졸업자_계, Y축이 취업자_합계_계에 매핑된 geom_point 레이어 생성
+  geom_point() +
+  geom_mark_rect(data = df_의약, aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열)) 
   
   ## X축과 Y축의 범위를 설정
   lims(x = c(0, 2500), y = c(0, 2000)) +
