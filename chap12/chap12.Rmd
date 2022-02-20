@@ -115,123 +115,176 @@ df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 ------------------------------------------------------------------------
 
 ::: {custom-style="boxBorder"}
--   목표 : 비교의 대상이 되는 두 개의 그룹에 대한 산점도와 추세선을 각각 그리고 추세선의 선형회귀 방정식을 표현하여 각각의 그룹의 분포를 서로 비교하고 통계적 유의성을 전달  
--   활용 시각화 :  산점도, 회귀선, 클러스터 산점도, 러그 플롯, 선형회귀
--   사용 패키지 : ggplot2, ggalt, grid
+  
+* 목표 : 비교의 대상이 되는 두 개의 그룹에 대한 산점도와 추세선을 각각 그리고 추세선의 선형회귀 방정식을 표현하여 각각의 그룹의 분포를 서로 비교하고 통계적 유의성을 전달  
+* 활용 시각화 :  산점도, 회귀선, 클러스터 산점도, 러그 플롯, 선형회귀  
+* 사용 패키지 : ggplot2, ggalt 
 
 :::
 
 데이터 시각화는 데이터 자체를 표시하는 경우도 있지만 데이터 분석을 위해 생성한 데이터 분석 모델의 결과를 표시해야할 경우도 많다. 데이터 분석 모델에는 여러가지가 있고 데이터 모델을 지원하는 패키지에 해당 데이터 모델을 가장 잘 표현할 수 있는 데이터 시각화 함수를 포함하는 경우가 많지만 시각화 품질이 떨어져서 `ggplot2`를 사용하는 경우도 많다. 이번 절에서는 선형회귀 방정식을 `ggplot2` 시각화에 표현하는 방법을 알아보겠다. 
 
-이번 절에서 최종 생성되는 목표 시각화는 다음과 같다. 전체 학과의 졸업자수 대비 취업자수 산점도를 기본으로 의약계열 졸업자와 취업자의 선형회귀 모델을 생성한다. 이 그룹에 대조 그룹으로 인문계열 졸업자와 취업자의 선형회귀 모델을 생성하여 붉은 색으로 표현한 후 각각의 범례 라벨에 선형회귀 방정식을 표현한다. 마지막으로 의약계열의 졸업자와 취업자의 밀집도를 확인하기 위해 러그 플롯을 가장자리에 붙이도록 하겠다. 
-
-![그림12-1](12-1.png)
+이번 절에서 최종 생성되는 목표 시각화는 인문계열과 비교한 의약계열의 졸업자수 대비 취업자수 현황이다. 이를 위해 전체 학과의 졸업자수 대비 취업자수 산점도를 기본으로 의약계열 졸업자와 취업자의 선형회귀 모델을 생성한다. 이 그룹에 대조 그룹으로 인문계열 졸업자와 취업자의 선형회귀 모델을 생성하여 붉은 색으로 표현한 후 각각의 범례 라벨에 선형회귀 방정식을 표현한다. 마지막으로 의약계열의 졸업자와 취업자의 밀집도를 확인하기 위해 러그 플롯을 가장자리에 붙이도록 하겠다. 
 
 먼저 의약계열과 인문계열의 선형회귀 모델 생성을 위한 데이터 전처리를 해야한다. 선형회귀 모델 생성을 위해서는 R 기본 패키지 중에 하나인 `stats`패키지의 `lm()`을 사용한다. `lm()`으로 생성된 선형회귀 모델에서 필요한 회귀 계수를 산출하기 위해 `broom` 패키지의 `glance()`와 `tidy()` 패키지를 사용한다. 
 
 `broom` 패키지는 `tidyverse` 생태계에서 모델링 및 기계 학습을 위해 제공하는 `Tidymodels` 프레임워크에 포함된 패키지이다. `broom` 패키지는 `tibble`을 사용하여 생성된 모델에 대한 주요 정보를 요약하는 세개의 함수(`glance()`, `tidy()`, `argument()`)를 제공한다. `glance()`는 전체 모델을 한 행으로 요약한 `tibble`을 돌려주는 함수로써 적합도 측정값(fit measures), 잔차에 대한 가설 검정을 위한 p-값, 또는 모델 수렴 정보를 제공한다. 
 
 :::{custom-style="comment"}
-glance(x, ...)
-  - x : `stats:lm()`으로 생성한 `lm` 객체
-  - ... : 추가적인 매개변수
+glance(x, ...)  
+  - x : `stats:lm()`으로 생성한 `lm` 객체  
+  - ... : 추가적인 매개변수  
 
 :::
 
 `tidy()`는 모델에 사용된 각각의 독립 변수들에 주요 정보들을 제공하는 함수이다. 회귀 모델의 경우는 회귀 계수를 중심으로 표준 오차, p-값등을 제공한다. 
 
+:::{custom-style="comment"}
+tidy(x, conf.int = FALSE, conf.level = 0.95, ...)  
+  - x : `stats:lm()`으로 생성한 `lm` 객체  
+  - conf.int : 신뢰구간을 포함할지 여부를 결정하는 논리값  
+  - conf.level : 신뢰구간을 포함할 경우 신뢰구간의 범위 설정  
+
+:::
+
+다음은 의약계열과 인문계열 학과의 졸업자 수와 취업자 수의 선형 회귀 모델을 만들고 `glance()`와 `tidy()`를 사용해 각각의 모델 정보와 회귀 계수 데이터를 생성하는 코드이다.  
 
 ```{r}
-if(!require(boorm)) {
+## broom 패키지 설치
+if(!require(broom)) {
   install.packages('broom')
   library(broom)
 }
 
+## 의약계열과 인문계열 데이터 생성 
 df_의약 <- df_취업통계 |> filter(대계열 == '의약계열')
 df_인문 <- df_취업통계 |> filter(대계열 == '인문계열')
 
+## 의약계열과 인문계열의 선형회귀 모델 생성
 model_lm_의약 <- lm(df_의약$취업자_합계_계 ~ df_의약$졸업자_계)
 model_lm_인문 <- lm(df_인문$취업자_합계_계 ~ df_인문$졸업자_계)
 
+## 각각의 선형회귀 모델의 요약 정보 생성
 glance_의약 <- broom::glance(model_lm_의약)
 glance_인문 <- broom::glance(model_lm_인문)
 
+## 각각의 선형회귀 모델의 회귀 계수 생성
 tidy_의약 <- broom::tidy(model_lm_의약)
 tidy_인문 <- broom::tidy(model_lm_인문)
 
 ```
 
+이제 그래프에 표현할 선형 회귀 방정식을 만든다. `tidy()`의 결과에서 회귀 계수를 산출하여 `paste0()`를 이용해 회귀방정식을 생성하고 R 스퀘어 값을 뒤에 붙여주는데 제곱에 해당하는 문자를 붙이기 위해 유니코드 문자(\u00B2)를 사용한다.  
+
 ```{r}
-library(grid)
-library(ggalt)
-
-df_의약 <- df_취업통계 |> filter(대계열 == '의약계열')
-df_인문 <- df_취업통계 |> filter(대계열 == '인문계열')
-
-model_lm_의약 <- lm(df_의약$취업자_합계_계 ~ df_의약$졸업자_계)
-model_lm_인문 <- lm(df_인문$취업자_합계_계 ~ df_인문$졸업자_계)
-
-glance_의약 <- broom::glance(model_lm_의약)
-glance_인문 <- broom::glance(model_lm_인문)
-
-tidy_의약 <- broom::tidy(model_lm_의약)
-tidy_인문 <- broom::tidy(model_lm_인문)
-
+## 의약계열의 회귀방정식과 R^2값에 대한 문자열 생성
 equ_의약 <- paste0('의약계열 : y = ', round(tidy_의약$estimate[2], 2), 'x + ', round(tidy_의약$estimate[1], 2), ', R\u00B2', ' = ',round(glance_의약$r.squared, 3))
 
+## 인문계열의 회귀방정식과 R^2값에 대한 문자열 생성
 equ_인문 <- paste0('인문계열 : y = ', round(tidy_인문$estimate[2], 2), 'x + ', round(tidy_인문$estimate[1], 2), ', R\u00B2', ' = ',round(glance_인문$r.squared, 3))
 
-df_취업통계 |> 
+```
+
+이제 본격적으로 그래프를 그리겠다. 우선 전체 산점도(`geom_point()`)를 그리고 그 위에 의약 계열 산점도와 회귀선(`geom_smooth()`), 인문계열 산점도와 회귀선을 그리고 축의 스케일을 설정한다. 
+
+```{r}
+
+p_lm_equ <- df_취업통계 |> 
   ggplot() +
-  ## X축이 졸업자_계, Y축이 취업자_합계_계에 매핑된 geom_point 레이어 생성
-  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계), color = 'grey75', alpha = 0.5) + 
+  ## 전체 계열의 산점도 생성
+  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계), color = 'grey75', alpha = 0.5) +
+  ## 전체 계열의 회귀선 생성
   geom_smooth(aes(x = 졸업자_계, y = 취업자_합계_계), color = 'grey75', se = F, method = 'lm') + 
+  ## 인문계열의 산점도 생성
   geom_point(data = df_인문,
              aes(x = 졸업자_계, y = 취업자_합계_계, color = '인문계열'), alpha = 0.5) + 
+  ## 인문계열의 회귀선 생성
   geom_smooth(data = df_인문,
               aes(x = 졸업자_계, y = 취업자_합계_계, color = '인문계열'), se = F, method = 'lm') + 
+  ## 의약계열의 산점도 생성
   geom_point(data = df_의약,
              aes(x = 졸업자_계, y = 취업자_합계_계, color = '의약계열'), alpha = 0.5) + 
+  ## 의약계열의 회귀선 생성
   geom_smooth(data = df_의약,
              aes(x = 졸업자_계, y = 취업자_합계_계, color = '의약계열'), se = F, method = 'lm') + 
-  geom_encircle(data = df_의약, 
-                aes(x = 졸업자_계, y = 취업자_합계_계, color='의약계열')) + 
-  geom_rug(data = df_의약,
-           aes(x = 졸업자_계, y = 취업자_합계_계), col= "steelblue", alpha=0.5) + 
-  ## X축과 Y축의 범위를 설정
-  labs(title =  expression(underline('의약계열 졸업현황')), x = '졸업자수', y = '취업자수', subtitle = "졸업자수 대비 취업자수", caption = '출처 : 실전에서 바로쓰는 데이터 시각화 in R') +
+  ## X축 스케일의 눈금과 라벨을 100, 300, 500로 설정하고 0부터 500까지 범위 설정
+  scale_x_continuous(breaks = c(100, 300, 500), labels = c(100, 300, 500), limits = c(0, 500)) +
+  ## Y축 스케일의 눈금과 라벨을 100, 300, 500로 설정하고 0부터 500까지 범위 설정
+  scale_y_continuous(breaks = c(100, 300, 500), labels = c(100, 300, 500), limits = c(0, 500))
+
+p_lm_equ
+```
+
+앞의 그래프에 미리 산출해 놓은 선형회귀 방정식을 범례 라벨로 사용하고 의약계열과 인문계열의 색을 설정하겠다. 그리고 그래프 제목, 부제목, 캡션을 설정하는데, 이 중 그래프 제목은 `expression()`과 `underline()`을 사용하여 밑줄을 그리도록 하겠다. 
+
+```{r}
+p_lm_equ <- p_lm_equ + 
+  ## 그래프 제목을 설정하는데 밑줄을 그은 제목으로 설정
+  labs(title =  expression(underline('의약계열 졸업현황')),
+       ## X축과 Y축의 제목 설정
+       x = '졸업자수', y = '취업자수', 
+       ## 부제목 설정
+       subtitle = "졸업자수 대비 취업자수", 
+       ## 캡션 설정
+       caption = '출처 : 실전에서 바로쓰는 데이터 시각화 in R') +
+  ## X축의 눈금과 라벨을 100, 300, 500으로 설정하고 범위를 0에서 500까지 설정 
   scale_x_continuous(breaks = c(100, 300, 500), labels = c(100, 300, 500), limits = c(0, 500)) + 
-  scale_y_continuous(breaks = c(100, 300, 500), labels = c(100, 300, 500), limits = c(0, 500)) + 
-  scale_color_manual(name = NULL, values = c('의약계열' = '#4169E1', '인문계열' = '#FA8072'), 
-                     labels = c(equ_의약, equ_인문)) +
-  theme(strip.text.x = element_blank(),
-        strip.background = element_rect(colour="white", fill="white"),
-        legend.position=c(.25,.9), 
-        legend.background = element_rect(fill = NA), 
+  ## Y축의 눈금과 라벨을 100, 300, 500으로 설정하고 범위를 0에서 500까지 설정
+  scale_y_continuous(breaks = c(100, 300, 500), labels = c(100, 300, 500), limits = c(0, 500)) +
+  ## 의약계열과 인문계열 색을 설정하고 범례에 표현되는 라벨을 방정식으로 대체
+  scale_color_manual(name = NULL, values = c('의약계열' = '#4169E1', '인문계열' = '#FA8072'), labels = c(equ_의약, equ_인문))
+
+p_lm_equ  
+```
+
+앞의 그래프를 보면 볌례가 너무 길기 때문에 상대적으로 그래프의 크기가 줄었고 이로 인해 중간에 표현된 그래프 제목이 왼쪽으로 치우쳐 보인다. 이를 정상적으로 보여주기 위해 그래프 밖에 표현된 범례를 그래프의 빈 공간인 왼쪽 상단에 위치하도록 옮겨주겠다. 그리고 그래프의 테마를 다음과 같이 설정한다. 
+
+```{r}
+font_add('NanumBarunGothic', 'c:/windows/fonts/NanumBarunGothic.ttf')
+font_add('NanumBarunGothicBold', 'c:/windows/fonts/NanumBarunGothicBold.ttf')
+
+p_lm_equ <- p_lm_equ +
+  theme(legend.position=c(.25,.9), ## 범례의 위치를 그래프 안쪽으로 조절
+        ## 범례의 배경을 제거
+        legend.background = element_rect(fill = NA),
+        ## 범례 키의 배경색을 제거
         legend.key = element_rect(fill = NA), 
-        plot.title = element_text(size = 15, family = 'NanumBarunGothicBold', face = NULL),
+        ## 그래프 제목의 폰트, 크기 설정
+        plot.title = element_text(size = 15, family = 'NanumBarunGothicBold'),
+        ## 부제목의 수평정렬, 크기, 폰트, 색 설정
         plot.subtitle = element_text(vjust = 0.5, size = 10, family = 'NanumBarunGothic', color = 'grey30'),
-        axis.line = element_blank(), 
-        plot.background = element_rect(fill = '#FFFAFA'), 
-        panel.background = element_rect(fill = '#FFFAFA'), 
-        plot.margin = margin(0.025, 0.01, 0.01, 0.01, "npc"), 
+        ## 축의 선을 제거
+        axis.line = element_blank(),
+        ## 그래프 전체 배경색 설정
+        plot.background = element_rect(fill = '#FFFAFA'),
+        ## 그래프 패널 배경색 설정
+        panel.background = element_rect(fill = '#FFFAFA'),
+        ## 그래프의 여백 설정
+        plot.margin = margin(0.025, 0.01, 0.01, 0.01, "npc"),
+        ## 캡션 색, 크기, 수평 위치 설정
         plot.caption = element_text(color = 'grey50', size = 5, hjust = 1)
   )
+  
+p_lm_equ
+```
 
-grid.lines(
-  x = c(0, 1),
-  y = 1,
-  gp = gpar(col = "#e5001c", lwd = 4)
-)
+앞의 그래프에 의약계열 학과의 밀도를 확인하기 위해 러그 플롯을 가장자리에 위치시키겠다. 그리고 의약계열 학과의 분포가 명확히 보이도록 의약계열 학과의 클러스터를 원으로 묶어주도록 한다.  
 
-grid.rect(
-  x = 0,
-  y = 1,
-  width = 0.1,
-  height = 0.025,
-  just = c("left", "top"),
-  gp = gpar(fill = "#e5001c", col = "#e5001c", lwd = 0)
-)
+```{r}
+## ggalt 패키지 설치
+if(!require(ggalt)) {
+  install.packages('ggalt')
+  library(ggalt)
+}
+
+p_lm_equ +
+  ## 의약계열 데이터의 전반적 위치를 표시하는 원 레이어 추가
+  geom_encircle(data = df_의약, 
+                aes(x = 졸업자_계, y = 취업자_합계_계, color='의약계열')) +
+  ## 의약계열 데이터의 밀도를 표시하는 가장자리 레이어 추가
+  geom_rug(data = df_의약,
+           aes(x = 졸업자_계, y = 취업자_합계_계), col= "steelblue", alpha=0.5)
+  
 ```
 
 
@@ -240,193 +293,250 @@ grid.rect(
 ------------------------------------------------------------------------
 
 ::: {custom-style="boxBorder"}
-목표 : 전체 데이터의 그룹별 분포와 기술 통계를 시각화하여 전달하고 시각화를 통해 전달하고자 하는 인사이트를 삽입
-활용 시각화 :  박스 플롯, 바이올린 플롯, 산점도(jitter)
+  
+- 목표 : 전체 데이터의 그룹별 분포와 기술 통계를 시각화하여 전달하고 시각화를 통해 전달하고자 하는 인사이트를 삽입  
+- 활용 시각화 :  박스 플롯, 바이올린 플롯, 산점도(jitter)  
+- 사용 패키지 :  ggplot2, ggtext
+
 :::
 
+시각화는 독자들에게 데이터의 특성을 그림으로 표현하는 것이 최우선이지만 그림이 가지는 내재된 의미에 대해 간단한 설명을 달아주면 그 효과가 증폭된다. 설명을 달아주는 방법에 대해 알아본다. 
+
+이번 시각화는 취업통계 결과를 계열별로 비교하는 박스플롯 위에 바이올린 플롯과 흩뿌려진 산점도를 그린다. 이 기본 그래프 위에 각각의 그룹간의 특성을 나타내기 위한 사례수, 평균, 중앙값 등을 텍스트로 표현하고 전체적인 시각화 그래프가 가지는 의미를 제목 아래 박스로 간략하게 표기한다. 
+
+먼저 사용하는 데이터는 앞서 사용했던 df_취업통계 데이터이고 이 데이터에서 추가적 정보를 전처리하여 각 계열별 평균, 중간값, 사례수 등을 산출한다. 
+
 ```{r}
-
-library(ggtext)
-font_add('NanumBarunGothicBold', 'c:/windows/fonts/NanumBarunGothicBold.ttf')
-
-font_add('NanumBarunGothic', 'c:/windows/fonts/NanumBarunGothic.ttf')
-
+##  전체 취업률 평균과 중간값, 사례수를 산출
 df_전체_요약 <- df_취업통계 |>
   summarise(mean = mean(취업률_계), median = median(취업률_계), n = n())
 
+##  전체 사례수를 출력하기 위한 문자열 생성
 subtitle <- paste0('전체 사례수 : ', scales::comma(df_전체_요약$n, accuracy = 1))
 
+## 계열별 중간값과 사례수 산출
 df_계열_요약 <- df_취업통계 |>
   group_by(대계열) |>
-  summarise(median = median(취업률_계), n = n())
+  summarise(mean = mean(취업률_계), median = median(취업률_계), n = n())
 
-labels <- paste0('<span style= "font-family: NanumBarunGothicBold;font-size: 12pt" >', df_계열_요약$대계열, '</span> <br>', '중앙값 : ', scales::percent(df_계열_요약$median, scale = 1), '<br>', '사례수 : ', scales::comma(df_계열_요약$n, accuracy = 1))
-
-labels_name <- pull(df_계열_요약, 대계열)
-
-title <- "<b><span style= 'font-family: NanumBarunGothicBold;font-size: 15pt'>대학의 계열별 학과 취업률 분포</b>"
-
-subtitle <- "<span style = 'font-size:10pt'>전체 대학의 취업률 평균은 11.11%인데 <span style = 'color:red;'>의약계열</span>의 평균이 <span style = 'color:red;'> 75.8%</span> 중앙값이 <span style = 'color:red;'> 81.4%</span>로 가장 높게 나타나고 전체적인 분포도 높게 분포함.</span>"
-
+## 대계열의 순서를 평균의 순서로 설정
 df_취업통계$대계열 = reorder(df_취업통계$대계열, df_취업통계$취업률_계, mean)
-
-df_취업통계 |>
-  ggplot(aes(x = 대계열, y = 취업률_계)) +
-  geom_jitter(aes(color = 대계열), width = 0.1, alpha = 0.1, show.legend = F) +
-  geom_boxplot(fill = NA, width = 0.4) +
-  geom_violin(fill = NA, width = 0.4) +
-  geom_point(aes(x = 대계열, y = 취업률_계), stat = 'summary', fun.y = 'mean', color = 'tomato3', size = 4) +
-  geom_label(aes(x = 대계열, y = 취업률_계, label = paste0('평균 : ', round(..y.., 1))), stat = 'summary', fun.y = 'mean', color = 'tomato3', size = 4, nudge_y = -7) + 
-  labs(title = title, x =  NULL, y =  NULL, subtitle = subtitle) +
-  scale_x_discrete(expand = expansion(add = c(0.5, 0.5)), labels = setNames(labels, labels_name), limits = rev) +
-  theme(strip.text.x = element_blank(),
-        strip.background = element_rect(colour="white", fill="white"),
-        legend.position=c(.2,.9), 
-        legend.background = element_rect(fill = NA), 
-        legend.key = element_rect(fill = NA), 
-        plot.title = element_textbox_simple(halign = 0.5),
-        plot.subtitle = element_textbox_simple(width = unit(0.95, "npc"), size = 13,
-                                        lineheight = 1,
-                                        padding = margin(5.5, 0.5, 5.5, 5.5),
-                                        margin = margin(10, 0, 5.5, 0),
-                                        halign = 0.5, 
-                                        box.color = 'red',
-                                        r = grid::unit(8, "pt"),
-                                        linetype = 1),
-        axis.line = element_blank(), 
-        plot.background = element_rect(fill = 'lemonchiffon'), 
-        panel.background = element_rect(fill = 'lemonchiffon'), 
-        axis.text.x = element_markdown(), 
-        plot.margin = margin(0.025, 0, 0.075, 0, "npc"),
-  )
-
-
-grid.text(
-  '출처: 실전에서 바로쓰는 데이터 시각화 in R', 
-  x = 0.005, 
-  y = 0.03, 
-  just = c("left", "bottom"),
-  gp = gpar(
-    col = "grey50",
-    fontsize = 10,
-    fontfamily = "Econ Sans Cnd"
-  )
-)
-
-# Add third caption
-grid.text(
-  "참조 : https://www.r-graph-gallery.com/", 
-  x = 0.995, 
-  y = 0.03, 
-  just = c("right", "bottom"),
-  gp = gpar(
-    col = "grey50",
-    fontsize = 10,
-    fontfamily = "Econ Sans Cnd"
-  )
-)
 
 ```
 
+이제 먼저 기본 시각화 그래프를 그린다. 기본 시각화 그래프는 각 계열별 산점도 위에 박스 플롯과 바이올린 플롯을 사용하겠다. 
 
-# 영국 이코노미스트지 스타일의 시각화
+```{r}
+p_desc <- df_취업통계 |>
+  ggplot() +
+  ## 대계열별 학과의 취업률 흩어진 산점도 레이어 생성
+  geom_jitter(aes(x = 대계열, y = 취업률_계, color = 대계열), width = 0.1, alpha = 0.1, show.legend = F) +
+  ## fill을 NA로 설정하여 투명한 색으로 설정된 대계열별 박스 플롯 레이어를 추가
+  geom_boxplot(aes(x = 대계열, y = 취업률_계), fill = NA, width = 0.4) +
+  ## fill을 NA로 설정하여 투명한 색으로 설정된 대계열별 바이롤린 플롯 레이어를 추가
+  geom_violin(aes(x = 대계열, y = 취업률_계), fill = NA, width = 0.4)
+
+p_desc
+```
+
+기본 그래프 위에 첫번째 추가적 정보인 각 계열별 평균값을 표시한다. 전처리 과정에서 산출한 계열별 평균값 점(`geom_point()`)과 이 점의 값을 표시하는 텍스트 라벨(`geom_label()`) 레이어를 추가한다. 
+
+```{r}
+
+p_desc <- p_desc +
+  geom_point(data = df_계열_요약, aes(x = 대계열, y = mean), color = 'tomato3', size = 4) +
+  geom_label(data = df_계열_요약, aes(x = 대계열, y = mean, label = paste0('평균 : ', round(mean, 1))), color = 'tomato3', size = 4, nudge_y = -7)
+
+p_desc
+```
+
+두번째 정보는 제목 밑에 이 데이터에 대한 간략한 설명을 추가하는 것이다. 이를 위해 `ggtext` 패키지의 `element_textbox_simple()`을 사용하여 테마요소의 `plot.title`과 `plot.subtitle`의 속성 값을 설정하겠다. `element_textbox_simple()`은 문자열에 관련한 테마 요소의 속성 설정에 사용하는 함수로써 마크다운 문법으로 기술된 문자열을 상자에 담아 표기하는 함수이다. 
+
+
+```{r}
+if(!require(ggtext)) {
+  install.packages('ggtext')
+  library(ggtext)
+}
+
+font_add('NanumBarunGothic', 'c:/windows/fonts/NanumBarunGothic.ttf')
+font_add('NanumBarunGothicBold', 'c:/windows/fonts/NanumBarunGothicBold.ttf')
+
+## 제목으로 사용할 마크다운 문자열 생성
+title <- "<b><span style= 'font-family: NanumBarunGothicBold;font-size: 15pt'>대학의 계열별 학과 취업률 분포</b>"
+
+## 데이터 설명문으로 사용할 마크다운 문자열 생성
+subtitle <- "<span style = 'font-size:10pt'>전체 대학의 취업률 평균은 65.93%인데 <span style = 'color:red;'>의약계열</span>의 평균이 <span style = 'color:red;'> 75.8%</span> 중앙값이 <span style = 'color:red;'> 81.4%</span>로 가장 높게 나타나고 전체적인 분포도 높게 분포함.</span>"
+
+p_desc <- p_desc + 
+  ## 제목과 부제목을 앞에서 생성한 마크다운 문자열로 설정
+  labs(title = title, x =  NULL, y =  NULL, subtitle = subtitle) +
+  ## plot.title을 element_textbox_simple로 세부 속성(수평 정렬) 설정
+  theme(plot.title = element_textbox_simple(halign = 0.5),
+        plot.subtitle = element_textbox_simple(
+          width = unit(0.95, "npc"), ## 텍스트 박스의 너비를 전체 플롯 너비의 0.95로 설정
+          size = 13, ## 텍스트의 크기를 13으로 설정
+          lineheight = 1, linetype = 1,  ## 텍스트 박스의 타입과 높이 설정
+          padding = margin(5.5, 0.5, 5.5, 5.5), ## 텍스트 박스 내부의 여백 설정
+          margin = margin(10, 0, 5.5, 0),  ## 텍스트 박스 외부의 여백 설정
+          halign = 0.5, box.color = 'red', ## 텍스트 박스의 수평 정렬과 박스 색 설정
+          r = grid::unit(8, "pt"))  ## 텍스트 박스의 모서리 설정
+        )
+
+p_desc
+```
+
+다음으로 전달할 정보는 각 계열별 중간값과 사례수이다. 중간값은 박스 플롯에서 선으로 표현되지만 정확한 값을 알아보기는 힘들다. 하지만 평균값이 표기되기 있기 때문에 그래프 내에 표기하면 오히려 혼잡해질 가능성이 있어서 사례수와 함께 X축 계열명에 표기하는 방법을 선택했다. 
+
+```{r}
+## 각 계열의 특성을 X축의 라벨에 표현하기 위한 문자열 생성
+labels <- paste0('<span style= "font-family: NanumBarunGothicBold;font-size: 12pt" >', df_계열_요약$대계열, '</span> <br>', '중앙값 : ', scales::percent(df_계열_요약$median, scale = 1), '<br>', '사례수 : ', scales::comma(df_계열_요약$n, accuracy = 1))
+
+## 계열 요약 데이터를 데이터프레임이아닌 네임드 벡터로 변환
+labels_name <- pull(df_계열_요약, 대계열)
+
+p_desc + 
+  ## X축의 여백을 설정하고 마크다운으로 설정한 라벨을 설정하고 순서를 역순으로 설정 
+  scale_x_discrete(expand = expansion(add = c(0.5, 0.5)), labels = setNames(labels, labels_name), limits = rev) + 
+    theme(axis.line = element_blank(),  ## 축 선을 제거 
+        axis.text.x = element_markdown(),  ## X축 라벨을 마크다운으로 해석
+        plot.margin = margin(0.025, 0, 0.075, 0, "npc") ## 플롯의 여백을 설정
+  )
+
+  
+```
+
+
+
+# ggplot 이어 붙이기와 영국 이코노미스트지 스타일의 시각화
 
 ------------------------------------------------------------------------
 
 ::: {custom-style="boxBorder"}
-목표 : 비교의 대상이 되는 두 개의 그룹에 대한 산점도와 추세선을 각각 그리고 추세선의 선형회귀 방정식을 표현하여 각각의 그룹의 분포를 서로 비교하고 통계적 유의성을 전달
-활용 시각화 :  박스 플롯, 바이올린 플롯, 산점도
+목표 : 선 그래프와 영역 그래프를 붙여 데이터를 보는 두가지 관점을 한번에 볼 수 있도록 시각화를 그리고 영국 이코노미스트지에서 사용하는 스타일로 시각화를 꾸며줌  
+활용 시각화 :  박스 플롯, 바이올린 플롯, 산점도  
+사용 패키지 : ggplot2, ggtext, grid. patchwork
+
 :::
 
+데이터를 시각화할 때 독자의 눈에 잘 띄도록 디자인하기 위해서는 데이터 자체의 표현과 함께 제목의 표현, 축의 형태, 전체 그래프의 외관 설정 등에도 신경써야 한다. `ggplot2`에서는 다양한 테마요소를 사용하여 이를 설정하는데 하나 하나 설정해서 사용자의 눈에 띄는 디자인을 만드는 것은 상당히 어려운 일임에 틀림없다. 그래서 `ggplot2`, `ggthemes` 패키지 등에서 미리 만들어진 테마들을 제공한다. 이들 테마 중에는 워싱턴 포스트와 같이 유명한 언론지에서 사용하는 테마를 제공하지만 영국의 이코노미스트에서 사용하는 테마는 제공하지 않는다. 물론 영국 이코노미스트 스타일의 시각화를 선호하지 않을 수도 있지만 이 스타일을 만들어 보면 이를 응용하여 자신만의 디자인을 할 수 있을 것이라는 점에서 만들어 보고자 한다. 
 
+영국 이코노미스트지의 시각화는 크게 세가지 점에서 특징이 있다. 첫 번째는 Y 축 라벨을 플롯 안에 배치하고 눈금선 위에 옅은 회색으로 표기한다. 두 번째는 Y축 라벨을 플롯 안쪽으로 배치했기 때문에 Y축의 선을 제가한다. 마지막으로 그래프의 전체 모양을 꾸며주기 위해 전체 그래프의 맨 위에 붉은 줄을 그리고 왼쪽 상단 귀퉁이에 작은 붉은 네모를 만들어 준다. 
+
+이코노미스트 스타일의 그래프를 그리기 위해 두개의 `ggplot` 객체를 생성하고 `patchwork`로 이어 붙이겠다. 이어 붙일 `ggplot` 객체는 5년 단위의 대학 종류별 입학생 선 그래프와 면적 그래프를 그리는데 선 그래프의 경우 꺽어지는 곳을 힌지 스타일로 꾸며주였다. 
+
+먼저 선 그래프를 그리기 위한 데이터를 전처리한다. 데이터는 긴 형태의 입학생수 데이터프레임에서 2001년부터 2021년까지 5년 간격으로 '전문대학', '일반대학', '석사', '박사'의 입학생수 사용한다.  
 
 ```{r}
-library(ggtext)
-library(grid)
-library(tidyverse)
+## df_입학자_long에서 지역이 '전체'이고 연도가 2001년부터 2021년까지 5년단위인 데이터, 학교종류가 '전문대학', '일반대학', '석사', '박사'인 데이터를 필터링
+df_total_line <- df_입학자_long |> 
+  filter(지역 == '전체', lubridate::year(연도) %in% c(seq(from = 2001, to = 2021, by = 5)), 학교종류 %in% c('전문대학', '일반대학', '석사', '박사')) 
 
+## 연도의 점 위치를 정확히 맞추기 위해 연도를 각 년도 1월 1일로 설정  
+df_total_line <- df_total_line |>
+  mutate(연도 = as.Date(paste0(lubridate::year(연도), '-01-01'), format = '%Y-%m-%d'))
+
+```
+
+첫 번째 선 그래프를 다음과 같이 그린다. 여기서 살펴보아야 할 것이 `geom_point()` 레이어에 설정한 shape 미적요소이다. shape 미적요소를 21에서 25번까지를 설정하면 원의  fill(내부 색)과 color(선 색)을 다르게 설정할 수 있다.  
+
+```{r}
 theme_set(
   theme_grey()
 )
 
-df_total_line <- df_입학자_long |> filter(지역 == '전체', lubridate::year(연도) %in% c(seq(from = 2001, to = 2021, by = 5)), 학교종류 %in% c('전문대학', '일반대학', '석사', '박사')) 
 
-data_labels <- bind_rows(df_total_line |> filter(lubridate::year(연도) == 2001, 학교종류 %in% c('일반대학', '석사', '박사')), df_total_line |> filter(lubridate::year(연도) == 2006, 학교종류 %in% c('전문대학')))
-
-df_total_line |>
-  ggplot(aes(x = 연도, y = (입학생수)/1000)) + 
+p_line_1 <- df_total_line |>
+  ggplot() + 
   ## geom_line 레이어를 생성
-  geom_line(aes(group = 학교종류, color = 학교종류), size = 2.4) +
-  geom_point(aes(fill = 학교종류), size = 5, 
-    shape = 21, # Type of point that allows us to have both color (border) and fill.
-    color = "white", 
-    stroke = 1 # The width of the border, i.e. stroke.
-  ) + 
-  scale_x_date(
-    expand = c(0, 0), # The horizontal axis does not extend to either side
-    limits = c(as.Date('2000-01-01'), as.Date('2022-12-01')), 
-    breaks = seq(from = as.Date("2001-01-01"), to = as.Date("2021-01-01"),
-                 by = "5 years"), 
-    labels = lubridate::year(seq(from = as.Date("2001-01-01"), to = as.Date("2021-01-01"),
-                 by = "5 years"))  # Set custom break locations
-    # Set custom break locations
-#    labels = c("2008", "12", "16", "20") # And custom labels on those breaks!
-  ) + 
-  scale_y_continuous(
-    limits = c(0, 380),
-    expand = c(0, 0)
-  ) -> line_ch7_1
+  geom_line(aes(x = 연도, y = (입학생수)/1000, group = 학교종류, color = 학교종류), size = 2.4) +
+  ## geom_point 레이어 추가
+  geom_point(aes(x = 연도, y = (입학생수)/1000, fill = 학교종류), size = 5,
+             shape = 21, # fill과 color를 따로 설정할 수 있는 모양 설정
+    color = "white", ## 점의 color를 흰색으로 설정하여 힌지 효과를 설정
+    stroke = 1 # 점의 경계선 두께 설정 
+  )
 
-line_ch7_1 +
-  theme(
-    # Set background color to white
-    panel.background = element_rect(fill = "white"),
-    # Remove all grid lines
-    panel.grid = element_blank(),
-    # But add grid lines for the vertical axis, customizing color and size 
-    panel.grid.major.y = element_line(color = "#A8BAC4", size = 0.3),
-    # Remove tick marks on the vertical axis by setting their length to 0
-    axis.ticks.length.y = unit(0, "mm"), 
-    # But keep tick marks on horizontal axis
-    axis.ticks.length.x = unit(2, "mm"),
-    # Remove the title for both axes
-    axis.title = element_blank(),
-    # Only the bottom line of the vertical axis is painted in black
-    axis.line.x.bottom = element_line(color = "black"),
-    # Remove labels from the vertical axis
-    axis.text.y = element_blank(),
-    # But customize labels for the horizontal axis
-    axis.text.x = element_text(family = "Econ Sans Cnd", size = 16)
-  ) -> line_ch7_2
+p_line_1
+```
 
-
-
-line_ch7_2 + 
-  geom_text(data = data_labels, aes(x = 연도, y = (입학생수/1000) + 20, label = 학교종류, color  = 학교종류), show.legend = F) + 
+```{r}
+p_line_2 <- p_line_1 + 
+  ##
   geom_text(
     data = data.frame(x = as.Date('2022-09-01'), y = seq(0, 300, by = 100)),
     aes(x, y, label = y),
     hjust = 1, # Align to the right
     vjust = -0.5, # Align to the bottom
-    family = "Econ Sans Cnd",
+    family = "NanumBarunGothic",
     size = 3, 
     color = 'grey50'
   ) + 
+  scale_x_date(
+    expand = c(0, 0), # 수평 축의 확장 여백이 없이 설정
+    limits = c(as.Date('2000-01-01'), as.Date('2022-12-01')),  ## 여백을 없애는 대신 범위에서 여백을 추가
+    ## 축 눈금을 5년마다 하나씩 설정
+    breaks = seq(from = as.Date("2001-01-01"), to = as.Date("2021-01-01"), by = "5 years"), 
+    ## 축 라벨을 5년마다 하나씩 설정
+    labels = lubridate::year(seq(from = as.Date("2001-01-01"), to = as.Date("2021-01-01"), by = "5 years"))) +
+  ## Y축의 범위와 확장 여백을 설정
+  scale_y_continuous(limits = c(0, 380), expand = c(0, 0)) + 
+  theme(
+    # 패널 배경색을 흰색으로 설정
+    panel.background = element_rect(fill = "white"),
+    # 눈금선을 모두 제거
+    panel.grid = element_blank(),
+    # Y축의 주 눈금선 색과 두꼐를 설정 
+    panel.grid.major.y = element_line(color = "#A8BAC4", size = 0.3),
+    # Y축의 tick을 제거
+    axis.ticks.length.y = unit(0, "mm"), 
+    # X축의 tick을 2mm로 설정
+    axis.ticks.length.x = unit(2, "mm"),
+    # 축 제목을 제거
+    axis.title = element_blank(),
+    # X축 선색을 검정으로 설정
+    axis.line.x.bottom = element_line(color = "black"),
+    # X축의 문자 크기를 16으로 설정
+    axis.text.x = element_text(size = 10),
+    # Y축 선을 제거
+    axis.text.y = element_blank()
+  )
+
+p_line_2
+```
+
+앞의 그래프에 범례를 없애고 범례 내용을 그래프의 시작점에 직접 표기한다. 다만 전문대학과 일반대학의 시작점이 거의 같기 때문에 전문대학은 2006년에 표기하여 데이터를 구분하도록 해준다. 
+
+```{r}
+font_add('NanumBarunGothic', 'c:/windows/fonts/NanumBarunGothic.ttf')
+font_add('NanumBarunGothicBold', 'c:/windows/fonts/NanumBarunGothicBold.ttf')
+
+## 데이터 라벨을 위한 데이터 산출
+## 일반대학, 석사, 박사는 2001년 데이터, 전문대학은 2006년 데이터를 추출하여 bind_rows()로 하나의 데이터프레임으로 만들어 줌
+data_labels <- bind_rows(
+  df_total_line |> filter(lubridate::year(연도) == 2001, 학교종류 %in% c('일반대학', '석사', '박사')), 
+  df_total_line |> filter(lubridate::year(연도) == 2006, 학교종류 %in% c('전문대학')))
+
+p_line_3 <- p_line_2 + 
+  ## data_labels 데이터로 각각의 선에 대한 범례를 표기하는 geom_text 레이어 추가
+  geom_text(data = data_labels, aes(x = 연도, y = (입학생수/1000) + 20, label = 학교종류, color  = 학교종류), show.legend = F) + 
   theme(legend.position = 'none') +
   labs(
-    title = "**교육과정별 졸업생수(k)**",
+    title = "교육과정별 졸업생수(k)",
   ) + 
   theme(
     # theme_markdown() is provided by ggtext and means the title contains 
     # Markdown that should be parsed as such (the '**' symbols)
-    plot.title = element_markdown(
-      family = "Econ Sans Cnd", 
-      size = 12
-    )
-  ) -> line_ch7_3
+    plot.title = element_text(family = 'NanumBarunGothicBold', size = 12)
+  )
 
+p_line_3
+```
 
-ggplot(df_total_line) +
+이제 두 번째 면적 그래프를 그려보겠다. 기본 그래프는 앞의 선 그래프와 유사하나 `geom_line()` 대신 `geom_area()`를 사용하여 면적 그래프로 그려준다. 
+
+```{r}
+p_area_1 <- df_total_line |> ggplot() +
   # color = "white" indicates the color of the lines between the areas
   geom_area(aes(x = 연도, y = (입학생수)/1000, group = 학교종류, fill = 학교종류), color = "white") +
 #  scale_fill_manual(values = c('grey', 'brown', 'green', 'blue')) +
@@ -444,9 +554,14 @@ ggplot(df_total_line) +
   scale_y_continuous(
     limits = c(0, 790),
     expand = c(0, 0)
-  )  -> area_ch7_1
+  )
 
-area_ch7_1 + 
+p_area_1
+```
+
+
+```{r}
+p_area_2 <- p_area_1 + 
   theme(
     # Set background color to white
     panel.background = element_rect(fill = "white"),
@@ -465,10 +580,16 @@ area_ch7_1 +
     # Remove labels from the vertical axis
     axis.text.y = element_blank(),
     # But customize labels for the horizontal axis
-    axis.text.x = element_text(family = "Econ Sans Cnd", size = 16)
-  ) -> area_ch7_2
+    axis.text.x = element_text(family = "NanumBarunGothic", size = 10)
+  )
 
-area_ch7_2 + 
+p_area_2
+```
+
+
+
+```{r}
+p_area_3 <- p_area_2 + 
   geom_text(aes(x = as.Date('2011-01-01'), y = 600), label = '전문대학', color = 'white') + 
   geom_text(aes(x = as.Date('2011-01-01'), y = 300), label = '일반대학', color = 'white') + 
   geom_text(aes(x = as.Date('2011-01-01'), y = 80), label = '석사', color = 'white') + 
@@ -479,7 +600,6 @@ area_ch7_2 +
     aes(x, y, label = y),
     hjust = 1, # Align to the right
     vjust = -0.5, # Align to the bottom
-    family = "Econ Sans Cnd",
     size = 3, 
     color = 'grey50'
   ) + 
@@ -488,15 +608,17 @@ area_ch7_2 +
     title = "고등교육기관 졸업생 수(k)",
   ) + 
   theme(
-    plot.title = element_markdown(
-      family = "Econ Sans Cnd", 
-      size = 12
-    )
-  ) -> area_ch7_3
+    plot.title = element_text(family = 'NanumBarunGothicBold', size = 12)
+  )
+
+p_area_3
+```
 
 
-plt1 <- line_ch7_3 + theme(plot.margin = margin(0, 0.05, 0, 0, "npc"))
-plt2 <- area_ch7_3 + theme(plot.margin = margin(0, 0, 0.05, 0, "npc"))
+```{r}
+
+plt1 <- p_line_3 + theme(plot.margin = margin(0, 0.05, 0, 0, "npc"))
+plt2 <- p_area_3 + theme(plot.margin = margin(0, 0, 0.05, 0, "npc"))
 plt <- plt1 | plt2
 
 title_theme <- theme(
@@ -520,10 +642,13 @@ plt <- plt + plot_annotation(
   theme(
     plot.margin = margin(0.075, 0, 0.1, 0, "npc"),
   )
- 
+plt
+```
+
+```{r}
+library(grid)
 plt
 
-# Add line on top of the chart
 grid.lines(
   x = c(0, 1),
   y = 1,
@@ -549,8 +674,7 @@ grid.text(
   just = c("left", "bottom"),
   gp = gpar(
     col = "grey50",
-    fontsize = 10,
-    fontfamily = "Econ Sans Cnd"
+    fontsize = 10
   )
 )
 
@@ -562,12 +686,17 @@ grid.text(
   just = c("right", "bottom"),
   gp = gpar(
     col = "grey50",
-    fontsize = 10,
-    fontfamily = "Econ Sans Cnd"
+    fontsize = 10
   )
 )
 
 ```
+
+
+
+
+
+
 
 # 둥근 막대 그래프
 

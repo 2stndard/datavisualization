@@ -4,9 +4,6 @@ showtext_opts(dpi = 96)
 
 df_과정구분_upset <- df_취업통계
 
-|>
-  filter(대계열 == '공학계열')
-
 df_과정구분_upset |> distinct(학제)
 
 df_과정구분_upset_plotdata <- df_과정구분_upset |> 
