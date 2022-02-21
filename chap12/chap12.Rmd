@@ -559,9 +559,18 @@ p_area_1 <- df_total_line |> ggplot() +
 p_area_1
 ```
 
+이제 그래프에 이코노미스트지 형태의 눈금선과 Y축 라벨에 대한 스타일을 적용하도록 하겠다. 
 
 ```{r}
 p_area_2 <- p_area_1 + 
+    geom_text(
+    data = data.frame(x = as.Date('2022-09-01'), y = seq(0, 800, by = 200)),
+    aes(x, y, label = y),
+    hjust = 1, # Align to the right
+    vjust = -0.5, # Align to the bottom
+    size = 3, 
+    color = 'grey50'
+  ) + 
   theme(
     # Set background color to white
     panel.background = element_rect(fill = "white"),
@@ -586,7 +595,7 @@ p_area_2 <- p_area_1 +
 p_area_2
 ```
 
-
+앞서 그린 면적 그래프에서 범례를 제거했기 때문에 각각의 데이터에 데이터 라벨을 표현해주도록 하겠다. 그런데 맨 아래의 박사 영역은 범례를 표현하기에 너무 영역이 좁기 때문에 이 부분은 조금 위에 데이터 라벨을 표기하고 선으로 데이터 영역을 연결해주어 두 번째 그래프를 완성한다. 
 
 ```{r}
 p_area_3 <- p_area_2 + 
@@ -594,59 +603,48 @@ p_area_3 <- p_area_2 +
   geom_text(aes(x = as.Date('2011-01-01'), y = 300), label = '일반대학', color = 'white') + 
   geom_text(aes(x = as.Date('2011-01-01'), y = 80), label = '석사', color = 'white') + 
   geom_text(aes(x = as.Date('2014-01-01'), y = 80), label = '박사', color = 'white') + 
-  geom_segment(aes(x = as.Date('2014-01-01'), xend = as.Date('2014-01-01'), y = 12, yend = 60), color = 'white', arrow = arrow(angle = 30, length = unit(0.1, "inches"))) + 
-  geom_text(
-    data = data.frame(x = as.Date('2022-09-01'), y = seq(0, 800, by = 200)),
-    aes(x, y, label = y),
-    hjust = 1, # Align to the right
-    vjust = -0.5, # Align to the bottom
-    size = 3, 
-    color = 'grey50'
-  ) + 
+  geom_segment(aes(x = as.Date('2014-01-01'), xend = as.Date('2014-01-01'), y = 12, yend = 60), color = 'white') + 
   theme(legend.position = 'none') + 
-  labs(
-    title = "고등교육기관 졸업생 수(k)",
-  ) + 
-  theme(
-    plot.title = element_text(family = 'NanumBarunGothicBold', size = 12)
-  )
+  labs(title = "고등교육기관 졸업생 수(k)") + 
+  theme(plot.title = element_text(family = 'NanumBarunGothicBold', size = 12))
 
 p_area_3
 ```
-
+두개의 그래프가 완성되었으니 이제 `patchwork` 패키지를 사용하여 그래프를 수평 방향으로 이어 붙이고 이어 붙인 그래프의 전체 제목과 테마요소를 설정한다. 
 
 ```{r}
+if(!require(patchwork)) {
+  install.packages('patchwork')
+  library(patchwork)
+}
 
+## 첫 번째 그래프의 플롯 여백을 조절
 plt1 <- p_line_3 + theme(plot.margin = margin(0, 0.05, 0, 0, "npc"))
+
+## 두 번째 그래프의 플롯 여백을 조절
 plt2 <- p_area_3 + theme(plot.margin = margin(0, 0, 0.05, 0, "npc"))
+
+## 두개의 그래프를 
 plt <- plt1 | plt2
 
 title_theme <- theme(
-  plot.title = element_text(
-    hjust = 0.02,
-    size = 15,
-    margin = margin(0.8, 0, 0.3, 0, "npc")
-  ),
-  plot.subtitle = element_text(
-    hjust = 0.02,
-    size = 12,
-    margin = margin(0.4, 0, 0.5, 0, "npc")
-  )
+  plot.title = element_text(hjust = 0.02, size = 20, margin = margin(0.5, 0, 0.3, 0, "npc")),
+  plot.subtitle = element_text(hjust = 0.02, size = 12, margin = margin(0.4, 0, 0.5, 0, "npc")), 
+##  plot.margin = margin(0.075, 0, 0.1, 0, "npc")
 )
 
 plt <- plt + plot_annotation(
   title = "전문대학의 위기",
   subtitle = "전문대학 학생수 감소 추세",
   theme = title_theme
-) +
-  theme(
-    plot.margin = margin(0.075, 0, 0.1, 0, "npc"),
-  )
+)
+
 plt
 ```
 
 ```{r}
 library(grid)
+
 plt
 
 grid.lines(
