@@ -730,10 +730,151 @@ grid.text("참조 : https://www.r-graph-gallery.com/", x = 0.995, y = 0.06, just
 ------------------------------------------------------------------------
 
 ::: {custom-style="boxBorder"}
-목표 : 선 그래프와 영역 그래프를 붙여 데이터를 보는 두가지 관점을 한번에 볼 수 있도록 시각화를 그리고 영국 이코노미스트지에서 사용하는 스타일로 시각화를 꾸며줌\
-활용 시각화 : 박스 플롯, 바이올린 플롯, 산점도\
-사용 패키지 : ggplot2, ggtext, grid. patchwork
+목표 : 막대 그래프를 극 자료계를 사용하여 둥근 형태의 둥근 막대 그래프로 변환
+활용 시각화 : 막대 그래프, 극 좌표계
+사용 패키지 : ggplot2, geomtextpath
 :::
+
+원형 막대 그래프는 막대 그래프를 둥글게 표현한 그래프이다. 사실 둥글게 데이터를 표현하는 시각화 방식은 데이터가 원의 중심으로 고르게 표현되다 보니 한 눈에 데이터를 살펴보기가 좋지만 최근 선호되지는 않는 방식이다. 특히 파이 차트의 경우 그 내부의 구성 비율을 나타내기 위해 많이 사용되지만 사람의 눈으로 그 비율을 정확하게 비교하기란 쉬운 일이 아니어서 데이터를 정확히 파악할 수 없다는 단점이 이다. 그래서 파이 차트는 내부에 표시되는 데이터를 가급적 줄여서 중요한 몇 개의 데이터의 비율을 표현하는데 사용된다. 반면 막대 그래프의 경우 가로로 배열된 수평형 막대 그래프는 대부분 공간의 제약으로 많은 막대를 표현하지 못한다. 그래서 세로로 배열된 수직형 막대 그래프를 사용하는데 이 경우도 데이터가 많아질 경우 한눈에 비교하기가 어렵다. 그래서 원형 그래프와 막대 그래프의 장점을 사용한 것이 원형 막대 그래프이다.
+
+원형 막대 그래프는 수평형 막대 그래프보다 더 많은 데이터의 표현이 가능하고 원의 중심으로 균등하게 데이터가 배치되기 때문에 전체 데이터를 한눈에 파악하기 쉽다는 장점이 있다. 하지만 막대의 길이를 정확하게 비교하기가 어렵기 때문에 멀리 떨어진 데이터의 비교가 어렵다는 단점이 있다. 따라서 원형 막대 그래프는 여러 그룹으로 구분된 막대 그래프를 원형으로 그려줌으로써 그룹간의 비교, 그룹내의 비교를 한눈에 파악하기 쉽게 그려주는게 바람직하다.
+
+원형 막대 그래프는 막대 그래프를 극 좌표계를 사용하여 둥글게 말아줌으로써 만들 수 있다. 따라서 먼저 막대 그래프를 그려야 한다. 원형 막대 그래프에는 막대의 길이의 차이로 데이터를 비교할 수있는 dodge형 막대 그래프가 적절하지만 fill형 막대 그래프를 사용할 수도 있다. 
+
+원형 막대 그래프를 그리기 위해 사용할 데이터는 대학 과정별 대계열의 취업률을 사용한다. 다만 각 막대에 데이터 계열과 데이터 값을 표현하기 위해 각각의 위치를 설정할 필요가 있기 때문에 그룹화한 dodge형 막대 그래프를 사용하지 않고 그룹이 없이 일련번호를 사용한 개별 막대 그래프를 사용하였다. 또 각 계열의 평균값을 텍스트로 표현하되 둥근 형태로 표현되는 텍스트를 사용하기 위해 `geomtextpath` 패키지의 `coord_curvedpolar()`를 사용하여 극 좌표계를 설정하고 `geom_textpath()`를 사용하여 극 좌표계 중심으로 둥글게 표현되는 문자열을 사용했다.
+
+우선 다음과 같이 데이터를 전처리한다. 
+
+```{r}
+## 데이터 표현 순서를 설정하기 위해 과정구분 팩터의 순서 설정
+df_취업통계$과정구분 = fct_relevel(df_취업통계$과정구분, '전문대학과정', '대학과정',  '대학원과정')
+
+## 데이터 표현 순서를 설정하기 위해 대계열 팩터의 순서 설정
+df_취업통계$대계열 = fct_relevel(df_취업통계$대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')
+
+## 과정구분별 대계열별 데어터와 취업률 산출
+df_취업통계_계열별 <- df_취업통계 |>
+  group_by(과정구분, 대계열) |>  
+  summarise(졸업자 = sum(졸업자_계), 
+               취업자 = sum(취업자_합계_계), 
+               진학자 = sum(진학자_계), 
+               입대자 = sum(입대자),
+               취업불가능자 = sum(취업불가능자_계), 
+               외국인유학생 = sum(외국인유학생_계), 
+               제외인정자 = sum(제외인정자_계),
+               ## 백분률인 취업률은 그 자체로 합계나 평균을 낼 수 없으니 각 그룹별로 재계산
+               취업률 = 취업자 / (졸업자 - (진학자+입대자+취업불가능자+외국인유학생+제외인정자))) |>
+  ## 계열의 표시 순서를 설정하기 위해 레벨을 재조정
+  arrange(과정구분, 대계열) |>
+  ungroup() |>
+  ## 막대 순서 설정을 위한 일련번호 생성
+  mutate(id = seq(1:n())) |>
+  ## 대계열 이름과 데이터 값을 표현하기 위한 텍스트 각도 계산
+  mutate(angle = 90 - (id-0.5)/n() * 360) |>
+  ## 180도 넘어가는 막대의 각도를 180도 돌려 거꾸로 문자열이 표시되는 것을 방지
+  mutate(angle1 = case_when(
+    id > n()/2 ~ angle + 180, 
+    id <= n()/2 ~ angle
+  ))
+
+## 과정별 취업률 평균 산출
+df_취업통계_과정별 <- df_취업통계 |> 
+  group_by(과정구분) |>  
+  summarise(졸업자 = sum(졸업자_계), 
+               취업자 = sum(취업자_합계_계), 
+               진학자 = sum(진학자_계), 
+               입대자 = sum(입대자),
+               취업불가능자 = sum(취업불가능자_계), 
+               외국인유학생 = sum(외국인유학생_계), 
+               제외인정자 = sum(제외인정자_계),
+               ## 백분률인 취업률은 그 자체로 합계나 평균을 낼 수 없으니 각 그룹별로 재계산
+               취업률 = 취업자 / (졸업자 - (진학자+입대자+취업불가능자+외국인유학생+제외인정자))) |>
+  ## 계열의 표시 순서를 설정하기 위해 레벨을 재조정
+  arrange(과정구분) |>
+  ungroup() |>
+  mutate(id = seq(1:n())) |>
+  mutate(angle = 90 - (id-0.5)/n() * 360) |>
+  mutate(angle1 = case_when(
+    id >= n()/2 ~ angle + 270, 
+    id < n()/2 ~ angle -90, 
+  ))
+
+df_취업통계_전체 <- df_취업통계 |> 
+  summarise(## 백분률인 취업률은 그 자체로 합계나 평균을 낼 수 없으니 각 그룹별로 재계산
+            취업률 = sum(취업자_합계_계) / (sum(졸업자_계) - (sum(진학자_계)+sum(입대자)+sum(취업불가능자_계)+sum(외국인유학생_계)+sum(제외인정자_계)))) |>
+  select(취업률) |>
+  pull()
+
+```
+
+
+데이터가 준비됐다면 기본 막대 그래프를 그려보겠다. 앞서 설명한 바와 같이 기본 그래프는 마지막에 계열 이름과 데이터 값을 `geom_text()`로 표현하기 위해 dodge형 막대 그래프를 사용하지 않고 일련 번호로 각각 개별로 구분된 막대 그래프를 그려준다. 그리고 도넛 차트의 형태로 원의 가운데가 뚫린 형태로 그려주어야 하기 때문에 그래프의 하단에 약간의 여백을 준다. 
+
+```{r}
+## 그래프에 사용할 폰트를 설정
+font_add('NanumBarunGothic', 'c:/windows/fonts/NanumBarunGothic.ttf')
+
+p_circular <- df_취업통계_계열별 |>
+  ggplot() + 
+  ## X축을 id, Y축을 취업률, fill을 대계열로 매핑한 geom_col 레이어 생성
+  geom_col(aes(x = id, y = 취업률, fill = 대계열), position = 'dodge', show.legend = F)+ 
+  ## 도넛 차트의 형태로 생성할 수 있도록 X축과 Y축의 범위를 설정
+  scale_y_continuous(limits = c(-0.5, 1.2)) +
+  scale_x_continuous(limits = c(0.5, 21.5)) +
+  ## 색 팔레트를 설정
+  scale_fill_brewer(palette = 'Set3')
+
+p_circular
+```
+```{r}
+p_circular <- p_circular +
+  annotate(xmin = 0.5, xmax = 7.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'red') +
+  annotate(xmin = 7.5, xmax = 14.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'green') +
+  annotate(xmin = 14.5, xmax = 21.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'blue')
+
+p_circular
+
+```
+
+```{r}
+p_circular <- p_circular +
+  geom_segment(data = df_취업통계_과정별, aes(x = 0.5+((id-1)*7), xend = 7.5+((id-1)*7), y = 취업률, yend = 취업률, color = as.factor(id)), inherit.aes = F, show.legend = F)
+
+p_circular
+```
+
+```{r}
+library(geomtextpath)
+
+p_circular <- p_circular +
+  coord_curvedpolar() +
+  theme_void()
+
+p_circular
+```
+```{r}
+## df_취업통계_계열별 데이터프레임에서 x축은 id, y축은 0.5, 라벨은 대계열이름과 취업률을 붙이고 anble은 앞에서 설정한 angle1을 사용하여 텍스트를 표기해주고 다른 미적요소를 설정
+p_circular <- p_circular +
+   geom_text(data = df_취업통계_계열별, aes(x=id, y=0.5, label=paste0(대계열, ', ', round(취업률*100, 1), '%'), angle= angle1), color="black", inherit.aes = FALSE, hjust = 0.5, size = 3) + 
+  theme(text = element_text(family = 'NanumBarunGothic'))
+
+p_circular
+```
+
+```{r}
+p_circular +
+    geom_text(data = df_취업통계_과정별,aes(x = 4+((id-1)*7), y = 1.0, label = paste0(과정구분, ', ', round(취업률*100, 1), '%'), color = as.factor(id)), inherit.aes = F, show.legend = F, size = 3)
+
+
+```
+
+```{r}
+p_circular <- p_circular +
+    geom_textpath(data = df_취업통계_과정별,aes(x = 4+((id-1)*7), y = 1.0, label = paste0(과정구분, ', ', round(취업률*100, 1), '%'), color = as.factor(id)), inherit.aes = F, show.legend = F, rich = TRUE, family = 'NanumBarunGothic', size = 3)
+
+p_circular
+
+```
 
 ```{r}
 library(tidyverse)
