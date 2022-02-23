@@ -792,8 +792,11 @@ df_취업통계_과정별 <- df_취업통계 |>
   ## 계열의 표시 순서를 설정하기 위해 레벨을 재조정
   arrange(과정구분) |>
   ungroup() |>
+  ## 각각의 막대를 분리해 주기 위해 일련번호를 붙여줌
   mutate(id = seq(1:n())) |>
+  ## 각각의 막대에 표시되는 데이터 계열과 데이터 값은 수직형 문자열 표기(90도 회전)하고 이 문자열은 전체 원(360도)에 균등하게 돌아가면서 배치되기 때문에 각각의 막대 각도를 90도에서 빼주어 막대와 동일한 각도로 표현하는 각도를 산출
   mutate(angle = 90 - (id-0.5)/n() * 360) |>
+  ## 전체 막대중 반의 문자열은 거꾸로 표기되는 것을 방지하기 위해 다시 180도를 돌려줌 
   mutate(angle1 = case_when(
     id >= n()/2 ~ angle + 270, 
     id < n()/2 ~ angle -90, 
@@ -826,22 +829,21 @@ p_circular <- df_취업통계_계열별 |>
 
 p_circular
 ```
+
+앞의 그래프를 dodge 형 막대 그래프로 그리지 않았가 때문에 각 학위 과정별 그룹간의 구분이 되지 않는다. 이를 구분하기 위해 각 그룹별 사각형으로 구분해주도록 하겠다. 이는 `annotate()`를 사용해 주석 레이어로 다음과 같이 그려주도록 하겠다. 그리고 추가적으로 각 학위과정별 평균값은 선으로 각각 그려준다. 
+
 ```{r}
 p_circular <- p_circular +
   annotate(xmin = 0.5, xmax = 7.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'red') +
   annotate(xmin = 7.5, xmax = 14.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'green') +
-  annotate(xmin = 14.5, xmax = 21.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'blue')
-
-p_circular
-
-```
-
-```{r}
-p_circular <- p_circular +
+  annotate(xmin = 14.5, xmax = 21.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'blue') +
   geom_segment(data = df_취업통계_과정별, aes(x = 0.5+((id-1)*7), xend = 7.5+((id-1)*7), y = 취업률, yend = 취업률, color = as.factor(id)), inherit.aes = F, show.legend = F)
 
 p_circular
+
 ```
+
+이제 기본 그래프가 완성되었으니 둥글게 말아주도록 하겠다. 앞의 도넛 차트에서 사용했던 `coord_polar()`를 사용해도 되겠지만 마지막에 둥근 형태의 문자열을 사용하기 위해 `geomtextpath` 패키지의 `coord_curveploar()`를 사용하여 극 좌표계를 적용하였다. 그리고 전체적인 테마를 없애기 위해 `theme_void()`를 적용하였다. 
 
 ```{r}
 library(geomtextpath)
@@ -852,29 +854,44 @@ p_circular <- p_circular +
 
 p_circular
 ```
+
+둥글게 그려진 막대 그래프에 데이터 계열과 데이터 값을 표기하도록 하겠다. 앞서 전처리 과정에서 계산한 문자열 각도를 angle에 매핑하여 각각의 문자열의 각도를 설정한다. 
+
 ```{r}
 ## df_취업통계_계열별 데이터프레임에서 x축은 id, y축은 0.5, 라벨은 대계열이름과 취업률을 붙이고 anble은 앞에서 설정한 angle1을 사용하여 텍스트를 표기해주고 다른 미적요소를 설정
 p_circular <- p_circular +
-   geom_text(data = df_취업통계_계열별, aes(x=id, y=0.5, label=paste0(대계열, ', ', round(취업률*100, 1), '%'), angle= angle1), color="black", inherit.aes = FALSE, hjust = 0.5, size = 3) + 
+   geom_text(data = df_취업통계_계열별, aes(x=id, y=0.5, label=paste0(대계열, ', ', round(취업률*100, 1), '%'), angle= angle1), color="black", hjust = 0.5, size = 3) + 
   theme(text = element_text(family = 'NanumBarunGothic'))
 
 p_circular
 ```
 
+이제 전체 학위과정 이름과 평균값을 표시해주도록 하겠다. `geom_text()`를 사용하면 다음의 그림과 같이 수평으로 길게 표시되는 문자열이 추가된다. 
+
 ```{r}
 p_circular +
     geom_text(data = df_취업통계_과정별,aes(x = 4+((id-1)*7), y = 1.0, label = paste0(과정구분, ', ', round(취업률*100, 1), '%'), color = as.factor(id)), inherit.aes = F, show.legend = F, size = 3)
 
-
 ```
+
+수평으로 길게 표시되는 문자열을 사용할 수 있겠지만 일부 문자열이 겹치고 원형 막대 그래프이기 때문에 이 보다는 둥글게 그려지는 문자열을 사용하는 편이 더 보기가 좋을 듯 하다. 이를 위해서는 `geomtextpath`패키지의 `geom_textpath()`를 사용하도록 하겠다. 이 함수는 앞서 극 좌표계를 설정할때 사용했던 `coord_curvedpolar()` 좌표계 위에서 원점을 중심으로 둥글게 문자열을 생성하는 함수이다. 
 
 ```{r}
 p_circular <- p_circular +
-    geom_textpath(data = df_취업통계_과정별,aes(x = 4+((id-1)*7), y = 1.0, label = paste0(과정구분, ', ', round(취업률*100, 1), '%'), color = as.factor(id)), inherit.aes = F, show.legend = F, rich = TRUE, family = 'NanumBarunGothic', size = 3)
+    geom_textpath(data = df_취업통계_과정별,aes(x = 4+((id-1)*7), y = 1.0, label = paste0(과정구분, ', ', round(취업률*100, 1), '%'), color = as.factor(id)), show.legend = F, rich = TRUE, family = 'NanumBarunGothic', size = 3)
 
 p_circular
 
 ```
+
+```{r}
+p_circular
+
+grid.text('전체취업률\n65.1%', x = 0.5, y = 0.5, just = c("center", "center"),
+  gp = gpar(col = "black", fontsize = 10))
+
+```
+
 
 ```{r}
 library(tidyverse)
