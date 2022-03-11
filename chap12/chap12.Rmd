@@ -648,36 +648,35 @@ plt
 | legend()            | 범례를 만드는 플로팅 함수                             |
 | axis()              | 축을 만드는 플로팅 함수                               |
 
-`grid` 패키지는 완성된 `ggplot2` 플롯에 저수준 플로팅 요소들을 추가하는데 사용하는 패키지이다. `grid` 패키지에서 기본적 그래픽 요소들(Primitive Graphical Element)를 그리기 위해 다양한 함수를 제공하지만 단독으로는 사용되지 않고 완성된 플롯에 그래픽 요소를 추가하는데 사용된다. 사실상 `ggplot2`의 그래픽 시스템은 `grid` 패키지의 그래픽 시스템위에서 구축되었기 때문에 `grid` 패키지에서 제공하는 저수준의 함수들이 `ggplot2` 객체, 그리고 `lattice` 패키지를 통해 만들어진 플롯에 잘 작동한다. `grid` 패키지는 R의 설치시에 자동적으로 설치되는 패키지 중 하나이다. 따라서 `install.packages()`를 사용해 설치가 따로 필요하지는 않지만 `library()`를 사용하여 패키지 로딩은 필요하다. 
+`grid` 패키지는 완성된 `ggplot2` 플롯에 저수준 플로팅 요소들을 추가하는데 사용하는 패키지이다. `grid` 패키지에서 기본적 그래픽 요소들(Primitive Graphical Element)를 그리기 위해 다양한 함수를 제공하지만 단독으로는 사용되지 않고 완성된 플롯에 그래픽 요소를 추가하는데 사용된다. 사실상 `ggplot2`의 그래픽 시스템은 `grid` 패키지의 그래픽 시스템위에서 구축되었기 때문에 `grid` 패키지에서 제공하는 저수준의 함수들이 `ggplot2` 객체, 그리고 `lattice` 패키지를 통해 만들어진 플롯에 잘 작동한다. `grid` 패키지는 R의 설치시에 자동적으로 설치되는 패키지 중 하나이다. 따라서 `install.packages()`를 사용해 설치가 따로 필요하지는 않지만 `library()`를 사용하여 패키지 로딩은 필요하다.
 
-이코노미스트지 스타일로 그래프를 꾸며주기 위해 사용하는 `grid` 패키지의 함수는 다음과 같다. 
+이코노미스트지 스타일로 그래프를 꾸며주기 위해 사용하는 `grid` 패키지의 함수는 다음과 같다.
 
 ::: {custom-style="comment"}
-grid.lines(x = unit(c(0, 1), "npc"), y = unit(c(0, 1), "npc"), default.units = "npc", arrow = NULL, name = NULL, gp=gpar(), draw = TRUE, vp = NULL)  
-  - x : X값으로 사용될 수치 벡터나 unit 객체  
-  - y : Y값으로 사용될 수치 벡터나 unit 객체  
-  - default.units : X, Y에 수치벡터가 설정될 때 사용될 단위 설정  
-  - arrow : 선의 끝을 화살표로 만들지에 대한 설정  
-  - name : 문자열 ID  
-  - gp : 그래픽 파라메터 설정  
-  - draw : 그래픽 출력을 할지를 설정하는 논리값  
-  - vp : Grid Viewpoint 객체 설정  
-   
-grid.rect(x = unit(0.5, "npc"), y = unit(0.5, "npc"), width = unit(1, "npc"), height = unit(1, "npc"), just = "centre", hjust = NULL, vjust = NULL, default.units = "npc", name = NULL, gp=gpar(), draw = TRUE, vp = NULL)  
-  - width : 사각형의 너비를 설정하는 수치 벡터  
-  - height : 사각형의 높이를 설정하는 수치 벡터  
-  - just : x, y에 상대적인 정렬 설정  
-  - hjust : 수평 정렬 설정  
-  - vjust : 수직 정렬 설정  
-  
-grid.text(label, x = unit(0.5, "npc"), y = unit(0.5, "npc"), just = "centre", hjust = NULL, vjust = NULL, rot = 0, check.overlap = FALSE, default.units = "npc", name = NULL, gp = gpar(), draw = TRUE, vp = NULL)  
-  - label : 표시할 문자열  
-  - rot : 문자열의 표시 각도 설정  
-  - check.overlap : 문자열이 겹쳐서 표현될지를 설정하는 논리값  
+grid.lines(x = unit(c(0, 1), "npc"), y = unit(c(0, 1), "npc"), default.units = "npc", arrow = NULL, name = NULL, gp=gpar(), draw = TRUE, vp = NULL)\
+- x : X값으로 사용될 수치 벡터나 unit 객체\
+- y : Y값으로 사용될 수치 벡터나 unit 객체\
+- default.units : X, Y에 수치벡터가 설정될 때 사용될 단위 설정\
+- arrow : 선의 끝을 화살표로 만들지에 대한 설정\
+- name : 문자열 ID\
+- gp : 그래픽 파라메터 설정\
+- draw : 그래픽 출력을 할지를 설정하는 논리값\
+- vp : Grid Viewpoint 객체 설정
 
+grid.rect(x = unit(0.5, "npc"), y = unit(0.5, "npc"), width = unit(1, "npc"), height = unit(1, "npc"), just = "centre", hjust = NULL, vjust = NULL, default.units = "npc", name = NULL, gp=gpar(), draw = TRUE, vp = NULL)\
+- width : 사각형의 너비를 설정하는 수치 벡터\
+- height : 사각형의 높이를 설정하는 수치 벡터\
+- just : x, y에 상대적인 정렬 설정\
+- hjust : 수평 정렬 설정\
+- vjust : 수직 정렬 설정
+
+grid.text(label, x = unit(0.5, "npc"), y = unit(0.5, "npc"), just = "centre", hjust = NULL, vjust = NULL, rot = 0, check.overlap = FALSE, default.units = "npc", name = NULL, gp = gpar(), draw = TRUE, vp = NULL)\
+- label : 표시할 문자열\
+- rot : 문자열의 표시 각도 설정\
+- check.overlap : 문자열이 겹쳐서 표현될지를 설정하는 논리값
 :::
 
-`grid` 패키지의 함수를 사용하여 다음과 같이 그려주면 이코노미스트지 스타일의 그래프가 만들어 진다. 
+`grid` 패키지의 함수를 사용하여 다음과 같이 그려주면 이코노미스트지 스타일의 그래프가 만들어 진다.
 
 ```{r eval = FALSE}
 library(grid)
@@ -698,7 +697,6 @@ grid.text("참조 : https://www.r-graph-gallery.com/", x = 0.995, y = 0.06, just
   gp = gpar(col = "grey50", fontsize = 10))
 
 ```
-
 
 ```{r echo = FALSE}
 library(grid)
@@ -724,26 +722,23 @@ grid.text("참조 : https://www.r-graph-gallery.com/", x = 0.995, y = 0.06, just
 
 ```
 
-
 # 둥근 막대 그래프
 
 ------------------------------------------------------------------------
 
 ::: {custom-style="boxBorder"}
-목표 : 막대 그래프를 극 자료계를 사용하여 둥근 형태의 둥근 막대 그래프로 변환
-활용 시각화 : 막대 그래프, 극 좌표계
-사용 패키지 : ggplot2, geomtextpath
+목표 : 막대 그래프를 극 자료계를 사용하여 둥근 형태의 둥근 막대 그래프로 변환 활용 시각화 : 막대 그래프, 극 좌표계 사용 패키지 : ggplot2, geomtextpath
 :::
 
 원형 막대 그래프는 막대 그래프를 둥글게 표현한 그래프이다. 사실 둥글게 데이터를 표현하는 시각화 방식은 데이터가 원의 중심으로 고르게 표현되다 보니 한 눈에 데이터를 살펴보기가 좋지만 최근 선호되지는 않는 방식이다. 특히 파이 차트의 경우 그 내부의 구성 비율을 나타내기 위해 많이 사용되지만 사람의 눈으로 그 비율을 정확하게 비교하기란 쉬운 일이 아니어서 데이터를 정확히 파악할 수 없다는 단점이 이다. 그래서 파이 차트는 내부에 표시되는 데이터를 가급적 줄여서 중요한 몇 개의 데이터의 비율을 표현하는데 사용된다. 반면 막대 그래프의 경우 가로로 배열된 수평형 막대 그래프는 대부분 공간의 제약으로 많은 막대를 표현하지 못한다. 그래서 세로로 배열된 수직형 막대 그래프를 사용하는데 이 경우도 데이터가 많아질 경우 한눈에 비교하기가 어렵다. 그래서 원형 그래프와 막대 그래프의 장점을 사용한 것이 원형 막대 그래프이다.
 
 원형 막대 그래프는 수평형 막대 그래프보다 더 많은 데이터의 표현이 가능하고 원의 중심으로 균등하게 데이터가 배치되기 때문에 전체 데이터를 한눈에 파악하기 쉽다는 장점이 있다. 하지만 막대의 길이를 정확하게 비교하기가 어렵기 때문에 멀리 떨어진 데이터의 비교가 어렵다는 단점이 있다. 따라서 원형 막대 그래프는 여러 그룹으로 구분된 막대 그래프를 원형으로 그려줌으로써 그룹간의 비교, 그룹내의 비교를 한눈에 파악하기 쉽게 그려주는게 바람직하다.
 
-원형 막대 그래프는 막대 그래프를 극 좌표계를 사용하여 둥글게 말아줌으로써 만들 수 있다. 따라서 먼저 막대 그래프를 그려야 한다. 원형 막대 그래프에는 막대의 길이의 차이로 데이터를 비교할 수있는 dodge형 막대 그래프가 적절하지만 fill형 막대 그래프를 사용할 수도 있다. 
+원형 막대 그래프는 막대 그래프를 극 좌표계를 사용하여 둥글게 말아줌으로써 만들 수 있다. 따라서 먼저 막대 그래프를 그려야 한다. 원형 막대 그래프에는 막대의 길이의 차이로 데이터를 비교할 수있는 dodge형 막대 그래프가 적절하지만 fill형 막대 그래프를 사용할 수도 있다.
 
 원형 막대 그래프를 그리기 위해 사용할 데이터는 대학 과정별 대계열의 취업률을 사용한다. 다만 각 막대에 데이터 계열과 데이터 값을 표현하기 위해 각각의 위치를 설정할 필요가 있기 때문에 그룹화한 dodge형 막대 그래프를 사용하지 않고 그룹이 없이 일련번호를 사용한 개별 막대 그래프를 사용하였다. 또 각 계열의 평균값을 텍스트로 표현하되 둥근 형태로 표현되는 텍스트를 사용하기 위해 `geomtextpath` 패키지의 `coord_curvedpolar()`를 사용하여 극 좌표계를 설정하고 `geom_textpath()`를 사용하여 극 좌표계 중심으로 둥글게 표현되는 문자열을 사용했다.
 
-우선 다음과 같이 데이터를 전처리한다. 
+우선 다음과 같이 데이터를 전처리한다.
 
 ```{r}
 ## 데이터 표현 순서를 설정하기 위해 과정구분 팩터의 순서 설정
@@ -810,8 +805,7 @@ df_취업통계_전체 <- df_취업통계 |>
 
 ```
 
-
-데이터가 준비됐다면 기본 막대 그래프를 그려보겠다. 앞서 설명한 바와 같이 기본 그래프는 마지막에 계열 이름과 데이터 값을 `geom_text()`로 표현하기 위해 dodge형 막대 그래프를 사용하지 않고 일련 번호로 각각 개별로 구분된 막대 그래프를 그려준다. 그리고 도넛 차트의 형태로 원의 가운데가 뚫린 형태로 그려주어야 하기 때문에 그래프의 하단에 약간의 여백을 준다. 
+데이터가 준비됐다면 기본 막대 그래프를 그려보겠다. 앞서 설명한 바와 같이 기본 그래프는 마지막에 계열 이름과 데이터 값을 `geom_text()`로 표현하기 위해 dodge형 막대 그래프를 사용하지 않고 일련 번호로 각각 개별로 구분된 막대 그래프를 그려준다. 그리고 도넛 차트의 형태로 원의 가운데가 뚫린 형태로 그려주어야 하기 때문에 그래프의 하단에 약간의 여백을 준다.
 
 ```{r}
 ## 그래프에 사용할 폰트를 설정
@@ -830,7 +824,7 @@ p_circular <- df_취업통계_계열별 |>
 p_circular
 ```
 
-앞의 그래프를 dodge 형 막대 그래프로 그리지 않았가 때문에 각 학위 과정별 그룹간의 구분이 되지 않는다. 이를 구분하기 위해 각 그룹별 사각형으로 구분해주도록 하겠다. 이는 `annotate()`를 사용해 주석 레이어로 다음과 같이 그려주도록 하겠다. 그리고 추가적으로 각 학위과정별 평균값은 선으로 각각 그려준다. 
+앞의 그래프를 dodge 형 막대 그래프로 그리지 않았가 때문에 각 학위 과정별 그룹간의 구분이 되지 않는다. 이를 구분하기 위해 각 그룹별 사각형으로 구분해주도록 하겠다. 이는 `annotate()`를 사용해 주석 레이어로 다음과 같이 그려주도록 하겠다. 그리고 추가적으로 각 학위과정별 평균값은 선으로 각각 그려준다.
 
 ```{r}
 p_circular <- p_circular +
@@ -843,7 +837,7 @@ p_circular
 
 ```
 
-이제 기본 그래프가 완성되었으니 둥글게 말아주도록 하겠다. 앞의 도넛 차트에서 사용했던 `coord_polar()`를 사용해도 되겠지만 마지막에 둥근 형태의 문자열을 사용하기 위해 `geomtextpath` 패키지의 `coord_curveploar()`를 사용하여 극 좌표계를 적용하였다. 그리고 전체적인 테마를 없애기 위해 `theme_void()`를 적용하였다. 
+이제 기본 그래프가 완성되었으니 둥글게 말아주도록 하겠다. 앞의 도넛 차트에서 사용했던 `coord_polar()`를 사용해도 되겠지만 마지막에 둥근 형태의 문자열을 사용하기 위해 `geomtextpath` 패키지의 `coord_curveploar()`를 사용하여 극 좌표계를 적용하였다. 그리고 전체적인 테마를 없애기 위해 `theme_void()`를 적용하였다.
 
 ```{r}
 library(geomtextpath)
@@ -855,7 +849,7 @@ p_circular <- p_circular +
 p_circular
 ```
 
-둥글게 그려진 막대 그래프에 데이터 계열과 데이터 값을 표기하도록 하겠다. 앞서 전처리 과정에서 계산한 문자열 각도를 angle에 매핑하여 각각의 문자열의 각도를 설정한다. 
+둥글게 그려진 막대 그래프에 데이터 계열과 데이터 값을 표기하도록 하겠다. 앞서 전처리 과정에서 계산한 문자열 각도를 angle에 매핑하여 각각의 문자열의 각도를 설정한다.
 
 ```{r}
 ## df_취업통계_계열별 데이터프레임에서 x축은 id, y축은 0.5, 라벨은 대계열이름과 취업률을 붙이고 anble은 앞에서 설정한 angle1을 사용하여 텍스트를 표기해주고 다른 미적요소를 설정
@@ -866,7 +860,7 @@ p_circular <- p_circular +
 p_circular
 ```
 
-이제 전체 학위과정 이름과 평균값을 표시해주도록 하겠다. `geom_text()`를 사용하면 다음의 그림과 같이 수평으로 길게 표시되는 문자열이 추가된다. 
+이제 전체 학위과정 이름과 평균값을 표시해주도록 하겠다. `geom_text()`를 사용하면 다음의 그림과 같이 수평으로 길게 표시되는 문자열이 추가된다.
 
 ```{r}
 p_circular +
@@ -874,7 +868,7 @@ p_circular +
 
 ```
 
-수평으로 길게 표시되는 문자열을 사용할 수 있겠지만 일부 문자열이 겹치고 원형 막대 그래프이기 때문에 이 보다는 둥글게 그려지는 문자열을 사용하는 편이 더 보기가 좋을 듯 하다. 이를 위해서는 `geomtextpath`패키지의 `geom_textpath()`를 사용하도록 하겠다. 이 함수는 앞서 극 좌표계를 설정할때 사용했던 `coord_curvedpolar()` 좌표계 위에서 원점을 중심으로 둥글게 문자열을 생성하는 함수이다. 
+수평으로 길게 표시되는 문자열을 사용할 수 있겠지만 일부 문자열이 겹치고 원형 막대 그래프이기 때문에 이 보다는 둥글게 그려지는 문자열을 사용하는 편이 더 보기가 좋을 듯 하다. 이를 위해서는 `geomtextpath`패키지의 `geom_textpath()`를 사용하도록 하겠다. 이 함수는 앞서 극 좌표계를 설정할때 사용했던 `coord_curvedpolar()` 좌표계 위에서 원점을 중심으로 둥글게 문자열을 생성하는 함수이다.
 
 ```{r}
 p_circular <- p_circular +
@@ -884,6 +878,8 @@ p_circular
 
 ```
 
+마지막으로 전체 취업률을 원형 막대 그래프의 중간에 표기해 준다. 원형 막대 그래프는 극좌표계를 사용했기 때문에 그래프의 중앙 위치를 찾을 수 없다. 따라서 `ggplot2`의 `geom_text()`를 사용할 수 없어 `grid` 패키지의 `grid.text()`를 사용한다.
+
 ```{r}
 p_circular
 
@@ -892,108 +888,31 @@ grid.text('전체취업률\n65.1%', x = 0.5, y = 0.5, just = c("center", "center
 
 ```
 
-
-```{r}
-library(tidyverse)
-library(patchwork)
-library(showtext)
-showtext_auto()
-
-font_add('NanumBarunGothic', 'c:/windows/fonts/NanumBarunGothic.ttf')
-
-df_취업통계$대계열 = fct_relevel(df_취업통계$대계열, '인문계열', '사회계열', '교육계열', '자연계열', '공학계열', '의약계열', '예체능계열')
-
-df_취업통계$과정구분 = fct_relevel(df_취업통계$과정구분, '전문대학과정', '대학과정',  '대학원과정')
-
-
-df_취업통계_계열별 <- df_취업통계 |>
-  group_by(과정구분, 대계열) |>  
-  summarise(졸업자 = sum(졸업자_계), 
-               취업자 = sum(취업자_합계_계), 
-               진학자 = sum(진학자_계), 
-               입대자 = sum(입대자),
-               취업불가능자 = sum(취업불가능자_계), 
-               외국인유학생 = sum(외국인유학생_계), 
-               제외인정자 = sum(제외인정자_계),
-               ## 백분률인 취업률은 그 자체로 합계나 평균을 낼 수 없으니 각 그룹별로 재계산
-               취업률 = 취업자 / (졸업자 - (진학자+입대자+취업불가능자+외국인유학생+제외인정자))) |>
-  ## 계열의 표시 순서를 설정하기 위해 레벨을 재조정
-  arrange(과정구분, 대계열) |>
-  ungroup() |>
-  mutate(id = seq(1:n())) |>
-  mutate(angle = 90 - (id-0.5)/n() * 360) |>
-  mutate(angle1 = case_when(
-    id > n()/2 ~ angle + 180, 
-    id <= n()/2 ~ angle
-  ))
-
-
-df_취업통계_과정별 <- df_취업통계 |> 
-  group_by(과정구분) |>  
-  summarise(졸업자 = sum(졸업자_계), 
-               취업자 = sum(취업자_합계_계), 
-               진학자 = sum(진학자_계), 
-               입대자 = sum(입대자),
-               취업불가능자 = sum(취업불가능자_계), 
-               외국인유학생 = sum(외국인유학생_계), 
-               제외인정자 = sum(제외인정자_계),
-               ## 백분률인 취업률은 그 자체로 합계나 평균을 낼 수 없으니 각 그룹별로 재계산
-               취업률 = 취업자 / (졸업자 - (진학자+입대자+취업불가능자+외국인유학생+제외인정자))) |>
-  ## 계열의 표시 순서를 설정하기 위해 레벨을 재조정
-  arrange(과정구분) |>
-  ungroup() |>
-  mutate(id = seq(1:n())) |>
-  mutate(angle = 90 - (id-0.5)/n() * 360) |>
-  mutate(angle1 = case_when(
-    id >= n()/2 ~ angle + 270, 
-    id < n()/2 ~ angle -90, 
-  ))
-
-df_취업통계_전체 <- df_취업통계 |> 
-  summarise(## 백분률인 취업률은 그 자체로 합계나 평균을 낼 수 없으니 각 그룹별로 재계산
-            취업률 = sum(취업자_합계_계) / (sum(졸업자_계) - (sum(진학자_계)+sum(입대자)+sum(취업불가능자_계)+sum(외국인유학생_계)+sum(제외인정자_계)))) |>
-  select(취업률) |>
-  pull()
-
-#View(df_취업통계_계열별)
-# angle <- 90 - (df_취업통계_계열별$id-0.5)/nrow(df_취업통계_계열별) * 360
-# calculate the ANGLE of the labels
-# I substract 0.5 because the letter must have the angle of the center of the bars. Not extreme right(1) or extreme left (0)
-
-# calculate the alignment of labels: right or left
-# If I am on the left part of the plot, my labels have currently an angle < -90
-#label_data$hjust<-ifelse( angle < -90, 1, 0)
-
-# flip angle BY to make them readable
-#label_data$angle<-ifelse(angle < -90, angle+180, angle)
-library(geomtextpath)
-
-df_취업통계_계열별 |>
-  ggplot(aes(x = id, y = 취업률, fill = 대계열)) + 
-  geom_col(position = 'dodge', show.legend = F)+ 
-  scale_y_continuous(labels = scales::percent, limits = c(-0.5, 1.2)) +
-  scale_x_continuous(limits = c(0.5, 21.5)) +
-  annotate(xmin = 0.5, xmax = 7.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'red') +
-  annotate(xmin = 7.5, xmax = 14.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'green') +
-  annotate(xmin = 14.5, xmax = 21.5, ymin = -0.1, ymax = 1, alpha = 0.1, geom = 'rect', fill = 'blue') +
-  geom_textpath(data = df_취업통계_과정별,aes(x = 4+((id-1)*7), y = 1.0, label = paste0(과정구분, ', ', round(취업률*100, 1), '%'), color = as.factor(id)), inherit.aes = F, show.legend = F, rich = TRUE, family = 'NanumBarunGothic') +
- geom_text(data = df_취업통계_계열별, aes(x=id, y=0.5, label=paste0(대계열, ', ', round(취업률*100, 1), '%'), angle= angle1), color="black", inherit.aes = FALSE, size = rel(3), hjust = 0.5) +
-  geom_segment(data = df_취업통계_과정별, aes(x = 0.5+((id-1)*7), xend = 7.5+((id-1)*7), y = 취업률, yend = 취업률, color = as.factor(id)), inherit.aes = F, show.legend = F) + 
-  scale_fill_brewer(palette = 'Set3') + 
-  coord_curvedpolar() +
-  theme_void() + 
-  theme(plot.title = element_text(hjust = 0.5, size = 20), 
-        plot.margin = margin(0.25, 0, 0, 0), 
-        text = element_text(family = 'NanumBarunGothic')) + 
-  annotate(x = 0.5, y = -0.35, geom = 'text', label = '전체취업률') + 
-  geom_text(aes(x = 0.5, y = -0.5, label = paste0(round(df_취업통계_전체, 3)*100, '%')), size = rel(4)) 
-
-
-```
-
-# ggplot와 지도의 병합
+# ggplot2와 지도의 병합
 
 ------------------------------------------------------------------------
+
+::: {custom-style="boxBorder"}
+목표 : 사각형으로 간략화한 지도의 각각 사각형 안에 지역별 ggplot2 분할 그래프를 위치하여 ggplot2와 지도를 병합함  
+활용 시각화 : 지도 시각화, ggplot2  
+분할 그래프 사용 패키지 : ggplot2, geofacet  
+:::
+
+지도를 시각화할 때 지형의 원형 그대로를 사용하는 경우가 대부분이다. 하지만 앞 장에서 본 바와 같이 지도를 육각형이나 사각형으로 단순화하여 데이터를 표현하는 경우도 있다. 이렇게 표현하는 시각화는 대부분 지역을 표현하는 다각형의 내부 색을 사용하여 데이터를 표현하는 경우가 대부분이지만 `ggplot2`의 `facet_*()`으로 분할된 그래프를 지도의 형태로 표현할 수 있다. 이러한 시각화는 `geofacet` 패키지를 사용하면 생각보다 쉽게 생성할 수 있다.
+
+`geofacet` 패키지는 `ggplot2`에서 사용하는 `facet_*()`을 지리적 정보를 기반하여 표현하는 `facet_geo()`를 제공한다. `facet_geo()`는 `ggplot2`의 `facet_*()`과 동일한 용도로 사용되기 떄문에 `ggplot2`의 `facet_*()`의 사용법과 동일하다. 
+
+::: {custom-style="comment"}
+facet_geo(facets, ..., grid = "us_state_grid1", label = NULL, move_axes = TRUE)\
+- facets : 분할 그래프를 만들 분할 변수\
+- grid : 지형 레이아웃으로 사용할 그리드 데이터프레임\
+- label : 분할 그래프 라벨로 사용할 문자열 벡터\
+- ... : facet_wrap()에서 사용하는 매개변수
+:::
+
+`facet_geo()`를 사용할 때 가장 중요한 것이 바로 `grid` 매개변수에 사용할 지형 레이아웃 데이터프레임이다. 이 데이터프레임은 두 가지 방법을 사용할 수 있다.
+
+첫 번째 방법은 사전에 정의된 그리드 데이터프레임을 사용하는 것이다. `geofacet` 패키지의 개발 깃헙에서는 다양한 지형에 대한 그리드 데이터 프레임을 제공하고 있다. 이 중 우리나라 지형에 대한 그리드 데이터프레임도 제공되고 있는데 `get_grid_names()`을 실행하면 현재 사용가능한 그리드 데이터프레임을 확인할 수 있다.
 
 ```{r}
 if(!require(geofacet)) {
@@ -1001,14 +920,51 @@ if(!require(geofacet)) {
   library(geofacet)
 }
 
-font_add('NanumBarunGothic', 'c:/windows/fonts/NanumBarunGothic.ttf')
-font_add('NanumBarunGothicBold', 'c:/windows/fonts/NanumBarunGothicBold.ttf')
+grid_name <- get_grid_names()
 
-df_seoul_grid <- read_excel('c:/R/git/datavisualization/chap12/seoul_grid.xlsx', 
-                      ## 'sheet0' 시트의 데이터를 불러오는데,
-                      sheet = 'Sheet1', col_names = TRUE, col_types = c('text', rep('numeric', 2)))
-                      
+grid_name[str_detect(grid_name, 'seoul')]
 
+```
+
+`geofacet`에서 제공하는 서울의 구에 대한 그리드 시각화는 다음과 같다. 
+
+```{r}
+grid_preview("kr_seoul_district_grid1")
+```
+
+두 번째는 자신이 원하는 그리드 데이터프레임을 만들어서 사용할 수 있다. 그리드 데이터프레임을 만들기 위해서는 다음 네 개의 열을 가진 데이터프레임이 필요하다.
+
+| 열 이름 | 내용                     |
+|---------|--------------------------|
+| row     | facet이 위치할 행의 번호 |
+| col     | facet이 위치할 열의 번호 |
+| code    | 해당 facet의 고유코드    |
+| name    | 해당 facet의 이름        |
+
+자신이 원하는 그리드 데이터프레임을 생성하기 위해서 각 셀을 하나하나 설정해서 만들수 있지만 `geofacet`에서 그리드 데이터프레임을 쉽게 만들수 있는 도구를 제공한다. 이 도구는 자바 스크립트로 작성된 프로그램으로 `grid_design()`을 호출하여 사용할 수 있다. 이 프로그램을 사용하여 그리드의 위치를 변경할 수 있고 셀을 추가하거나 삭제할 수 있다. 그리드의 편집아 완성되면 왼쪽 하단의 R코드를 복사하여 그리드 데이터프레임을 만들어 줄 수 있다. 
+
+```{r eval = FALSE}
+grid_design(kr_seoul_district_grid1)
+```
+
+![그림 12-1. grid_design 실행화면](grid_design.png)
+
+다음은 `geofacet`에서 제공하는 'kr_seoul_district_grid1`의 그리드 데이터프레임을 생성하는 코드이다. 
+
+```{r}
+mygrid <- data.frame(
+  name = c("도봉구", "강북구", "은평구", "노원구", "성북구", "종로구", "중랑구", "동대문구", "서대문구", "마포구", "중구", "강서구", "광진구", "성동구", "동작구", "영등포구", "용산구", "강동구", "양천구", "송파구", "강남구", "관악구", "구로구", "서초구", "금천구"),
+  row = c(1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 6),
+  col = c(6, 5, 3, 6, 4, 5, 7, 6, 4, 3, 5, 2, 7, 6, 4, 3, 5, 8, 2, 7, 6, 4, 3, 5, 3),
+  code = c("도봉", "강북", "은평", "노원", "성북", "종로", "중랑", "동대문", "서대문", "마포", "중구", "강서", "광진", "성동", "동작", "영등포", "용산", "강동", "양천", "송파", "강남", "관악", "구로", "서초", "금천"),
+  stringsAsFactors = FALSE
+)
+
+```
+
+그리드 데이터프레임이 완성되었다면 `facet_geo()`를 사용하여 서울 지역의 지형에 따른 분할 그래프를 그릴 수 있다. 분할 그래프를 그리기 위해 서울시의 구별 대학 재적 학생수 데이터를 사용하도록 하겠다.   
+
+```{r}
 df_행정구역 <- read_excel('c:/R/git/datavisualization/chap10/2021_행정구역별 학과수 및 학년별 재적학생수.xlsx', 
                       ## 'sheet0' 시트의 데이터를 불러오는데,
                       sheet = 'Sheet0',
@@ -1029,37 +985,20 @@ names(df_행정구역) <- c('시도', 'code', '과정구분', '학제구분', '�
 ## 구이음 열에서 '서울 ' 문자열을 ''으로 치환
 df_행정구역$code <- gsub('서울 ', '', df_행정구역$code)
 
-```
-
-```{r eval = FALSE}
-grid_design(data = df_seoul_grid)
-
-df_seoul_grid$code = df_seoul_grid$name
-
-grid_preview(df_seoul_grid)
-
-grid_design(data = df_seoul_grid)
-
-mygrid <- data.frame(
-  name = c("강북구", "도봉구", "은평구", "종로구", "성북구", "노원구", "중랑구", "강서구", "양천구", "마포구", "서대문구", "중구", "동대문구", "광진구", "강동구", "구로구", "영등포구", "동작구", "용산구", "성동구", "송파구", "금천구", "관악구", "서초구", "강남구"),
-  row = c(1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5),
-  col = c(5, 6, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 2, 3, 4, 5, 6, 7, 3, 4, 5, 6),
-  code = c("강북구", "도봉구", "은평구", "종로구", "성북구", "노원구", "중랑구", "강서구", "양천구", "마포구", "서대문구", "중구", "동대문구", "광진구", "강동구", "구로구", "영등포구", "동작구", "용산구", "성동구", "송파구", "금천구", "관악구", "서초구", "강남구"),
-  stringsAsFactors = FALSE
-)
-
-grid_submit(mygrid, name = "mygrid", desc = "An awesome grid...")
 
 ```
 
-```{r eval = FALSE}
+```{r}
+font_add('NanumBarunGothic', 'c:/windows/fonts/NanumBarunGothic.ttf')
+font_add('NanumBarunGothicBold', 'c:/windows/fonts/NanumBarunGothicBold.ttf')
+
 df_행정구역 |>
   ggplot() +
   geom_col(aes(x = 과정구분, y = 재적학생수, fill = 과정구분)) +
   facet_geo(~code, grid = mygrid) + 
   theme(
     strip.background = element_blank(), 
-    axis.line = element_blank(), 
+##    axis.line = element_blank(), 
     axis.text = element_blank(),
     axis.ticks = element_blank(),
     strip.text = element_textbox_simple(family = 'NanumBarunGothicBold', 
@@ -1067,15 +1006,13 @@ df_행정구역 |>
                                         color = "white", fill = "dodgerblue4", box.color = "#4A618C",
                                         halign = 0.5, linetype = 1, r = unit(5, "pt"), width = unit(1, "npc"),
                                         padding = margin(2, 0, 1, 0), margin = margin(3, 3, 3, 3)), 
-    panel.border = element_rect(color = '#4A618C', fill = NA), 
-    panel.background = element_blank()
+#    panel.border = element_rect(color = '#4A618C', fill = NA), 
+#    panel.background = element_blank()
   ) +
   labs(x = NULL, y = NULL)
   
 
 ```
-
-![](smallmap.png)
 
 # 각 분야별 Top 3
 
