@@ -132,10 +132,9 @@ The Grammar of Graphics는 데이터를 효과적으로 요소를 시각화 할 
 `ggplot()` 은 `ggplot()` 객체를 만들기 위해 초기화하는 함수로 `ggplot()` 은 시각화를 위한 대상 데이터를 선언하고 전체 레이어에서 공통적으로 사용될 미적 요소들을 지정한다. `ggplot()` 의 사용법과 주요 매개변수는 다음과 같다.
 
 ::: {custom-style="comment"}
-ggplot(data = NULL, mapping = aes(), ..., environment = parent.frame())   
-  - data : ggplot 객체를 위해 사용할 전체 레이어에 공통으로 사용될 기본 데이터프레임을 선언   
-  - mapping : aes()를 사용하여 전체 레이어에 공통으로 사용될 미적 요소 선언  
-
+ggplot(data = NULL, mapping = aes(), ..., environment = parent.frame())\
+- data : ggplot 객체를 위해 사용할 전체 레이어에 공통으로 사용될 기본 데이터프레임을 선언\
+- mapping : aes()를 사용하여 전체 레이어에 공통으로 사용될 미적 요소 선언
 :::
 
 `ggplot()` 에는 데이터에 연결된 기하 요소가 선언되지 않기 때문에 데이터 시각화가 완전히 완성되지는 않는다. 하지만 데이터 미적 요소의 매핑 결과는 볼 수 있다. 아래의 코드를 실행하면 앞 장에서 읽어들인 입학자 데이터를 X축과 Y축에 매핑한 결과를 볼 수 있다.
@@ -148,10 +147,9 @@ ggplot(df_입학자, aes(x = 연도, y = 전문대학))
 위의 코드에서 사용된 `aes()` 는 미적 요소을 매핑을 생성하는데 사용되는 함수이다. 미적 요소 매핑은 어떤 데이터의 열(변수)가 어떤 시각화 요소들로 연결되는지를 선언하는 방법을 말한다. 위의 코드에서 `aes()` 의 `x`는 X축과 변수 열을 매핑하는 미적 요소로 이 `x` 가 df_입학자 데이터프레임의 연도열과 연결되었다. 또 `y`는 Y축과 변수 열을 매핑하는 미적 요소로 이 `y` 가 df_입학자의 전문대학열과 연결되었다. 이 함수는 `ggplot()` 외에도 기하 요소를 정의하는 `geom_*` 함수에서도 공통적으로 사용된다. `aes()` 의 사용법과 주요 매개변수는 다음과 같다.
 
 ::: {custom-style="comment"}
-aes(x, y, ...)  
-  - x : X축에 매핑될 데이터 열  
-  - y : y축에 매핑될 데이터 열  
-
+aes(x, y, ...)\
+- x : X축에 매핑될 데이터 열\
+- y : y축에 매핑될 데이터 열
 :::
 
 앞서 설명한 바와 같이 `ggplot()` 에 선언되는 데이터와 미적 요소는 전체 `ggplot` 객체의 레이어에 공통으로 적용되는 데이터와 미적 요소이다. `ggplot()` 에 선언되는 미적 요소는 X축과 Y축의 매핑만 하는 것이 일반적이다. 모든 레이어에 공통적으로 적용되는 미적 요소가 많지 않기 때문에 미리 정의해봐야 일부 레이어에서만 사용되기 떄문이다. 물론 `ggplot()`에서 선언된 미적 요소들이 각각의 레이어에서 다시 선언되는 경우에는 `ggplot()` 에서 선언된 데이터와 미적 요소보다 각각의 레이어에서 선언되는 데이터와 미적 요소가 해당 레이어에서 우선된다.
@@ -176,14 +174,14 @@ df_입학자 |> ggplot(aes(x = 연도, y = 전문대학)) +
   geom_point(aes(color = 지역))
 ```
 
-``` {r fig.cap="미적 요소가 설정된 ggplot"}
+```{r fig.cap="미적 요소가 설정된 ggplot"}
 ## df_입학자에서 X축에 연도, Y축에 전문대학을 매핑한 ggplot 객체를 만들고
 df_입학자 |> ggplot(aes(x = 연도, y = 전문대학)) +
   ## color를 'red'로 설정한 geom_point 레이어를 생성
   geom_point(color = 'red')
 ```
 
-위의 코드에서 차이는 `color`를 `aes()`내에 df_입학자의 지역 열이 매핑된 것과 `aes()` 밖에서 고정값(red)로 설정된 것이다. 결과에서 보이듯이 `aes()`에 매핑된 `color`는 지역 변수의 변량에 따라 `color` 가 자동적으로 바뀌어 데이터의 구분이 확연히 보인다. 반면 `aes()` 밖에서  'red'로 설정된 코드는 전체 값들이 모두 'red'로 표현되어 지역적으로 구분되지 않는다.
+위의 코드에서 차이는 `color`를 `aes()`내에 df_입학자의 지역 열이 매핑된 것과 `aes()` 밖에서 고정값(red)로 설정된 것이다. 결과에서 보이듯이 `aes()`에 매핑된 `color`는 지역 변수의 변량에 따라 `color` 가 자동적으로 바뀌어 데이터의 구분이 확연히 보인다. 반면 `aes()` 밖에서 'red'로 설정된 코드는 전체 값들이 모두 'red'로 표현되어 지역적으로 구분되지 않는다.
 
 설정이 가능한 미적 요소들은 다음과 같다.
 
@@ -388,7 +386,7 @@ df_입학자 |> filter(지역 == '전체') |>
 
 ### group
 
-기하 요소는 개별(individual) 기하 요소와 집합(collective) 기하 요소로 구분될 수 있다. 개별 기하 요소는 하나의 변수 열을 하나의 기하 요소로 매핑해서 표현한다. 따라서 매핑되는 변수 열은 실 데이터 열로 매핑하는 것이 일반적이다. 하지만 집합 기하 요소는 데이터를 구분하는 여러개의 변량을 가지는 열을 통해  색이나 크기로 구분되는 하나의 기하 요소로 표현한다.[^4] 따라서 데이터를 구분하는 열은 데이터가 표현되는 열이 아닌 팩터나 데이터를 구분할 수 있는 구분자로 표현되는 열을 선택하는 것이 일반적이다. 집합 기하 요소는 통계적인 요약이 필요한 박스 플롯이나 한번에 여러개의 변량이 표현되야하는 도형(polygon), 선, 세그먼트 등에서 주로 사용된다. 이를 표현하기 위해 사용되는 미적 요소가 `group`이다. 설명한대로 `group` 은 직접적으로 표현되는 미적 요소는 아니지만 미적 요소가 적용되는 구분을 매핑하기 위해 사용되는 미적 요소이다.
+기하 요소는 개별(individual) 기하 요소와 집합(collective) 기하 요소로 구분될 수 있다. 개별 기하 요소는 하나의 변수 열을 하나의 기하 요소로 매핑해서 표현한다. 따라서 매핑되는 변수 열은 실 데이터 열로 매핑하는 것이 일반적이다. 하지만 집합 기하 요소는 데이터를 구분하는 여러개의 변량을 가지는 열을 통해 색이나 크기로 구분되는 하나의 기하 요소로 표현한다.[^4] 따라서 데이터를 구분하는 열은 데이터가 표현되는 열이 아닌 팩터나 데이터를 구분할 수 있는 구분자로 표현되는 열을 선택하는 것이 일반적이다. 집합 기하 요소는 통계적인 요약이 필요한 박스 플롯이나 한번에 여러개의 변량이 표현되야하는 도형(polygon), 선, 세그먼트 등에서 주로 사용된다. 이를 표현하기 위해 사용되는 미적 요소가 `group`이다. 설명한대로 `group` 은 직접적으로 표현되는 미적 요소는 아니지만 미적 요소가 적용되는 구분을 매핑하기 위해 사용되는 미적 요소이다.
 
 [^4]: Hadley Wickham, ggplot2:Elegant Graphics for Data Analysis 2nd edition, P 46, Springer, 2016.
 
@@ -447,19 +445,18 @@ df_입학자_long |> filter(지역 == '전체', 학교종류 == '전문대학') 
 `geom_histogram` 의 사용법과 주요 매개변수는 다음과 같다.
 
 ::: {custom-style="comment"}
-geom_histogram(mapping = NULL, data = NULL, stat = "bin", position = "stack", ..., binwidth = NULL, bins = NULL, na.rm = FALSE, orientation = NA, show.legend = NA, inherit.aes = TRUE)  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - stat : 시각화에 적용될 통계요소, 기본값은 'bin'  
-  - position : 시각화에 적용될 위치요소, 기본값은 'stack'  
-  - ... : 미적 요소의 설정  
-  - bins : X축을 나누는 bin의 개수 설정  
-  - binwidth : X축을 나누는 bin의 너비 설정, 숫자벡터를 사용할 수 있다. (bin과 binwidth는 동시에 사용될 수 없다)  
-  - na.rm : 결측치를 제거할지를 결정하는 논리값  
-  - orientation : 레이어의 원점 설정  
-  - show.legend : 범례를 표시할지에 대한 논리값  
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-
+geom_histogram(mapping = NULL, data = NULL, stat = "bin", position = "stack", ..., binwidth = NULL, bins = NULL, na.rm = FALSE, orientation = NA, show.legend = NA, inherit.aes = TRUE)\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- stat : 시각화에 적용될 통계요소, 기본값은 'bin'\
+- position : 시각화에 적용될 위치요소, 기본값은 'stack'\
+- ... : 미적 요소의 설정\
+- bins : X축을 나누는 bin의 개수 설정\
+- binwidth : X축을 나누는 bin의 너비 설정, 숫자벡터를 사용할 수 있다. (bin과 binwidth는 동시에 사용될 수 없다)\
+- na.rm : 결측치를 제거할지를 결정하는 논리값\
+- orientation : 레이어의 원점 설정\
+- show.legend : 범례를 표시할지에 대한 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
 :::
 
 `geom_histogram()` 에 매핑될 수 있는 미적 요소는 위치(x, y), alpha, color, fill, linetype, size 등이다.
@@ -505,16 +502,15 @@ p_histogram +
 `geom_freqpoly()` 는 `geom_histogram()`과 유사하게 연속형 일변수 수치 데이터의 빈도를 표현하는데 사용되는 기하 요소 함수이다. `geom_histogram()`은 관측치의 빈도를 막대로 시각화하지만 `geom_freqpoly()`는 데이터 값들을 연결한 다각형을 사용하여 데이터를 표현한다. `geom_freqpoly()`도 `geom_histogram()`과 같이 binning을 기본적으로 사용하기 때문에 통계 요소 'bin'이 기본적으로 적용된다. 만약 다각형을 조금 부드럽게(smoothing) 하려면 통계 요소를 'density'로 설정하는데 이 경우는 `geom_density()`와 동일한 결과가 나온다.
 
 ::: {custom-style="comment"}
-geom_freqpoly(mapping = NULL, data = NULL, stat = "bin", position = "identity", ..., na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - stat : 시각화에 적용될 통계요소, 기본값은 'bin'  
-  - position : 시각화에 적용될 위치요소, 기본값은 'identity'  
-  - ... : 미적 요소의 설정  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-
+geom_freqpoly(mapping = NULL, data = NULL, stat = "bin", position = "identity", ..., na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- stat : 시각화에 적용될 통계요소, 기본값은 'bin'\
+- position : 시각화에 적용될 위치요소, 기본값은 'identity'\
+- ... : 미적 요소의 설정\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
 :::
 
 `geom_freqpoly()` 에서 사용이 가능한 미적 요소는 위치(x, y), alpha, color, linetype, size, group이다.
@@ -560,21 +556,20 @@ p_freqpoly +
 
 ##### geom_density()
 
-`geom_density()`도 연속형 일변수 수치 데이터를 표현하는데 사용되는 기하 요소 함수이다.  일변수 수치 데이터의 분포를 확률분포함수로 계산하여 표현한다. 따라서 X값에 따라 계산된 연속 확률 분포값은 확률이기 때문에 1보다 작은 값들이고, 이 값들이 연결되어 표현된다. `geom_density()`는 연속 확률 분포를 산출하고 시각화한다. 따라서 앞선 두 함수와는 달리 통계 요소의 기본값이  'density'로 설정된다.
+`geom_density()`도 연속형 일변수 수치 데이터를 표현하는데 사용되는 기하 요소 함수이다. 일변수 수치 데이터의 분포를 확률분포함수로 계산하여 표현한다. 따라서 X값에 따라 계산된 연속 확률 분포값은 확률이기 때문에 1보다 작은 값들이고, 이 값들이 연결되어 표현된다. `geom_density()`는 연속 확률 분포를 산출하고 시각화한다. 따라서 앞선 두 함수와는 달리 통계 요소의 기본값이 'density'로 설정된다.
 
 ::: {custom-style="comment"}
-geom_density(mapping = NULL, data = NULL, stat = "density", position = "identity", ..., na.rm = FALSE, orientation = NA, show.legend = NA, inherit.aes = TRUE, outline.type = "upper")  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - stat : 시각화에 적용될 통계요소, 기본값은 'density'  
-  - position : 시각화에 적용될 위치요소, 기본값은 'identity'  
-  - ... : 미적 요소의 설정  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - orientation : 레이어의 원점 설정  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-  - outline.type: 영역을 표시하는 경우 영역 경계 값의 선 타입  
-
+geom_density(mapping = NULL, data = NULL, stat = "density", position = "identity", ..., na.rm = FALSE, orientation = NA, show.legend = NA, inherit.aes = TRUE, outline.type = "upper")\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- stat : 시각화에 적용될 통계요소, 기본값은 'density'\
+- position : 시각화에 적용될 위치요소, 기본값은 'identity'\
+- ... : 미적 요소의 설정\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- orientation : 레이어의 원점 설정\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값\
+- outline.type: 영역을 표시하는 경우 영역 경계 값의 선 타입
 :::
 
 `geom_density()` 에서 사용할 수 있는 미적 요소는 위치(x, y), alpha, color, fill, linetype, size 등이다.
@@ -600,21 +595,20 @@ p_density +
 
 #### 이산형(Discrete) 데이터 : `geom_bar()`
 
-앞에서 설명한 `geom_histogram()`, `geom_freqpoly()`, `geom_density()`는 연속된 수치형 데이터에 대한 일변량 시각화 기하 요소 함수이다. 그렇다면 팩터와 같이 구분되고 분리되는 일변량 이산형 데이터의 시각화는 어떻게 하는가? 이산형 일변량 데이터를 위한 기하 요소 함수는 `geom_bar()`가 유일하다. 사실 `geom_bar()`는 뒤에서 설명될 `geom_col()`과 거의 유사한 결과를 내는 막대 그래프 시각화이다. 다만 `geom_bar()` 는 연속형 일변량 데이터 시각화에 사용되기 때문에 하나의 데이터만 제공되면 설정된 통계 요소를 사용하여 나머지 하나의 데이터를 산출하고 시각화한다. `geom_bar()`의 기본 통계 요소인 `count`를 사용하면 `geom_histogram()` 과 유사하게 나타나지만  X축으로 매핑되는 데이터가 이산형 데이터라면 `geom_histogram()`과는 달라지고, X축에 매핑되는 데이터가 꼭 수치 데이터가 아닌 팩터나 문자열도 가능하다.
+앞에서 설명한 `geom_histogram()`, `geom_freqpoly()`, `geom_density()`는 연속된 수치형 데이터에 대한 일변량 시각화 기하 요소 함수이다. 그렇다면 팩터와 같이 구분되고 분리되는 일변량 이산형 데이터의 시각화는 어떻게 하는가? 이산형 일변량 데이터를 위한 기하 요소 함수는 `geom_bar()`가 유일하다. 사실 `geom_bar()`는 뒤에서 설명될 `geom_col()`과 거의 유사한 결과를 내는 막대 그래프 시각화이다. 다만 `geom_bar()` 는 연속형 일변량 데이터 시각화에 사용되기 때문에 하나의 데이터만 제공되면 설정된 통계 요소를 사용하여 나머지 하나의 데이터를 산출하고 시각화한다. `geom_bar()`의 기본 통계 요소인 `count`를 사용하면 `geom_histogram()` 과 유사하게 나타나지만 X축으로 매핑되는 데이터가 이산형 데이터라면 `geom_histogram()`과는 달라지고, X축에 매핑되는 데이터가 꼭 수치 데이터가 아닌 팩터나 문자열도 가능하다.
 
 ::: {custom-style="comment"}
-geom_bar(mapping = NULL, data = NULL, stat = "count", position = "stack", ...,   width = NULL, na.rm = FALSE, orientation = NA, show.legend = NA, inherit.aes = TRUE)  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - stat : 시각화에 적용될 통계요소, 기본값은 'count'  
-  - position : 시각화에 적용될 위치요소, 기본값은 'stack'  
-  - ... : 미적 요소의 설정  
-  - width : 막대의 너비 설정  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - orientation : 레이어의 원점 설정  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-
+geom_bar(mapping = NULL, data = NULL, stat = "count", position = "stack", ..., width = NULL, na.rm = FALSE, orientation = NA, show.legend = NA, inherit.aes = TRUE)\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- stat : 시각화에 적용될 통계요소, 기본값은 'count'\
+- position : 시각화에 적용될 위치요소, 기본값은 'stack'\
+- ... : 미적 요소의 설정\
+- width : 막대의 너비 설정\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- orientation : 레이어의 원점 설정\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
 :::
 
 `geom_bar()` 에서 사용이 가능한 미적 요소는 x, alpha, color, fill, linetype, size, weight이다.
@@ -650,16 +644,15 @@ X축과 Y축에 매핑되어 시각화해야 하는 두 개의 변수가 모두 
 데이터의 전반적 분포를 확인할 때 가장 많이 사용되는 기하 요소가 점을 사용한 데이터 시각화이다. 이렇게 X, Y축에 따라 데이터를 점으로 표현한 시각화를 산점도(Scatter Plot)라고 한다. 산점도는 X축과 Y축의 좌표값에 따라 점을 표시함으로서 데이터의 전반적인 분포를 살펴보고 X, Y축의 증감에 따른 데이터의 상관관계를 살펴보는데 효과적인 시각화 방법이다. 따라서 시각화 과정에서 데이터 값을 통계처리 하지 않고 사용되기 때문에 기본 통계 요소가 'identity'(데이터 자체값)로 설정된다.
 
 ::: {custom-style="comment"}
-geom_point(mapping = NULL, data = NULL, stat = "identity", position = "identity", ..., na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'  
-  - position : 시각화에 적용될 위치요소, 기본값은 'identity'  
-  - ... : 미적 요소의 설정  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-
+geom_point(mapping = NULL, data = NULL, stat = "identity", position = "identity", ..., na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- stat : 시각화에 적용될 통계요소, 기본값은 'identity'\
+- position : 시각화에 적용될 위치요소, 기본값은 'identity'\
+- ... : 미적 요소의 설정\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
 :::
 
 `geom_point()`에서 사용이 가능한 미적 요소는 x, y, alpha, color, fill, group, shape, size, stroke 등이다.
@@ -703,7 +696,7 @@ geom_text(mapping = NULL, data = NULL, stat = "identity", position = "identity",
 
 ```
 
-`geom_text()`에서 사용 가능한 미적 요소는 x, y, label, alpha, angle, color, family, fontface, group, hjust, lineheight, size, vjust 등이다. 이 중 문자와 관련된 미적 요소는 다음과 같다. 
+`geom_text()`에서 사용 가능한 미적 요소는 x, y, label, alpha, angle, color, family, fontface, group, hjust, lineheight, size, vjust 등이다. 이 중 문자와 관련된 미적 요소는 다음과 같다.
 
 -   angle : 문자열이 표현되는 각도 설정
 
@@ -837,22 +830,21 @@ p_smooth +
 
 ##### geom_col()
 
-`geom_col()`은 막대 그래프를 그리기 위해 사용하는 시각화 함수이다. 앞에서 막대 그래프는 이미 `geom_histogram()`과 `geom_bar()`가 설명되었다. 그런데 또 `geom_col()`이 제공된다. 막대 그래프는 시각화하고자 하는 데이터 종류에 따라 각각의 특성에 맞는 함수가 제공된다. 하지만 `geom_col()`이 가장 포괄적인 막대그래프 시각화 함수로써 `geom_col()`를 사용하여 `geom_histogram()`과 `geom_bar()`와 동일한 막대그래프를 그릴 수도 있다. 
+`geom_col()`은 막대 그래프를 그리기 위해 사용하는 시각화 함수이다. 앞에서 막대 그래프는 이미 `geom_histogram()`과 `geom_bar()`가 설명되었다. 그런데 또 `geom_col()`이 제공된다. 막대 그래프는 시각화하고자 하는 데이터 종류에 따라 각각의 특성에 맞는 함수가 제공된다. 하지만 `geom_col()`이 가장 포괄적인 막대그래프 시각화 함수로써 `geom_col()`를 사용하여 `geom_histogram()`과 `geom_bar()`와 동일한 막대그래프를 그릴 수도 있다.
 
 ::: {custom-style="comment"}
-geom_col(mapping = NULL, data = NULL, position = "stack", ..., width = NULL, na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - position : 시각화에 적용될 위치요소, 기본값은 'stack'  
-  - ... : 미적 요소의 설정  
-  - width : 막대의 너비 설정  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값   
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-
+geom_col(mapping = NULL, data = NULL, position = "stack", ..., width = NULL, na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- position : 시각화에 적용될 위치요소, 기본값은 'stack'\
+- ... : 미적 요소의 설정\
+- width : 막대의 너비 설정\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
 :::
 
-`geom_col()`에서 특별하게 활용되는 매개변수가 `position`이다. 이 `position`을 통해 막대  그래프의 타입을 다르게 시각화할 수 있다. `position`의 종류는 `stack`, `dodge`, `fill` 의 세 가지로, `stack`은 막대를 구성하는 그룹을 하나의 막대에 쌓아가면서 표현하고 `dodge`는 막대를 구성하는 그룹에 대한 막대를 각각 구성하여 옆에 붙여준다. `fill`은 전체를 100%로 막대를 구성하고 그 막대를 구성하는 그룹의 구성 비율에 따라 막대를 구분해 준다. `fill`은 전체를 100%로 변환하기 때문에 모든 막대의 길이는 같게 되고 Y축의 스케일이 0부터 1까지로 변경된다.
+`geom_col()`에서 특별하게 활용되는 매개변수가 `position`이다. 이 `position`을 통해 막대 그래프의 타입을 다르게 시각화할 수 있다. `position`의 종류는 `stack`, `dodge`, `fill` 의 세 가지로, `stack`은 막대를 구성하는 그룹을 하나의 막대에 쌓아가면서 표현하고 `dodge`는 막대를 구성하는 그룹에 대한 막대를 각각 구성하여 옆에 붙여준다. `fill`은 전체를 100%로 막대를 구성하고 그 막대를 구성하는 그룹의 구성 비율에 따라 막대를 구분해 준다. `fill`은 전체를 100%로 변환하기 때문에 모든 막대의 길이는 같게 되고 Y축의 스케일이 0부터 1까지로 변경된다.
 
 ```{r}
 ##  df_입학자_long 데이터 중 지역이 전체인 데이터를 필터링하여 ggplot 객체로 생성하고 p_col에 저장
@@ -904,10 +896,9 @@ p_col +
 
 박스 플롯은 데이터의 전반적 분포를 살펴볼 수 있는 매우 좋은 시각화 방법이다. 앞서 설명한 산점도는 X, Y축 모두 연속형 수치 데이터를 사용하지만 박스 플롯은 이산형 데이터로 분류되는 데이터의 전반적 분포를 시각화할 수 있다는 점에서 활용도가 크고 산점도(Scatter Plot)에서는 표현할 수 없었던 중간값, IQR 범위, 이상치 등의 추가적인 정보를 같이 볼 수 있다는 장점이 있다. R에서 박스 플롯 레이어를 생성하기 위해서는 `geom_boxplot()`을 사용한다.
 
-박스 플롯으로 표현되는 상자의 중심은 중앙값이다. 중앙값은 가로선으로 표현되며 그 주위를 상자가 둘러싸고 있다. 상자의 상단과 하단은 관측값들의 25%와 75%를 나타낸다. 상자의 상단과 하단 범위를 벗어나면 사분위 범위의 1.5배에 해당하는 '수염(whisker)'으로 표현된다. 수염 밖에 존재하는 값은 점으로 표기하며 이상치로 간주된다. 
+박스 플롯으로 표현되는 상자의 중심은 중앙값이다. 중앙값은 가로선으로 표현되며 그 주위를 상자가 둘러싸고 있다. 상자의 상단과 하단은 관측값들의 25%와 75%를 나타낸다. 상자의 상단과 하단 범위를 벗어나면 사분위 범위의 1.5배에 해당하는 '수염(whisker)'으로 표현된다. 수염 밖에 존재하는 값은 점으로 표기하며 이상치로 간주된다.
 
 ![그림 3-5 박스 플롯의 구조](C:/R/git/datavisualization/fig/3-5.png)
-
 
 ```{r eval = FALSE}
 geom_boxplot(mapping = NULL, data = NULL, stat = "boxplot", position = "dodge2", ..., outlier.colour = NULL, outlier.color = NULL, outlier.fill = NULL, outlier.shape = 19, outlier.size = 1.5, outlier.stroke = 0.5, outlier.alpha = NULL, notch = FALSE, notchwidth = 0.5, varwidth = FALSE, na.rm = FALSE, orientation = NA, show.legend = NA, inherit.aes = TRUE)
@@ -966,20 +957,19 @@ p_boxplot +
 `geom_violin()`은 박스 플롯과 거의 유사한 시각화 방법인데 박스대신 데이터의 분포가 표현되는 바이올린 형태의 도형을 사용하는 시각화 방법이다. 박스 플롯에서는 25%부터 75%까지의 범위를 표현하는데 유용하지만 그 범위내에서 데이터가 어느 구간에 많이 분포되어 있는지는 표현하지 못한다. 이와 같은 단점을 극복하기 위해 `geom_violin()`에서는 데이터가 많이 분포하는 구간의 좌우를 넓게 표현하고 데이터가 적게 분포하는 구간의 좌우를 좁게 표현해서 데이터의 전체 구간에 데이터의 분포를 시각화할 수 있다.
 
 ::: {custom-style="comment"}
-geom_violin(mapping = NULL, data = NULL, stat = "ydensity", position = "dodge", ..., draw_quantiles = NULL, trim = TRUE, scale = "area", na.rm = FALSE, orientation = NA, show.legend = NA, inherit.aes = TRUE)  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - stat : 시각화에 적용될 통계요소, 기본값은 'ydensity'  
-  - position : 시각화에 적용될 위치요소, 기본값은 'dodge'  
-  - ... : 미적 요소의 설정  
-  - draw_quantiles : 박스플롯에서 표현하는 것과 같이 분위라인을 그리는데 사용될 분위 설정  
-  - trim : 끝부분을 잘라낼지 여부를 결정하는 논리값  
-  - scale : 데이터의 분포를 표현하는 도형의 크기를 표현하는 단위 설정, 'area'는 모든 도형의 크기를 동일하게 설정, 'count'는 데이터 개수에 따라 도형의 크기를 설정, 'width'는 모든 도형의 최대 너비를 동일하게 설정  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - orientation : 레이어의 원점 설정  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-
+geom_violin(mapping = NULL, data = NULL, stat = "ydensity", position = "dodge", ..., draw_quantiles = NULL, trim = TRUE, scale = "area", na.rm = FALSE, orientation = NA, show.legend = NA, inherit.aes = TRUE)\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- stat : 시각화에 적용될 통계요소, 기본값은 'ydensity'\
+- position : 시각화에 적용될 위치요소, 기본값은 'dodge'\
+- ... : 미적 요소의 설정\
+- draw_quantiles : 박스플롯에서 표현하는 것과 같이 분위라인을 그리는데 사용될 분위 설정\
+- trim : 끝부분을 잘라낼지 여부를 결정하는 논리값\
+- scale : 데이터의 분포를 표현하는 도형의 크기를 표현하는 단위 설정, 'area'는 모든 도형의 크기를 동일하게 설정, 'count'는 데이터 개수에 따라 도형의 크기를 설정, 'width'는 모든 도형의 최대 너비를 동일하게 설정\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- orientation : 레이어의 원점 설정\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
 :::
 
 `geom_violin()` 에서 사용할 수 있는 미적 요소는 x, y, alpha, color, fill, group, linetype, size, weight 등 이다.
@@ -1046,22 +1036,21 @@ p_count +
 `ggplot`은 3차원 시각화는 지원하지 않는다. 하지만 3차원 공간을 2차원 평면으로 시각화하는 방법을 제공한다. 그래서 X, Y, Z의 세 축으로 표현되는 3차원을 2차원으로 표현하기 위해서는 먼저 X, Y의 조합이 중복되지 않는 유일한 조합으로 설정되어야 하고 z값이 같은 위치들을 선으로 이어 등고선 형태로 이어주거나 해당 위치의 데이터 값을 색으로 표현하는 두가지 방법이 있다. 앞의 등고선을 사용하는 방법은 `geom_contour()`를 사용하고 색으로 표현하는 방법은 `geom_contour_filled()`를 사용한다.
 
 ::: {custom-style="comment"}
-geom_contour(mapping = NULL, data = NULL, stat = "contour", position = "identity", ..., bins = NULL, binwidth = NULL, breaks = NULL, lineend = "butt", linejoin = "round", linemitre = 10, na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - stat : 시각화에 적용될 통계요소, 기본값은 'contour'  
-  - position : 시각화에 적용될 위치요소, 기본값은 'identity'  
-  - ... : 미적 요소의 설정  
-  - bins : X축을 나누는 bin의 개수 설정  
-  - binwidth : X축을 나누는 bin의 너비 설정, 숫자벡터를 사용할 수 있다. (bin과 binwidth는 동시에 사용될 수 없다)  
-  - breaks : 등고선이 구분되는 수치 벡터 설정  
-  - lineend : 선 끝의 모양을 설정  
-  - linejoin : 선이 만나는 곳의 모양을 설정  
-  - linemitre : 선이 만나는 곳의 꺾어짐 길이 설정  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값   
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-
+geom_contour(mapping = NULL, data = NULL, stat = "contour", position = "identity", ..., bins = NULL, binwidth = NULL, breaks = NULL, lineend = "butt", linejoin = "round", linemitre = 10, na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- stat : 시각화에 적용될 통계요소, 기본값은 'contour'\
+- position : 시각화에 적용될 위치요소, 기본값은 'identity'\
+- ... : 미적 요소의 설정\
+- bins : X축을 나누는 bin의 개수 설정\
+- binwidth : X축을 나누는 bin의 너비 설정, 숫자벡터를 사용할 수 있다. (bin과 binwidth는 동시에 사용될 수 없다)\
+- breaks : 등고선이 구분되는 수치 벡터 설정\
+- lineend : 선 끝의 모양을 설정\
+- linejoin : 선이 만나는 곳의 모양을 설정\
+- linemitre : 선이 만나는 곳의 꺾어짐 길이 설정\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
 :::
 
 `geom_contour()`에서 사용이 가능한 미적 요소는 x, y, alpha, color, group, linetype, size, weight 등 이다.
@@ -1081,19 +1070,18 @@ p_contour +
 `geom_contour_filled()`의 사용법과 주요 매개변수는 다음과 같다.
 
 ::: {custom-style="comment"}
-geom_contour_filled(mapping = NULL, data = NULL, stat = "contour_filled", position = "identity", ..., bins = NULL, binwidth = NULL, breaks = NULL, na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - stat : 시각화에 적용될 통계요소, 기본값은 'contour_filled'  
-  - position : 시각화에 적용될 위치요소, 기본값은 'identity'  
-  - ... : 미적 요소의 설정  
-  - bins : X축을 나누는 bin의 개수 설정  
-  - binwidth : X축을 나누는 bin의 너비 설정, 숫자벡터를 사용할 수 있다. (bin과 binwidth는 동시에 사용될 수 없다)  
-  - breaks : 등고선이 구분되는 수치 벡터 설정  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-
+geom_contour_filled(mapping = NULL, data = NULL, stat = "contour_filled", position = "identity", ..., bins = NULL, binwidth = NULL, breaks = NULL, na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- stat : 시각화에 적용될 통계요소, 기본값은 'contour_filled'\
+- position : 시각화에 적용될 위치요소, 기본값은 'identity'\
+- ... : 미적 요소의 설정\
+- bins : X축을 나누는 bin의 개수 설정\
+- binwidth : X축을 나누는 bin의 너비 설정, 숫자벡터를 사용할 수 있다. (bin과 binwidth는 동시에 사용될 수 없다)\
+- breaks : 등고선이 구분되는 수치 벡터 설정\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
 :::
 
 `geom_contour_filled()`에서 사용이 가능한 미적 요소는 x, y, alpha, color, group, linetype, size, subgroup 등 이다.
@@ -1119,17 +1107,16 @@ p_contour_filled +
 시계열 데이터를 표현하는 선 그래프를 시각화하는데 에는 `geom_line()`이 사용된다.
 
 ::: {custom-style="comment"}
-geom_line(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, orientation = NA, show.legend = NA, inherit.aes = TRUE, ...)  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'  
-  - position : 시각화에 적용될 위치요소, , 기본값은 'identity'  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - orientation : 레이어의 원점 설정  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-  - ... : 미적 요소의 설정  
-
+geom_line(mapping = NULL, data = NULL, stat = "identity", position = "identity", na.rm = FALSE, orientation = NA, show.legend = NA, inherit.aes = TRUE, ...)\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- stat : 시각화에 적용될 통계요소, 기본값은 'identity'\
+- position : 시각화에 적용될 위치요소, , 기본값은 'identity'\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- orientation : 레이어의 원점 설정\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값\
+- ... : 미적 요소의 설정
 :::
 
 `geom_line()`에서 사용이 가능한 미적요인은 x, y, alpha, color, group, linetype, size 등 이다.
@@ -1152,18 +1139,17 @@ p_line +
 `geom_area()`는 `geom_line()`과 유사한 선 그래프를 그린다. 다만 `geom_line()`은 데이터를 연결하는 선만이 그려지는 반면 `geom_area()`는 데이터를 연결한 선에서부터 X축까지의 면적을 색으로 채운다. 하지만 더 큰 차이는 여러 변량이 표현되는 다중 선 그래프의 경우 면적이 계속 쌓이는 방식으로 표현된다는 점이다.
 
 ::: {custom-style="comment"}
-geom_area(mapping = NULL, data = NULL, stat = "identity", position = "stack", na.rm = FALSE, orientation = NA, show.legend = NA, inherit.aes = TRUE, ..., outline.type = "upper")  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'  
-  - position : 시각화에 적용될 위치요소, 기본값은 'identity'  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - orientation : 레이어의 원점 설정  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-  - ... : 미적 요소의 설정  
-  - outline.type: 영역을 표시하는 경우 영역 경계 값의 선 타입  
-
+geom_area(mapping = NULL, data = NULL, stat = "identity", position = "stack", na.rm = FALSE, orientation = NA, show.legend = NA, inherit.aes = TRUE, ..., outline.type = "upper")\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- stat : 시각화에 적용될 통계요소, 기본값은 'identity'\
+- position : 시각화에 적용될 위치요소, 기본값은 'identity'\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- orientation : 레이어의 원점 설정\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값\
+- ... : 미적 요소의 설정\
+- outline.type: 영역을 표시하는 경우 영역 경계 값의 선 타입
 :::
 
 `geom_area()`에서 사용이 가능한 미적요인은 x, y, alpha, color, fill, group, linetype, size 등 이다.
@@ -1190,17 +1176,16 @@ p_area +
 `geom_rect()`는 `ggplot` 객체에 사각형을 그리는 레이어를 생성하는 함수이다. 사각형을 그리기 위해 사각형의 네 꼭지점 좌표를 결정하기 위한 `xmin`, `ymin`, `xmax`, `ymax`값이 필요하고 사각형 선의 색이나 내부 색 등을 매핑하거나 설정할 수 있다.
 
 ::: {custom-style="comment"}
-geom_rect(mapping = NULL, data = NULL, stat = "identity", position = "identity", ..., linejoin = "mitre", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'  
-  - position : 시각화에 적용될 위치요소, 기본값은 'identity'  
-  - ... : 미적 요소의 설정  
-  - linejoin : 사각형의 꼭지점의 처리 방법 설정(round, mitre, bevel)  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-
+geom_rect(mapping = NULL, data = NULL, stat = "identity", position = "identity", ..., linejoin = "mitre", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- stat : 시각화에 적용될 통계요소, 기본값은 'identity'\
+- position : 시각화에 적용될 위치요소, 기본값은 'identity'\
+- ... : 미적 요소의 설정\
+- linejoin : 사각형의 꼭지점의 처리 방법 설정(round, mitre, bevel)\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
 :::
 
 `geom_rect()`에서 사용이 가능한 미적요인은 xmin, ymin, xmax, ymax, alpha, color, fill, linetype, size 등 이다. 아래의 코드는 위의 선 그래프에 강조가 필요한 부분을 `geom_rect()`를 사용하여 표현하였다.
@@ -1227,20 +1212,19 @@ p_rect
 `geom_segment()`는 선으로 표현되는 미적 요소에 대한 레이어를 생성하며, 주로 설명선을 그릴 때 사용된다. 또한 `geom_line()`과 유사하지만 데이터 매핑없이 사용되는 레이어이다.
 
 ::: {custom-style="comment"}
-geom_segment(mapping = NULL, data = NULL, stat = "identity", position = "identity", ..., arrow = NULL, arrow.fill = NULL, lineend = "butt", linejoin = "round", na.rm = FALSE,  show.legend = NA, inherit.aes = TRUE)  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - stat : 시각화에 적용될 통계요소, 기본값은 'identity'  
-  - position : 시각화에 적용될 위치요소, 기본값은 'identity'  
-  - ... : 미적 요소의 설정  
-  - arrow : 선의 끝에 화살표를 표시할 것인지 설정  
-  - arrow.fill : 내부가 채워진 화살표를 그릴것인지 설정  
-  - lineend : 선의 끝 모양을 설정('butt', 'round', 'square')  
-  - linejoin : 사각형의 꼭지점의 처리 방법 설정(round, mitre, bevel)  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-
+geom_segment(mapping = NULL, data = NULL, stat = "identity", position = "identity", ..., arrow = NULL, arrow.fill = NULL, lineend = "butt", linejoin = "round", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE)\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- stat : 시각화에 적용될 통계요소, 기본값은 'identity'\
+- position : 시각화에 적용될 위치요소, 기본값은 'identity'\
+- ... : 미적 요소의 설정\
+- arrow : 선의 끝에 화살표를 표시할 것인지 설정\
+- arrow.fill : 내부가 채워진 화살표를 그릴것인지 설정\
+- lineend : 선의 끝 모양을 설정('butt', 'round', 'square')\
+- linejoin : 사각형의 꼭지점의 처리 방법 설정(round, mitre, bevel)\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
 :::
 
 `geom_segment()`에서 사용이 가능한 미적요인은 x, y, xend, yend, alpha, color, group, fill, linetype, size 등 이다.
@@ -1291,14 +1275,13 @@ p_rect +
 `geom_abline()`은 대각선을 그릴때 사용하는 레이어이다. `geom_line()`도 대각선을 그릴수 있지만 `geom_line()`은 두 점을 이어주는 선을 그리는 반면 `geom_abline()`은 일차 방정식 형태의 기울기와 y절편을 사용하여 대각선을 그려준다. 당연히 기울기가 0이면 수평선이 그려지고 기울기가 무한대 이면 수직선이 그려진다.
 
 ::: {custom-style="comment"}
-geom_abline(mapping = NULL, data = NULL, ..., slope, intercept, na.rm = FALSE, show.legend = NA)  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - slope : 선을 그릴 기울기  
-  - intercept : 선을 그릴 Y 절편  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
-
+geom_abline(mapping = NULL, data = NULL, ..., slope, intercept, na.rm = FALSE, show.legend = NA)\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- slope : 선을 그릴 기울기\
+- intercept : 선을 그릴 Y 절편\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값
 :::
 
 `geom_abline()`에서 사용하는 미적 요소는 `geom_segment()`와 동일하다.
@@ -1406,20 +1389,19 @@ p_area +
 `geom_*()`으로 생성한 기하 요소 레이어에 통계적으로 변환된 데이터를 추가적으로 표현해야 할 경우가 있다. 가장 대표적인 예가 박스 플롯에 평균값을 추가하는 경우이다. 이런 경우와 같이 특정 함수로 요약한 통계치를 표현하는 레이어를 추가하는 경우 `stat_summary()`를 사용한다.
 
 ::: {custom-style="comment"}
-stat_summary(mapping = NULL, data = NULL, geom = "pointrange", position = "identity", fun.data = NULL, fun = NULL, fun.max = NULL, fun.min = NULL, fun.args = list(), na.rm = FALSE, show.legend = NA, fun.y, fun.ymin, fun.ymax)  
-  - mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용  
-  - data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용  
-  - geom : 시각화에 적용될 미적 요소를 설정, 기본값은 'pointrange'  
-  - position : 시각화에 적용될 위치요소 설정, 기본값은 'identity'  
-  - fun.data : ymin, y, ymax를 포함하는 데이터프레임을 반환하는 함수 설정  
-  - fun, fun.y : X값에 대응하는 Y값을 구하는 함수 설정  
-  - fun.min, fun.ymin : X에 대응하는 Y값의 최소값 함수 설정  
-  - fun.max, fun.ymax :  X에 대응하는 Y값의 최대값 함수 설정  
-  - fun.args : 함수에 전달될 매개변수  
-  - na.rm : NA 값을 생략할 것인지를 설정하는 논리값  
-  - show.legend : 범례를 사용할 것인지를 설정하는 논리값  
-  - inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값  
-
+stat_summary(mapping = NULL, data = NULL, geom = "pointrange", position = "identity", fun.data = NULL, fun = NULL, fun.max = NULL, fun.min = NULL, fun.args = list(), na.rm = FALSE, show.legend = NA, fun.y, fun.ymin, fun.ymax)\
+- mapping : aes()를 사용하여 매핑할 미적 요소, 생략되면 ggplot()에 정의된 미적매핑 사용\
+- data : 시각화를 위해 사용될 데이터, 생략되면 ggplot()에 정의된 데이터 사용\
+- geom : 시각화에 적용될 미적 요소를 설정, 기본값은 'pointrange'\
+- position : 시각화에 적용될 위치요소 설정, 기본값은 'identity'\
+- fun.data : ymin, y, ymax를 포함하는 데이터프레임을 반환하는 함수 설정\
+- fun, fun.y : X값에 대응하는 Y값을 구하는 함수 설정\
+- fun.min, fun.ymin : X에 대응하는 Y값의 최소값 함수 설정\
+- fun.max, fun.ymax : X에 대응하는 Y값의 최대값 함수 설정\
+- fun.args : 함수에 전달될 매개변수\
+- na.rm : NA 값을 생략할 것인지를 설정하는 논리값\
+- show.legend : 범례를 사용할 것인지를 설정하는 논리값\
+- inherit.aes : ggplot()에서 설정한 매핑값을 상속받을지 결정하는 논리값
 :::
 
 다음의 코드는 박스 플롯에 평균을 추가하는 코드이다.
@@ -1614,12 +1596,11 @@ p_density +
 `coord_cartesian()`으로 제공되는 좌표계는 가장 일반적이고 대중적으로 사용되는 2차원 좌표계이다. 이 함수를 사용해서 X축과 Y축의 범위를 설정할 수 있고 이 범위의 설정은 특정 부분을 확대하거나 축소하는 줌과 같은 역할을 할 수 있다.
 
 ::: {custom-style="comment"}
-coord_cartesian(xlim = NULL, ylim = NULL, expand = TRUE, default = FALSE, clip = "on")  
-  - xlim, ylim : X축과 Y축의 범위를 설정, 최소와 최대값의 벡터로 전달  
-  - expand : X축과 Y축의 범위를 조금 넓게 확장해줄 수 있는지 결정하는 논리값  
-  - default : 기본 좌표계를 사용할지에 대한 논리값  
-  - clip : 서브 그래프의 표현값들이 서브 그래프를 벗어날 경우 해당 값을 자를지를 설정하는 논리값  
-
+coord_cartesian(xlim = NULL, ylim = NULL, expand = TRUE, default = FALSE, clip = "on")\
+- xlim, ylim : X축과 Y축의 범위를 설정, 최소와 최대값의 벡터로 전달\
+- expand : X축과 Y축의 범위를 조금 넓게 확장해줄 수 있는지 결정하는 논리값\
+- default : 기본 좌표계를 사용할지에 대한 논리값\
+- clip : 서브 그래프의 표현값들이 서브 그래프를 벗어날 경우 해당 값을 자를지를 설정하는 논리값
 :::
 
 `coord_cartesian()`은 다음과 같이 사용할 수 있다.
@@ -1645,11 +1626,10 @@ p_line +
 `coord_flip()`에서 제공하는 좌표계는 X축과 Y축이 서로 뒤바꾸어 표현되는 좌표계이다. X축과 Y축의 표현 만이 바뀌는 것이지 매핑은 바뀌지 않기 때문에 이 부분을 잘 고려해야 한다. 보통 X축과 Y축에 매핑되는 데이터의 경우 주어진 X값(독립변수)에 따라 산출된 Y값(종속변수)으로 설정하는 경우가 많다. 하지만 주어진 Y값에 대해 X값을 표현해야하는 경우 `coord_flip()`을 사용하여 축을 틀어 표현하거나 가로 형태로 길게 표현되어야 하는 시각화의 경우 X축과 Y축을 바꾸어 표현하는 방법을 사용한다.
 
 ::: {custom-style="comment"}
-coord_flip(xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")  
-  - xlim, ylim : X축과 Y축의 범위를 설정, 최소와 최대값의 벡터로 전달  
-  - expand : X축과 Y축의 범위를 조금 넓게 확장해줄 수 있는지 결정하는 논리값  
-  - clip : 서브 그래프의 표현값들이 서브 그래프를 벗어날 경우 해당 값을 자를지를 설정하는 논리값  
-
+coord_flip(xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")\
+- xlim, ylim : X축과 Y축의 범위를 설정, 최소와 최대값의 벡터로 전달\
+- expand : X축과 Y축의 범위를 조금 넓게 확장해줄 수 있는지 결정하는 논리값\
+- clip : 서브 그래프의 표현값들이 서브 그래프를 벗어날 경우 해당 값을 자를지를 설정하는 논리값
 :::
 
 `coord_flip()`은 다음과 같이 사용할 수 있다.
@@ -1669,12 +1649,11 @@ p_col +
 `coord_fixed()`는 X축과 Y축의 비율을 고정시킨 좌표계를 제공한다. 따라서 `coord_fixed()`에서 사용되는 X축과 Y축은 유사한 범위를 가진 데이터로 매핑하는 것이 좋다. 예를 들어 X축을 0부터 100까지 데이터가 표현되는 백분률을 표현할 경우 Y축도 이와 유사한 데이터가 매핑되도록 해야 한다. 그런데 둘다 백분률 데이터라고 해도 하나의 데이터는 0과 100까지의 범위, 하나의 데이터는 0과 1까지의 범위라면 두 데이터의 비율이 1:1이 아닌 1:0.01이 될 것이기 때문에 데이터가 정확히 표현되지 않을 것이다. 이런 경우에는 `rario` 매개변수를 사용하여 비율을 조절한다.
 
 ::: {custom-style="comment"}
-coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")  
-  - ratio : X축과 Y축의 비율을 설정  
-  - xlim, ylim : X축과 Y축의 범위를 설정, 최소와 최대값의 벡터로 전달  
-  - expand : X축과 Y축의 범위를 조금 넓게 확장해줄 수 있는지 결정하는 논리값  
-  - clip : 서브 그래프의 표현값들이 서브 그래프를 벗어날 경우 해당 값을 자를지를 설정하는 논리값  
-
+coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")\
+- ratio : X축과 Y축의 비율을 설정\
+- xlim, ylim : X축과 Y축의 범위를 설정, 최소와 최대값의 벡터로 전달\
+- expand : X축과 Y축의 범위를 조금 넓게 확장해줄 수 있는지 결정하는 논리값\
+- clip : 서브 그래프의 표현값들이 서브 그래프를 벗어날 경우 해당 값을 자를지를 설정하는 논리값
 :::
 
 아래의 코드는 `coord_fixed()`의 사용 예제이다. Y축에 매핑된 데이터가 0부터 100까지의 백분률 데이터이기 때문에 X축의 0부터 100까지의 길이에 해당하는 만큼의 Y축만 표현된다.
@@ -1735,12 +1714,11 @@ p_point +
 `coord_polar()`는 반지름과 각도를 사용하여 좌표를 지정하는 극(Polar) 좌표계를 설정하는 함수이다. 사실 극 좌표계는 모든 기하 요소에서 사용되기 보다는 특정한 응용이 필요한 기하 요소에서 사용되는 좌표계이다. 극 좌표계에서 표현되는 기하 요소는 좌표계의 변형에 따라 같이 변형되기 때문에 막대 그래프의 경우는 원형 그래프로 변형된다. `coord_polar()`는 다음과 같이 사용된다.
 
 ::: {custom-style="comment"}
-coord_polar(theta = "x", start = 0, direction = 1, clip = "on")  
-  - theta : 각도로 매핑될 변수 설정(x나 y중 하나)  
-  - start : 시작각도로 사용할 위치점의 12시 방향에서부터의 오프셋값  
-  - direction : 1은 시계방향, -1은 반시계방향  
-  - clip : 서브 그래프의 표현값들이 서브 그래프를 벗어날 경우 해당 값을 자를지를 설정하는 논리값  
-
+coord_polar(theta = "x", start = 0, direction = 1, clip = "on")\
+- theta : 각도로 매핑될 변수 설정(x나 y중 하나)\
+- start : 시작각도로 사용할 위치점의 12시 방향에서부터의 오프셋값\
+- direction : 1은 시계방향, -1은 반시계방향\
+- clip : 서브 그래프의 표현값들이 서브 그래프를 벗어날 경우 해당 값을 자를지를 설정하는 논리값
 :::
 
 `ggplot2`에서 파이차트를 그리는 방법은 막대 그래프에 극 좌표계를 적용시키는 방법이다.
@@ -1759,21 +1737,20 @@ df_입학자_long |> filter(연도 == '2021', 지역 == '전체') |>
 
 ## 테마 요소
 
-테마 요소는 `ggplot` 객체 중에서 데이터로 표현되지 않는 시각화 세부 요소들에 대한 설정을 위한 요소이다. 테마 요소는 데이터와 관련 없는 요소들이기 때문에 시각화의 근본적인 속성을 변경하지는 않고 시각화 내용을 보다 이해하기 쉽게 만들어 주는 폰트, 백그라운드, 패널 보조선, 눈금 등의 설정과 관련된 요소이다. 
+테마 요소는 `ggplot` 객체 중에서 데이터로 표현되지 않는 시각화 세부 요소들에 대한 설정을 위한 요소이다. 테마 요소는 데이터와 관련 없는 요소들이기 때문에 시각화의 근본적인 속성을 변경하지는 않고 시각화 내용을 보다 이해하기 쉽게 만들어 주는 폰트, 백그라운드, 패널 보조선, 눈금 등의 설정과 관련된 요소이다.
 
 ### theme()
 
 테마요소를 설정하기 위해서 사용하는 함수이다. 테마요소들은 모두 `theme()` 안에서 설정되어야 한다. 이를 설정하기 위해 `theme()` 안에서 다음에 설명하는 엘리먼트와 엘리먼트 함수를 사용한다.
 
 ::: {custom-style="comment"}
-theme(line, rect, text, title, aspect.ratio, ...)  
-  - line : element_line()으로 설정하는 엘리먼트  
-  - rect : element_rect()로 설정하는 엘리먼트  
-  - text : element_text()로 설정하는 엘리먼트  
-  - title : 제목과 관련한 엘리먼트  
-  - aspect.ratio : 패널의 비율  
-  - ... : 세부 설정을 위한 매개변수와 엘리먼트  
-
+theme(line, rect, text, title, aspect.ratio, ...)\
+- line : element_line()으로 설정하는 엘리먼트\
+- rect : element_rect()로 설정하는 엘리먼트\
+- text : element_text()로 설정하는 엘리먼트\
+- title : 제목과 관련한 엘리먼트\
+- aspect.ratio : 패널의 비율\
+- ... : 세부 설정을 위한 매개변수와 엘리먼트
 :::
 
 ### 엘리먼트(element)
@@ -1809,6 +1786,7 @@ theme(line, rect, text, title, aspect.ratio, ...)
 +-------------------------------------------------------------+--------------------------+-----------------------+
 | panel.grid                                                  | major, minor             | 패널의 눈금선 설정    |
 +-------------------------------------------------------------+--------------------------+-----------------------+
+
 : 표 3 - 1 테마 엘리먼트의 종류와 의미
 
 ### 엘리먼트 함수
@@ -1817,7 +1795,7 @@ theme(line, rect, text, title, aspect.ratio, ...)
 
 #### element_blank()
 
-`element_blank()`는 모든 엘리먼트에 사용할 수 있는 엘리먼트 속성 설정 함수로써 엘리먼트에 설정되어 있는 모든 속성을 제거해 표현되지 않게 만드는 함수이다. 엘리먼트 속성을 제거할 때 사용하거나 모든 특성을 제거하고 자신이 원하는 속성을 만들 때 주로  사용된다. `element_blank()`는 매개변수 없이 함수의 선언만으로 사용이 가능하다.
+`element_blank()`는 모든 엘리먼트에 사용할 수 있는 엘리먼트 속성 설정 함수로써 엘리먼트에 설정되어 있는 모든 속성을 제거해 표현되지 않게 만드는 함수이다. 엘리먼트 속성을 제거할 때 사용하거나 모든 특성을 제거하고 자신이 원하는 속성을 만들 때 주로 사용된다. `element_blank()`는 매개변수 없이 함수의 선언만으로 사용이 가능하다.
 
 #### element_line()
 
@@ -1947,13 +1925,12 @@ theme_element +
 엘리먼트가 사각형으로 표현되는 경계선이나 배경과 같은 엘리먼트의 속성을 설정할 때 사용하는 함수이다. `element_rect()`의 사용법과 주요 매개변수는 다음과 같다
 
 ::: {custom-style="comment"}
-element_rect(fill = NULL, size = NULL, linetype = NULL, color = NULL, inherit.blank = FALSE)  
-  - fill : 사각형을 채우는 색 설정  
-  - color : 사각형의 외곽선 색 설정  
-  - size : 사각형의 외곽선 두께 설정  
-  - linetype: 사각셩 외곽선 타입 설정  
-  - inherit.blank : 앞서 설정한 테마요소를 상속할지를 결정하는 논리값  
-
+element_rect(fill = NULL, size = NULL, linetype = NULL, color = NULL, inherit.blank = FALSE)\
+- fill : 사각형을 채우는 색 설정\
+- color : 사각형의 외곽선 색 설정\
+- size : 사각형의 외곽선 두께 설정\
+- linetype: 사각셩 외곽선 타입 설정\
+- inherit.blank : 앞서 설정한 테마요소를 상속할지를 결정하는 논리값
 :::
 
 `element_rect()`을 사용하여 테마요소를 설정하는 방법은 다음과 같다.
@@ -1974,31 +1951,56 @@ theme_element +
 
 앞서 설명한 바와 같이 `theme()`의 세부 매개변수들을 조절함으로써 `ggplot` 객체의 세부적인 특성들을 설정하여 자신이 원하는 시각화를 만들수 있다. 하지만 전문 디자이너들이 미리 예쁘게 만들어 놓은 테마를 가져다 사용하는 것도 좋은 방법이 될 수 있다. `ggplot2` 패키지에서는 미리 정의된 9가지의 테마를 제공한다. 그리고 `ggthemes` 패키지에서 14가지의 테마를 제공한다.
 
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | 패키지   | 테마함수                | 설명                                                                                                                                                   |
-|----------|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
++==========+=========================+========================================================================================================================================================+
 | ggplot2  | theme_gray()            | 회색 배경과 흰색 눈금선이 있는 테마로 ggplot2의 시그니처 테마로 데이터를 전달하면서도 쉽게 비교할 수 있도록 설계                                       |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggplot2  | theme_bw()              | 고전적인 dark-on-light ggplot2 테마. 프로젝터로 표시되는 프레젠테이션에 효과적임                                                                       |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 |          | theme_linedraw()        | 선 그림과 같이 다양한 굵기의 검은색 선만 있는 테마. theme_bw()과 같이 프로젝터에 효과적이나 일부 저널에서 거부할 수 있는 매우 가는 선(\<\< 1pt)이 있음 |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggplot2  | theme_light()           | theme_linesraw()와 유사하지만 밝은 회색 선과 축을 사용하여 사용시 주의가 필요                                                                          |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggplot2  | theme_dark()            | theme_light()와 선 크기는 비슷하지만 배경이 어두운 테마. 얇은 색의 선이 튀어나오게 할 때 유용                                                          |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggplot2  | theme_minimal()         | 배경 주석이 없는 최소한의 테마                                                                                                                         |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggplot2  | theme_classic()         | x 및 y축 선이 있고 눈금선이 없는 고전적인 모양의 테마                                                                                                  |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggplot2  | theme_void()            | 완전히 빈 테마                                                                                                                                         |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_base()            | R의 기본 기본 그래픽과 유사한 테마                                                                                                                     |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_wsj()             | 월스트리트 저널 테마                                                                                                                                   |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_tufte()           | ufte의 'The Visual Display of Quantitative Information'에 기반한 최소한의 잉크 테마                                                                    |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_stata()           | Stata 그래프 체계를 기반으로 한 테마                                                                                                                   |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_solid()           | 배경색 외에 아무것도 없는 테마                                                                                                                         |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_solarized()       | Solarized 팔레트를 기반으로 하는 ggplot 색상 테마                                                                                                      |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_map()             | 지도에 대한 깨끗한 테마                                                                                                                                |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_igray()           | 흰색 플롯 영역과 회색 배경을 사용한 theme_grey의 역(inverse) 테마                                                                                      |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_hc()              | Highcharts JS를 기반으로한 테마                                                                                                                        |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_gdocs()           | Google docs 차트 기본값이 있는 테마                                                                                                                    |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_fivethirtyeight() | fivethirtyeight.com 플롯에서 영감을 받은 테마                                                                                                          |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_few()             | Stephen Few의 "차트에서 색상을 사용하기 위한 실제 규칙"("Practical Rules for Using Color in Charts")에서 사용한 테마                                   |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_excel()           | Excel의 고전적인 회색 차트 기반의 테마                                                                                                                 |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_economist()       | The Economist 잡지의 플롯을 기반으로 한 테마.                                                                                                          |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ggthemes | theme_calc()            | LibreOffice Calc 기반 테마                                                                                                                             |
++----------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
+
 : 표 3 - 2 완성형 테마의 종류
 
 ![그림 3-11 ggplot2의 테마](C:/R/git/datavisualization/fig/3-11.png)
@@ -2007,7 +2009,7 @@ theme_element +
 
 ### 사용자 정의 테마
 
-`ggplot2`나 `ggthemes`에서 제공하는 테마는 전문 디자이너들이 만든 테마이기 때문에 보기도 좋고 사용하기도 쉽다. 하지만 사용하다 보면 항상 뭔가를 바꾸고 싶을 때가 있고 자신만의 테마를 만들어 사용해야 하는 때가 있다. 이렇게 사용자가 원하는 테마를 만들기 위해서는 `theme_get()`, `theme_set()`, `theme_update()`, `theme_replace()`를 사용한다. `theme_get()`은 현재 설정된 테마의 세부 속성값을 알아내는 함수이고 `theme_set()`은 자신의 테마를 설정할 때 사용하는 함수이다. `theme_update()`는 현재 테마 요소 중 일부만 변경할 경우 사용하며 `theme_replace()`는 현재 테마 요소 대신  테마 요소를 설정할 때 사용한다. 
+`ggplot2`나 `ggthemes`에서 제공하는 테마는 전문 디자이너들이 만든 테마이기 때문에 보기도 좋고 사용하기도 쉽다. 하지만 사용하다 보면 항상 뭔가를 바꾸고 싶을 때가 있고 자신만의 테마를 만들어 사용해야 하는 때가 있다. 이렇게 사용자가 원하는 테마를 만들기 위해서는 `theme_get()`, `theme_set()`, `theme_update()`, `theme_replace()`를 사용한다. `theme_get()`은 현재 설정된 테마의 세부 속성값을 알아내는 함수이고 `theme_set()`은 자신의 테마를 설정할 때 사용하는 함수이다. `theme_update()`는 현재 테마 요소 중 일부만 변경할 경우 사용하며 `theme_replace()`는 현재 테마 요소 대신 테마 요소를 설정할 때 사용한다.
 
 ```{r eval = FALSE}
 theme_get()
@@ -2022,13 +2024,13 @@ theme_replace(...)
 
 ```
 
-`theme_get()`을 사용해 현재 설정된 테마 요소를 살펴보면 다음과 같다. 
+`theme_get()`을 사용해 현재 설정된 테마 요소를 살펴보면 다음과 같다.
 
 ```{r}
 theme_get() |> head(2) ## 지면 관계상 2개만 출력
 ```
 
-현재 설정된 테마 요소는 `ggplot2`에서 제공하는 기본 테마 요소에 앞서 `element_*()`의 실습에 설정한 속성들이 추가되어 있다. 이들을 사용자가 원하는 테마로 바꾸기 위해 `theme_set()`을 사용한다. 다음의 테마는 이 책에서 사용할 기본 테마로 사용할 것이다. 
+현재 설정된 테마 요소는 `ggplot2`에서 제공하는 기본 테마 요소에 앞서 `element_*()`의 실습에 설정한 속성들이 추가되어 있다. 이들을 사용자가 원하는 테마로 바꾸기 위해 `theme_set()`을 사용한다. 다음의 테마는 이 책에서 사용할 기본 테마로 사용할 것이다.
 
 ```{r}
 theme_set(
@@ -2107,7 +2109,8 @@ theme_set(
 +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------+
 | `scale_size()` `scale_radius()` `scale_size_binned()` `scale_size_area()` `scale_size_binned_area()`                                                                  | 원형 점의 스케일 설정                                      |
 +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------+
-: 표 3 - 3 scale_*_*()의 종류와 의미
+
+: 표 3 - 3 scale\_\*\_\*()의 종류와 의미
 
 스케일은 생략되어도 기본적으로 설정된다. 아래의 코드를 살펴보자.
 
@@ -2147,16 +2150,15 @@ scale_line +
 주요 `scale_*_*()`에서 공통적으로 많이 사용되는 매개변수는 다음과 같다.
 
 ::: {custom-style="comment"}
-scale_*_*(palette, name = waiver(), breaks = waiver(), labels = waiver(), limits = NULL, guide = "legend", position = "left", ...)  
-  - palette : 색상 선택을 위한 팔래트 함수  
-  - name : 스케일에 설정할 이름, 축이나 범례의 이름  
-  - breaks : 이산값의 분할점을 설정하는 매개변수로 NULL(분할값 없음), waiver() 함수(`ggplot`의 기본 설정 값 사용 함수), 분할점의 문자열 벡터, 분할점을 리턴하는 함수 중 하나 설정  
-  - labels : 분할점에 표기될 라벨로 NULL(라벨 없음), waiver(), 라벨로 사용할 문자열 벡터(breaks와 동일한 벡터 길이), 분할점 라벨을 리턴하는 함수 중 하나 설정  
-  - limits : 이산값의 범위를 설정하는데 NULL(기본값 사용), 이산값의 범위에 해당하는 문자열 벡터, 이산값의 범위 벡터를 리턴하는 함수 중 하나를 설정  
-  - guide : guide_*()를 사용하여 설정하는 범례나 축의 세부 설정  
-  - position : 스케일의 위치 설정(left, right, top, bottom)  
-  - ... : 그 외 각각의 스케일에 따라 사용되는 매개변수  
-
+scale\_\*\_*(palette, name = waiver(), breaks = waiver(), labels = waiver(), limits = NULL, guide = "legend", position = "left", ...)\
+- palette : 색상 선택을 위한 팔래트 함수\
+- name : 스케일에 설정할 이름, 축이나 범례의 이름\
+- breaks : 이산값의 분할점을 설정하는 매개변수로 NULL(분할값 없음), waiver() 함수(`ggplot`의 기본 설정 값 사용 함수), 분할점의 문자열 벡터, 분할점을 리턴하는 함수 중 하나 설정\
+- labels : 분할점에 표기될 라벨로 NULL(라벨 없음), waiver(), 라벨로 사용할 문자열 벡터(breaks와 동일한 벡터 길이), 분할점 라벨을 리턴하는 함수 중 하나 설정\
+- limits : 이산값의 범위를 설정하는데 NULL(기본값 사용), 이산값의 범위에 해당하는 문자열 벡터, 이산값의 범위 벡터를 리턴하는 함수 중 하나를 설정\
+- guide : guide\_*()를 사용하여 설정하는 범례나 축의 세부 설정\
+- position : 스케일의 위치 설정(left, right, top, bottom)\
+- ... : 그 외 각각의 스케일에 따라 사용되는 매개변수
 :::
 
 앞의 시각화에서 설정한 스케일 함수는 아래와 같이 세부 속성 설정이 가능하다.
@@ -2177,26 +2179,21 @@ scale_line +
 제목, 부제목, 축 제목 스케일을 위해 제공하는 헬퍼함수는 `labs()`(ggplot의 제목, 부제목 설정), `xlab()`(X축의 제목을 설정), `ylab()`(Y축의 제목을 설정), `ggtitle()`(ggplot의 제목, 부제목 설정) 이다.
 
 ::: {custom-style="comment"}
-labs(title = waiver(), subtitle = waiver(), caption = waiver(), tag = waiver(), alt = waiver(), alt_insight = waiver())  
-  - title : ggplot의 전체 제목 설정  
-  - subtitle : ggplot의 부제목 설정  
-  - caption : ggplot의 설명문 설정   
-  - tag : 플롯의 왼쪽 위에 표시되는 tag 설정  
-  - alt, alt_insight : Alt Text의 생성에 사용되는 문자열  
+labs(title = waiver(), subtitle = waiver(), caption = waiver(), tag = waiver(), alt = waiver(), alt_insight = waiver())\
+- title : ggplot의 전체 제목 설정\
+- subtitle : ggplot의 부제목 설정\
+- caption : ggplot의 설명문 설정\
+- tag : 플롯의 왼쪽 위에 표시되는 tag 설정\
+- alt, alt_insight : Alt Text의 생성에 사용되는 문자열
 
-xlab(label)
-  - label : X축 제목 설정
+xlab(label) - label : X축 제목 설정
 
-ylab(label)
-  - label : Y축 제목 설정
+ylab(label) - label : Y축 제목 설정
 
-ggtitle(label, subtitle = waiver()) 
-  - title : ggplot의 전체 제목 설정
-  - subtitle : ggplot의 부제목 설정
-
+ggtitle(label, subtitle = waiver()) - title : ggplot의 전체 제목 설정 - subtitle : ggplot의 부제목 설정
 :::
 
-`labs()`, `xlabs()`, `ylabs()`를 사용하여 각각의 제목을 설정하는 코드는 다음과 같다. 
+`labs()`, `xlabs()`, `ylabs()`를 사용하여 각각의 제목을 설정하는 코드는 다음과 같다.
 
 ```{r fig.cap='제목을 설정한 ggplot'}
 ## scale_line 객체에
@@ -2259,31 +2256,30 @@ scale_line3
 
 -   scales::comma : 숫자 포맷으로 천단위 구분 기호로 콤마(,)를 사용하는 포맷
 
--   scales::percent : 백분률 포맷으로 원값에 100을 곱한 값이 표시되며 접미어에 ’%’가 붙음
+-   scales::percent : 백분률 포맷으로 원값에 100을 곱한 값이 표시되며 접미어에 '%'가 붙음
 
--   scales::dollar : 달러 통화 포맷으로 접두사에 ’$’가 붙음
+-   scales::dollar : 달러 통화 포맷으로 접두사에 '\$'가 붙음
 
 -   scales::scientific : 과학적 포맷으로 지수형태의 표기
 
-위의 함수를 사용할 때 함수의 기본값을 사용한다면 함수의 뒤에 괄호(`()`)없이 함수명만 지정함으로써 사용이 가능하다. 하지만 포맷의 세부 특성을 설정하기 위해서는 함수의 괄호 안에 세부 특성값을 설정할 수 있다. 이 함수들의 사용법과 주요 매개변수는 다음과 같다. 
+위의 함수를 사용할 때 함수의 기본값을 사용한다면 함수의 뒤에 괄호(`()`)없이 함수명만 지정함으로써 사용이 가능하다. 하지만 포맷의 세부 특성을 설정하기 위해서는 함수의 괄호 안에 세부 특성값을 설정할 수 있다. 이 함수들의 사용법과 주요 매개변수는 다음과 같다.
 
 ::: {custom-style="comment"}
-number(accuracy = NULL, scale = 1, prefix = "", suffix = "", big.mark = " ", decimal.mark = ".", trim = TRUE, ...)  
-  
-comma(x, accuracy = NULL, scale = 1, prefix = "", suffix = "", big.mark = ",", decimal.mark = ".", trim = TRUE, digits, ...)  
-  
-percent(x, accuracy = NULL, scale = 100, prefix = "", suffix = "%", big.mark = " ", decimal.mark = ".", trim = TRUE, ...)  
-  
-dollar(x, accuracy = NULL, scale = 1, prefix = "$", suffix = "", big.mark = ",", decimal.mark = ".", trim = TRUE, largest_with_cents = 1e+05, negative_parens = FALSE, ...)  
-  
-scientific(x, digits = 3, scale = 1, prefix = "", suffix = "", decimal.mark = ".", trim = TRUE, ...)  
-  - accuracy : 반올림 되어 표기될 숫자의 유효숫자 범위를 지정. 예를 들어 0.01로 설정하면 소수점 세째자리에서 반올림하여 소수점 두쨰자리까지 표시됨.  
-  - scale : 스케일 팩터를 지정. 표기될 숫자는 포맷팅 되기 전에 스케일 팩터가 곱해짐. 수치값이 매우 작거나 매우 클때 유용함.  
-  - prefix : 숫자의 앞 에 표시될 문자 지정  
-  - sufix : 숫자의 뒤에 표시될 문자 지정  
-  - big.mark : 매 3자리(천단위)마다 표시될 문자 지정  
-  - decimal.mark : 소수점으로 표시될 문자 지정  
+number(accuracy = NULL, scale = 1, prefix = "", suffix = "", big.mark = " ", decimal.mark = ".", trim = TRUE, ...)
 
+comma(x, accuracy = NULL, scale = 1, prefix = "", suffix = "", big.mark = ",", decimal.mark = ".", trim = TRUE, digits, ...)
+
+percent(x, accuracy = NULL, scale = 100, prefix = "", suffix = "%", big.mark = " ", decimal.mark = ".", trim = TRUE, ...)
+
+dollar(x, accuracy = NULL, scale = 1, prefix = "\$", suffix = "", big.mark = ",", decimal.mark = ".", trim = TRUE, largest_with_cents = 1e+05, negative_parens = FALSE, ...)
+
+scientific(x, digits = 3, scale = 1, prefix = "", suffix = "", decimal.mark = ".", trim = TRUE, ...)\
+- accuracy : 반올림 되어 표기될 숫자의 유효숫자 범위를 지정. 예를 들어 0.01로 설정하면 소수점 세째자리에서 반올림하여 소수점 두쨰자리까지 표시됨.\
+- scale : 스케일 팩터를 지정. 표기될 숫자는 포맷팅 되기 전에 스케일 팩터가 곱해짐. 수치값이 매우 작거나 매우 클때 유용함.\
+- prefix : 숫자의 앞 에 표시될 문자 지정\
+- sufix : 숫자의 뒤에 표시될 문자 지정\
+- big.mark : 매 3자리(천단위)마다 표시될 문자 지정\
+- decimal.mark : 소수점으로 표시될 문자 지정
 :::
 
 ### 색 스케일 설정
@@ -2299,15 +2295,14 @@ scales::show_col(hex_codes2)
 색상을 설정하는데 가장 편리한 방법은 미리 정의된 색상 세트인 팔레트를 사용하는 것이다. R에서 많이 사용하는 색상 팔레트는 `RColorBrewer` 패키지에서 정의하는 색상 팔레트인데 `scale_color_brewer()`를 사용하여 `RColorBrewer`에서 제공하는 색상 팔레트를 사용할 수 있다. `scale_color_brewer()`는 `scale_fill_brewer()`와 사용방법이 동일하다.
 
 ::: {custom-style="comment"}
-scale_colour_brewer(scale_*_*() 매개변수, type = "seq", palette = 1, direction = 1)  
-  
-scale_fill_brewer(scale_*_*() 매개변수, type = "seq", palette = 1, direction = 1)  
+scale_colour_brewer(scale\_\*\_\*() 매개변수, type = "seq", palette = 1, direction = 1)
 
-  - scale_*_*() 매개변수 : scale_*_*()의 주요 매개변수  
-  - type : 'seq', 'div', 'qual'중의 하나로 팔레트 타입을 설정  
-  - pallette : RColorBrewer에서 제공하는 팔레트 이름  
-  - direction : 컬러 팔레트의 순서 방향  
+scale_fill_brewer(scale\_\*\_\*() 매개변수, type = "seq", palette = 1, direction = 1)
 
+-   scale\_*() 매개변수 : scale\_*()의 주요 매개변수\
+-   type : 'seq', 'div', 'qual'중의 하나로 팔레트 타입을 설정\
+-   pallette : RColorBrewer에서 제공하는 팔레트 이름\
+-   direction : 컬러 팔레트의 순서 방향
 :::
 
 `RColorBrewer`에서 제공하는 색상의 확인은 다음과 같다.
@@ -2326,7 +2321,7 @@ scale_line3 +
 
 ```
 
-이렇게 각 팔레트에서 제공하는 색상을 확인해서 사용한다. 하지만 이런 식의 확인은 매우 번거롭고 어려운 작업이다. `tmaptools` 패키지에서 제공하는 `pallete_explorer()`를 사용하면 색상 팔레트를 쉽게 확인할 수 있다. 
+이렇게 각 팔레트에서 제공하는 색상을 확인해서 사용한다. 하지만 이런 식의 확인은 매우 번거롭고 어려운 작업이다. `tmaptools` 패키지에서 제공하는 `pallete_explorer()`를 사용하면 색상 팔레트를 쉽게 확인할 수 있다.
 
 ```{r eval = FALSE}
 if(!require(tmaptools)) {
@@ -2433,14 +2428,13 @@ legend_line
 앞의 넓은 형태의 그래프에는 각각의 선을 색으로 구분했다. 따라서 `scale_color_*()`를 사용한다. 이렇게 사용자가 직접 미적 요소의 스케일을 설정하는 함수의 접미사는 'manual'이기 떄문에 `scale_color_manual()`을 사용한다. `scale_color_manual()`와 `scale_fill_manual()`의 사용법과 주요 매개변수는 다음과 같다.
 
 ::: {custom-style="comment"}
-scale_color_manual(scale_*_*() 매개변수, values, breaks = waiver(),  na.value = "grey50")  
-  
-scale_fill_manual(scale_*_*() 매개변수, values, breaks = waiver(), na.value = "grey50")  
-  - scale_*_*() 매개변수 : scale_*_*()의 주요 매개변수  
-  - values : 데이터 변량과 색의 매핑을 위한 네임드 벡터  
-  - breaks : 색의 구분값으로 사용될 벡터  
-  - na.value : 결측치에 대한 값 설정  
+scale_color_manual(scale\_\*\_\*() 매개변수, values, breaks = waiver(), na.value = "grey50")
 
+scale_fill_manual(scale\_*() 매개변수, values, breaks = waiver(), na.value = "grey50")\
+- scale\_*() 매개변수 : scale\_\*\_\*()의 주요 매개변수\
+- values : 데이터 변량과 색의 매핑을 위한 네임드 벡터\
+- breaks : 색의 구분값으로 사용될 벡터\
+- na.value : 결측치에 대한 값 설정
 :::
 
 `scale_color_manual()`를 사용한 코드는 다음과 같다.
@@ -2478,27 +2472,27 @@ df_입학자 |> filter(지역 == '전체') |>
 이 중 `guide()`는 축과 범례에 대한 스케일의 세부 설정을 위한 함수이다. `guides()`는 가이드 설정을 위한 리스트를 생성하는 함수이고 이 리스트를 범례에 설정하는 함수가 `guide_legend()`이다. `guide_legend()`의 사용법과 주요 매개변수는 다음과 같다.
 
 ::: {custom-style="comment"}
-guides(...)  
-  - ... : 미적 요소 속성 이름과 가이드 특성을 페어로 설정  
+guides(...)\
+- ... : 미적 요소 속성 이름과 가이드 특성을 페어로 설정
 
-guide_legend(title = waiver(), title.position = NULL, title.theme = NULL,   title.hjust = NULL, title.vjust = NULL, label = TRUE, label.position = NULL, label.theme = NULL, label.hjust = NULL, label.vjust = NULL, keywidth = NULL, keyheight = NULL, direction = NULL, nrow = NULL, ncol = NULL, byrow = FALSE, reverse = FALSE)  
-  - title : 범례의 제목 설정  
-  - title.position : 범례 제목의 위치 설정  
-  - title.theme : 범례 제목의 테마 설정  
-  - title.hjust : 범례 제목의 수평 위치 설정  
-  - title.vjust : 범례 제목의 수직 위치 설정  
-  - label : 범례 라벨을 표현할지를 결정하는 논리값  
-  - label.position : 범례 라벨 위치를 설정  
-  - label.theme : 범례 라벨의 테마 설정  
-  - label.hjust : 범례 라벨의 수평 위치 설정  
-  - label.vjust : 범례 라벨의 수직 위치 설정  
-  - keywidth : 범례 키의 너비 설정  
-  - keyheight : 범례 키의 높이 설정  
-  - direction : 가이드의 방향('horizontal', 'vertical')  
-  - nrow : 범례의 행 갯수  
-  - ncol : 범례의 열 갯수  
-  - byrow : 범례의 행, 열을 설정할 때 행 방향으로 범례를 표시하는 논리값  
-  - reverse : 범례의 순서를 역방향으로 설정하는 논리값  
+guide_legend(title = waiver(), title.position = NULL, title.theme = NULL, title.hjust = NULL, title.vjust = NULL, label = TRUE, label.position = NULL, label.theme = NULL, label.hjust = NULL, label.vjust = NULL, keywidth = NULL, keyheight = NULL, direction = NULL, nrow = NULL, ncol = NULL, byrow = FALSE, reverse = FALSE)\
+- title : 범례의 제목 설정\
+- title.position : 범례 제목의 위치 설정\
+- title.theme : 범례 제목의 테마 설정\
+- title.hjust : 범례 제목의 수평 위치 설정\
+- title.vjust : 범례 제목의 수직 위치 설정\
+- label : 범례 라벨을 표현할지를 결정하는 논리값\
+- label.position : 범례 라벨 위치를 설정\
+- label.theme : 범례 라벨의 테마 설정\
+- label.hjust : 범례 라벨의 수평 위치 설정\
+- label.vjust : 범례 라벨의 수직 위치 설정\
+- keywidth : 범례 키의 너비 설정\
+- keyheight : 범례 키의 높이 설정\
+- direction : 가이드의 방향('horizontal', 'vertical')\
+- nrow : 범례의 행 갯수\
+- ncol : 범례의 열 갯수\
+- byrow : 범례의 행, 열을 설정할 때 행 방향으로 범례를 표시하는 논리값\
+- reverse : 범례의 순서를 역방향으로 설정하는 논리값
 :::
 
 #### 범례 제목
@@ -2685,18 +2679,17 @@ legend_line +
 컬러바 형태의 키는 앞서 사용했던 `guide_legend()`를 사용하지만 컬러바 형태의 범례 키는 연속형 데이터에서 사용하며 `guide_colorbar()`로 설정한다.
 
 ::: {custom-style="comment"}
-guide_colorbar(title = waiver(), title.position = NULL, title.theme = NULL, title.hjust = NULL, title.vjust = NULL, label = TRUE, label.position = NULL, label.theme = NULL, label.hjust = NULL, label.vjust = NULL, barwidth = NULL, barheight = NULL, nbin = 300, frame.colour = NULL, frame.linewidth = 0.5, frame.linetype = 1, ticks = TRUE, ticks.colour = "white", ticks.linewidth = 0.5, draw.ulim = TRUE, draw.llim = TRUE, direction = NULL, default.unit = "line", reverse = FALSE)  
-  - title, title.position, title.theme, title.hjust, title.vjust : 컬러바 제목에 관련된 설정  
-  - label,label.position, label.theme, label.hjust, label.vjust : 컬러바 라벨에 관한 설정  
-  - barwidth : 컬러바의 너비 설정  
-  - barheight : 컬러바의 높이 설정  
-  - nbin : 컬러바의 색상 단계 설정  
-  - frame.colour, frame.linewidth, frame.linetype : 컬러바의 테두리 색, 너비, 타입 설정  
-  - ticks, ticks.colour, ticks.linewidth : 컬러바의 눈금자 표현을 위한 논리값과 색, 선 너비 설정  
-  - draw.ulim, draw.llim : 최대 눈금과 최소 눈금 표현을 위한 논리값  
-  - direction : 범례 표시 방향('horizontal', 'vertical')  
-  - reverse : 범례 표시 방향을 역순으로 표시하는 논리값  
-
+guide_colorbar(title = waiver(), title.position = NULL, title.theme = NULL, title.hjust = NULL, title.vjust = NULL, label = TRUE, label.position = NULL, label.theme = NULL, label.hjust = NULL, label.vjust = NULL, barwidth = NULL, barheight = NULL, nbin = 300, frame.colour = NULL, frame.linewidth = 0.5, frame.linetype = 1, ticks = TRUE, ticks.colour = "white", ticks.linewidth = 0.5, draw.ulim = TRUE, draw.llim = TRUE, direction = NULL, default.unit = "line", reverse = FALSE)\
+- title, title.position, title.theme, title.hjust, title.vjust : 컬러바 제목에 관련된 설정\
+- label,label.position, label.theme, label.hjust, label.vjust : 컬러바 라벨에 관한 설정\
+- barwidth : 컬러바의 너비 설정\
+- barheight : 컬러바의 높이 설정\
+- nbin : 컬러바의 색상 단계 설정\
+- frame.colour, frame.linewidth, frame.linetype : 컬러바의 테두리 색, 너비, 타입 설정\
+- ticks, ticks.colour, ticks.linewidth : 컬러바의 눈금자 표현을 위한 논리값과 색, 선 너비 설정\
+- draw.ulim, draw.llim : 최대 눈금과 최소 눈금 표현을 위한 논리값\
+- direction : 범례 표시 방향('horizontal', 'vertical')\
+- reverse : 범례 표시 방향을 역순으로 표시하는 논리값
 :::
 
 앞선 절의 선 그래프의 `geom_point()`레이어의 색 매핑을 다음과 같이 바꾸면 컬러바 형태의 범례 키가 나타난다.
@@ -2833,35 +2826,33 @@ legend_position +
 축을 구성하는 요소는 축 제목(title, name), 축 눈금자(tick), 축 라벨(labels, text), 축 눈금(breaks) 등으로 구성되어 있다. 이 중 `scale_*()`의 매개변수로 사용되는 것은 `name`, `labels`, `breaks`이고 `theme()`의 매개변수로 사용되는 것은 title, text, ticks, line으로 접두사로 'axis'를 사용하고 세부 설정을 위해 'x', 'y', 'length' 등을 '.'을 사용해 붙여 설정할 수 있다. 축을 설정하는 `scale_*()`의 사용법과 주요 매개변수는 다음과 같다.
 
 ::: {custom-style="comment"}
-scale_x_discrete(scale_*_*() 매개변수, expand = waiver(), position = "bottom")  
-  
-scale_y_discrete(scale_*_*() 매개변수, expand = waiver(), position = "left")  
-  
-scale_x_continuous(scale_*_*() 매개변수, minor_breaks = waiver(), n.breaks = NULL, na.value = NA_real_, trans = "identity", sec.axis = waiver())  
-  
-scale_x_continuous(scale_*_*() 매개변수, minor_breaks = waiver(), n.breaks = NULL, na.value = NA_real_, trans = "identity", sec.axis = waiver())  
+scale_x\_discrete(scale\_\*\_\*() 매개변수, expand = waiver(), position = "bottom")
 
-  - scale_*_*() 매개변수 : scale_*_*()의 주요 매개변수  
-  - expand : 축의 범위에서 확장의 범위를 설정, 연속형 변수는 5%의, 이산형 변수는 0.6 유닛의 확장이 기본값  
-  - position : 축이 표시되는 위치 설정  
-  - minor_breaks : 주 눈금사이에 표시되는 보조 눈금 설정  
-  - n.breaks : 주 눈금을 눈금의 갯수로 설정  
-  - na.value : 결측치를 표기방법 설정  
-  - trans : 축의 변환을 위해 사용하는 변환 함수 설정  
-  - sec.axis : 두번째 보조 축의 설정  
+scale_y\_discrete(scale\_\*\_\*() 매개변수, expand = waiver(), position = "left")
 
+scale_x\_continuous(scale\_\*\_\*() 매개변수, minor_breaks = waiver(), n.breaks = NULL, na.value = NA_real\_, trans = "identity", sec.axis = waiver())
+
+scale_x\_continuous(scale\_\*\_\*() 매개변수, minor_breaks = waiver(), n.breaks = NULL, na.value = NA_real\_, trans = "identity", sec.axis = waiver())
+
+-   scale\_*() 매개변수 : scale\_*()의 주요 매개변수\
+-   expand : 축의 범위에서 확장의 범위를 설정, 연속형 변수는 5%의, 이산형 변수는 0.6 유닛의 확장이 기본값\
+-   position : 축이 표시되는 위치 설정\
+-   minor_breaks : 주 눈금사이에 표시되는 보조 눈금 설정\
+-   n.breaks : 주 눈금을 눈금의 갯수로 설정\
+-   na.value : 결측치를 표기방법 설정\
+-   trans : 축의 변환을 위해 사용하는 변환 함수 설정\
+-   sec.axis : 두번째 보조 축의 설정
 :::
 
 또 `theme()`에서 설정 가능한 축의 매개변수는 다음과 같다.
 
 ::: {custom-style="comment"}
-theme(axis.title, axis.title.x, axis.title.x.top, axis.title.x.bottom,   axis.title.y, axis.title.y.left, axis.title.y.right, axis.text, axis.text.x, axis.text.x.top, axis.text.x.bottom, axis.text.y, axis.text.y.left, axis.text.y.right, axis.ticks, axis.ticks.x, axis.ticks.x.top, axis.ticks.x.bottom, axis.ticks.y, axis.ticks.y.left, axis.ticks.y.right,  axis.ticks.length, axis.ticks.length.x, axis.ticks.length.x.top, axis.ticks.length.x.bottom, axis.ticks.length.y, axis.ticks.length.y.left, axis.ticks.length.y.right, axis.line, axis.line.x, axis.line.x.top, axis.line.x.bottom, axis.line.y, axis.line.y.left, axis.line.y.right, ...)  
+theme(axis.title, axis.title.x, axis.title.x.top, axis.title.x.bottom, axis.title.y, axis.title.y.left, axis.title.y.right, axis.text, axis.text.x, axis.text.x.top, axis.text.x.bottom, axis.text.y, axis.text.y.left, axis.text.y.right, axis.ticks, axis.ticks.x, axis.ticks.x.top, axis.ticks.x.bottom, axis.ticks.y, axis.ticks.y.left, axis.ticks.y.right, axis.ticks.length, axis.ticks.length.x, axis.ticks.length.x.top, axis.ticks.length.x.bottom, axis.ticks.length.y, axis.ticks.length.y.left, axis.ticks.length.y.right, axis.line, axis.line.x, axis.line.x.top, axis.line.x.bottom, axis.line.y, axis.line.y.left, axis.line.y.right, ...)
 
-  - axis.title, axis.title.x, axis.title.x.top, axis.title.x.bottom,   axis.title.y, axis.title.y.left, axis.title.y.right : 축 제목에 관한 설정 매개변수  
-  - axis.text, axis.text.x, axis.text.x.top, axis.text.x.bottom, axis.text.y, axis.text.y.left, axis.text.y.right : 축 라벨(텍스트)에 관한 설정 매개변수  
-  - axis.ticks, axis.ticks.x, axis.ticks.x.top, axis.ticks.x.bottom, axis.ticks.y, axis.ticks.y.left, axis.ticks.y.right,  axis.ticks.length, axis.ticks.length.x, axis.ticks.length.x.top, axis.ticks.length.x.bottom, axis.ticks.length.y, axis.ticks.length.y.left, axis.ticks.length.y.right : 축 눈금자에 관한 설정 매개변수  
-  - axis.line, axis.line.x, axis.line.x.top, axis.line.x.bottom, axis.line.y, axis.line.y.left, axis.line.y.right : 축 선에 관한 설정 매개변수  
-
+-   axis.title, axis.title.x, axis.title.x.top, axis.title.x.bottom, axis.title.y, axis.title.y.left, axis.title.y.right : 축 제목에 관한 설정 매개변수\
+-   axis.text, axis.text.x, axis.text.x.top, axis.text.x.bottom, axis.text.y, axis.text.y.left, axis.text.y.right : 축 라벨(텍스트)에 관한 설정 매개변수\
+-   axis.ticks, axis.ticks.x, axis.ticks.x.top, axis.ticks.x.bottom, axis.ticks.y, axis.ticks.y.left, axis.ticks.y.right, axis.ticks.length, axis.ticks.length.x, axis.ticks.length.x.top, axis.ticks.length.x.bottom, axis.ticks.length.y, axis.ticks.length.y.left, axis.ticks.length.y.right : 축 눈금자에 관한 설정 매개변수\
+-   axis.line, axis.line.x, axis.line.x.top, axis.line.x.bottom, axis.line.y, axis.line.y.left, axis.line.y.right : 축 선에 관한 설정 매개변수
 :::
 
 ### 축 제목 특성 설정
@@ -2940,26 +2931,26 @@ legend_line +
 데이터를 시각화하는 `ggplot`객체에서는 기하 요소를 사용하여 데이터를 각종 도형으로 표현한다. 하지만 그 시각화에서 중요하게 봐야할 부분의 강조나 데이터에 대한 세부 설명문들을 추가하면 데이터를 보는 독자들이 데이터를 이해하기가 쉬워진다. 이와 같이 데이터를 추가적으로 설명하기 위해 보조적으로 추가하는 레이어를 주석 레이어(annotate)라고 한다. 이 주석 레이어는 `annotate()`를 사용하여 생성할 수 있다.
 
 ::: {custom-style="comment"}
-annotate(geom, x = NULL, y = NULL, xmin = NULL, xmax = NULL, ymin = NULL, ymax = NULL, xend = NULL, yend = NULL, na.rm = FALSE, ...)  
-  - geom : 주석으로 사용할 기하 요소 설정  
-  - x, y, xmin, xman, ymin, ymax, xend, yend : 기하 요소 설정을 위한 위치 설정  
-  - na.rm : 결측치를 제거할지 여부를 결정하는 논리 값  
-
+annotate(geom, x = NULL, y = NULL, xmin = NULL, xmax = NULL, ymin = NULL, ymax = NULL, xend = NULL, yend = NULL, na.rm = FALSE, ...)\
+- geom : 주석으로 사용할 기하 요소 설정\
+- x, y, xmin, xman, ymin, ymax, xend, yend : 기하 요소 설정을 위한 위치 설정\
+- na.rm : 결측치를 제거할지 여부를 결정하는 논리 값
 :::
 
 위의 `annotate()`에서 사용할 수 있는 기하 요소인 `geom`은 다음과 같고 각각의 기하 요소에 따라 설정가능한 위치 설정 매개변수가 달라진다.
 
-+----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
-| 기하 요소(geom) | 주요 매개변수                          | 미적 요소                                                                                  |
-+================+========================================+===========================================================================================+
-| text           | nudge_x, nudge_y, check_overlap        | x, y, label, alpha, angle, color, family, fontface, group, hjust, lineheight, size, vjust |
-+----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
-| segment        | arrow, arrow.fill, lineend, linejoin   | x, y, xend, yend, alpha, color, group, fill, linetype, size                               |
-+----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
-| rect           | linejoin                               | xmin, ymin, xmax, ymax, alpha, color, fill, linetype, size                                |
-+----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
-| curve          | angle, ncp, arrow, arrow.fill, lineend | x, y, xend, yend, alpha, color, group, fill, linetype, size                               |
-+----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
++-----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
+| 기하 요소(geom) | \| 주요 매개변수                       | \| 미적 요소                                                                              |
++=================+========================================+===========================================================================================+
+| text            | nudge_x, nudge_y, check_overlap        | x, y, label, alpha, angle, color, family, fontface, group, hjust, lineheight, size, vjust |
++-----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
+| segment         | arrow, arrow.fill, lineend, linejoin   | x, y, xend, yend, alpha, color, group, fill, linetype, size                               |
++-----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
+| rect            | linejoin                               | xmin, ymin, xmax, ymax, alpha, color, fill, linetype, size                                |
++-----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
+| curve           | angle, ncp, arrow, arrow.fill, lineend | x, y, xend, yend, alpha, color, group, fill, linetype, size                               |
++-----------------+----------------------------------------+-------------------------------------------------------------------------------------------+
+
 : 표 3 - 4 주석(annotate())의 주요 매개변수와 미적 요소
 
 앞 절의 무변수 기하 요소를 사용하여 작성한 설명을 `annotate()`을 사용하여 코딩하면 다음과 같다.
