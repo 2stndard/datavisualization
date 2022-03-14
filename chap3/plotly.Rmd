@@ -182,7 +182,7 @@ df_입학자 |> plot_ly(x = ~연도, y = ~전문대학)
 
 trace는 `plotly` 객체에서 데이터를 표현하는 방법을 설정하는 과정이다. `ggplot2`에서는 `geom_*()`을 사용하여 점, 선, 막대 등의 기하 요소로 표현하였지만 `plotly` 객체에서는 trace라는 이름으로 각각의 데이터 표현을 추가한다. `plotly`는 40가지 이상의 trace를 제공하는데 `plotly` 객체는 각각 고유한 하나 이상의 trace가 포함되어야 한다. 또 각각의 trace에는 해당 trace의 세부 속성을 설정을 위한 type을 가지고 있다.
 
-이 trace와 type을 설정하는 방법은 `add_trace()`를 사용하여 trace와 trace에 속한 type 속성을 설정하는 방법과 `add_marker()`, `add_lines()`등과 같이 `add_trace()`에서 파생된 래핑 함수를 사용하는 방법이 있다.
+이 trace와 type을 설정하는 방법은 `add_trace()`를 사용하여 trace와 trace에 속한 type 속성을 설정하는 방법과 `add_markers()`, `add_lines()`등과 같이 `add_trace()`에서 파생된 래핑 함수를 사용하는 방법이 있다.
 
 `add_scatter()`의 주요 사용법은 다음과 같다.
 
@@ -200,36 +200,130 @@ add_trace(p, ..., data = NULL, inherit = TRUE)\
 
 스캐터 trace는 점, 선, 문자를 X, Y 축 좌표의 위치를 사용해 시각화를 하는 형태의 trace를 모두 말한다. 따라서 스캐터 trace를 통해 생성 가능한 시각화는 산점도, 선 그래프, 텍스트 차트, 풍선 차트 등이다. 이 스캐터 trace는 `add_trace()`의 `type` 매개변수에 'scatter'를 설정함으로써 사용할 수 있고 `add_*()` 함수(`add_markers()`, `add_lines()`, `add_paths()`, `add_segments()`, `add_ribbons()`)를 사용할 수 있다.
 
-#### add_markers()
+스캐터 trace에서 약 50여개가 넘는 type을 사용하여 세부 설정이 가능하다. 이 50여개의 type 중에는 다시 세부 type을 설정하는 type이 있고 총 4단계까지 내려가는 type도 존재한다. 세부 하위 type은 `list()`를 사용하여 세부 타입을 설정할 수 있다. 이 모든 type을 다 설명할 수는 없기 때문에 주요한 type을 위주로 설명한다. 전체 type은 plotly.com에 수록되어 있다.[^3]
 
-`add_markers()`는 X, Y축의 값으로 표현가능한 좌표에 점을 사용하여 데이터를 시각화하는 방법이다. 데이터 시각화의 한 종류인 산점도를 만들때 사용되는 trace로 주요 사용법은 다음과 같다.
+[^3]: <https://plotly.com/r/reference/scatter/>
 
-::: {custom-style="comment"}
-add_trace(p, type = 'sactter', mode = 'markers', marker = NULL, ..., data = NULL, inherit = TRUE)\
-add_markers(p, x = NULL, y = NULL, z = NULL, ..., data = NULL, inherit = TRUE)\
-- p : plot_ly()로 생성한 plotly 객체\
-- type : trace 타입을 설정, add_markers()는 'scatter'로 설정 - mode : 'scatter' trace 중 어떤 도형을 사용할지 설정, add_markers()는 'markers'를 설정 - marker : marker의 type 설정을 위한 매개변수 list 설정 - ... : 스캐터 trace의 markers 모드에 설정할 수 있는 속성 설정\
-- data : 시각화할 데이터프레임\
-- inherit : plot_ly()에 설정된 속성 type을 상속할지를 결정하는 논리값\
-- x : X축에 매핑할 변수를 \~로 설정 - y : Y축에 매핑할 변수를 \~로 설정 - z : Z축에 매핑할 변수를 \~로 설정
-:::
+#### x, y, z
 
-`add_trace()`로 스캐터 trace를 사용하려면 먼저 trace가 스캐터 trace라는 것을 `type = 'scatter'`로 전달하여야 한다. 다음으로 앞서 설명한 바와 같이 스캐터 trace는 점, 선, 문자를 사용하기 때문에 이 중 어떤 도형을 사용할지를 `mode` 매개변수를 통해 전달한다. 점을 사용한 산점도는 `mode = 'markers'`를 설정한다.
+`add_trace()`에서 가장 기본적으로 설정하는 type은 `x`, `y`, `z`이다. 이 세 개의 type은 X축, Y축, Z축에 매핑하는 변수를 설정한다. 앞서 설명한 바와 같이 `x`, `y`, `z`에 매핑하는 변수는 `~`를 사용하여 매핑하는데 변수를 매핑하지 않고 벡터를 설정하는 것도 가능하다.
 
-trace의 `type`과 `mode`가 설정되면 먼저 X, Y, Z 축으로 매핑할 변수를 설정한다. `plotly`는 3차원 그래픽을 지원하기 때문에 Z축을 설정할 수 있다. 동적 시각화는 사용자가 시각화를 자신이 원하는 방향으로 설정하여 관찰할 수 있기 때문에 3차원 효과가 효율적일 수 있다. 하지만 일반적으로 데이터 시각화에서는 3차원 을 사용하는 것은 크게 효과적이지 않다고 알려져 있기 때문에 3차원의 활용은 주의할 필요가 있다.
+`plotly`는 3차원 그래픽을 지원하기 때문에 Z축을 설정할 수 있다. 동적 시각화는 사용자가 시각화를 자신이 원하는 방향으로 설정하여 관찰할 수 있기 때문에 3차원 효과가 효율적일 수 있다. 하지만 일반적으로 데이터 시각화에서는 3차원 을 사용하는 것은 크게 효과적이지 않다고 알려져 있기 때문에 3차원의 활용은 주의할 필요가 있다.
 
 ```{r}
 p <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly()
 
 p |>
+  add_trace(type = 'scatter', x = ~졸업자_계, y = ~취업자_합계_계)
+
+```
+
+#### mode
+
+`mode`는 스캐터 trace에서 실제 데이터를 표현하는 방법을 지정하는 type이다. 사실 `add_trace()`에서 `type`과 `mode`는 시각화의 종류를 지정하는 가장 중요한 type 설정이다. 스캐터 trace에서의 `mode`는 다음의 네 가지가 있다.
+
+| mode    | 설명                             |
+|---------|----------------------------------|
+| markers | 데이터를 점으로 표시             |
+| lines   | 데이터를 서로 이어주는 선을 표시 |
+| text    | 데이터를 문자열로 표시           |
+| none    | 데이터를 표시하지 않음           |
+
+```{r eval = FALSE}
+df_입학자 |> filter(지역 == '전체') |> plot_ly() |>
+  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'markers')
+
+df_입학자 |> filter(지역 == '전체') |> plot_ly() |>
+  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'markers+lines')
+
+df_입학자 |> filter(지역 == '전체') |> plot_ly() |>
+  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'markers+text')
+
+df_입학자 |> filter(지역 == '전체') |> plot_ly() |>
+  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'markers+lines+text')
+
+```
+
+```{r echo = FALSE}
+p1 <- df_입학자 |> filter(지역 == '전체') |> plot_ly() |>
+  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'markers', showlegend = FALSE, color = I('#1f77b4'))
+
+p2 <- df_입학자 |> filter(지역 == '전체') |> plot_ly() |>
+  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'markers+lines', showlegend = FALSE, color = I('#1f77b4'))
+
+p3 <- df_입학자 |> filter(지역 == '전체') |> plot_ly() |>
+  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'markers+text', text = ~전문대학, textfont = list(size = 7), showlegend = FALSE, color = I('#1f77b4'))
+
+p4 <- df_입학자 |> filter(지역 == '전체') |> plot_ly() |>
+  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'markers+lines+text',  text = ~전문대학, textfont = list(size = 7), showlegend = FALSE, color = I('#1f77b4'))
+
+subplot(
+  p1 |> layout(annotations = list(x = 0.25 , y = 1.05, text = "mode = 'markers'", showarrow = F, xref='paper', yref='paper')),
+  p2 |> layout(annotations = list(x = 0.75 , y = 1.05, text = "mode = 'markers+lines'", showarrow = F, xref='paper', yref='paper')),
+  p3 |> layout(annotations = list(x = 0.25 , y = 1.05, text = "mode = 'markers+text'", showarrow = F, xref='paper', yref='paper')),
+  p4 |> layout(annotations = list(x = 0.75 , y = 1.05, text = "mode = 'markers+lines+text", showarrow = F, xref='paper', yref='paper')),
+  nrows = 2, 
+  margin = 0.1
+)
+```
+
+
+이 네가지 `mode`는 단일 모드로 사용이 가능하지만 'none'을 제외하고 `+`기호를 사용하여 연결하여 사용하는데 최대 3개까지 연결하여 사용할 수 있다. 여기서 하나 주의해야하는 것은 `+` 기호 앞뒤에 공백이 있어서는 안된다. 
+
+```{r eval = FALSE}
+df_입학자 |> filter(지역 == '전체') |> plot_ly() |>
+  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'lines+markers', x = ~졸업자_계, y = ~취업자_합계_계)
+
+df_입학자 |> filter(지역 == '전체') |> plot_ly() |>
+  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'lines + markers', x = ~졸업자_계, y = ~취업자_합계_계)
+
+```
+
+```{r echo = FALSE}
+p1 <- df_입학자 |> filter(지역 == '전체') |> plot_ly() |>
+  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'lines+markers', x = ~졸업자_계, y = ~취업자_합계_계, showlegend = FALSE, color = I('#1f77b4'))
+
+p2 <- df_입학자 |> filter(지역 == '전체') |> plot_ly() |>
+  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'lines + markers', x = ~졸업자_계, y = ~취업자_합계_계, showlegend = FALSE, color = I('#1f77b4'))
+
+subplot(
+  p1 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "mode = 'lines+markers'", showarrow = F, xref='paper', yref='paper')),
+  p2 |> layout(annotations = list(x = 0.7 , y = 1.05, text = "mode = 'lines + markers", showarrow = F, xref='paper', yref='paper'))
+)
+```
+
+
+#### marker, add_markers()
+
+스캐터 trace의 `marker` 타입은 스캐터 trace에서 데이터를 표현하는 점의 속성을 설정하는 type이다. 이 marker는 `add_trace()`를 사용하여 설정할 수도 있지만 `add_markers()`를 사용하여 설정할 수 도 있다. `add_markers()`를 사용하면 다소 키보드 타이핑 량을 줄일 수는 있지만 세부적인 설정에 다소 제약이 따르기 때문에 가급적 `add_trace()`를 사용하는 것이 효과적이다.
+
+::: {custom-style="comment"}
+add_markers(p, x = NULL, y = NULL, z = NULL, ..., data = NULL, inherit = TRUE)\
+- p : plot_ly()로 생성한 plotly 객체\
+- type : trace 타입을 설정, add_markers()는 'scatter'로 설정\
+- mode : 'scatter' trace 중 어떤 도형을 사용할지 설정, add_markers()는 'markers'를 설정\
+- marker : marker의 type 설정을 위한 매개변수 list 설정\
+- ... : 스캐터 trace의 markers 모드에 설정할 수 있는 속성 설정\
+- data : 시각화할 데이터프레임\
+- inherit : plot_ly()에 설정된 속성 type을 상속할지를 결정하는 논리값\
+- x : X축에 매핑할 변수를 \~로 설정\
+- y : Y축에 매핑할 변수를 \~로 설정\
+- z : Z축에 매핑할 변수를 \~로 설정
+:::
+
+```{r}
+p_marker <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly()
+
+p_marker |>
   add_markers(x = ~졸업자_계, y = ~취업자_합계_계)
 
 ```
 
+`marker` 에서 설정 가능한 세부 type은 20여개가 있지만 이 세부 type의 세부 type까지 포함하면 그 종류가 매우 많아진다. `add_markers()`를 사용한다면 세부 type 설정을 바로 사용할 수 있지만 `add_trace()`를 사용하면 `marker` 매개변수에 세부 type을 `list()`로 설정하여 지정할 수 있다.   
 
 ##### alpha, opacity
 
-`alpha`와 `opacity`는 markers로 표현되는 점의 투명도를 설정하는 속성이다. alpha는 점의 내부 색상에만 적용되는 투명도이고 opacity는 점과 외곽선에 모두 적용되는 투명도이다.
+`alpha`와 `opacity`는 점의 투명도를 설정하는 속성이다. alpha는 점의 내부 색상에만 적용되는 투명도이고 opacity는 점과 외곽선에 모두 적용되는 투명도이다.
 
 ```{r echo= FALSE}
 fig <- plot_ly(type = 'scatter', mode = 'markers') 
@@ -277,13 +371,26 @@ fig
 
 alpha와 opacity는 0부터 1까지의 수치로 설정하며 0은 완전 투명으로 보이지 않고 1은 불투명한 점을 표현한다. 이는 산점도의 표현시 오버플로팅을 방지하고 색으로 구분되는 데이터 그룹간의 표현에 효과적으로 사용된다.
 
-```{r}
-p |>
+```{r eval = FALSE}
+p_marker |>
   add_markers(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.3)
 
-p |>
-  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.3)
+p_marker |>
+  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.3)
 
+```
+
+```{r echo = FALSE}
+p1 <- p_marker |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.3, showlegend = FALSE, color = I('#1f77b4'))
+
+p2 <- p_marker |>
+  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.3, showlegend = FALSE, color = I('#1f77b4'))
+
+subplot(
+  p1 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "alpha = 0.3", showarrow = F, xref='paper', yref='paper')),
+  p2 |> layout(annotations = list(x = 0.7 , y = 1.05, text = "opacity = 0.3", showarrow = F, xref='paper', yref='paper'))
+)
 ```
 
 ##### color, colors
@@ -358,9 +465,9 @@ colorbar(p, ..., limits = NULL, which = 1)\
 - which : 다중 컬러바가 생성된 경우 컬러바 선택\
 :::
 
-컬러바 설정에 사용되는 세부 속성은 현재(22.03) 43개가 제공된다. 이에 대한 세부 속성과 설명은 `plotly` 매뉴얼을 참조하라.[^3]
+컬러바 설정에 사용되는 세부 속성은 현재(22.03) 43개가 제공된다. 이에 대한 세부 속성과 설명은 `plotly` 매뉴얼을 참조하라.[^4]
 
-[^3]: <https://plotly.com/r/reference/#scatter-marker-colorbar>
+[^4]: <https://plotly.com/r/reference/#scatter-marker-colorbar>
 
 ```{r eval = FALSE}
 p |>
@@ -441,8 +548,8 @@ add_markers(p1, x = ~졸업자_계, y = ~취업자_합계_계, symbol = I('circl
 
 ```{r echo = FALSE}
 subplot(
-  add_markers(p1, x = ~졸업자_계, y = ~취업자_합계_계, symbol = 'circle-open', showlegend = FALSE) |> layout(annotations = list(x = 0.3 , y = 1.05, text = "symbol = 'circle-open'", showarrow = F, xref='paper', yref='paper')),
-  add_markers(p1, x = ~졸업자_계, y = ~취업자_합계_계, symbol = I('circle-open'), showlegend = FALSE) |> layout(annotations = list(x = 0.7 , y = 1.05, text = " symbol = I('circle-open')", showarrow = F, xref='paper', yref='paper'))
+  add_markers(p1, x = ~졸업자_계, y = ~취업자_합계_계, symbol = 'circle-open', showlegend = FALSE, color = I('#1f77b4')) |> layout(annotations = list(x = 0.3 , y = 1.05, text = "symbol = 'circle-open'", showarrow = F, xref='paper', yref='paper')),
+  add_markers(p1, x = ~졸업자_계, y = ~취업자_합계_계, symbol = I('circle-open'), showlegend = FALSE, color = I('#1f77b4')) |> layout(annotations = list(x = 0.7 , y = 1.05, text = " symbol = I('circle-open')", showarrow = F, xref='paper', yref='paper'))
 )
 ```
 
@@ -484,16 +591,16 @@ add_markers(p1, x = ~졸업자_계, y = ~취업자_합계_계, size = ~symbol, s
 
 ```{r echo = FALSE}
 subplot(
-  add_markers(p1, x = ~졸업자_계, y = ~취업자_합계_계, size = ~symbol, sizemode = 'diameter', alpha = 0.3, showlegend = FALSE) |> layout(annotations = list(x = 0.3 , y = 1.05, text = " sizemode = 'diameter'", showarrow = F, xref='paper', yref='paper')),
-  add_markers(p1, x = ~졸업자_계, y = ~취업자_합계_계, size = ~symbol, sizemode = 'area', alpha = 0.3, showlegend = FALSE) |> layout(annotations = list(x = 0.7 , y = 1.05, text = "sizemode = 'area'", showarrow = F, xref='paper', yref='paper'))
+  add_markers(p1, x = ~졸업자_계, y = ~취업자_합계_계, size = ~symbol, sizemode = 'diameter', alpha = 0.3, showlegend = FALSE, color = I('#1f77b4')) |> layout(annotations = list(x = 0.3 , y = 1.05, text = " sizemode = 'diameter'", showarrow = F, xref='paper', yref='paper')),
+  add_markers(p1, x = ~졸업자_계, y = ~취업자_합계_계, size = ~symbol, sizemode = 'area', alpha = 0.3, showlegend = FALSE, color = I('#1f77b4')) |> layout(annotations = list(x = 0.7 , y = 1.05, text = "sizemode = 'area'", showarrow = F, xref='paper', yref='paper'))
 )
 ```
 
 ##### name
 
-`name`은 `plotly`에서 추가되는 각각의 trace에 대한 이름을 설정한다. 이 이름은 범례 아이템과 마우스 포인터가 데이터 점에 위치할때 나타나는 호버(Hover)에 표기되는 이름이 된다. 
+`name`은 `plotly`에서 추가되는 각각의 trace에 대한 이름을 설정한다. 이 이름은 범례 아이템과 마우스 포인터가 데이터 점에 위치할때 나타나는 호버(Hover)에 표기되는 이름이 된다.
 
-앞서 본 예에서 `color`, `symbol`에 매핑된 변수의 카테고리는 자동적으로 범례 아이템으로 표기되었다. 하지만 `stroke`에 설정된 변수는 범례에 표현되지 않았다. 이러한 경우 `name` 매개변수에 범례에 사용할 변수를 매핑함으로써 범례를 설정할 수 있다.  
+앞서 본 예에서 `color`, `symbol`에 매핑된 변수의 카테고리는 자동적으로 범례 아이템으로 표기되었다. 하지만 `stroke`에 설정된 변수는 범례에 표현되지 않았다. 이러한 경우 `name` 매개변수에 범례에 사용할 변수를 매핑함으로써 범례를 설정할 수 있다.
 
 ```{r}
 add_markers(p1, x = ~졸업자_계, y = ~취업자_합계_계, stroke = ~대계열, strokes = 'Accent', color = I('white'), name = ~대계열)
@@ -540,7 +647,7 @@ add_markers(p, x = NULL, y = NULL, z = NULL, ..., data = NULL, inherit = TRUE)\
 
 `add_trace()`로 선 trace를 사용하려면 먼저 trace가 스캐터 trace라는 것을 `type = 'scatter'`로 전달하고 `mode` 매개변수에 `mode = 'lines'`를 설정한다.
 
-trace의 `type`과 `mode`가 설정되면 먼저 X, Y, Z 축으로 매핑할 변수를 설정한다.선 그래프는 앞서 그려본 산점도와는 다른 것이 점들이 연결되는 데이터의 그룹 정보가 필요하다. `plotly`에서의 `add_lines()`는 일반적으로 `color`나 `linetype`으로 매핑된 변수를 기준으로 그룹화하여 선을 연결한다. 
+trace의 `type`과 `mode`가 설정되면 먼저 X, Y, Z 축으로 매핑할 변수를 설정한다.선 그래프는 앞서 그려본 산점도와는 다른 것이 점들이 연결되는 데이터의 그룹 정보가 필요하다. `plotly`에서의 `add_lines()`는 일반적으로 `color`나 `linetype`으로 매핑된 변수를 기준으로 그룹화하여 선을 연결한다.
 
 ```{r}
 p2 <- df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '석사', '박사')) |> plot_ly()
@@ -549,17 +656,6 @@ add_lines(p2, x = ~연도, y = ~입학생수, color = ~ 학교종류, linetype =
 
 ```
 
-
 ##### linetype, linetypes
 
-`linetype`은 
-
-
-
-
-
-
-
-
-
-
+`linetype`은
