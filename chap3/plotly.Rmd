@@ -531,9 +531,9 @@ df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly(x = ~졸업자_계, y 
 
 ## trace 추가 : add_trace()
 
-trace는 `plotly` 객체에서 데이터를 표현하는 방법을 설정하는 과정이다. `ggplot2`에서는 `geom_*()`을 사용하여 점, 선, 막대 등의 기하 요소로 표현하였지만 `plotly` 객체에서는 trace라는 이름으로 각각의 데이터 표현을 추가한다. `plotly`는 40가지 이상의 trace를 제공하는데 `plotly` 객체는 각각 고유한 하나 이상의 trace가 포함되어야 한다. 또 각각의 trace에는 해당 trace의 세부 속성을 설정을 위한 type을 가지고 있다.
+trace는 `plotly` 객체에서 표현되는 단일 데이터 아이템을 의미한다. 이를 간단히 이야기하자면 범례에 표시되는 데이터 아이템 하나 하나가 각각의 개별 trace라고 생각하면 편할 것이다. `ggplot2`에서는 `geom_*()`을 사용하여 점, 선, 막대 등의 기하 요소로 표현하였지만 `plotly` 객체에서는 trace라는 이름으로 각각의 데이터 표현을 추가한다. 하지만 `ggplot2`에 익숙한 사용자는 이 trace의 개념과 `ggplot2`의 기하 요소와의 차이를 잘 이해하여야 한다. `ggplot2`에서 데이터를 표현하는 기하 요소는 변수 매핑을 통해 하나의 `geom_*()`으로 생성하는 것이 일반적이다. 예를 들어 `ggplot2`를 사용하여 막대 그래프나 박스 플롯을 생성할 때  여러 개의 `geom_bar()`나 `geom_boxplot()`를 사용하지 않고 `aes()`에 변수 매핑을 통해 한 번의 함수 호출로 생성한다. 이러한 형태에 사용하기 위해 데이터프레임을 긴 형태의 데이터로 전환하여 사용하였다. 여기에 예외로 사용되는 것이 `geom_line()`인데 넓은 형태의 데이터프레임에 각 열을 `geom_line()`을 사용하여 각각의 선 레이어로 생성하고 이들을 계속 겹쳐 그림으로써 전체적인 선 그래프를 완성할 수 있다. 하지만 `plotly`에서는 이 두가지 방법을 모든 시각화 방법에 동일하게 지원한다. 따라서 `plotly`를 사용할 때 가장 큰 장점이 넓은 형태의 데이터프레임과 긴 형태의 데이터프레임을 서로 변환하지 않고 사용할 수 있다는 점이다. 긴 형태의 데이터프레임이라면 데이터를 그룹화할 변수를 매핑함으로서 시각화가 생성된다. 예를 들어 전문대학, 일반대학, 석사, 박사의 네 가지 데이터에 대한 막대 그래프를 생성한다고 가정할 때, trace를 추가하는 함수인 `add_trace()`를 한번 호출하여 네개의 막대가 생성된 막대 그래프가 하나가 생성되더라도 trace는 네개가 존재한다는 것이다. 반면 넓은 형태의 데이터프레임이라면 시각화 해야할 각각의 열을 각각 trace로 추가하여 줌으로써 시각화를 완성한다. `ggplot2`의 선 그래프에 가능한 방법을 모든 시각화에서 사용할 수 있다는 것이다.
 
-앞서 `plot_ly()`에서 매개변수로 설정했던 type들은 모두 개별 trace의 설정으로도 사용이 가능하다. 하지만 `plot_ly()`에서 trace의 type을 설정하지 않았는데 시각화의 결과는 데이터들이 trace로 표현되어 나타났다. 이는 `plotly`에서 데이터를 분석하여 가장 효과적인 trace를 매칭해주었다. 하지만 trace는 사용자가 지정하는 것이 일반적이다.
+`plotly`에서는 trace를 표현하는데 40가지 이상의 시각화 type을 제공한다. 또 각각의 trace의 시각화 type에는 그 에는 해당 trace의 시각화 세부 속성을 설정을 위한 수많은 세부 type을 가지고 있다. 앞서 `plot_ly()`에서 매개변수로 설정했던 type들은 모두 개별 trace의 설정으로도 사용이 가능하다. 하지만 `plot_ly()`에서 trace의 type을 설정하지 않았는데 시각화의 결과는 데이터들이 trace로 표현되어 나타났다. 이는 `plotly`에서 데이터를 분석하여 가장 효과적인 trace를 매칭해주었다. 하지만 trace는 사용자가 지정하는 것이 일반적이다.
 
 이 trace와 type을 설정하는 방법은 `add_trace()`를 사용하여 trace와 trace에 속한 type 속성을 설정하는 방법과 `add_markers()`, `add_lines()`등과 같이 `add_trace()`에서 파생된 래핑 함수를 사용하는 방법이 있다.
 
@@ -922,7 +922,7 @@ add_bars(p, x = NULL, y = NULL, ..., data = NULL, inherit = TRUE)\
 - p : plot_ly()로 생성한 plotly 객체\
 - type : trace 타입을 설정, add_markers()는 'scatter'로 설정 - mode : 'scatter' trace 중 어떤 도형을 사용할지 설정, add_markers()는 'markers'를 설정\
 - text : text로 매핑할 변수를 \~로 설정\
-- ... : 스캐터 trace의 line 모드에 설정할 수 있는 속성 설정\
+- ... : 막대 trace에 설정할 수 있는 속성 설정\
 - data : 시각화할 데이터프레임\
 - inherit : plot_ly()에 설정된 속성 type을 상속할지를 결정하는 논리값\
 - x : X축에 매핑할 변수를 \~로 설정\
@@ -1006,6 +1006,11 @@ df_입학자 |> filter(지역 == '전체', 연도 %in% c(2001, 2006, 2011, 2016,
 
 ```
 
+#### marker, line
+
+앞서 스캐터 trace에서 산점도, 선 그래프를 생성할 때 `marker`와 `line`을 사용하여 점과 선의 형태를 설정하였다. 그러나 막대 trace에서는 
+
+
 ### 박스(Box) trace : 박스 플롯
 
 박스 trace는 박스 플롯을 생성하기 위해 사용되는 trace이다. 앞 장에서 설명했듯이 박스 플롯은 데이터의 전체적 분포를 4분위수(quantile)과 IQR(Inter Quartile Range)를 사용하여 표시하는 시각화로 연속형 변수와 이산형 변수의 시각화에 사용되는 방법이다. 
@@ -1017,7 +1022,7 @@ add_trace(p, type = 'box', ..., data = NULL, inherit = TRUE)\
 add_boxplot(p, x = NULL, y = NULL, ..., data = NULL, inherit = TRUE)\
 - p : plot_ly()로 생성한 plotly 객체\
 - type : trace 타입을 'box'로 설정\
-- ... : 스캐터 trace의 line 모드에 설정할 수 있는 속성 설정\
+- ... : 박스 trace의 line 모드에 설정할 수 있는 속성 설정\
 - data : 시각화할 데이터프레임\
 - inherit : plot_ly()에 설정된 속성 type을 상속할지를 결정하는 논리값\
 - x : X축에 매핑할 변수를 \~로 설정\
@@ -1030,13 +1035,15 @@ p_box <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly()
 p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계)
 ```
 
-`color`나 `lintytpe`을 사용하여 특정 변수로 그룹화한 박스 플롯을 만들수 있고 다른 trace처럼 박스 trace도 개별적인 박스 trace를 추가함으로써 원하는 박스 플롯만을 생성할 수 있다.
+각 데이터별로 그룹화하여 분할된 바이올린 trace를 생성하기 위해서는 그룹화할 변수를 `color`나 `linetype`등의 type에 매핑 시키거나 각각의 바이올린 trace를 추가하고 `layout()`의 `boxmode`를 'group'으로 설정함으로써 생성할 수 있다. 다음의 코드는 `color`로 과정구분을 매핑하여 각각의 과정별 박스 플롯을 생성하는 코드이다. 
 
 ```{r}
 p_box_group <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, color = ~과정구분)
 
 p_box_group %>% layout(boxmode = "group")
 ```
+
+다음의 코드는 과정구분이 '대학'인 박스 trace와 '전문대학'인 박스 trace를 추가함으로서 그룹화된 박스 플롯을 생성하는 코드이다. 
 
 ```{r}
 p_box_add <- p_box |> add_trace(data = df_취업통계 |> filter(졸업자_계 < 500, 과정구분 == '대학과정'), type = 'box', x = ~대계열, y = ~취업률_계, name = '대학')
@@ -1138,16 +1145,77 @@ p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, notched = T
 
 ```
 
+#### marker, line
+
 ```{r}
 p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, boxpoints = "all", jitter = 0.3, pointpos = 0, marker = list(opacity = 0.2, size = 5, color = 'red'))
 
 ```
 
+### 바이올린(Violin) trace : 바이올린 플롯
+
+바이올린 trace는 바이올린 플롯을 생성하기 위해 사용되는 trace이다. 앞 장에서 설명했듯이 바이올린 플롯은 박스 플롯에서 확인하기 어려운 데이터의 분포를 확인할 수 있는 시각화 방법이다. 
+
+바이올린 trace를 사용해 바이올린 플롯을 생성하기 위해서는 `add_trace(type = 'violin')`를 사용하여야하고 래핑함수를 제공하지 않는다. 
+
+::: {custom-style="comment"}
+add_trace(p, type = 'violin', ..., data = NULL, inherit = TRUE)\
+- p : plot_ly()로 생성한 plotly 객체\
+- type : trace 타입을 'violin'로 설정\
+- ... : 바이올린 trace의 line 모드에 설정할 수 있는 속성 설정\
+- data : 시각화할 데이터프레임\
+- inherit : plot_ly()에 설정된 속성 type을 상속할지를 결정하는 논리값\
+:::
+
+```{r}
+p_violin <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly()
+
+p_violin |> add_trace(type = 'violin', x = ~대계열, y = ~취업률_계)
+```
+
+박스 trace와 마찬가지로 각 데이터별로 그룹화하여 분할된 바이올린 trace를 생성하기 위해서는 그룹화할 변수를 `color`나 `linetype`등의 type에 매핑 시키거나 각각의 바이올린 trace를 추가하고 `layout()`의 `violinmode`를 'group'으로 설정함으로써 생성할 수 있다. 다음의 코드는 `color`로 과정구분을 매핑하여 각각의 과정별 박스 플롯을 생성하는 코드이다. 
+
+```{r}
+p_violin |> add_trace(type = 'violin', x = ~대계열, y = ~취업률_계, color = ~과정구분) |> 
+  layout(violinmode = 'group')
+```
+
+다음의 코드는 과정구분이 '대학'인 바이올린 trace와 '전문대학'인 바이올린 trace를 추가함으로서 그룹화된 바이올린 플롯을 생성하는 코드이다. 
+
+```{r}
+p_violin |> add_trace(data = df_취업통계 |> filter(졸업자_계 < 500, 과정구분 == '대학과정'), type = 'violin', x = ~대계열, y = ~취업률_계, name = '대학') |> 
+  add_trace(data = df_취업통계 |> filter(졸업자_계 < 500, 과정구분 == '전문대학과정'), type = 'violin', x = ~대계열, y = ~취업률_계, name = '전문대학') |> 
+  layout(violinmode = "group")
+
+```
+
+#### box, meanline
+
+바이올린 플롯은 박스 플롯와 유사한 정보를 제공하는 시각화이지만 박스 플롯의 정보와 같이 사용되면 더욱 데이터 시각화의 효과가 높아진다. 바이올린 trace에 박스 trace를 추가하는 type은 `box`이고 이 `box` type은 세부 타입을 list로 설정하는 type이다. `box`의 세부 type은 `fillcolor`, `line`(세부 type으로 `color`, `width`), `visible`, `width`의 네 가지이다. 
+
+```{r}
+p_violin |> add_trace(type = 'violin', x = ~대계열, y = ~취업률_계, box = list(visible = TRUE, fillcolor = 'red', line = list(color = 'black'), width = 0.5))
+
+```
+
+`meanline`은 바이올린 trace에 평균 선을 설정하는 type으로 `color`, `visible`, `width`의 세부 type을 리스트로 설정한다 
+
+```{r}
+p_violin |> add_trace(type = 'violin', x = ~대계열, y = ~취업률_계, meanline = list(visible = TRUE, color = 'red', width = 1))
+
+```
+
+#### side
+
+앞의 예에서 대학과 전문대학의 바이올린 trace를 추가함으로써 그룹화된 바이올린 플롯을 그렸다 그런데 이 두 바이올린 플롯을 반씩 붙여서 그리면 각각의 바이올린 플롯이 넓어지기 때문에 데이터를 확인하기 쉬울 것이다. 이렇게 두개의 바이올린 플롯을 반씩 잘라 붙이는 type이 `side`이다. `side`는 바이올린의 양쪽을 다 사용하는 'both', 왼쪽 부분을 사용하는 'negative', 오른쪽 부분을 사용하는 'positive'를 설정할 수 있다. 그리고 이 두 바이올린을 붙이기 위해 `layout()`의 `violinmode`를 `overlay`로 설정한다. 여기에 앞서 설정한 `box`와 `meanline` 설정하면 박스 trace와 평균선도 반으로 그려서 붙여주게 된다. 앞서 그렸던 대학과 전문대학의 계열별 바이올린 플롯을 붙이는 코드는 다음과 같다. 
+
+```{r}
+p_violin |> add_trace(data = df_취업통계 |> filter(졸업자_계 < 500, 과정구분 == '대학과정'), type = 'violin', x = ~대계열, y = ~취업률_계, name = '대학', side = 'positive', box = list(visible = TRUE, width = 0.5), meanline = list(visible = TRUE, color = 'red', width = 1)) |> 
+  add_trace(data = df_취업통계 |> filter(졸업자_계 < 500, 과정구분 == '전문대학과정'), type = 'violin', x = ~대계열, y = ~취업률_계, name = '전문대학', side = 'negative', box = list(visible = TRUE, width = 0.5), meanline = list(visible = TRUE, color = 'red', width = 1)) |> 
+  layout(violinmode = "overlay")
 
 
-
-
-
+```
 
 
 
