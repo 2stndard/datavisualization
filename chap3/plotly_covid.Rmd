@@ -121,6 +121,7 @@ covid_joined <- inner_join(covid_stat_by_nation, vaccine_stat_by_nation, by = c(
 
 #https://github.com/owid/covid-19-data/tree/master/public/data
 
+
 covid19_df <- read_csv(file = "C:/R/git/datavisualization/chap3/owid-covid-data.csv",
                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
                                              )
