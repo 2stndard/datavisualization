@@ -70,9 +70,50 @@ R을 다루는 많은 교육코스나 서적에서 데이터의 시각화는 대
 
 따라서 정적 시각화와 동적 시각화의 어느것이 더 효용성이 있는지를 단언할 수 없다. 데이터 시각화가 사용되는 매체, 데이터 시각화를 보는 대상, 데이터 시각화에서 보여주고자 하는 스토리에 따라서 정적 시각화를 사용해야 할 때와 동적 시각화를 사용해야 할 때를 적절히 선택해야 한다.
 
-이번 장에서는 R에서 동적 시각화로 많이 사용되는 `plotly` 패키지를 사용하여 데이터를 시각화하는 방법을 알아본다.[^1]
+이번 장에서는 R에서 동적 시각화로 많이 사용되는 `plotly` 패키지를 사용하여 데이터를 시각화하는 방법을 알아본다. `plotly`를 사용한 데이터 시각화를 실습하기 위한 데이터는 `ggplot2` 실습에서 사용하던 취업통계 데이터(df_취업통계)와 코로나바이러스 데이터 셋을 사용하도록 하겠다.
 
-[^1]: 데이터 시각화를 실습하기 위한 데이터는 앞 장의 `ggplot2`에서 사용하던 데이터를 사용한다.
+코로나바이러스 데이터 셋은 R CRAN에서 공식적으로 제공하는 `coronavirus` 패키지를 통해 제공받을 수 있다.[^1]
+
+```{r}
+if(!require(coronavirus)) {
+  install.packages('coronavirus')
+  library(coronavirus)
+}
+
+if(!require(readr)) {
+  install.packages('readr')
+  library(readr)
+}
+
+if(!require(lubridate)) {
+  install.packages('lubridate')
+  library(lubridate)
+}
+
+if(!require(feasts)) {
+  install.packages('feasts')
+  library(feasts)
+}
+
+coronavirus_df <- read_csv("https://raw.githubusercontent.com/RamiKrispin/coronavirus/master/csv/coronavirus.csv", 
+    col_types = cols(date = col_date(format = "%Y-%m-%d"), 
+        cases = col_number()))
+
+covid_stat_by_nation <- coronavirus_df %>%
+  filter(type != "recovery") %>%
+  group_by(zoo::yearmon(date), type, continent_name) %>%
+  summarise(cases = sum(cases), .groups = "drop") %>%
+  mutate(type = factor(type, levels = c("confirmed", "death"))) %>%
+  pivot_wider(names_from = type, values_from = cases) %>%
+  mutate(death_rate = death / confirmed) %>%
+  filter(!is.na(continent_name)) %>%
+  arrange(1, 2)
+
+max(coronavirus_df$date)
+```
+
+[^1] : `coronavirus` 패키지에서 제공하는 데이터 셋의 자세한 내용은 해당 패키지의 Github에서 확인할 수 있다.(https://ramikrispin.github.io/coronavirus/articles/intro_coronavirus_dataset.html) 
+
 
 # plotly란?
 
@@ -1489,15 +1530,15 @@ p_pie |>
 
 ### 인디케이터(indicator) trace : 지수 차트
 
-인디케이터는 단일 수치에 대한 시각화 방법이다. `plotly`에서 단일 수치를 표현하는 방법으로 수치 표시, 증감치 표시, 게이지 사용의 세 가지 시각적 방법을 제공하고 이들을 서로 조합하여 사용할 수 있다. 이들을 사용하여 '단계',  '임계값' 등의 컨텍스트 정보를 포함하는 수치를 시각화할 수 있다. 
+인디케이터는 단일 수치에 대한 시각화 방법이다. `plotly`에서 단일 수치를 표현하는 방법으로 수치 표시, 증감치 표시, 게이지 사용의 세 가지 시각적 방법을 제공하고 이들을 서로 조합하여 사용할 수 있다. 이들을 사용하여 '단계', '임계값' 등의 컨텍스트 정보를 포함하는 수치를 시각화할 수 있다.
 
-인디케이터 trace를 사용하기 위해서는 `add_trace()`의 `type`을 'indicator'로 설정함으로써 사용할 수 있다. 
+인디케이터 trace를 사용하기 위해서는 `add_trace()`의 `type`을 'indicator'로 설정함으로써 사용할 수 있다.
 
 #### mode, value
 
-인디케이터 trace에서 제공하는 표시 방법은 수치 표시, 증감량 표시, 게이지 표시의 세가지 방법을 제공한다. 이들을 설정하는 type이 `mode`이다. 이 `mode`는 수치를 표현하는 'number', 증감을 표현하는 'delta', 게이지를 사용하는 'gauge'의 세 가지를 설정할 수 있고 각각은 `+`를 사용하여 조합할 수 있다. 
+인디케이터 trace에서 제공하는 표시 방법은 수치 표시, 증감량 표시, 게이지 표시의 세가지 방법을 제공한다. 이들을 설정하는 type이 `mode`이다. 이 `mode`는 수치를 표현하는 'number', 증감을 표현하는 'delta', 게이지를 사용하는 'gauge'의 세 가지를 설정할 수 있고 각각은 `+`를 사용하여 조합할 수 있다.
 
-인디케이터에서 표시해야 할 수치는 `value`로 설정이 가능하고 단일 수치를 설정한다. 
+인디케이터에서 표시해야 할 수치는 `value`로 설정이 가능하고 단일 수치를 설정한다.
 
 ```{r}
 plot_ly() |>
@@ -1505,8 +1546,6 @@ plot_ly() |>
 ```
 
 #### gauge
-
-
 
 ```{r}
 plot_ly() |>
@@ -1946,7 +1985,6 @@ p_title_1 |>
                   showarrow = FALSE)
 ```
 
-
 ```{r}
 p_title_1 |> 
   layout(title = list(text = '<b>졸업자 대비 취업자수</b>', x = 0.1, 
@@ -1961,3 +1999,21 @@ p_title_1 |>
 ```
 
 ### 도형 설정 : shapes
+
+데이터를 설명하기 위해 넣는 주석은 주로 문자열에 국한된다. 하지만 데이터를 설명하기 위해서는 선, 네모, 원 등의 다양한 도형을 사용할 필요가 있다. 이와 같이 데이터를 설명하기 위한 각종 도형을 사용자가 직접 그리기 위해서는 `layout()`의 `shape` type을 설정하여 생성할 수 있다. `shape` type에서 설정가능한 세부 type은 다음과 같다.
+
+| type           | 설명                                             | type 값 및 설명                                                     | 세부 type |
+|----------------|--------------------------------------------------|---------------------------------------------------------------------|-----------|
+| type           | 그려질 도형의 형태 설정                          | 'circle'은 원, 'rect'는 사각형, 'path'는 SVG path, 'line'은 선 설정 |           |
+| name           | 그려질 도형의 이름 설정                          |                                                                     |           |
+| x0, x1, y0, y1 | 도형의 X, Y축 시작점(x0, y0)과 끝점(x1, y1) 설정 |                                                                     |           |
+| layer          | 그려지는 도형 레이어의 위치를 설정               | 'above'는 다른 도형보다 위, 'below'는 다론 도형보다 아래에 위치     |           |
+|                |                                                  |                                                                     |           |
+|                |                                                  |                                                                     |           |
+|                |                                                  |                                                                     |           |
+
+```{r}
+add_segments
+
+
+```
