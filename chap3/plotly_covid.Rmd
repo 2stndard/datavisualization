@@ -49,7 +49,7 @@ theme_set(theme_gray())
 ```
 
 ```{r include=FALSE, message = FALSE, warning = FALSE}
-df_취업통계 <- read_excel('2020년 학과별 고등교육기관 취업통계.xlsx', 
+df_취업통계 <- read_excel('d:/R/data/2020년 학과별 고등교육기관 취업통계.xlsx', 
                      ## '학과별' 시트의 데이터를 불러오는데,
                      sheet = '학과별',
                      ## 앞의 13행을 제외하고
@@ -72,7 +72,7 @@ R을 다루는 많은 교육코스나 서적에서 데이터의 시각화는 대
 
 이번 장에서는 R에서 동적 시각화로 많이 사용되는 `plotly` 패키지를 사용하여 데이터를 시각화하는 방법을 알아본다. `plotly`를 사용한 데이터 시각화를 실습하기 위한 데이터는 `ggplot2` 실습에서 사용하던 취업통계 데이터(df_취업통계)와 코로나바이러스 데이터 셋을 사용하도록 하겠다.
 
-코로나바이러스 데이터 셋은 R CRAN에서 공식적으로 제공하는 `coronavirus` 패키지를 통해 제공받을 수 있다.[^1]
+코로나바이러스 데이터 셋은 R CRAN에서 공식적으로 제공하는 `coronavirus` 패키지를 통해 제공받을 수 있다.\[\^1\]
 
 ```{r}
 # if(!require(coronavirus)) {
@@ -159,8 +159,7 @@ covid19_stat <- covid19_df |> group_by(iso_code, continent, location) |>
   
 ```
 
-[^1] : `coronavirus` 패키지에서 제공하는 데이터 셋의 자세한 내용은 해당 패키지의 Github에서 확인할 수 있다.(https://ramikrispin.github.io/coronavirus/articles/intro_coronavirus_dataset.html) 
-
+\[\^1\] : `coronavirus` 패키지에서 제공하는 데이터 셋의 자세한 내용은 해당 패키지의 Github에서 확인할 수 있다.(<https://ramikrispin.github.io/coronavirus/articles/intro_coronavirus_dataset.html>)
 
 # plotly란?
 
@@ -211,9 +210,9 @@ ggplotly(ggplotly)
 
 ```
 
-앞의 `plotly` 객체에서 보면 `ggplot` 객체를 정확히 전환하지는 못한다.[^2] 그러나 `ggplotly()`는 `ggplot2`패키지를 사용해서 생성한 대부분의 `ggplot` 객체를 전환할 수 있다. 게다가 `ggplot2` 패키지를 확장해서 사용하게 해주는 `ggforce`, `GGally`와 같은 확장 패키지로 생성된 객체도 변환이 가능하다는 장점이 있다. 따라서 `plotly` 객체를 다루는 방법을 잘 익히면 기존에 생성했던 `ggplot` 객체의 시각화를 재활용 할 수있게 된다. 그리고 `plotly`를 사용하다보면 느끼겠지만 `ggplot2`의 통계 요소와 분할 요소의 몇몇 요소들은 `plotly`보다는 `ggplot2`가 훨씬 편리할 떄가 있다. 이러한 경우 `ggplot2`와 `plotly`를 적절히 혼용하면 매우 좋은 결과를 얻을 수 있다.
+앞의 `plotly` 객체에서 보면 `ggplot` 객체를 정확히 전환하지는 못한다.[^1] 그러나 `ggplotly()`는 `ggplot2`패키지를 사용해서 생성한 대부분의 `ggplot` 객체를 전환할 수 있다. 게다가 `ggplot2` 패키지를 확장해서 사용하게 해주는 `ggforce`, `GGally`와 같은 확장 패키지로 생성된 객체도 변환이 가능하다는 장점이 있다. 따라서 `plotly` 객체를 다루는 방법을 잘 익히면 기존에 생성했던 `ggplot` 객체의 시각화를 재활용 할 수있게 된다. 그리고 `plotly`를 사용하다보면 느끼겠지만 `ggplot2`의 통계 요소와 분할 요소의 몇몇 요소들은 `plotly`보다는 `ggplot2`가 훨씬 편리할 떄가 있다. 이러한 경우 `ggplot2`와 `plotly`를 적절히 혼용하면 매우 좋은 결과를 얻을 수 있다.
 
-[^2]: 앞의 예에서 범례에 나타난 오류는 ggplotly()에서 다중 범례(Multiple Legend)의 변환 과정에서 발생하는 문제로 ggplot의 범례를 제거하고 plotly의 범례를 생성함으로써 해결가능하다.
+[^1]: 앞의 예에서 범례에 나타난 오류는 ggplotly()에서 다중 범례(Multiple Legend)의 변환 과정에서 발생하는 문제로 ggplot의 범례를 제거하고 plotly의 범례를 생성함으로써 해결가능하다.
 
 # plotly 구성
 
@@ -449,9 +448,9 @@ colorbar(p, ..., limits = NULL, which = 1)\
 - which : 다중 컬러바가 생성된 경우 컬러바 선택\
 :::
 
-컬러바 설정에 사용되는 세부 속성은 현재(22.03) 43개가 제공된다. 이에 대한 세부 속성과 설명은 `plotly` 매뉴얼을 참조하라.[^3]
+컬러바 설정에 사용되는 세부 속성은 현재(22.03) 43개가 제공된다. 이에 대한 세부 속성과 설명은 `plotly` 매뉴얼을 참조하라.[^2]
 
-[^3]: <https://plotly.com/r/reference/#scatter-marker-colorbar>
+[^2]: <https://plotly.com/r/reference/#scatter-marker-colorbar>
 
 ```{r eval = FALSE}
 df_취업통계_2000 |> 
@@ -814,9 +813,9 @@ subplot(
 
 스캐터 trace는 점, 선, 문자를 X, Y 축 좌표의 위치를 사용해 시각화를 하는 형태의 trace를 모두 말한다. 따라서 스캐터 trace를 통해 생성 가능한 시각화는 산점도, 선 그래프, 텍스트 차트, 풍선 차트 등이다. 이 스캐터 trace는 `add_trace()`의 `type` 매개변수에 'scatter'를 설정함으로써 사용할 수 있고 `add_*()` 함수(`add_markers()`, `add_lines()`, `add_paths()`, `add_segments()`, `add_ribbons()`)를 사용할 수 있다.
 
-스캐터 trace에서 약 50여개가 넘는 type을 사용하여 세부 설정이 가능하다. 이 50여개의 type 중에는 다시 세부 type을 설정하는 type이 있고 총 4단계까지 내려가는 type도 존재한다. 세부 하위 type은 `list()`를 사용하여 세부 타입을 설정할 수 있다. 이 모든 type을 다 설명할 수는 없기 때문에 주요한 type을 위주로 설명한다. 전체 type은 plotly.com에 수록되어 있다.[^4]
+스캐터 trace에서 약 50여개가 넘는 type을 사용하여 세부 설정이 가능하다. 이 50여개의 type 중에는 다시 세부 type을 설정하는 type이 있고 총 4단계까지 내려가는 type도 존재한다. 세부 하위 type은 `list()`를 사용하여 세부 타입을 설정할 수 있다. 이 모든 type을 다 설명할 수는 없기 때문에 주요한 type을 위주로 설명한다. 전체 type은 plotly.com에 수록되어 있다.[^3]
 
-[^4]: <https://plotly.com/r/reference/scatter/>
+[^3]: <https://plotly.com/r/reference/scatter/>
 
 #### mode
 
@@ -976,19 +975,22 @@ trace의 `type`과 `mode`를 선그래프에 맞에 설정하거나 `add_lines()
 p_line <- covid19_df_100 |> plot_ly()
 
 p_line |> 
-  add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~new_cases, color = ~ iso_code)
+  add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~new_cases, color = ~ iso_code, colors = 'viridis') |>
+  layout(xaxis = list(title = '날짜'), yaxis = list(title = '확진자수'))
 ```
 
 선 그래프의 경우는 선을 너무 많이 그려서 꼬이기 시작하면 오히려 데이터를 확인하는데 방해가 되는 시각화가 되는 경우가 있다. 이를 스파게티 선 그래프라고 하는데 하나의 선 그래프에는 보통 5\~6개 이상의 선을 넣지 않는 것이 일반적이다. 따라서 선 그래프의 경우는 변수 매핑에 의해 단번에 선 그래프를 생성하는 방법도 많이 사용하지만 3\~4개의 단일 선 그래프를 겹쳐 그리는 방법도 많이 사용된다. 이렇게 여러 개의 trace를 겹쳐 그린다면 `plotly` 객체에 trace를 순차적으로 추가하여 생성할 수 있다.
 
 ```{r}
-fig <- add_trace(p_line_wide, type = 'scatter', mode = 'lines', x = ~date, y = ~South_Korea, name = '한국')
+fig <- add_trace(p_line_wide, type = 'scatter', mode = 'lines', x = ~date, 
+                 y = ~South_Korea, name = '한국')
 
-fig <- fig |> add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~Asia, name = '아시아')
+fig <- fig |> add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~Asia, 
+                        name = '아시아')
 
-fig <- fig |> add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~Europe, name = '유럽')
-
-fig
+fig |> add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~Europe, 
+                 name = '유럽') |>
+  layout(xaxis = list(title = '날짜'), yaxis = list(title = '확진자수'), colorway = viridisLite::viridis(3))
 ```
 
 이렇게 추가적인 방법으로 시각화를 완성하면 몇 가지 장점이 있다.
@@ -1004,11 +1006,11 @@ fig <- add_trace(p_line_wide, type = 'scatter', mode = 'lines',
                  x = ~date, y = ~South_Korea, name = '한국', 
                  line = list(color = 'red'))
 
-fig <- fig |> add_trace(type = 'scatter', mode = 'lines', 
+fig |> add_trace(type = 'scatter', mode = 'lines', 
                         x = ~date, y = ~Asia, name = '아시아', 
-                        line = list(color = 'gray'))
+                        line = list(color = 'gray')) |>
+  layout(xaxis = list(title = '날짜'), yaxis = list(title = '확진자수'))
 
-fig |> layout(showlegend = TRUE)
 ```
 
 #### text, add_text()
@@ -1079,7 +1081,11 @@ p_bar <- covid19_df_100 |> mutate(yearmonth = tsibble::yearmonth(date)) |> group
   summarise(new_cases = sum(new_cases)) |> plot_ly()
 
 p_bar |>
-  add_trace(type = 'bar', x = ~iso_code, y = ~new_cases)
+  add_trace(type = 'bar', x = ~iso_code, y = ~new_cases) |>
+  layout(xaxis = list(title = '날짜', 
+                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
+                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
+         yaxis = list(title = '확진자수'))
 
 ```
 
@@ -1109,31 +1115,55 @@ p_bar_mode |>
             name = ~paste0(lubridate::year(yearmonth), '년 ', lubridate::month(yearmonth, label = TRUE, abbr = FALSE))) |>
   layout(barmode = 'overlay')
 
-# plot_ly() |> add_trace(type = 'bar', x = 2000:2021, y = diff(df_입학자[df_입학자$지역 == '전체', ]$일반대학), 
-#                        color = I(ifelse(diff(df_입학자[df_입학자$지역 == '전체', ]$일반대학)> 0, "red","blue"))) |> 
-#   layout(barmode = 'relative')
+diff_sam <- covid19_df_100 |> mutate(yearmonth = lubridate::floor_date(date, "month")) |> group_by(iso_code, yearmonth) |>
+  summarise(new_cases = sum(new_cases)) |> 
+  pivot_wider(names_from = iso_code, values_from = new_cases) |>
+  select(OWID_SAM) |>
+  pull()
+
+plot_ly() |> add_trace(type = 'bar', x = 1:3, y = diff(diff_sam), 
+                       color = I(ifelse(diff(diff_sam) > 0, "darkred", "darkblue"))
+                       ) |> 
+  layout(barmode = 'relative', 
+         xaxis = list(ticktext = c('1월', '2월', '3월'), 
+                      tickvals = c(1, 2, 3)), 
+         yaxis = list(title = '증감량'))
 
 ```
-
 
 앞서 스캐터 trace의 선 그래프를 그릴때 넓은 형태의 데이터프레임을 사용하여 trace를 하나 하나 추가하는 형태의 시각화를 그려보았다. 막대 trace도 동일하게 생성할 수 있다. `plotly` 객체에 계속적으로 막대 trace를 추가한 후 `layout()`의 `barmode`를 원하는 형태로 설정하면 된다. 이 과정에서 `name`으로 각각의 범례에 표시될 아이템 이름을 설정할 수 있고 trace의 추가 순서에 따라 범례의 순서를 설정할 수 있으며, 특정 막대의 색을 강조함으로써 특정 데이터를 강조하는데 유용하게 활용할 수 있다.
 
 ```{r eval = FALSE}
-fig <- df_취업통계_2000 |> group_by(과정구분, 대계열) |>
-  summarise(졸업자합계 = sum(졸업자_계)) |> 
-  pivot_wider(names_from = 과정구분, values_from = 졸업자합계) |> 
+p_bar_mode1 <- covid19_df_100 |> 
+  mutate(yearmonth = lubridate::floor_date(date, "month")) |> 
+  group_by(iso_code, yearmonth) |>
+  summarise(new_cases = sum(new_cases)) |> 
+  pivot_wider(names_from = yearmonth, values_from = new_cases) |>
   plot_ly()
 
-fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~전문대학과정, 
-                        name = '전문대학과정', color = I('gray40'))
+fig <- p_bar_mode1 |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~`2021-12-01`, color = I('gray30'),  
+            name = '2021월 12월')
 
-fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~대학과정, 
-                        name = '대학과정', color = I('darkred'))
+fig <- fig |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~`2022-01-01`, color = I('gray40'),  
+            name = '2022월 1월')
 
-fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~대학원과정, 
-                        name = '대학원과정', color = I('gray60'))
+fig <- fig |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~`2022-02-01`, color = I('gray50'),  
+            name = '2022월 2월')
 
-fig |> layout(barmode = 'stack')
+fig <- fig |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~`2022-03-01`, color = I('darkred'),  
+            name = '2022월 3월')
+
+fig |> layout(barmode = 'stack', 
+              xaxis = list(title = '지역', 
+                           ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
+                           tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
+              yaxis = list(title = '확진자수')
+              )
+
 
 ```
 
@@ -1145,44 +1175,56 @@ fig |> layout(barmode = 'stack')
 
 `textposition`는 `text`의 위치를 설정하는 type이다. `textposition`에는 'inside', 'outside', 'auto', 'none'의 네 가지를 설정할 수 있다. 'inside'는 막대의 안쪽에 텍스트를 위치시킨다. 이 경우 막대의 너비에 따라 가로로 표시될 수도 있고 세로로 표시될 수도 있다. 'outside'는 막대 끝의 바깥에 텍스트를 위치시키는데 마찬가지로 막대의 너비에 따라 가로 혹은 세로로 표기될 수 있다. 또 'outside'는 막대가 쌓이는 'stack' 형의 막대 그래프에서는 'inside'와 동일하게 표시된다. 'auto'는 `plotly`에서 자동적으로 계산된 형태로 텍스트가 표시된다. 'none'은 텍스트가 표시되지 않는다.
 
-
 ```{r}
-fig <- df_취업통계_2000 |> group_by(과정구분, 대계열) |>
-  summarise(졸업자합계 = sum(졸업자_계)) |> 
-  pivot_wider(names_from = 과정구분, values_from = 졸업자합계) |> 
-  plot_ly()
+fig <- p_bar_mode1 |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~`2021-12-01`, color = I('gray30'),  
+            name = '2021월 12월', text = ~`2021-12-01`, 
+            textposition = 'inside', textfont = list(color = 'white', size = 10)
+            )
 
-fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~전문대학과정, 
-                        name = '전문대학과정', color = I('gray30'), 
-                        text = ~전문대학과정, textposition = 'inside', 
-                        textfont = list(color = 'white'))
+fig <- fig |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~`2022-01-01`, color = I('gray40'),  
+            name = '2022월 1월', text = ~`2022-01-01`, 
+            textposition = 'inside', textfont = list(color = 'white', size = 10)
+            )
 
-fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~대학과정, 
-                        name = '대학과정', color = I('darkred'), 
-                        text = ~대학과정, textposition = 'inside', 
-                        textfont = list(color = 'white'))
+fig <- fig |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~`2022-02-01`, color = I('gray50'),  
+            name = '2022월 2월', text = ~`2022-02-01`, 
+            textposition = 'inside', textfont = list(color = 'white', size = 10)
+            )
+            
+fig <- fig |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~`2022-03-01`, color = I('darkred'),  
+            name = '2022월 3월', text = ~`2022-03-01`, 
+            textposition = 'inside', textfont = list(color = 'white', size = 10)
+            )
 
-fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~대학원과정, 
-                        name = '대학원과정', color = I('gray70'), 
-                        text = ~대학원과정, textposition = 'inside', 
-                        textfont = list(color = 'white'))
-
-fig |> layout(barmode = 'stack')
+fig |> layout(barmode = 'stack', 
+              xaxis = list(title = '지역', 
+                           ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
+                           tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
+              yaxis = list(title = '확진자수')
+              )
 
 ```
 
-`texttemplate`은 텍스트가 표시되는 형태를 설정하는 type이다. `texttemplate`는 `hovertemplate`의 정의와 같이 사용되는데 '%{변수:변수포맷}'의 형태로 사용된다. 변수 포맷에서 사용하는 포맷은 자바 스크립트의 d3 format[^5]을 사용한다. 앞의 예에서 일반대학의 입학생수의 포맷에 천단위 콤마를 넣는다면 '%{text:,}'로 설정하고 소수점 아래 두째 자리까지 표기한다면 '%{text:2f}'로 설정한다.
+`texttemplate`은 텍스트가 표시되는 형태를 설정하는 type이다. `texttemplate`는 `hovertemplate`의 정의와 같이 사용되는데 '%{변수:변수포맷}'의 형태로 사용된다. 변수 포맷에서 사용하는 포맷은 자바 스크립트의 d3 format[^4]을 사용한다. 앞의 예에서 일반대학의 입학생수의 포맷에 천단위 콤마를 넣는다면 '%{text:,}'로 설정하고 소수점 아래 두째 자리까지 표기한다면 '%{text:2f}'로 설정한다.
 
-[^5]: <https://github.com/d3/d3-format/tree/v1.4.5#d3-format>
+[^4]: <https://github.com/d3/d3-format/tree/v1.4.5#d3-format>
 
 ```{r}
-df_취업통계_2000 |> group_by(과정구분, 대계열) |>
-  summarise(졸업자합계 = sum(졸업자_계)) |> 
-  pivot_wider(names_from = 과정구분, values_from = 졸업자합계) |> 
-  plot_ly() |>
-  add_trace(type = 'bar', x = ~대계열, y = ~대학과정, name = '대학과정', 
-            text = ~대학과정, textposition = 'outside', 
-            textfont = list(color = 'black', size = 15), texttemplate = '%{text:,}') 
+p_bar_mode1 |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~`2022-03-01`, color = I('darkred'),  
+            name = '2021월 12월', text = ~`2021-12-01`, 
+            textposition = 'inside', textfont = list(color = 'white', size = 10),
+            texttemplate = '%{text:,}'
+            ) |> 
+  layout(xaxis = list(title = '지역', 
+                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
+                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')
+                      ), 
+         yaxis = list(title= '확진자수'))
 
 ```
 
@@ -1191,16 +1233,20 @@ df_취업통계_2000 |> group_by(과정구분, 대계열) |>
 앞서 스캐터 trace에서 산점도, 선 그래프를 생성할 때 `marker`를 사용하여 점과 선의 형태를 설정하였다. 그러나 막대 trace에서의 `makrker`는 막대 자체를 의미한다. 따라서 `marker`로 설정 가능한 type은 막대의 내부 색, 외부 외곽선 등의 세부 설정을 위한 type을 지정할 수 있다.
 
 ```{r}
-df_취업통계_2000 |> group_by(과정구분, 대계열) |>
-  summarise(졸업자합계 = sum(졸업자_계)) |> 
-  pivot_wider(names_from = 과정구분, values_from = 졸업자합계) |> 
-  plot_ly() |>
-  add_trace(type = 'bar', x = ~대계열, y = ~대학과정, name = '대학과정', 
-            text = ~대학과정, textposition = 'outside', 
-            textfont = list(color = 'black', size = 15), texttemplate = '%{text:,}', 
+p_bar_mode1 |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~`2022-03-01`, color = I('darkred'),  
+            name = '2021월 12월', text = ~`2021-12-01`, 
+            textposition = 'inside', textfont = list(color = 'black', size = 10),
+            texttemplate = '%{text:,}', 
             marker = list(color = 'aliceblue',
-                          line = list(color = 'lightblue', width = 1.5))
-) 
+                          line = list(color = 'lightblue', width = 1.5)
+                          )
+            ) |>
+  layout(xaxis = list(title = '지역', 
+                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
+                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')
+                      ), 
+         yaxis = list(title= '확진자수'))
 
 ```
 
@@ -1299,16 +1345,16 @@ subplot(
 
 ```{r eval = FALSE}
 p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
-                   boxpoint = 'all')
+                   boxpoints = 'all')
 
 p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
-                   boxpoint = 'outliers')
+                   boxpoints = 'outliers')
 
 p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
-                   boxpoint = 'suspectedoutliers')
+                   boxpoints = 'suspectedoutliers')
 
 p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
-                   boxpoint = FALSE)
+                   boxpoints = FALSE)
 ```
 
 ```{r echo = FALSE}
@@ -1496,10 +1542,14 @@ add_pie(p, values = NULL, labels = NULL, ..., data = NULL, inherit = TRUE)\
 앞선 여타 trace와는 달리 파이 trace에는 X, Y축에 매핑되는 `x`, `y` type의 설정이 없다. 대신 필수적 type으로 `values`와 `labels`를 설정해야하는데 `values`에 매핑되거나 설정된 수치 벡터에 따라 원을 각각의 슬라이스로 구분하게 되고 `labels`에 매핑하거자 설정한 벡터가 각각의 trace 이름으로 설정된다. 또 원 그래프에 표시되는 데이터 값은 기본적으로 백분률 값이 표시된다.
 
 ```{r}
-p_pie <- df_입학자_long |> filter(연도 == '2021', 지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '석사', '박사')) |> plot_ly()
+p_pie <- df_취업통계_2000 |> group_by(대계열) |>
+  summarise(졸업자수 = sum(졸업자_계)) |> plot_ly()
+
+cols <- viridisLite::inferno(7)
 
 p_pie |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류)
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열) |>
+  layout(colorway = viridis::viridis(7))
 
 ```
 
@@ -1509,25 +1559,40 @@ p_pie |>
 
 ```{r eval=FALSE}
 p_pie |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'value')
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'value')
 
 p_pie |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'percent')
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'percent')
 
 p_pie |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+percent')
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent')
 
 p_pie |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+value')
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+value')
 
 ```
 
 ```{r echo=FALSE}
 p_pie |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'value', title = list(text = "textinfo = 'value'", position = 'top center', font = list(size = 15)), domain = list(x = c(0, 0.4), y = c(0.6, 1)), insidetextfont = list(size = 10)) |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'percent', title = list(text = " textinfo = 'percent'", position = 'top center', font = list(size = 15)), domain = list(x = c(0.6, 1), y = c(0.6, 1)), insidetextfont = list(size = 10))|>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+percent', title = list(text = "textinfo = 'label+percent'", position = 'top center', font = list(size = 15)), domain = list(x = c(0, 0.4), y = c(0, 0.4)), insidetextfont = list(size = 10))|>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+value', title = list(text = "textinfo = 'label+value'", position = 'top center', font = list(size = 15)), domain = list(x = c(0.6, 1), y = c(0, 0.4)), insidetextfont = list(size = 10)) |>
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'value',
+            title = list(text = "textinfo = 'value'", position = 'top center', 
+                         font = list(size = 15)), 
+            domain = list(x = c(0, 0.49), y = c(0.51, 1)), 
+            insidetextfont = list(size = 7)) |>
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'percent', 
+             title = list(text = " textinfo = 'percent'", position = 'top center',
+                          font = list(size = 15)), 
+             domain = list(x = c(0.51, 1), y = c(0.51, 1)), 
+             insidetextfont = list(size = 7))|>
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', 
+            title = list(text = "textinfo = 'label+percent'", position = 'top center', font = list(size = 15)), 
+            domain = list(x = c(0, 0.49), y = c(0, 0.49)), 
+            insidetextfont = list(size = 7))|>
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+value', 
+            title = list(text = "textinfo = 'label+value'", position = 'top center',
+                         font = list(size = 15)), 
+            domain = list(x = c(0.51, 1), y = c(0, 0.49)), 
+            insidetextfont = list(size = 7)) |>
   layout(showlegend = FALSE)
 
 
@@ -1539,39 +1604,40 @@ p_pie |>
 
 ```{r eval=FALSE}
 p_pie |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+percent', hole = 0.4)
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', hole = 0.4)
 ```
 
 #### marker
 
 ```{r eval=FALSE}
 p_pie |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+percent', marker = list(colors = c('red', 'green', 'blue', 'black'), line = list(color = 'white', width = 1)))
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', marker = list(colors = 'viridis', line = list(color = 'white', width = 1)))
 ```
 
 #### insidetextorientation
 
 ```{r eval=FALSE}
 p_pie |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+percent', insidetextorientation = 'horizontal')
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'horizontal')
 
 p_pie |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+percent', insidetextorientation = 'radial')
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'radial')
 
 p_pie |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+percent', insidetextorientation = 'tangential')
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'tangential')
 
 p_pie |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+percent', insidetextorientation = 'auto')
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'auto')
 
 ```
 
 ```{r echo=FALSE}
 p_pie |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+percent', insidetextorientation = 'horizontal', title = list(text = "insidetextorientation = 'horizontal'", position = 'top center', font = list(size = 15)), domain = list(x = c(0, 0.4), y = c(0.6, 1)), insidetextfont = list(size = 8)) |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+percent', insidetextorientation = 'radial', title = list(text = "insidetextorientation = 'radial'", position = 'top center', font = list(size = 15)), domain = list(x = c(0.6, 1), y = c(0.6, 1)), insidetextfont = list(size = 8)) |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+percent', insidetextorientation = 'tangential', title = list(text = "insidetextorientation = 'tangential'", position = 'top center', font = list(size = 15)), domain = list(x = c(0, 0.4), y = c(0, 0.4)), insidetextfont = list(size = 8)) |>
-  add_trace(type = 'pie', values = ~입학생수, labels = ~학교종류, textinfo = 'label+percent', insidetextorientation = 'auto', title = list(text = "insidetextorientation = 'auto'", position = 'top center', font = list(size = 15)), domain = list(x = c(0.6, 1), y = c(0, 0.4)), insidetextfont = list(size = 8))
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'horizontal', title = list(text = "insidetextorientation = 'horizontal'", position = 'top center', font = list(size = 15)), domain = list(x = c(0, 0.49), y = c(0.51, 1)), insidetextfont = list(size = 6)) |>
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'radial', title = list(text = "insidetextorientation = 'radial'", position = 'top center', font = list(size = 15)), domain = list(x = c(0.51, 1), y = c(0.51, 1)), insidetextfont = list(size = 6)) |>
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'tangential', title = list(text = "insidetextorientation = 'tangential'", position = 'top center', font = list(size = 15)), domain = list(x = c(0, 0.49), y = c(0, 0.49)), insidetextfont = list(size = 6)) |>
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'auto', title = list(text = "insidetextorientation = 'auto'", position = 'top center', font = list(size = 15)), domain = list(x = c(0.59, 1), y = c(0, 0.49)), insidetextfont = list(size = 6)) |>
+  layout(showlegend = FALSE)
 
 ```
 
@@ -1634,14 +1700,14 @@ p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1
 
 `plotly`에서는 제목과 같은 문자열을 꾸미기 위해 HTML 텍스트 태그를 지원하는데 전체 HTML 중 5가지만을 지원한다.
 
-| HTML tab           | 설명            |
-|--------------------|-----------------|
-| <b></b>            | 볼드체 설정     |
-| <i></i>            | 이탤릭체 설정   |
-| <br>               | 줄 바꿈 설정    |
-| <sup></sup>        | 윗 첨자 설정    |
-| <sub></sub>        | 아래 첨자 설정  |
-| <a href='url'></a> | 하이퍼링크 설정 |
+| HTML tab             | 설명            |
+|----------------------|-----------------|
+| \<b>\</b>            | 볼드체 설정     |
+| \<i>\</i>            | 이탤릭체 설정   |
+| \<br>                | 줄 바꿈 설정    |
+| \<sup>\</sup>        | 윗 첨자 설정    |
+| \<sub>\</sub>        | 아래 첨자 설정  |
+| \<a href='url'>\</a> | 하이퍼링크 설정 |
 
 ```{r}
 p_title_1 |> layout(title = list(text = "<b><i>졸업수 대비 취업률</b></i>", 
@@ -1815,9 +1881,9 @@ p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1
 | colorscale    | 컬러 스케일의 설정                         |                 | diverging, sequential, sequentialminus |
 | colorway      | 기본 컬러 벡터 설정                        |                 |                                        |
 
-`plotly`에서 사용하는 색의 설정은 색 이름 설정, 16진수로 설정된 RGB값 설정, `rgb()` 함수를 사용한 RGB값의 설정 세 가지 방법이 주로 사용된다. 이외에도 색조, 채도, 명도(lightness)를 사용하는 `hsl()`을 사용하는 방법, 색조, 채도, 명도(value)를 사용하는 `hsv()`를 사용하는 방법도 있다. `plotly`에서 사용이 가능한 색 이름은 W3.org에서 제공하는 CSS 색 이름을 사용한다.[^6]
+`plotly`에서 사용하는 색의 설정은 색 이름 설정, 16진수로 설정된 RGB값 설정, `rgb()` 함수를 사용한 RGB값의 설정 세 가지 방법이 주로 사용된다. 이외에도 색조, 채도, 명도(lightness)를 사용하는 `hsl()`을 사용하는 방법, 색조, 채도, 명도(value)를 사용하는 `hsv()`를 사용하는 방법도 있다. `plotly`에서 사용이 가능한 색 이름은 W3.org에서 제공하는 CSS 색 이름을 사용한다.[^5]
 
-[^6]: <https://www.w3schools.com/cssref/css_colors.asp>
+[^5]: <https://www.w3schools.com/cssref/css_colors.asp>
 
 ```{r}
 p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1, 
@@ -2049,15 +2115,23 @@ p_title_1 |>
 
 데이터를 설명하기 위해 넣는 주석은 주로 문자열에 국한된다. 하지만 데이터를 설명하기 위해서는 선, 네모, 원 등의 다양한 도형을 사용할 필요가 있다. 이와 같이 데이터를 설명하기 위한 각종 도형을 사용자가 직접 그리기 위해서는 `layout()`의 `shape` type을 설정하여 생성할 수 있다. `shape` type에서 설정가능한 세부 type은 다음과 같다.
 
++----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
 | type           | 설명                                             | type 값 및 설명                                                     | 세부 type |
-|----------------|--------------------------------------------------|---------------------------------------------------------------------|-----------|
++================+==================================================+=====================================================================+===========+
 | type           | 그려질 도형의 형태 설정                          | 'circle'은 원, 'rect'는 사각형, 'path'는 SVG path, 'line'은 선 설정 |           |
++----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
 | name           | 그려질 도형의 이름 설정                          |                                                                     |           |
++----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
 | x0, x1, y0, y1 | 도형의 X, Y축 시작점(x0, y0)과 끝점(x1, y1) 설정 |                                                                     |           |
++----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
 | layer          | 그려지는 도형 레이어의 위치를 설정               | 'above'는 다른 도형보다 위, 'below'는 다론 도형보다 아래에 위치     |           |
++----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
 |                |                                                  |                                                                     |           |
++----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
 |                |                                                  |                                                                     |           |
++----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
 |                |                                                  |                                                                     |           |
++----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
 
 ```{r}
 add_segments
