@@ -85,10 +85,10 @@ if(!require(readr)) {
   library(readr)
 }
 
-# if(!require(lubridate)) {
-#   install.packages('lubridate')
-#   library(lubridate)
-# }
+if(!require(lubridate)) {
+  install.packages('lubridate')
+  library(lubridate)
+}
 # 
 # 
 # coronavirus_df <- read_csv("C:/R/git/datavisualization/chap3/coronavirus.csv", 
@@ -117,33 +117,43 @@ if(!require(readr)) {
 #                                              Province_State =col_character()
 #                                              )
 #                             )
-covid_joined <- inner_join(covid_stat_by_nation, vaccine_stat_by_nation, by = c('country' = 'country_region', 'uid' = 'uid'))
+# covid_joined <- inner_join(covid_stat_by_nation, vaccine_stat_by_nation, by = c('country' = 'country_region', 'uid' = 'uid'))
 
 #https://github.com/owid/covid-19-data/tree/master/public/data
 
 
-covid19_df <- read_csv(file = "C:/R/git/datavisualization/chap3/owid-covid-data.csv",
+covid19_df <- read_csv(file = "D:/R/data/owid-covid-data.csv",
                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
                                              )
                             )
 
+covid19_df_100 <- covid19_df |> 
+  filter((iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM'))) |>
+  filter(date >= today() - 100) |> 
+  arrange(date)
 
-covid19_df <- covid19_df |> select(iso_code, continent, location, date, population, gdp_per_capita, total_cases, new_cases, total_deaths, new_deaths, icu_patients_per_million, hosp_patients_per_million, reproduction_rate, total_tests, new_tests, total_vaccinations, people_fully_vaccinated, total_boosters,  people_fully_vaccinated_per_hundred, total_boosters_per_hundred)
+covid19_df_100_wide <- covid19_df_100 |> select(date, location, new_cases) |> 
+  pivot_wider(id_cols = date, names_from = location, values_from = new_cases) |> 
+  arrange(date)
 
+names(covid19_df_100_wide) <- c('date', 'Asia', 'Europe', 'North_America', 'Oceania', 'South_America', 'South_Korea')
 
-covid19_stat_df <- covid19_df |> group_by(iso_code, continent, location) |>
-  summarise(population = max(population, na.rm = T), gdp_per_capita = max(gdp_per_capita, na.rm = T), 
-            total_cases = max(total_cases, na.rm = T), new_cases = sum(new_cases, na.rm = T), 
+# covid19_df <- covid19_df |> select(iso_code, continent, location, date, population, gdp_per_capita, total_cases, new_cases, total_deaths, new_deaths, icu_patients_per_million, hosp_patients_per_million, reproduction_rate, total_tests, new_tests, total_vaccinations, people_fully_vaccinated, total_boosters,  people_fully_vaccinated_per_hundred, total_boosters_per_hundred)
+# 
+# 
+covid19_stat <- covid19_df |> group_by(iso_code, continent, location) |>
+  summarise(population = max(population, na.rm = T), gdp_per_capita = max(gdp_per_capita, na.rm = T),
+            total_cases = max(total_cases, na.rm = T), new_cases = sum(new_cases, na.rm = T),
             total_deaths = max(total_deaths, na.rm = T), new_deaths = sum(new_deaths, na.rm = T), death_per_million = round(total_deaths / population *100000, 5),
-            icu_patients_per_million = last(icu_patients_per_million), 
+            icu_patients_per_million = last(icu_patients_per_million),
             hosp_patients_per_million = last(hosp_patients_per_million),
-            reproduction_rate = last(reproduction_rate), 
-            total_tests = max(total_tests, na.rm = T), new_tests = sum(new_tests, na.rm = T), 
-            total_vaccinations = max(total_vaccinations, na.rm = T), 
-            people_fully_vaccinated = max(people_fully_vaccinated, na.rm = T), 
-            total_boosters = max(total_boosters, na.rm = T), 
-            fully_vaccinated_rate = people_fully_vaccinated / population, 
-            people_fully_vaccinated_per_hundred = max(people_fully_vaccinated_per_hundred, na.rm = T), 
+            reproduction_rate = last(reproduction_rate),
+            total_tests = max(total_tests, na.rm = T), new_tests = sum(new_tests, na.rm = T),
+            total_vaccinations = max(total_vaccinations, na.rm = T),
+            people_fully_vaccinated = max(people_fully_vaccinated, na.rm = T),
+            total_boosters = max(total_boosters, na.rm = T),
+            fully_vaccinated_rate = people_fully_vaccinated / population,
+            people_fully_vaccinated_per_hundred = max(people_fully_vaccinated_per_hundred, na.rm = T),
             total_boosters_per_hundred = max(total_boosters_per_hundred, na.rm = T)
             ) |> ungroup()
   
@@ -245,13 +255,13 @@ plot_ly(data = data.frame(), ..., type = NULL, name, color, colors = NULL, alpha
 이처럼 `plot_ly()`의 함수에서는 많은 매개변수가 사용된다. 특히 '...'으로 표기된 부분은 `type` 매개변수에서 설정하는 trace 타입에 따라 설정 내용이 매우 달라진다. `ggplot2`에서 `geom_*()`를 사용하여 기하 요소 레이어를 하나 하나 설정하면서 전체 시각화를 완성하는 것과 유사하게 `plotly`에서는 여러개의 trace를 추가함으로써 전체 시각화를 완성해나갈수 있다. 다만 `ggplot2`의 `ggplot()`에서는 데이터 요소와 미적요소만을 설정할 수 있었지만 `plotly`에서는 데이터, trace, trace에 따른 속성까지 설정이 가능하므로 `plot_ly()`만가지고도 시각화를 완성할 수 있다. 반면 동시에 여러개의 trace가 포함되는 시각화에서는 뒤에서 설명할 `add_trace()`나 `add_*()`를 사용하여 trace를 추가하게 되는데 `plot_ly()`에서 설정한 속성들을 상속받게 된다. 이 과정에서 원치않는 속성의 상속을 방지하기 위해 `plot_ly()`에 매개변수를 넣지않고 단순히 `plotly` 객체의 초기화 명령으로 사용도 가능하다.
 
 ```{r}
-covid19_stat_df |> plot_ly()
+covid19_df_100 |> plot_ly()
 ```
 
 `plot_ly()`의 매개변수를 설정할 때 꼭 알아 두어야 하는 것은 변수를 매핑하는 방법과 값을 설정하는 방법이 다르다는 것이다. `ggplot2`에서는 변수를 매핑하기 위해서 `aes()`를 사용함으로써 변수를 매핑하였고 값을 실정하기 위해서는 `aes()` 밖에 선언함으로써 설정이 가능하였다. `plotly`에서는 `aes()` 대신 `~`를 사용하여 변수를 매핑한다.
 
 ```{r}
-covid19_df |> filter(iso_code == 'KOR') |> 
+covid19_df_100 |> filter(iso_code == 'KOR') |> 
   plot_ly(x = ~date, y = ~new_cases)
 
 ```
@@ -266,17 +276,19 @@ covid19_df |> filter(iso_code == 'KOR') |>
 
 `add_trace()`에서 가장 기본적으로 설정하는 type은 `x`, `y`, `z`이다. 이 세 개의 type은 X축, Y축, Z축에 매핑하는 변수를 설정한다. 앞서 설명한 바와 같이 `x`, `y`, `z`에 매핑하는 변수는 `~`를 사용하여 매핑하는데 변수를 매핑하지 않고 벡터를 설정하는 것도 가능하다.
 
+```{r}
+set.seed(123)
+df_취업통계_2000 <- df_취업통계 |> filter(졸업자_계 < 500) |> sample_n(2000)
+
+df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계)
+```
+
 `plotly`는 3차원 그래픽을 지원하기 때문에 Z축을 설정할 수 있다. 동적 시각화는 사용자가 시각화를 자신이 원하는 방향으로 설정하여 관찰할 수 있기 때문에 3차원 효과가 효율적일 수 있다. 하지만 일반적으로 데이터 시각화에서는 3차원 을 사용하는 것은 크게 효과적이지 않다고 알려져 있기 때문에 3차원의 활용은 주의할 필요가 있다.
 
 ```{r}
-covid19_stat_df |> 
-  plot_ly(x = ~death_per_million, y = ~fully_vaccinated_rate)
+df_취업통계_2000 |>
+  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, z = ~대계열)
 
-# covid_joined |>
-#   plot_ly(x = ~death_rate, y = ~fully_vaccinated_ratio)
-# 
-# 
-# View(covid19_stat_df)
 ```
 
 ### name
@@ -286,35 +298,29 @@ covid19_stat_df |>
 다음은 `name`에 범례에 표기되어야 할 변수를 매핑하여 범례 아이템 이름을 설정하는 코드이다.
 
 ```{r}
-covid_joined |>  
-  plot_ly(x = ~death_rate, y = ~fully_vaccinated_ratio, name = ~continent_name.x)
-
-covid19_stat_df |> 
-  plot_ly(x = ~death_per_million, y = ~fully_vaccinated_rate, name = ~continent)
-
+df_취업통계_2000 |>
+  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열)
 
 ```
 
 만약 범례를 변수 열로 설정된 값을 사용하지 않고 바꾸려면 범례 아이템을 바꾸는 것이 아니고 각각의 데이터에 매핑될 벡터를 만들어 주어야 한다. `ggplot2`와 같은 정적 시각화는 시각화가 만들어지면 변경이 되지 않기 때문에 데이터를 시각화하는 부분과는 별도로 범례만을 따로 설정할 수 있지만 동적 시각화는 마우스 포인터를 데이터에 가져가면 해당 데이터에 대한 내용이 표기되어야 하는데 이 값이 범례값과 달라지면 안되기 때문에 범례만 수정할 수 없고 모든 데이터에 1:1로 매핑되는 범례 아이템 이름 벡터가 필요하다.
 
 ```{r}
-legend_items <- covid19_stat_df |> 
-  mutate(cont_kor = case_when(
-    continent == 'Africa' ~ '아프리카', 
-    continent == 'Asia' ~ '아시아',
-    continent == 'Europe' ~ '유럽',
-    continent == 'North America' ~ '북미',
-    continent == 'Oceania' ~ '오세아니아',
-    continent == 'South America' ~ '남미', 
-    TRUE ~ '대륙평균')) |>
-  select(cont_kor) |>
+legend_items <- covid19_df_100 |> 
+  mutate(legend_name = case_when(
+    iso_code == 'KOR' ~ '한국', 
+    iso_code == 'OWID_ASI' ~ '아시아',
+    iso_code == 'OWID_EUR' ~ '유럽',
+    iso_code == 'OWID_NAM' ~ '북미',
+    iso_code == 'OWID_OCE' ~ '오세아니아',
+    iso_code == 'OWID_SAM' ~ '남미')) |>
+  select(legend_name) |>
   pull()
 
-covid19_stat_df |> 
-  plot_ly(x = ~death_per_million, y = ~fully_vaccinated_rate, name = legend_items)
+legend_items <- fct_relevel(legend_items, '한국', '아시아', '유럽', '북미', '남미', '오세아니아')
 
-# covid_joined |> 
-#   plot_ly(x = ~death_rate, y = ~fully_vaccinated_ratio, name = legend_items)
+covid19_df_100 |>
+  plot_ly(x = ~date, y = ~new_cases, name = ~legend_items)
 
 ```
 
@@ -325,45 +331,32 @@ covid19_stat_df |>
 `hovertext`는 X, Y 좌표에 표시되는 문자열을 설정하는 type이다. 단순 문자열을 설정하면 모든 데이터 호버에 동일한 문자열이 표기되지만 벡터를 설정하면 각각의 호버에 매핑된 결과가 표시된다.
 
 ```{r}
-covid19_stat_df |> 
-  plot_ly(x = ~death_per_million, y = ~fully_vaccinated_rate, name = legend_items, hovertext = ~location)
+df_취업통계_2000 |>
+  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열, hovertext = ~학과명)
 
-# covid_joined |> 
-#   plot_ly(x = ~death_rate, y = ~fully_vaccinated_ratio, name = legend_items, hovertext = ~country)
 ```
 
 `hoverinfo`는 호버에 표시되는 데이터 정보를 설정하는 type이다. 호버에 표시되는 데이터 정보는 각각의 trace에 따라 다르지만 스캐터 trace에서는 기본적으로 X, Y, Z축의 좌표를 표기하는데 기본값은 'all'이 설정된다. 이 외에도 `x`(X축 좌표), `y`(Y축 좌표), `z`(Z축 좌표), `text`(특정 문자열), `name`(trace name), `none`(제거), `skip`(생략)이 사용될 수 있고 각각은 `+`를 사용하여 조합할 수 있다.
 
 ```{r}
-covid19_stat_df |> 
-  plot_ly(x = ~death_per_million, y = ~fully_vaccinated_rate, name = legend_items, hovertext = ~location, hoverinfo = 'x+y+name')
-
-# df_취업통계 |> filter(졸업자_계 < 500) |>
-#   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열, 
-#           hoverinfo = 'x+y+name')
+df_취업통계_2000 |>
+  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열, hovertext = ~학과명, hoverinfo = 'x+y+text')
 
 ```
 
 `hovertext`는 X, Y 좌표에 표시되는 문자열을 설정하는 type이다. `hovertext`는 앞서 설명한 `hoverinfo`를 `text`로 설정하고 `hovertext`를 설정할 때는 호버 상자 안에 `text`설정값이 표시되지만 `hoverinfo`를 생략하고 `hovertext`만 설정하면 호버 상자밖에 표시된다는 차이가 있다. `hovertext`에 단순 문자열을 설정하면 모든 데이터 호버에 동일한 문자열이 표기되지만 벡터를 설정하면 각각의 호버에 매핑된 결과가 표시된다.
 
 ```{r}
-covid19_stat_df |> 
-  plot_ly(x = ~death_per_million, y = ~fully_vaccinated_rate, name = legend_items, hovertext = ~location, hoverinfo = 'x+y+text')
-
-# df_취업통계 |> filter(졸업자_계 < 500) |> 
-#   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열,
-#           hoverinfo = 'x+y+text', hovertext = ~중계열)
+df_취업통계_2000 |> 
+  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열,
+          hoverinfo = 'x+y+text', hovertext = ~중계열)
 
 ```
 
 `hovertemplete`는 호버 상자와 호버 상자에 표시되는 정보의 포맷을 설정하는 type이다. 이 type은 앞서 설명한 `hoverinfo`에 설정된 사용되는 type에 사용된 변수를 `%{변수}`의 형태로 사용할 수 있다. 예를 들어 Y축 값을 표현하기 위해서는 `%{y}`로 설정한다. 앞서 사용된 예에서 X축의 값에 졸업자, Y축의 값에 취업자를 표기하고 값을 표시하는 코드는 다음과 같다.
 
 ```{r}
-covid19_stat_df |> 
-  plot_ly(x = ~death_per_million, y = ~fully_vaccinated_rate, name = legend_items, hovertext = ~location, hoverinfo = 'x+y+text', hovertemplate = ' 십만명당사망자:%{x}, 백신접종률:%{y}')
-
-
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열, 
           hoverinfo = 'x+y+text', hovertemplate = ' 졸업자:%{x}, 취업자:%{y}')
 ```
@@ -373,7 +366,7 @@ df_취업통계 |> filter(졸업자_계 < 500) |>
 `color`는 스캐터 trace에 표현되는 점, 선, 문자의 내부 색을 설정하는 속성이다. 내부 색을 설정할 때는 먼저 색을 변수에 매핑할지, 특정 색상으로 설정할 지를 결정해야 한다. 이를 설정하는 매개변수가 `color`이다. `color`에 변수를 `~`를 사용하여 매핑하면 해당 변수의 값에 따라 색이 매핑되어 표현된다.
 
 ```{r}
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열)
 
 ```
@@ -381,7 +374,7 @@ df_취업통계 |> filter(졸업자_계 < 500) |>
 반면 특정한 색으로 설정할 때는 `color`에 특정 색 이름을 설정하면 모든 marker가 동일한 색으로 나타난다. 이 과정에서 하나 주의해야 할 것이 설정의 방법이다. 일반적인 변수 설정과 같이 색상명을 설정하면 다음과 같이 정확한 색상이 나타나지 않는다.
 
 ```{r eval = FALSE}
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = 'black')
 
 ```
@@ -389,16 +382,16 @@ df_취업통계 |> filter(졸업자_계 < 500) |>
 `plotly`에서 색의 사용은 기본적으로 매핑을 전제로 사용된다. 따라서 앞의 코드에서 `color = 'black'`으로 설정하는 것은 색을 검정색으로 지정하는 것이 아니고 'black'이라는 이름으로 매핑된 색을 불러온다는 의미이다. 하지만 미리 매핑되어 정의된 'black' 색 배열이 없기 때문에 `plotly`의 디폴트 색 팔레트를 사용하여 색이 설정된다. 자신이 원하는 색을 직접 설정하기 위해서는 'asis'를 의미하는 `I()`를 사용하여 색을 설정하여야 한다.
 
 ```{r eval = FALSE}
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = I('black'))
 
 ```
 
 ```{r echo = FALSE}
-p1 <- df_취업통계 |> filter(졸업자_계 < 500) |> 
+p1 <- df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = 'black')
 
-p2 <- df_취업통계 |> filter(졸업자_계 < 500) |> 
+p2 <- df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = I('black'))
 
 subplot(
@@ -416,28 +409,28 @@ subplot(
 세 번째는 `colorRamp()`나 `scales::colour_ramp()`와 같은 색 보간 함수를 사용하는 방법이다. `colorRamp()`는 매개변수로 전달되는 색 벡터의 사이 색을 반환하는 함수를 만들어주는데 0부터 1까지의 값 범위내에 해당하는 색을 반환해준다.
 
 ```{r eval = FALSE}
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열, colors = 'Accent')
 
 color_vector <- c('red', 'blue', 'green', 'yellow', 'purple', 'black', 'pink')
 
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
           color = ~대계열, colors = color_vector)
 
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
           color = ~대계열, colors = colorRamp(c('red', 'white', 'blue')))
 ```
 
 ```{r echo = FALSE}
-p1 <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열, colors = 'Accent')
+p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열, colors = 'Accent')
 
 color_vector <- c('red', 'blue', 'green', 'yellow', 'purple', 'black', 'pink')
 
-p2 <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열, colors = color_vector)
+p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열, colors = color_vector)
 
-p3 <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열, colors = colorRamp(c('red', 'white', 'blue')))
+p3 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열, colors = colorRamp(c('red', 'white', 'blue')))
 
 subplot(
   p1 |> layout(annotations = list(x = 0.25 , y = 1.05, text = "colors = 'Accent'", showarrow = F, xref='paper', yref='paper')),
@@ -461,30 +454,30 @@ colorbar(p, ..., limits = NULL, which = 1)\
 [^3]: <https://plotly.com/r/reference/#scatter-marker-colorbar>
 
 ```{r eval = FALSE}
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
           color = ~취업률_계, colors = 'Accent')
 
 color_vector <- c('red', 'blue', 'green', 'yellow', 'purple', 'black', 'pink')
 
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
           color = ~취업률_계, colors = color_vector)
 
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
           color = ~취업률_계, colors = colorRamp(c('red', 'white', 'blue')))
 
 ```
 
 ```{r echo = FALSE}
-p1 <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = 'Accent')
+p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = 'Accent')
 
 color_vector <- c('red', 'blue', 'green', 'yellow', 'purple', 'black', 'pink')
 
-p2 <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = color_vector)
+p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = color_vector)
 
-p3 <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = colorRamp(c('red', 'white', 'blue')))
+p3 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = colorRamp(c('red', 'white', 'blue')))
 
 subplot(
   p1 |> layout(annotations = list(x = 0.25 , y = 1.05, text = "colors = 'Accent'", showarrow = F, xref='paper', yref='paper')),
@@ -498,42 +491,44 @@ subplot(
 `symbol`은 점의 형태를 설정하는 속성이다. 앞서 `color`와 같이 `symbol`도 매핑할 변수를 설정하는 매개변수이고 `symbols`는 변수 카테고리에 따라 설정하는 점의 형태를 설정하는 매개변수이다. `color`와 다른 점은 연속형 변수에 매핑되는 `symbol`은 단 하나의 카테고리로 분류된다는 점이다. 그렇기 때문에 좌표에 표시되는 점의 형태는 다르게 보이지만 범례에 표현되지는 않는다는 점이다. 다음의 예를 살펴보자.
 
 ```{r eval = FALSE}
-df_취업통계_temp <- df_취업통계 |> filter(졸업자_계 < 500) |> mutate(symbol = case_when(
-  대계열 == '인문계열' ~ 1, 
-  대계열 == '사회계열' ~ 2,
-  대계열 == '교육계열' ~ 3,
-  대계열 == '자연계열' ~ 4,
-  대계열 == '공학계열' ~ 5,
-  대계열 == '의약계열' ~ 6,
-  대계열 == '예체능계열' ~ 7
-)) 
+df_취업통계_symbol <- df_취업통계_2000 |> 
+  mutate(symbol = case_when(
+    대계열 == '인문계열' ~ 1, 
+    대계열 == '사회계열' ~ 2,
+    대계열 == '교육계열' ~ 3,
+    대계열 == '자연계열' ~ 4,
+    대계열 == '공학계열' ~ 5,
+    대계열 == '의약계열' ~ 6,
+    대계열 == '예체능계열' ~ 7)
+    ) 
 
-df_취업통계_temp |> 
+df_취업통계_symbol |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = ~symbol)
 
-df_취업통계_temp |> 
+df_취업통계_symbol |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = ~factor(symbol))
 
 ```
 
 ```{r echo = FALSE}
-df_취업통계_temp <- df_취업통계 |> filter(졸업자_계 < 500) |> mutate(symbol = case_when(
-  대계열 == '인문계열' ~ 1, 
-  대계열 == '사회계열' ~ 2,
-  대계열 == '교육계열' ~ 3,
-  대계열 == '자연계열' ~ 4,
-  대계열 == '공학계열' ~ 5,
-  대계열 == '의약계열' ~ 6,
-  대계열 == '예체능계열' ~ 7
-)) 
+df_취업통계_symbol <- df_취업통계_2000 |> 
+  mutate(symbol = case_when(
+    대계열 == '인문계열' ~ 1, 
+    대계열 == '사회계열' ~ 2,
+    대계열 == '교육계열' ~ 3,
+    대계열 == '자연계열' ~ 4,
+    대계열 == '공학계열' ~ 5,
+    대계열 == '의약계열' ~ 6,
+    대계열 == '예체능계열' ~ 7)
+    ) 
 
-p1 <- df_취업통계_temp |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = ~symbol)
+p1 <- df_취업통계_symbol |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = ~symbol)
 
-p2 <- df_취업통계_temp |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = ~factor(symbol))
+p2 <- df_취업통계_symbol |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = ~factor(symbol))
 
 subplot(
-  p1 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "~symbol", showarrow = F, xref='paper', yref='paper')),
-  p2 |> colorbar(title = 'color_vector')|> layout(annotations = list(x = 0.8, y = 1.05, text = "~factor(symbol)", showarrow = F, xref='paper', yref='paper'))
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "~symbol", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> colorbar(title = 'color_vector')|> layout(annotations = list(x = 0.5, y = 1.05, text = "~factor(symbol)", showarrow = F, xref='paper', yref='paper', xanchor = 'center'))
 ) |> hide_legend()
 ```
 
@@ -542,7 +537,7 @@ subplot(
 `plotly`에서는 0번부터 52번까지 총 53개의 `symbol`을 제공한다. 이 기본 53개의 도형 번호에 100을 더하면 내부가 빈 'open'형 심볼, 200을 더하면 점이 찍힌 'dot'형 심볼, 300을 더하면 내부가 비고 점이 찍힌 'open-dot'형 심볼을 의미한다.
 
 ```{r}
-df_취업통계_temp |> 
+df_취업통계_symbol |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
           symbol = ~factor(symbol), symbols = c('circle', 'circle-open', 'circle-dot', "circle-open-dot", "square", "square-open", "square-dot"))
 ```
@@ -550,18 +545,18 @@ df_취업통계_temp |>
 `symbol`에 변수를 매핑하지 않고 특정 심볼을 설정할 경우는 색의 설정과 같이 `I()`를 사용한다.
 
 ```{r eval = FALSE}
-df_취업통계_temp |> 
+df_취업통계_symbol |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = 'circle-open')
 
-df_취업통계_temp |> 
+df_취업통계_symbol |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = I('circle-open'))
 
 ```
 
 ```{r echo = FALSE}
-p1 <- df_취업통계_temp |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = 'circle-open', color = I('#1f77b4'))
+p1 <- df_취업통계_symbol |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = 'circle-open', color = I('#1f77b4'))
 
-p2 <- df_취업통계_temp |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = I('circle-open'), color = I('#1f77b4'))
+p2 <- df_취업통계_symbol |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = I('circle-open'), color = I('#1f77b4'))
 
 subplot(
   p1 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "symbol = 'circle-open'", showarrow = F, xref='paper', yref='paper')),
@@ -574,7 +569,7 @@ subplot(
 `stroke`는 점의 외곽선 색을 설정하는 속성이다. `color`의 설정은 점의 내부색과 외곽선 색을 동시에 설정하지만 외곽선 색을 따로 매핑해야할 경우에 `stroke`를 사용하여 매핑하거나 설정할 수 있다. `stroke`와 `strokes`는 `color`나 `symbol`과 같이 변수 매핑으로 사용되는 매개변수는 `stroke`이고 매핑된 변수의 카테고리에 해당하는 외곽선 색을 설정하는 매개변수는 `strokes`이다. `strokes`에 색을 설정하는 방법은 `colors`에서 사용한 세 가지 방법을 같이 사용할 수 있다 .
 
 ```{r}
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
           stroke = ~대계열, strokes = 'Accent', color = I('white'))
 
@@ -583,20 +578,20 @@ df_취업통계 |> filter(졸업자_계 < 500) |>
 `stroke`를 특정 값으로 설정하기 위해서는 `I()`를 사용한다.
 
 ```{r eval = FALSE}
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
           stroke = 'black', color = I('white'))
 
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
           stroke = I('black'), color = I('white'))
 
 ```
 
 ```{r echo = FALSE}
-p1 <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, stroke = 'black', color = I('white'))
+p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, stroke = 'black', color = I('white'))
 
-p2 <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, stroke = I('black'), color = I('white'))
+p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, stroke = I('black'), color = I('white'))
 
 
 subplot(
@@ -610,20 +605,20 @@ subplot(
 `size`는 점의 크기를 설정하는 속성이다. `size`는 변수 매핑을 위한 매개변수이고 `sizes`는 변수에 매핑된 카테고리별로 크기를 설정하는 매개변수이다. 앞선 속성들과 달리 `size`는 `sizemode` 매개변수를 추가적으로 사용할 수 있다. `sizemode`는 점의 크기를 결정하는 기준을 설정하는 매개변수로 점의 크기를 지름으로 설정하는 'diameter'와 면적으로 설정하는 'area'의 두 가지가 있다.
 
 ```{r eval = FALSE}
-df_취업통계_temp |> 
+df_취업통계_symbol |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
           size = ~symbol, sizemode = 'diameter', alpha = 0.3)
 
-df_취업통계_temp |> 
+df_취업통계_symbol |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
           size = ~symbol, sizemode = 'area', alpha = 0.3)
 
 ```
 
 ```{r echo = FALSE}
-p1 <- df_취업통계_temp |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, size = ~symbol, sizemode = 'diameter', alpha = 0.3, color = I('#1f77b4'))
+p1 <- df_취업통계_symbol |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, size = ~symbol, sizemode = 'diameter', alpha = 0.3, color = I('#1f77b4'))
 
-p2 <- df_취업통계_temp |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, size = ~symbol, sizemode = 'area', alpha = 0.3, color = I('#1f77b4'))
+p2 <- df_취업통계_symbol |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, size = ~symbol, sizemode = 'area', alpha = 0.3, color = I('#1f77b4'))
 
 
 subplot(
@@ -637,8 +632,8 @@ subplot(
 `linetype`은 선의 형태를 설정하는 type이다. `plotly`에서 선의 형태를 설정할 때 변수 매핑을 통해 설정하기 위해서는 `linetype`을 사용하고 `linetype`에 매핑된 변수에 따라 선의 형태를 설정하기 위해서는 `linetypes`를 사용한다.
 
 ```{r}
-df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '석사', '박사')) |> 
-  plot_ly(type = 'scatter', mode = 'lines', x = ~연도, y = ~입학생수, linetype = ~학교종류)
+covid19_df_100 |>
+  plot_ly(type = 'scatter', mode = 'lines', x = ~date, y = ~new_cases, linetype = ~iso_code)
 
 ```
 
@@ -647,18 +642,18 @@ df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('전문대�
 `alpha`와 `opacity`는 점의 투명도를 설정하는 속성이다. `alpha`와 `opacity`는 0부터 1까지의 수치로 설정하며 0은 완전 투명으로 보이지 않고 1은 불투명한 점을 표현하는데 `alpha`는 외곽선에 투명도가 적용되지 ㅇ낳고 서로 겹쳐진 부분의 투명도가 양쪽의 투명도가 더해져서 점점 불투명해지는데 반해 `opacity`는 외곽선에도 투명도가 적용되고 겹쳐진 부분도 처음 설정된 투명도가 유지된다는 차이가 있다. 이 두 type은 산점도의 표현시 오버플로팅을 방지하고 색으로 구분되는 데이터 그룹간의 표현에 효과적으로 사용된다.
 
 ```{r eval = FALSE}
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.3)
 
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.3)
 
 ```
 
 ```{r echo = FALSE}
-p1 <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.3, color = I('#1f77b4'))
+p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.3, color = I('#1f77b4'))
 
-p2 <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.3, color = I('#1f77b4'))
+p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.3, color = I('#1f77b4'))
 
 subplot(
   p1 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "alpha = 0.3", showarrow = F, xref='paper', yref='paper')),
@@ -671,7 +666,7 @@ subplot(
 `showlegend`는 범례를 표기할지 여부를 설정하는 논리값(TRUE/FALSE)이다. FALSE로 설정할 경우 범례가 표기되지 않는다.
 
 ```{r}
-df_취업통계 |> filter(졸업자_계 < 500) |> 
+df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열, showlegend = FALSE)
 
 ```
@@ -712,7 +707,7 @@ add_histogram(p, x = NULL, y = NULL, ..., data = NULL, inherit = TRUE)\
 :::
 
 ```{r}
-p_histogram <- df_취업통계 |> plot_ly()
+p_histogram <- df_취업통계_2000 |> plot_ly()
 
 p_histogram |> add_trace(type = 'histogram', x = ~취업률_계, name = '취업률')
 ```
@@ -728,10 +723,6 @@ p_histogram |> add_trace(type = 'histogram', x = ~취업률_계, name = '취업�
 `start`와 `end`는 히스토그램에서 표현하는 전체 X축의 범위를 지정하는 type이다. 만약 X축의 수치형 변수 범위가 0부터 100까지이라고 하더라도 25에서 75까지의 히스토그램을 생성하기를 원한다면 `start`와 `end`로 범위를 설정할 수 있다.
 
 ```{r}
-p_histogram <- df_취업통계 |> plot_ly()
-
-distinct(df_취업통계, 대계열)
-
 p_histogram |> add_trace(type = 'histogram', x = ~취업률_계, 
                          xbins = list(start = 25, end = 75, size = 5), 
                          stroke = I('white'))
@@ -839,64 +830,57 @@ subplot(
 | none    | 데이터를 표시하지 않음           |
 
 ```{r eval = FALSE}
-p_line <- df_입학자 |> filter(지역 == '전체') |> plot_ly()
+p_line_wide <- covid19_df_100_wide |> plot_ly()
 
-p_line |> add_trace(type = 'scatter', mode = 'markers', x = ~연도, y = ~전문대학)
+p_line_wide |> add_trace(type = 'scatter', mode = 'markers', x = ~date, y = ~South_Korea)
 
-p_line  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~연도, y = ~전문대학)
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea)
 
-p_line  |> add_trace(type = 'scatter', mode = 'markers+text', x = ~연도, y = ~전문대학)
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+text', x = ~date, y = ~South_Korea, text = ~South_Korea)
 
-p_line  |> add_trace(type = 'scatter', mode = 'markers+lines+text', x = ~연도, y = ~전문대학)
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines+text', x = ~date, y = ~South_Korea, text = ~South_Korea)
 
 ```
 
 ```{r echo = FALSE}
-p_line <- df_입학자 |> filter(지역 == '전체') |> plot_ly()
-p1 <- p_line |>
-  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'markers', showlegend = FALSE, color = I('#1f77b4'))
+p_line_wide <- covid19_df_100_wide |> plot_ly()
 
-p2 <- p_line |>
-  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'markers+lines', showlegend = FALSE, color = I('#1f77b4'))
+p1 <- p_line_wide |> add_trace(type = 'scatter', mode = 'markers', x = ~date, y = ~South_Korea, color = I('#1f77b4'))
 
-p3 <- p_line |>
-  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'markers+text', text = ~전문대학, textfont = list(size = 7), showlegend = FALSE, color = I('#1f77b4'))
+p2 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea, color = I('#1f77b4'))
 
-p4 <- p_line |>
-  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'markers+lines+text',  text = ~전문대학, textfont = list(size = 7), showlegend = FALSE, color = I('#1f77b4'))
+p3 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+text', x = ~date, y = ~South_Korea, text = ~South_Korea, color = I('#1f77b4'), textfont = list(size = 7))
+
+p4 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines+text', x = ~date, y = ~South_Korea, text = ~South_Korea, color = I('#1f77b4'), textfont = list(size = 7))
 
 subplot(
-  p1 |> plotly::layout(annotations = list(x = 0.25 , y = 1.05, text = "mode = 'markers'")),
+  p1 |> layout(annotations = list(x = 0.25 , y = 1.05, text = "mode = 'markers'", showarrow = F, xref='paper', yref='paper')),
   p2 |> layout(annotations = list(x = 0.75 , y = 1.05, text = "mode = 'markers+lines'", showarrow = F, xref='paper', yref='paper')),
   p3 |> layout(annotations = list(x = 0.25 , y = 1.05, text = "mode = 'markers+text'", showarrow = F, xref='paper', yref='paper')),
   p4 |> layout(annotations = list(x = 0.75 , y = 1.05, text = "mode = 'markers+lines+text", showarrow = F, xref='paper', yref='paper')),
   nrows = 2, 
   margin = 0.1
-)
+) |> layout(showlegend = FALSE)
 ```
 
 이 네가지 `mode`는 단일 모드로 사용이 가능하지만 'none'을 제외하고 `+`기호를 사용하여 연결하여 사용하는데 최대 3개까지 연결하여 사용할 수 있다. 여기서 하나 주의해야하는 것은 `+` 기호 앞뒤에 공백이 있어서는 안된다.
 
 ```{r eval = FALSE}
-p_list |> add_trace(type = 'scatter', mode = 'lines+markers', 
-                    x = ~연도, y = ~전문대학, x = ~졸업자_계, y = ~취업자_합계_계)
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea)
 
-p_list |> add_trace(type = 'scatter', mode = 'lines + markers', 
-                    x = ~연도, y = ~전문대학, x = ~졸업자_계, y = ~취업자_합계_계)
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers + lines', x = ~date, y = ~South_Korea)
 
 ```
 
 ```{r echo = FALSE}
-p1 <- p_line |>
-  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'lines+markers', x = ~졸업자_계, y = ~취업자_합계_계, showlegend = FALSE, color = I('#1f77b4'))
+p1 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea, color = I('#1f77b4'))
 
-p2 <- p_line |>
-  add_trace(x = ~연도, y = ~전문대학, type = 'scatter', mode = 'lines + markers', x = ~졸업자_계, y = ~취업자_합계_계, showlegend = FALSE, color = I('#1f77b4'))
+p2 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers + lines', x = ~date, y = ~South_Korea, color = I('#1f77b4'))
 
 subplot(
-  p1 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "mode = 'lines+markers'", showarrow = F, xref='paper', yref='paper')),
-  p2 |> layout(annotations = list(x = 0.7 , y = 1.05, text = "mode = 'lines + markers", showarrow = F, xref='paper', yref='paper'))
-)
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "mode = 'lines+markers'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "mode = 'lines + markers", showarrow = F, xref='paper', yref='paper', xanchor = 'center'))
+) |> layout(showlegend = FALSE)
 ```
 
 #### marker, add_markers()
@@ -904,7 +888,7 @@ subplot(
 스캐터 trace의 `marker` 타입은 스캐터 trace에서 데이터를 표현하는 점의 속성을 설정하는 type이다. `marker`는 `add_trace()`에 `list()`를 사용하여 설정한다. 주의할 것은 `marker`의 list에 설정하는 type들은 값을 설정할 수는 있지만 `~`를 사용해 변수를 매핑할 수 없다는 점이다. `marker` list에 `~`를 사용한 변수 매핑을 사용한다고 해도 에러를 내지는 않지만 원하는 결과를 얻을 수는 없다. 또 하나 주의해아 하는 점은 다른 type의 설정시 사용했던 `I()`의 사용이다. 앞서 색 type과 같은 일부 type의 설정시에 `I()`를 사용한다고 설명했는데 `marker`로 설정하는 list안에서는 `I()`를 사용하지 않아도 색의 설정이 가능하다. `marker` list는 변수의 매핑에 사용하는 것이 아니고 값을 설정에 사용하는 것이기 때문에 구지 `I()`를 사용하여 매핑과 설정을 구분해 줄 필요가 없다는 것이다.
 
 ```{r eval = FALSE}
-p_marker <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly()
+p_marker <- df_취업통계_2000 |> plot_ly()
 
 p_marker |>
   add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, y = ~취업자_합계_계,
@@ -925,7 +909,7 @@ p_marker |>
 ```
 
 ```{r echo= FALSE}
-p_marker <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly()
+p_marker <- df_취업통계_2000 |> plot_ly()
 
 p1 <- p_marker |>
   add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, y = ~취업자_합계_계, marker = list(color = ~대계열))
@@ -940,13 +924,11 @@ p4 <- p_marker |>
   add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, y = ~취업자_합계_계, color = I('blue'))
 
 subplot(
-  p1 |> layout(annotations = list(x = 0.25 , y = 1.05, text = "marker = list(color = ~대계열)", showarrow = F, xref='paper', yref='paper')),
-  p2 |> layout(annotations = list(x = 0.75 , y = 1.05, text = "color = ~대계열", showarrow = F, xref='paper', yref='paper'))
-) |> hide_legend()
-
-subplot(
-  p3 |> layout(annotations = list(x = 0.25 , y = 1.05, text = "marker = list(color = 'blue')", showarrow = F, xref='paper', yref='paper')),
-  p4 |> layout(annotations = list(x = 0.75 , y = 1.05, text = "color = I('blue')", showarrow = F, xref='paper', yref='paper'))
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "marker = list(color = ~대계열)", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "color = ~대계열", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p3 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "marker = list(color = 'blue')", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p4 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "color = I('blue')", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), 
+  nrows = 2, margin = 0.1
 ) |> hide_legend()
 
 ```
@@ -965,14 +947,6 @@ add_markers(p, x = NULL, y = NULL, z = NULL, ..., data = NULL, inherit = TRUE)\
 - y : Y축에 매핑할 변수를 \~로 설정\
 - z : Z축에 매핑할 변수를 \~로 설정
 :::
-
-```{r}
-p_marker <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly()
-
-p_marker |>
-  add_markers(x = ~졸업자_계, y = ~취업자_합계_계)
-
-```
 
 `marker` 에서 설정 가능한 세부 type은 20여개가 있지만 이 세부 type의 세부 type까지 포함하면 그 종류가 매우 많아진다. `add_markers()`를 사용한다면 세부 type 설정을 바로 사용할 수 있지만 `add_trace()`를 사용하면 `marker` 매개변수에 세부 type을 `list()`로 설정하여 지정할 수 있다.
 
@@ -999,23 +973,20 @@ add_lines(p, x = NULL, y = NULL, z = NULL, ..., data = NULL, inherit = TRUE)\
 trace의 `type`과 `mode`를 선그래프에 맞에 설정하거나 `add_lines()`로 선그래프를 만들려면 먼저 X, Y, Z 축으로 매핑할 변수를 설정한다.선 그래프는 앞서 그려본 산점도와는 달리 데이터들을 선으로 연결해 줄 그룹 변수가 필요하다. 이는 일반적으로 `color`, `linetype`으로 매핑된 변수를 기준으로 그룹화하여 선을 연결한다.
 
 ```{r}
-df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '석사', '박사')) |> 
-  plot_ly() |> 
-  add_trace(type = 'scatter', mode = 'lines', x = ~연도, y = ~입학생수, color = ~ 학교종류)
+p_line <- covid19_df_100 |> plot_ly()
+
+p_line |> 
+  add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~new_cases, color = ~ iso_code)
 ```
 
 선 그래프의 경우는 선을 너무 많이 그려서 꼬이기 시작하면 오히려 데이터를 확인하는데 방해가 되는 시각화가 되는 경우가 있다. 이를 스파게티 선 그래프라고 하는데 하나의 선 그래프에는 보통 5\~6개 이상의 선을 넣지 않는 것이 일반적이다. 따라서 선 그래프의 경우는 변수 매핑에 의해 단번에 선 그래프를 생성하는 방법도 많이 사용하지만 3\~4개의 단일 선 그래프를 겹쳐 그리는 방법도 많이 사용된다. 이렇게 여러 개의 trace를 겹쳐 그린다면 `plotly` 객체에 trace를 순차적으로 추가하여 생성할 수 있다.
 
 ```{r}
-p_line_wide <- df_입학자 |> filter(지역 == '전체') |> plot_ly()
+fig <- add_trace(p_line_wide, type = 'scatter', mode = 'lines', x = ~date, y = ~South_Korea, name = '한국')
 
-fig <- add_trace(p_line_wide, type = 'scatter', mode = 'lines', x = ~연도, y = ~전문대학, name = '전문대학')
+fig <- fig |> add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~Asia, name = '아시아')
 
-fig <- fig |> add_trace(type = 'scatter', mode = 'lines', x = ~연도, y = ~일반대학, name = '대학')
-
-fig <- fig |> add_trace(type = 'scatter', mode = 'lines', x = ~연도, y = ~석사, name = '석사')
-
-fig <- fig |> add_trace(type = 'scatter', mode = 'lines', x = ~연도, y = ~박사, name = '박사')
+fig <- fig |> add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~Europe, name = '유럽')
 
 fig
 ```
@@ -1030,20 +1001,12 @@ fig
 
 ```{r}
 fig <- add_trace(p_line_wide, type = 'scatter', mode = 'lines', 
-                 x = ~연도, y = ~전문대학, name = '전문대학', 
-                 line = list(color = 'gray'), showlegend = FALSE)
+                 x = ~date, y = ~South_Korea, name = '한국', 
+                 line = list(color = 'red'))
 
 fig <- fig |> add_trace(type = 'scatter', mode = 'lines', 
-                        x = ~연도, y = ~일반대학, name = '대학', 
-                        line = list(color = 'gray'), showlegend = FALSE)
-
-fig <- fig |> add_trace(type = 'scatter', mode = 'lines', 
-                        x = ~연도, y = ~석사, name = '석사', 
-                        line = list(color = 'red'), showlegend = TRUE)
-
-fig <- fig |> add_trace(type = 'scatter', mode = 'lines', 
-                        x = ~연도, y = ~박사, name = '박사', 
-                        line = list(color = 'gray'), showlegend = FALSE)
+                        x = ~date, y = ~Asia, name = '아시아', 
+                        line = list(color = 'gray'))
 
 fig |> layout(showlegend = TRUE)
 ```
@@ -1070,21 +1033,23 @@ add_lines(p, x = NULL, y = NULL, z = NULL, ..., data = NULL, inherit = TRUE)\
 
 ```{r eval = FALSE}
 add_trace(p_line_wide, type = 'scatter', mode = 'text', 
-          x = ~연도, y = ~전문대학, text = '전문대학', showlegend = FALSE)
+          x = ~date, y = ~South_Korea, text = '한국', showlegend = FALSE)
 
 add_trace(p_line_wide, type = 'scatter', mode = 'text', 
-          x = ~연도, y = ~전문대학, text = ~전문대학, showlegend = FALSE)
+          x = ~date, y = ~South_Korea, text = ~South_Korea, showlegend = FALSE)
 
 ```
 
 ```{r echo = FALSE}
-p1 <- add_trace(p_line_wide, type = 'scatter', mode = 'text', x = ~연도, y = ~전문대학, text = '전문대학', showlegend = FALSE)
+p1 <- add_trace(p_line_wide, type = 'scatter', mode = 'text', 
+          x = ~date, y = ~South_Korea, text = '한국', showlegend = FALSE)
 
-p2 <- add_trace(p_line_wide, type = 'scatter', mode = 'text', x = ~연도, y = ~전문대학, text = ~전문대학, showlegend = FALSE)
+p2 <- add_trace(p_line_wide, type = 'scatter', mode = 'text', 
+          x = ~date, y = ~South_Korea, text = ~South_Korea, showlegend = FALSE)
 
 subplot(
-  p1 |> layout(annotations = list(x = 0.25 , y = 1.05, text = "text = '전문대학'", showarrow = F, xref='paper', yref='paper')),
-  p2 |> layout(annotations = list(x = 0.75 , y = 1.05, text = "text = ~전문대학", showarrow = F, xref='paper', yref='paper'))
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "text = '한국'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "text = ~한국", showarrow = F, xref='paper', yref='paper', xanchor = 'center'))
 ) |> hide_legend()
 
 
@@ -1110,10 +1075,11 @@ add_bars(p, x = NULL, y = NULL, ..., data = NULL, inherit = TRUE)\
 앞서 설명한 바와 같이 막대 그래프(`add_bars()`)는 X축과 Y축의 이변량을 필요로 하는 시각화이고 히스토그램(`add_histogram()`)은 X축에 따른 사례수를 구간(bin)에 따라 막대로 표시한 시각화이다.
 
 ```{r}
-p_bar <- df_입학자_long |> filter(지역 == '전체', 학교종류 %in% c('전문대학', '일반대학', '석사', '박사'), 연도 %in% c(2001, 2006, 2011, 2016, 2021)) |> 
-  plot_ly()
+p_bar <- covid19_df_100 |> mutate(yearmonth = tsibble::yearmonth(date)) |> group_by(iso_code, yearmonth) |>
+  summarise(new_cases = sum(new_cases)) |> plot_ly()
 
-p_bar |> add_trace(type = 'bar', x = ~연도, y = ~입학생수)
+p_bar |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~new_cases)
 
 ```
 
@@ -1122,40 +1088,50 @@ p_bar |> add_trace(type = 'bar', x = ~연도, y = ~입학생수)
 막대 그래프는 일반적으로 세 가지 형태로 생성된다. `ggplot2`에서는 dodge, stack, fill로 불리며 position을 셋중에 하나로 설정함으로써 자동적으로 그려지지만 `plotly`에서 막대 그래프를 생성하는 `add_trace()`나 `add_bars()`로는 이 세 가지 막대 그래프를 구분하여 생성할 수 없다. 이를 구분하여 생성하기 위한 방법은 차후 설명할 `layout()`의 `barmode` type을 설정함으로써 가능하다. `barmode`는 'stack', 'group', 'overlay', 'relative'의 네 가지 모드에 대해 설정이 가능하다. 'stack'은 세부 그룹 카테고리를 위에 쌓아 올리면서 막대를 구성하고 'group'은 세부 그룹 카테고리를 옆에 배열하여 막대를 그룹화하는 방식이으로 `ggplot2`의 'dodge'에 해당한다. 'overlay'는 막대들이 서로 겹쳐져서 표시되는데 정상적으로 생성하기 위해서는 `opacity`로 투명도를 조절하여야 한다. 'relative'는 Y축을 중간에 두고 양의 값은 위로 음의 값은 아래로 막대가 향하게 하는 막대 그래프이다. `barmode`의 기본값은 'group'이기 때문에 X, Y 축 설정외에 추가적인 그룹화 변수를 매핑하면 기본값인 'group'형 막대 그래프가 생성된다.
 
 ```{r}
-p_bar |> add_trace(type = 'bar', x = ~연도, y = ~입학생수, 
-                   color = ~학교종류, colors = 'viridis') |> 
+p_bar_mode <- covid19_df_100 |> mutate(yearmonth = lubridate::floor_date(date, "month")) |> group_by(iso_code, yearmonth) |>
+  summarise(new_cases = sum(new_cases)) |> plot_ly()
+
+p_bar_mode |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~new_cases, 
+            color = ~as.factor(yearmonth), colors = 'viridis', 
+            name = ~paste0(lubridate::year(yearmonth), '년 ', lubridate::month(yearmonth, label = TRUE, abbr = FALSE))) |>
   layout(barmode = 'group')
 
-p_bar |> add_trace(type = 'bar', x = ~연도, y = ~입학생수, 
-                   color = ~학교종류, colors = 'viridis') |> 
+p_bar_mode |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~new_cases, 
+            color = ~as.factor(yearmonth), colors = 'viridis', 
+            name = ~paste0(lubridate::year(yearmonth), '년 ', lubridate::month(yearmonth, label = TRUE, abbr = FALSE))) |>
   layout(barmode = 'stack')
 
-p_bar |> add_trace(type = 'bar', x = ~연도, y = ~입학생수, 
-                   color = ~학교종류, opacity = 0.5, colors = 'viridis') |>
+p_bar_mode |>
+  add_trace(type = 'bar', x = ~iso_code, y = ~new_cases, 
+            color = ~as.factor(yearmonth), colors = 'viridis', opacity = 0.5, 
+            name = ~paste0(lubridate::year(yearmonth), '년 ', lubridate::month(yearmonth, label = TRUE, abbr = FALSE))) |>
   layout(barmode = 'overlay')
 
-plot_ly() |> add_trace(type = 'bar', x = 2000:2021, y = diff(df_입학자[df_입학자$지역 == '전체', ]$일반대학), 
-                       color = I(ifelse(diff(df_입학자[df_입학자$지역 == '전체', ]$일반대학)> 0, "red","blue"))) |> 
-  layout(barmode = 'relative')
+# plot_ly() |> add_trace(type = 'bar', x = 2000:2021, y = diff(df_입학자[df_입학자$지역 == '전체', ]$일반대학), 
+#                        color = I(ifelse(diff(df_입학자[df_입학자$지역 == '전체', ]$일반대학)> 0, "red","blue"))) |> 
+#   layout(barmode = 'relative')
 
 ```
+
 
 앞서 스캐터 trace의 선 그래프를 그릴때 넓은 형태의 데이터프레임을 사용하여 trace를 하나 하나 추가하는 형태의 시각화를 그려보았다. 막대 trace도 동일하게 생성할 수 있다. `plotly` 객체에 계속적으로 막대 trace를 추가한 후 `layout()`의 `barmode`를 원하는 형태로 설정하면 된다. 이 과정에서 `name`으로 각각의 범례에 표시될 아이템 이름을 설정할 수 있고 trace의 추가 순서에 따라 범례의 순서를 설정할 수 있으며, 특정 막대의 색을 강조함으로써 특정 데이터를 강조하는데 유용하게 활용할 수 있다.
 
 ```{r eval = FALSE}
-fig <- df_입학자 |> filter(지역 == '전체', 연도 %in% c(2001, 2006, 2011, 2016, 2021)) |> plot_ly()
+fig <- df_취업통계_2000 |> group_by(과정구분, 대계열) |>
+  summarise(졸업자합계 = sum(졸업자_계)) |> 
+  pivot_wider(names_from = 과정구분, values_from = 졸업자합계) |> 
+  plot_ly()
 
-fig <- fig |> add_trace(type = 'bar', x = ~연도, y = ~일반대학, 
-                        name = '일반대학', color = I('red')) 
+fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~전문대학과정, 
+                        name = '전문대학과정', color = I('gray40'))
 
-fig <- fig |> add_trace(type = 'bar', x = ~연도, y = ~전문대학, 
-                        name = '전문대학', color = I('gray70'))
+fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~대학과정, 
+                        name = '대학과정', color = I('darkred'))
 
-fig <- fig |> add_trace(type = 'bar', x = ~연도, y = ~석사, 
-                        name = '석사', color = I('gray80'))
-
-fig <- fig |> add_trace(type = 'bar', x = ~연도, y = ~박사, 
-                        name = '박사', color = I('gray90'))
+fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~대학원과정, 
+                        name = '대학원과정', color = I('gray60'))
 
 fig |> layout(barmode = 'stack')
 
@@ -1167,38 +1143,47 @@ fig |> layout(barmode = 'stack')
 
 `text` type은 막대에 표시되어야 하는 문자열을 매핑하거나 설정하는 type이다. `text`에 단일 문자열을 설정하면 모든 막대에 설정된 문자열이 표시되고 문자열 벡터가 설정되면 문자열 벡터의 순서에 따라 막대 위에 문자열이 표시된다.
 
+`textposition`는 `text`의 위치를 설정하는 type이다. `textposition`에는 'inside', 'outside', 'auto', 'none'의 네 가지를 설정할 수 있다. 'inside'는 막대의 안쪽에 텍스트를 위치시킨다. 이 경우 막대의 너비에 따라 가로로 표시될 수도 있고 세로로 표시될 수도 있다. 'outside'는 막대 끝의 바깥에 텍스트를 위치시키는데 마찬가지로 막대의 너비에 따라 가로 혹은 세로로 표기될 수 있다. 또 'outside'는 막대가 쌓이는 'stack' 형의 막대 그래프에서는 'inside'와 동일하게 표시된다. 'auto'는 `plotly`에서 자동적으로 계산된 형태로 텍스트가 표시된다. 'none'은 텍스트가 표시되지 않는다.
+
+
 ```{r}
-fig <- df_입학자 |> filter(지역 == '전체', 연도 %in% c(2001, 2006, 2011, 2016, 2021)) |> plot_ly()
+fig <- df_취업통계_2000 |> group_by(과정구분, 대계열) |>
+  summarise(졸업자합계 = sum(졸업자_계)) |> 
+  pivot_wider(names_from = 과정구분, values_from = 졸업자합계) |> 
+  plot_ly()
 
-fig <- fig |> add_trace(type = 'bar', x = ~연도, y = ~일반대학, 
-                        name = '일반대학', color = I('red'), 
-                        text = ~일반대학, textposition = 'outside', 
-                        textfont = list(color = 'white')) 
+fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~전문대학과정, 
+                        name = '전문대학과정', color = I('gray30'), 
+                        text = ~전문대학과정, textposition = 'inside', 
+                        textfont = list(color = 'white'))
 
-fig <- fig |> add_trace(type = 'bar', x = ~연도, y = ~전문대학, 
-                        name = '전문대학', color = I('gray70'))
+fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~대학과정, 
+                        name = '대학과정', color = I('darkred'), 
+                        text = ~대학과정, textposition = 'inside', 
+                        textfont = list(color = 'white'))
 
-fig <- fig |> add_trace(type = 'bar', x = ~연도, y = ~석사, 
-                        name = '석사', color = I('gray80'))
-
-fig <- fig |> add_trace(type = 'bar', x = ~연도, y = ~박사, 
-                        name = '박사', color = I('gray90'))
+fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~대학원과정, 
+                        name = '대학원과정', color = I('gray70'), 
+                        text = ~대학원과정, textposition = 'inside', 
+                        textfont = list(color = 'white'))
 
 fig |> layout(barmode = 'stack')
 
 ```
-
-`textposition`는 `text`의 위치를 설정하는 type이다. `textposition`에는 'inside', 'outside', 'auto', 'none'의 네 가지를 설정할 수 있다. 'inside'는 막대의 안쪽에 텍스트를 위치시킨다. 이 경우 막대의 너비에 따라 가로로 표시될 수도 있고 세로로 표시될 수도 있다. 'outside'는 막대 끝의 바깥에 텍스트를 위치시키는데 마찬가지로 막대의 너비에 따라 가로 혹은 세로로 표기될 수 있다. 또 'outside'는 막대가 쌓이는 'stack' 형의 막대 그래프에서는 'inside'와 동일하게 표시된다. 'auto'는 `plotly`에서 자동적으로 계산된 형태로 텍스트가 표시된다. 'none'은 텍스트가 표시되지 않는다.
 
 `texttemplate`은 텍스트가 표시되는 형태를 설정하는 type이다. `texttemplate`는 `hovertemplate`의 정의와 같이 사용되는데 '%{변수:변수포맷}'의 형태로 사용된다. 변수 포맷에서 사용하는 포맷은 자바 스크립트의 d3 format[^5]을 사용한다. 앞의 예에서 일반대학의 입학생수의 포맷에 천단위 콤마를 넣는다면 '%{text:,}'로 설정하고 소수점 아래 두째 자리까지 표기한다면 '%{text:2f}'로 설정한다.
 
 [^5]: <https://github.com/d3/d3-format/tree/v1.4.5#d3-format>
 
 ```{r}
-df_입학자 |> filter(지역 == '전체', 연도 %in% c(2001, 2006, 2011, 2016, 2021)) |> plot_ly() |>
-  add_trace(type = 'bar', x = ~연도, y = ~일반대학, name = '일반대학', 
-            text = ~일반대학, textposition = 'outside', 
+df_취업통계_2000 |> group_by(과정구분, 대계열) |>
+  summarise(졸업자합계 = sum(졸업자_계)) |> 
+  pivot_wider(names_from = 과정구분, values_from = 졸업자합계) |> 
+  plot_ly() |>
+  add_trace(type = 'bar', x = ~대계열, y = ~대학과정, name = '대학과정', 
+            text = ~대학과정, textposition = 'outside', 
             textfont = list(color = 'black', size = 15), texttemplate = '%{text:,}') 
+
 ```
 
 #### marker
@@ -1206,13 +1191,16 @@ df_입학자 |> filter(지역 == '전체', 연도 %in% c(2001, 2006, 2011, 2016,
 앞서 스캐터 trace에서 산점도, 선 그래프를 생성할 때 `marker`를 사용하여 점과 선의 형태를 설정하였다. 그러나 막대 trace에서의 `makrker`는 막대 자체를 의미한다. 따라서 `marker`로 설정 가능한 type은 막대의 내부 색, 외부 외곽선 등의 세부 설정을 위한 type을 지정할 수 있다.
 
 ```{r}
-df_입학자 |> filter(지역 == '전체', 연도 %in% c(2001, 2006, 2011, 2016, 2021)) |> plot_ly() |>
-  add_trace(type = 'bar', x = ~연도, y = ~일반대학, name = '일반대학', 
-            text = ~일반대학, textposition = 'outside', 
-            textfont = list(color = 'black', size = 15), texttemplate = '%{text:,}',
+df_취업통계_2000 |> group_by(과정구분, 대계열) |>
+  summarise(졸업자합계 = sum(졸업자_계)) |> 
+  pivot_wider(names_from = 과정구분, values_from = 졸업자합계) |> 
+  plot_ly() |>
+  add_trace(type = 'bar', x = ~대계열, y = ~대학과정, name = '대학과정', 
+            text = ~대학과정, textposition = 'outside', 
+            textfont = list(color = 'black', size = 15), texttemplate = '%{text:,}', 
             marker = list(color = 'aliceblue',
-                          line = list(color = 'aquablue', width = 1.5))
-            ) 
+                          line = list(color = 'lightblue', width = 1.5))
+) 
 
 ```
 
@@ -1233,7 +1221,7 @@ add_boxplot(p, x = NULL, y = NULL, ..., data = NULL, inherit = TRUE)\
 :::
 
 ```{r}
-p_box <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly()
+p_box <- df_취업통계_2000 |> plot_ly()
 
 p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계)
 ```
@@ -1267,7 +1255,7 @@ p_box_add %>% layout(boxmode = "group")
 박스 플롯에는 여러가지 요약 통계치가 사용되는데 그중 하나가 전체 데이터의 25% 위치인 Q1과 75% 위치인 Q3이다. 이 위치는 전체 데이터를 Y값에 따라 정렬하고 25%, 75%의 값을 찾는 'linear' 방법이 기본적으로 사용된다. 하지만 `plotly` 는 'inclusive'와 'exclusive'의 두가지 방법을 추가적으로 제공한다. 'exclusive' 방법은 전체 데이터 사례수가 홀수 인경우 중앙값을 사용하여 두 개의 그룹으로 분리하고 다시 이 두개의 그룹의 중앙값을 사용해 Q1과 Q3를 구하는 방법이다. 'inclusive' 방법도 중앙값을 사용하여 두 그룹으로 분리하지만 중앙값을 포함하여 다시 두 그룹의 중앙값을 구하여 Q1과 Q3를 구하는 방법이다. 이들 방법은 사례수가 적은 경우 그 차이가 확실히 드러나지만 사례수가 많으면 그 차이가 잘 드러나지는 않는다.
 
 ```{r}
-p_box_quartilemethod <- df_취업통계 |> filter(졸업자_계 < 500, 대계열 == '인문계열') |> head(9) |> plot_ly()
+p_box_quartilemethod <- df_취업통계_2000 |> filter(대계열 == '인문계열') |> head(9) |> plot_ly()
 
 p_box_quartilemethod <- p_box_quartilemethod |> 
   add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
@@ -1301,8 +1289,8 @@ p1 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, boxme
 p2 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, boxmean = 'sd', color = I('#1f77b4'))
 
 subplot(
-  p1 |> layout(annotations = list(x = 0.25 , y = 1.05, text = " boxmean = TRUE", showarrow = F, xref='paper', yref='paper')),
-  p2 |> layout(annotations = list(x = 0.75 , y = 1.05, text = "boxmean = 'sd'", showarrow = F, xref='paper', yref='paper'))
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = " boxmean = TRUE", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "boxmean = 'sd'", showarrow = F, xref='paper', yref='paper', xanchor = 'center'))
 ) |> hide_legend()
 
 ```
@@ -1408,7 +1396,7 @@ add_trace(p, type = 'violin', ..., data = NULL, inherit = TRUE)\
 :::
 
 ```{r}
-p_violin <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly()
+p_violin <- df_취업통계_2000 |> plot_ly()
 
 p_violin |> add_trace(type = 'violin', x = ~대계열, y = ~취업률_계)
 ```
