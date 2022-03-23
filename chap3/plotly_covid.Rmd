@@ -86,7 +86,7 @@ x1 |> plot_ly() |>
 
 [^1]: <https://github.com/owid/covid-19-data/blob/master/public/data/owid-covid-data.csv>
 
-```{r}
+```{r eval = FALSE}
 if(!require(readr)) {
   install.packages('readr')
   library(readr)
@@ -101,6 +101,65 @@ covid19_df <- read_csv(file = "D:/R/data/owid-covid-data.csv",
                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
                                              )
                             )
+
+covid19_df <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-data.csv",
+                            col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                                             )
+                            )
+
+
+covid19_df_100 <- covid19_df |> 
+  filter((iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM'))) |>
+  filter(date >= today() - 100) |> 
+  arrange(date)
+
+covid19_df_100_wide <- covid19_df_100 |> select(date, location, new_cases) |> 
+  pivot_wider(id_cols = date, names_from = location, values_from = new_cases) |> 
+  arrange(date)
+
+## 공백을 쓰려면 ``
+names(covid19_df_100_wide) <- c('date', 'Asia', 'Europe', 'North_America', 'Oceania', 'South_America', 'South_Korea')
+
+covid19_stat <- covid19_df |> group_by(iso_code, continent, location) |>
+  summarise(인구수 = max(population, na.rm = T), 인당GDP = max(gdp_per_capita, na.rm = T),
+            전체확진자수 = sum(new_cases, na.rm = T),
+            전체사망자수 = sum(new_deaths, na.rm = T), 
+            십만명당사망자수 = round(total_deaths / population *100000, 5),
+            십만명당중환자실 = last(icu_patients_per_million),
+            재생산지수 = last(reproduction_rate),
+            전체검사자수 = max(total_tests, na.rm = T), new_tests = sum(new_tests, na.rm = T),
+            전체백신접종자수 = max(total_vaccinations, na.rm = T),
+            백신접종자완료자수 = max(people_fully_vaccinated, na.rm = T),
+            부스터접종자수 = max(total_boosters, na.rm = T),
+            백신접종완료률 = people_fully_vaccinated / population,
+            인구백명당백신접종완료률 = max(people_fully_vaccinated_per_hundred, na.rm = T),
+            인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
+            ) |> ungroup()
+
+margins <- list(t = 50, b = 25, l = 25, r = 25)
+  
+```
+```{r echo = FALSE}
+if(!require(readr)) {
+  install.packages('readr')
+  library(readr)
+}
+
+if(!require(lubridate)) {
+  install.packages('lubridate')
+  library(lubridate)
+}
+
+covid19_df <- read_csv(file = "D:/R/data/owid-covid-data.csv",
+                            col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                                             )
+                            )
+
+# covid19_df <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-data.csv",
+#                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
+#                                              )
+#                             )
+
 
 covid19_df_100 <- covid19_df |> 
   filter((iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM'))) |>
@@ -128,6 +187,8 @@ covid19_stat <- covid19_df |> group_by(iso_code, continent, location) |>
             인구백명당백신접종완료률 = max(people_fully_vaccinated_per_hundred, na.rm = T),
             인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
             ) |> ungroup()
+
+margins <- list(t = 50, b = 25, l = 25, r = 25)
   
 ```
 
@@ -235,7 +296,11 @@ covid19_df_100 |> plot_ly()
 
 ```{r}
 covid19_df_100 |> filter(iso_code == 'KOR') |> 
-  plot_ly(x = ~date, y = ~new_cases)
+  plot_ly(x = ~date, y = ~new_cases) |>
+  layout(title = '최근 100일간 우리나라 코로나 19 확진자 수', 
+         xaxis = list(title = ''),
+         yaxis = list(title = '확진자수'), 
+         margin = margins)
 
 ```
 
@@ -253,14 +318,18 @@ covid19_df_100 |> filter(iso_code == 'KOR') |>
 set.seed(123)
 df_취업통계_2000 <- df_취업통계 |> filter(졸업자_계 < 500) |> sample_n(2000)
 
-df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계)
+names(df_취업통계_2000)[10:12] <- c('졸업자수', '취업률', '취업자수')
+
+df_취업통계_2000 |> plot_ly(x = ~졸업자수, y = ~취업자수) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
+
 ```
 
 `plotly`는 3차원 그래픽을 지원하기 때문에 Z축을 설정할 수 있다. 동적 시각화는 사용자가 시각화를 자신이 원하는 방향으로 설정하여 관찰할 수 있기 때문에 3차원 효과가 효율적일 수 있다. 하지만 일반적으로 데이터 시각화에서는 3차원 을 사용하는 것은 크게 효과적이지 않다고 알려져 있기 때문에 3차원의 활용은 주의할 필요가 있다.
 
 ```{r}
 df_취업통계_2000 |>
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, z = ~대계열)
+  plot_ly(x = ~졸업자수, y = ~취업자수, z = ~대계열)
 
 ```
 
@@ -272,7 +341,8 @@ df_취업통계_2000 |>
 
 ```{r}
 df_취업통계_2000 |>
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열)
+  plot_ly(x = ~졸업자수, y = ~취업자수, name = ~대계열) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
@@ -293,7 +363,11 @@ legend_items <- covid19_df_100 |>
 legend_items <- fct_relevel(legend_items, '한국', '아시아', '유럽', '북미', '남미', '오세아니아')
 
 covid19_df_100 |>
-  plot_ly(x = ~date, y = ~new_cases, name = ~legend_items)
+  plot_ly(x = ~date, y = ~new_cases, name = ~legend_items) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         xaxis = list(title = list(text = '')),
+         yaxis = list(title = list(text = '확진자수')),
+         margin = margins)
 
 ```
 
@@ -305,7 +379,9 @@ covid19_df_100 |>
 
 ```{r}
 df_취업통계_2000 |>
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열, hovertext = ~학과명)
+  plot_ly(x = ~졸업자수, y = ~취업자수, name = ~대계열, 
+          hovertext = ~학과명) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
@@ -313,7 +389,9 @@ df_취업통계_2000 |>
 
 ```{r}
 df_취업통계_2000 |>
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열, hovertext = ~학과명, hoverinfo = 'x+y+text')
+  plot_ly(x = ~졸업자수, y = ~취업자수, name = ~대계열, 
+          hovertext = ~학과명, hoverinfo = 'x+y+text') |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
@@ -321,8 +399,9 @@ df_취업통계_2000 |>
 
 ```{r}
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열,
-          hoverinfo = 'x+y+text', hovertext = ~중계열)
+  plot_ly(x = ~졸업자수, y = ~취업자수, name = ~대계열,
+          hoverinfo = 'x+y+text', hovertext = ~중계열) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
@@ -330,8 +409,9 @@ df_취업통계_2000 |>
 
 ```{r}
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열, 
-          hoverinfo = 'x+y+text', hovertemplate = ' 졸업자:%{x}, 취업자:%{y}')
+  plot_ly(x = ~졸업자수, y = ~취업자수, name = ~대계열, 
+          hoverinfo = 'x+y+text', hovertemplate = ' 졸업자:%{x}, 취업자:%{y}') |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 ```
 
 ### color, colors
@@ -340,7 +420,8 @@ df_취업통계_2000 |>
 
 ```{r}
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열)
+  plot_ly(x = ~졸업자수, y = ~취업자수, color = ~대계열) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
@@ -348,7 +429,8 @@ df_취업통계_2000 |>
 
 ```{r eval = FALSE}
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = 'black')
+  plot_ly(x = ~졸업자수, y = ~취업자수, color = 'black') |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
@@ -356,21 +438,24 @@ df_취업통계_2000 |>
 
 ```{r eval = FALSE}
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = I('black'))
+  plot_ly(x = ~졸업자수, y = ~취업자수, color = I('black')) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
 ```{r echo = FALSE}
 p1 <- df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = 'black')
+  plot_ly(x = ~졸업자수, y = ~취업자수, color = 'black') |>
+  layout(title = '졸업자 대비 취업자수')
 
 p2 <- df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = I('black'))
+  plot_ly(x = ~졸업자수, y = ~취업자수, color = I('black')) |>
+  layout(title = '졸업자 대비 취업자수')
 
 subplot(
   p1 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "color = 'black'", showarrow = F, xref='paper', yref='paper')),
-  p2 |> layout(annotations = list(x = 0.7 , y = 1.05, text = "color = I('black')", showarrow = F, xref='paper', yref='paper'))
-) |> hide_legend()
+  p2 |> layout(annotations = list(x = 0.7 , y = 1.05, text = "color = I('black')", showarrow = F, xref='paper', yref='paper')), titleY = T, margin = 0.05
+) |> layout(showlegend = F, margin = margins)
 ```
 
 `colors`는 `color`에서 매핑된 변수에 따른 색의 스케일을 설정하는 매개변수이다. `plotly`에서는 색의 스케일을 설정하는 팔레트를 선정할 때 다음의 세 가지 방법을 사용한다.
@@ -383,81 +468,42 @@ subplot(
 
 ```{r eval = FALSE}
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열, colors = 'Accent')
+  plot_ly(x = ~졸업자수, y = ~취업자수, color = ~대계열, colors = 'Accent') |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 color_vector <- c('red', 'blue', 'green', 'yellow', 'purple', 'black', 'pink')
 
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          color = ~대계열, colors = color_vector)
+  plot_ly(x = ~졸업자수, y = ~취업자수, 
+          color = ~대계열, colors = color_vector) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          color = ~대계열, colors = colorRamp(c('red', 'white', 'blue')))
+  plot_ly(x = ~졸업자수, y = ~취업자수, 
+          color = ~대계열, colors = colorRamp(c('red', 'yellow', 'blue'))) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 ```
 
 ```{r echo = FALSE}
-p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열, colors = 'Accent')
+p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자수, y = ~취업자수, color = ~대계열, colors = 'Accent') |>
+  layout(title = '졸업자 대비 취업자수')
 
 color_vector <- c('red', 'blue', 'green', 'yellow', 'purple', 'black', 'pink')
 
-p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열, colors = color_vector)
+p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자수, y = ~취업자수, color = ~대계열, colors = color_vector) |>
+  layout(title = '졸업자 대비 취업자수')
 
-p3 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열, colors = colorRamp(c('red', 'white', 'blue')))
+p3 <- df_취업통계_2000 |> plot_ly(x = ~졸업자수, y = ~취업자수, color = ~대계열, colors = colorRamp(c('red', 'yellow', 'blue'))) |>
+  layout(title = '졸업자 대비 취업자수')
 
 subplot(
-  p1 |> layout(annotations = list(x = 0.25 , y = 1.05, text = "colors = 'Accent'", showarrow = F, xref='paper', yref='paper')),
-  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "color = color_vector", showarrow = F, xref='paper', yref='paper')),
-  p3 |> layout(annotations = list(x = 0.95 , y = 1.05, text = "colorRamp(c('red', 'white', 'blue'))", showarrow = F, xref='paper', yref='paper'))
-) |> hide_legend()
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "colors = 'Accent'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "color = color_vector", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p3 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "colorRamp(c('red', 'yellow', 'blue'))", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), titleY = T, margin = 0.05
+) |>
+  layout(margin = margins) |> hide_legend()
 ```
 
-색 설정에서 하나 중요한 type은 `colorbar()`이다. `color` type에 매핑되는 변수가 이산형일 경우는 각각의 카테고리에 따라 설정된 색 팔레트에 정의된 색상이 설정되지만 연속형일 경우는 연속된 색상이 설정된다. 연속된 색상에서 변수에 따른 색상이 선택되어 표시된다. 이렇게 연속된 색상의 설정에 사용되는 색 스케일이 `colorbar()`이다.
-
-::: {custom-style="comment"}
-colorbar(p, ..., limits = NULL, which = 1)\
-- p : plot_ly()로 생성한 plotly 객체\
-- ... : 컬러바 설정을 위한 세부 속성\
-- limits : 컬러바 범위 설정을 위한 수치 벡터\
-- which : 다중 컬러바가 생성된 경우 컬러바 선택\
-:::
-
-컬러바 설정에 사용되는 세부 속성은 현재(22.03) 43개가 제공된다. 이에 대한 세부 속성과 설명은 `plotly` 매뉴얼을 참조하라.[^4]
-
-[^4]: <https://plotly.com/r/reference/#scatter-marker-colorbar>
-
-```{r eval = FALSE}
-df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          color = ~취업률_계, colors = 'Accent')
-
-color_vector <- c('red', 'blue', 'green', 'yellow', 'purple', 'black', 'pink')
-
-df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          color = ~취업률_계, colors = color_vector)
-
-df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          color = ~취업률_계, colors = colorRamp(c('red', 'white', 'blue')))
-
-```
-
-```{r echo = FALSE}
-p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = 'Accent')
-
-color_vector <- c('red', 'blue', 'green', 'yellow', 'purple', 'black', 'pink')
-
-p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = color_vector)
-
-p3 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = colorRamp(c('red', 'white', 'blue')))
-
-subplot(
-  p1 |> layout(annotations = list(x = 0.25 , y = 1.05, text = "colors = 'Accent'", showarrow = F, xref='paper', yref='paper')),
-  p2|> layout(annotations = list(x = 0.5 , y = 1.05, text = "color = color_vector", showarrow = F, xref='paper', yref='paper')),
-  p3|> layout(annotations = list(x = 0.75 , y = 1.05, text = "colorRamp", showarrow = F, xref='paper', yref='paper'))
-) |> hide_legend()
-```
 
 ### symbol, symbols
 
@@ -476,10 +522,12 @@ df_취업통계_symbol <- df_취업통계_2000 |>
     ) 
 
 df_취업통계_symbol |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = ~symbol)
+  plot_ly(x = ~졸업자수, y = ~취업자수, symbol = ~symbol) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 df_취업통계_symbol |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = ~factor(symbol))
+  plot_ly(x = ~졸업자수, y = ~취업자수, symbol = ~factor(symbol)) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
@@ -495,14 +543,16 @@ df_취업통계_symbol <- df_취업통계_2000 |>
     대계열 == '예체능계열' ~ 7)
     ) 
 
-p1 <- df_취업통계_symbol |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = ~symbol)
+p1 <- df_취업통계_symbol |> plot_ly(x = ~졸업자수, y = ~취업자수, symbol = ~symbol) |>
+  layout(title = '졸업자 대비 취업자수')
 
-p2 <- df_취업통계_symbol |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = ~factor(symbol))
+p2 <- df_취업통계_symbol |> plot_ly(x = ~졸업자수, y = ~취업자수, symbol = ~factor(symbol)) |>
+  layout(title = '졸업자 대비 취업자수')
 
 subplot(
   p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "~symbol", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
-  p2 |> colorbar(title = 'color_vector')|> layout(annotations = list(x = 0.5, y = 1.05, text = "~factor(symbol)", showarrow = F, xref='paper', yref='paper', xanchor = 'center'))
-) |> hide_legend()
+  p2 |> colorbar(title = 'color_vector')|> layout(annotations = list(x = 0.5, y = 1.05, text = "~factor(symbol)", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), titleY = T, margin = 0.05
+) |> layout(margin = margins) |> hide_legend()
 ```
 
 앞의 예에서 'symbol' 열은 대계열을 수치로 표현한 열로 수치형 열이다. 수치형 열이기 때문에 연속형 변수로 취급되고 이 열을 변수로 바로 사용하면 왼쪽과 같이 점의 모형은 달리지지만 하나의 trace로 표현된다. 반면 오른쪽과 같이 'symbol' 열을 `factor()`를 사용하여 팩터로 전환하면 이산형 변수가 되기 때문에 각각의 카테고리를 trace로 구분하여 추가되기 때문에 색까지 구분해주며 범례에서 각각의 trace로 표현된다.
@@ -511,30 +561,36 @@ subplot(
 
 ```{r}
 df_취업통계_symbol |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          symbol = ~factor(symbol), symbols = c('circle', 'circle-open', 'circle-dot', "circle-open-dot", "square", "square-open", "square-dot"))
+  plot_ly(x = ~졸업자수, y = ~취업자수, 
+          symbol = ~factor(symbol), symbols = c('circle', 'circle-open', 'circle-dot', "circle-open-dot", "square", "square-open", "square-dot")) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 ```
 
 `symbol`에 변수를 매핑하지 않고 특정 심볼을 설정할 경우는 색의 설정과 같이 `I()`를 사용한다.
 
 ```{r eval = FALSE}
 df_취업통계_symbol |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = 'circle-open')
+  plot_ly(x = ~졸업자수, y = ~취업자수, symbol = 'circle-open') |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 df_취업통계_symbol |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = I('circle-open'))
+  plot_ly(x = ~졸업자수, y = ~취업자수, symbol = I('circle-open')) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
 ```{r echo = FALSE}
-p1 <- df_취업통계_symbol |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = 'circle-open', color = I('#1f77b4'))
+p1 <- df_취업통계_symbol |> plot_ly(x = ~졸업자수, y = ~취업자수, symbol = 'circle-open', color = I('#1f77b4')) |>
+  layout(title = '졸업자 대비 취업자수')
 
-p2 <- df_취업통계_symbol |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, symbol = I('circle-open'), color = I('#1f77b4'))
+p2 <- df_취업통계_symbol |> plot_ly(x = ~졸업자수, y = ~취업자수, symbol = I('circle-open'), color = I('#1f77b4')) |>
+  layout(title = '졸업자 대비 취업자수')
 
 subplot(
-  p1 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "symbol = 'circle-open'", showarrow = F, xref='paper', yref='paper')),
-  p2 |> layout(annotations = list(x = 0.7 , y = 1.05, text = " symbol = I('circle-open')", showarrow = F, xref='paper', yref='paper'))
-) |> hide_legend()
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "symbol = 'circle-open'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = " symbol = I('circle-open')", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), titleY = T, margin = 0.05
+) |> hide_legend() |>
+  layout(margin = margins)
 ```
 
 ### stroke, strokes
@@ -543,8 +599,9 @@ subplot(
 
 ```{r}
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          stroke = ~대계열, strokes = 'Accent', color = I('white'))
+  plot_ly(x = ~졸업자수, y = ~취업자수, 
+          stroke = ~대계열, strokes = 'Accent', color = I('white')) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
@@ -553,24 +610,29 @@ df_취업통계_2000 |>
 ```{r eval = FALSE}
 df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          stroke = 'black', color = I('white'))
+          stroke = 'black', color = I('white')) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 df_취업통계_2000 |> 
   plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          stroke = I('black'), color = I('white'))
+          stroke = I('black'), color = I('white')) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
 ```{r echo = FALSE}
-p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, stroke = 'black', color = I('white'))
+p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자수, y = ~취업자수, stroke = 'black', color = I('white')) |>
+  layout(title = '졸업자 대비 취업자수')
 
-p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, stroke = I('black'), color = I('white'))
+p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자수, y = ~취업자수, stroke = I('black'), color = I('white')) |>
+  layout(title = '졸업자 대비 취업자수')
 
 
 subplot(
-  p1 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "stroke = 'black'", showarrow = F, xref='paper', yref='paper')),
-  p2 |> layout(annotations = list(x = 0.7 , y = 1.05, text = "stroke = I('black')", showarrow = F, xref='paper', yref='paper'))
-) |> hide_legend()
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "stroke = 'black'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "stroke = I('black')", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), titleY = T, margin = 0.05
+) |> hide_legend() |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 ```
 
 ### size, sizes
@@ -579,25 +641,28 @@ subplot(
 
 ```{r eval = FALSE}
 df_취업통계_symbol |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          size = ~symbol, sizemode = 'diameter', alpha = 0.3)
+  plot_ly(x = ~졸업자수, y = ~취업자수, 
+          size = ~symbol, sizemode = 'diameter', alpha = 0.3) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 df_취업통계_symbol |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          size = ~symbol, sizemode = 'area', alpha = 0.3)
+  plot_ly(x = ~졸업자수, y = ~취업자수, 
+          size = ~symbol, sizemode = 'area', alpha = 0.3) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
 ```{r echo = FALSE}
-p1 <- df_취업통계_symbol |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, size = ~symbol, sizemode = 'diameter', alpha = 0.3, color = I('#1f77b4'))
+p1 <- df_취업통계_symbol |> plot_ly(x = ~졸업자수, y = ~취업자수, size = ~symbol, sizemode = 'diameter', alpha = 0.3, color = I('#1f77b4'))
 
-p2 <- df_취업통계_symbol |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, size = ~symbol, sizemode = 'area', alpha = 0.3, color = I('#1f77b4'))
+p2 <- df_취업통계_symbol |> plot_ly(x = ~졸업자수, y = ~취업자수, size = ~symbol, sizemode = 'area', alpha = 0.3, color = I('#1f77b4'))
 
 
 subplot(
-  p1 |> layout(annotations = list(x = 0.3 , y = 1.05, text = " sizemode = 'diameter'", showarrow = F, xref='paper', yref='paper')),
-  p2 |> layout(annotations = list(x = 0.7 , y = 1.05, text = "sizemode = 'area'", showarrow = F, xref='paper', yref='paper'))
-) |> hide_legend()
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = " sizemode = 'diameter'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "sizemode = 'area'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), titleY = T, margin = 0.05
+) |> hide_legend() |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 ```
 
 ### linetype, linetypes
@@ -606,7 +671,11 @@ subplot(
 
 ```{r}
 covid19_df_100 |>
-  plot_ly(type = 'scatter', mode = 'lines', x = ~date, y = ~new_cases, linetype = ~iso_code)
+  plot_ly(type = 'scatter', mode = 'lines', x = ~date, y = ~new_cases, linetype = ~iso_code) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = list(text = '확진자수')), 
+         margin = margins)
 
 ```
 
@@ -616,22 +685,25 @@ covid19_df_100 |>
 
 ```{r eval = FALSE}
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.3)
+  plot_ly(x = ~졸업자수, y = ~취업자수, alpha = 0.3) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.3)
+  plot_ly(x = ~졸업자수, y = ~취업자수, opacity = 0.3) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
 ```{r echo = FALSE}
-p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.3, color = I('#1f77b4'))
+p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자수, y = ~취업자수, alpha = 0.3, color = I('#1f77b4'))
 
-p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.3, color = I('#1f77b4'))
+p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자수, y = ~취업자수, opacity = 0.3, color = I('#1f77b4'))
 
 subplot(
-  p1 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "alpha = 0.3", showarrow = F, xref='paper', yref='paper')),
-  p2 |> layout(annotations = list(x = 0.7 , y = 1.05, text = "opacity = 0.3", showarrow = F, xref='paper', yref='paper'))
-) |> hide_legend()
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "alpha = 0.3", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "opacity = 0.3", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), titleY = T, margin = 0.05
+) |> hide_legend() |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 ```
 
 ### showlegend
@@ -640,7 +712,9 @@ subplot(
 
 ```{r}
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, name = ~대계열, showlegend = FALSE)
+  plot_ly(x = ~졸업자수, y = ~취업자수, name = ~대계열, 
+          showlegend = FALSE) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
@@ -682,7 +756,8 @@ add_histogram(p, x = NULL, y = NULL, ..., data = NULL, inherit = TRUE)\
 ```{r}
 p_histogram <- df_취업통계_2000 |> plot_ly()
 
-p_histogram |> add_trace(type = 'histogram', x = ~취업률_계, name = '취업률')
+p_histogram |> add_trace(type = 'histogram', x = ~취업률, name = '취업률') |>
+  layout(title = '취업률 histogram', margin = margins)
 ```
 
 `plotly`의 히스토그램 trace에서 사용되는 주요 type들은 `plot_ly()`에서 사용되는 대부분의 type을 사용할 수 있다. 그 외에 히스토그램에서 고유하게 사용되는 type은 다음과 같다.
@@ -696,9 +771,10 @@ p_histogram |> add_trace(type = 'histogram', x = ~취업률_계, name = '취업�
 `start`와 `end`는 히스토그램에서 표현하는 전체 X축의 범위를 지정하는 type이다. 만약 X축의 수치형 변수 범위가 0부터 100까지이라고 하더라도 25에서 75까지의 히스토그램을 생성하기를 원한다면 `start`와 `end`로 범위를 설정할 수 있다.
 
 ```{r}
-p_histogram |> add_trace(type = 'histogram', x = ~취업률_계, 
+p_histogram |> add_trace(type = 'histogram', x = ~취업률, 
                          xbins = list(start = 25, end = 75, size = 5), 
-                         stroke = I('white'))
+                         stroke = I('white')) |>
+  layout(title = '취업률 histogram', margin = margins)
 ```
 
 #### histfunc
@@ -707,38 +783,46 @@ p_histogram |> add_trace(type = 'histogram', x = ~취업률_계,
 
 ```{r eval = FALSE}
 p_histogram |> add_trace(type = 'histogram', x = ~대계열, 
-                         stroke = I('white'), histfunc = 'count')
+                         stroke = I('white'), histfunc = 'count') |>
+  layout(title = '취업률 histogram', margin = margins, 
+         yaxis = list(title = list(text = '학과수')))
 
-p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률_계), 
+p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률), 
                          histfunc = 'sum', stroke = I('white')) |>
-  layout(yaxis=list(type='linear'))
+  layout(yaxis=list(type='linear', title = list(text = '취업률 합계'))) |>
+  layout(title = '취업률 histogram', margin = margins)
 
-p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률_계), 
+p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률), 
                          histfunc = 'avg', stroke = I('white')) |>
-  layout(yaxis=list(type='linear'))
+  layout(yaxis=list(type='linear', title = list(text = '취업률 평균'))) |>
+  layout(title = '취업률 histogram', margin = margins)
 
-p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률_계), 
+p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률), 
                          histfunc = 'max', stroke = I('white')) |>
-  layout(yaxis=list(type='linear'))
+  layout(yaxis=list(type='linear', title = list(text = '취업률 최대값'))) |>
+  layout(title = '취업률 histogram', margin = margins)
 
 ```
 
 ```{r echo = FALSE}
-p1 <- p_histogram |> add_trace(type = 'histogram', x = ~대계열, stroke = I('white'), histfunc = 'count', color = I('#1f77b4'), stroke = I('white'))
+p1 <- p_histogram |> add_trace(type = 'histogram', x = ~대계열, stroke = I('white'), histfunc = 'count', color = I('#1f77b4'), stroke = I('white')) |>
+  layout(yaxis = list(title = list(text = '학과수')))
 
-p2 <- p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character( 취업률_계), histfunc = 'sum', color = I('#1f77b4'), stroke = I('white')) |> layout(yaxis=list(type='linear'))
+p2 <- p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character( 취업률), histfunc = 'sum', color = I('#1f77b4'), stroke = I('white')) |> layout(yaxis=list(type='linear', title = list(text = '취업률 합계')))
 
-p3 <- p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률_계), histfunc = 'avg', color = I('#1f77b4'), stroke = I('white')) |> layout(yaxis=list(type='linear'))
+p3 <- p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률), histfunc = 'avg', color = I('#1f77b4'), stroke = I('white')) |> layout(yaxis=list(type='linear', title = list(text = '취업률 평균')))
 
-p4 <- p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률_계), histfunc = 'max', color = I('#1f77b4'), stroke = I('white')) |> layout(yaxis=list(type='linear'))
+p4 <- p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률), histfunc = 'max', color = I('#1f77b4'), stroke = I('white')) |> layout(yaxis=list(type='linear', title = list(text = '취업률 최대값')))
 
 subplot(
-  p1 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "histfunc = 'count'", showarrow = F, xref='paper', yref='paper')),
-  p2 |> layout(annotations = list(x = 0.7 , y = 1.05, text = "histfunc = 'sum'", showarrow = F, xref='paper', yref='paper')), 
-  p3 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "histfunc = 'avg'", showarrow = F, xref='paper', yref='paper')),
-  p4 |> layout(annotations = list(x = 0.7 , y = 1.05, text = "histfunc = 'max'", showarrow = F, xref='paper', yref='paper')), 
-  nrows = 2, margin = 0.1
-) |> hide_legend()
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "histfunc = 'count'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "histfunc = 'sum'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), 
+  p3 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "histfunc = 'avg'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p4 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "histfunc = 'max'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), 
+  nrows = 2, margin = 0.1, titleY = TRUE
+) |> hide_legend() |>
+  layout(title = '취업률 histogram', margin = margins)
+
 
 ```
 
@@ -747,39 +831,65 @@ subplot(
 `histnorm`은 히스토그램 trace로 표시되는 데이터의 정규화(normalization)에 대한 type이다. `histnorm`으로 설정이 가능한 정규화는 '', 'percent', 'probability', 'density', 'probability density'의 다섯 가지이다. ''은 특별한 정규화없이 사례수를 사용하고 'percent'는 전체 중의 백분율, 'probability'는 전체의 비율을 나타닌다. 'density'는 빈의 발생 빈도에 따른 밀도를 표현하고, 'probability density'은 각 막대 구간에 데이터가 존재할 밀도 확률을 면적으로 변환하여 나타내기 때문에 모든 막대 면적의 합은 1이 된다.
 
 ```{r eval = FALSE}
-p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률_계), 
-                         stroke = I('white'), histnorm = 'percent')
+p_histogram |> 
+  add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률), 
+            stroke = I('white'), histnorm = 'percent') |>
+  layout(title = '취업률 histogram', margin = margins,
+         yaxis = list(title = list(text = 'percent'), ticksuffix = "%"))
 
-p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률_계), 
-                         histnorm = 'probability', stroke = I('white')) |>
-  layout(yaxis=list(type='linear'))
+p_histogram |> 
+  add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률), 
+            histnorm = 'probability', stroke = I('white')) |>
+  layout(yaxis=list(type='linear', title = list(text = 'probability'))) |>
+  layout(title = '취업률 histogram', margin = margins)
 
-p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률_계), 
-                         histnorm = 'density', stroke = I('white')) |>
-  layout(yaxis=list(type='linear'))
+p_histogram |> 
+  add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률), 
+            histnorm = 'density', stroke = I('white')) |>
+  layout(yaxis=list(type='linear', title = list(text = 'density'))) |>
+  layout(title = '취업률 histogram', margin = margins)
 
-p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률_계), 
-                         histnorm = 'probability density', stroke = I('white')) |>
-  layout(yaxis=list(type='linear'))
+p_histogram |> 
+  add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률), 
+            histnorm = 'probability density', stroke = I('white')) |>
+  layout(yaxis=list(type='linear', title = list(text = 'probability density'))) |>
+  layout(title = '취업률 histogram', margin = margins)
 
 ```
 
 ```{r echo = FALSE}
-p1 <- p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률_계), stroke = I('white'), histnorm = 'percent', color = I('#1f77b4'))
+p1 <- p_histogram |> 
+  add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률), 
+            stroke = I('white'), histnorm = 'percent', color = I('#1f77b4')) |>
+  layout(title = '취업률 histogram', margin = margins,
+         yaxis = list(title = list(text = 'percent'), ticksuffix = "%"))
 
-p2 <- p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률_계), histnorm = 'probability', stroke = I('white'), color = I('#1f77b4')) |> layout(yaxis=list(type='linear'))
+p2 <- p_histogram |> 
+  add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률), 
+            histnorm = 'probability', stroke = I('white'), color = I('#1f77b4')) |>
+  layout(yaxis=list(type='linear', title = list(text = 'probability'))) |>
+  layout(title = '취업률 histogram', margin = margins)
 
-p3 <- p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률_계), histnorm = 'density', stroke = I('white'), color = I('#1f77b4')) |> layout(yaxis=list(type='linear'))
+p3 <- p_histogram |> 
+  add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률), 
+            histnorm = 'density', stroke = I('white'), color = I('#1f77b4')) |>
+  layout(yaxis=list(type='linear', title = list(text = 'density'))) |>
+  layout(title = '취업률 histogram', margin = margins)
 
-p4 <- p_histogram |> add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률_계), histnorm = 'probability density', stroke = I('white'), color = I('#1f77b4')) |> layout(yaxis=list(type='linear'))
+p4 <- p_histogram |> 
+  add_trace(type = 'histogram', x = ~대계열, y = ~as.character(취업률), 
+            histnorm = 'probability density', stroke = I('white'), color = I('#1f77b4')) |>
+  layout(yaxis=list(type='linear', title = list(text = 'probability density'))) |>
+  layout(title = '취업률 histogram', margin = margins)
 
 subplot(
-  p1 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "histnorm = 'percent'", showarrow = F, xref='paper', yref='paper')),
-  p2 |> layout(annotations = list(x = 0.75 , y = 1.05, text = "histnorm = 'probability'", showarrow = F, xref='paper', yref='paper')), 
-  p3 |> layout(annotations = list(x = 0.3 , y = 1.05, text = "histnorm = 'density'", showarrow = F, xref='paper', yref='paper')),
-  p4 |> layout(annotations = list(x = 0.8 , y = 1.05, text = "histnorm = 'probability density'", showarrow = F, xref='paper', yref='paper')), 
-  nrows = 2, margin = 0.1
-) |> hide_legend()
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "histnorm = 'percent'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "histnorm = 'probability'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), 
+  p3 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "histnorm = 'density'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p4 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "histnorm = 'probability density'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), 
+  nrows = 2, margin = 0.1, titleY = TRUE
+) |> hide_legend() |>
+  layout(title = '취업률 histogram')
 
 ```
 
@@ -805,55 +915,94 @@ subplot(
 ```{r eval = FALSE}
 p_line_wide <- covid19_df_100_wide |> plot_ly()
 
-p_line_wide |> add_trace(type = 'scatter', mode = 'markers', x = ~date, y = ~South_Korea)
+p_line_wide |> add_trace(type = 'scatter', mode = 'markers', x = ~date, y = ~South_Korea) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         yaxis = list(title = list(text = '확진자수')), 
+         margin = margins)
 
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea)
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         yaxis = list(title = list(text = '확진자수')), 
+         margin = margins)
 
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+text', x = ~date, y = ~South_Korea, text = ~South_Korea)
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+text', x = ~date, y = ~South_Korea, text = ~South_Korea) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         yaxis = list(title = list(text = '확진자수')), 
+         margin = margins)
 
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines+text', x = ~date, y = ~South_Korea, text = ~South_Korea)
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines+text', x = ~date, y = ~South_Korea, text = ~South_Korea) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         yaxis = list(title = list(text = '확진자수')), 
+         margin = margins)
 
 ```
 
 ```{r echo = FALSE}
 p_line_wide <- covid19_df_100_wide |> plot_ly()
 
-p1 <- p_line_wide |> add_trace(type = 'scatter', mode = 'markers', x = ~date, y = ~South_Korea, color = I('#1f77b4'))
+p1 <- p_line_wide |> add_trace(type = 'scatter', mode = 'markers', x = ~date, y = ~South_Korea, color = I('#1f77b4')) |> 
+  layout(xaxis = list(tickfont = list(size = 10)), 
+         yaxis = list(title = list(text = '확진자수')))
 
-p2 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea, color = I('#1f77b4'))
+p2 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea, color = I('#1f77b4')) |> 
+  layout(xaxis = list(tickfont = list(size = 10)), 
+         yaxis = list(title = list(text = '확진자수')))
 
-p3 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+text', x = ~date, y = ~South_Korea, text = ~South_Korea, color = I('#1f77b4'), textfont = list(size = 7))
+p3 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+text', x = ~date, y = ~South_Korea, text = ~South_Korea, color = I('#1f77b4'), textfont = list(size = 7)) |> 
+  layout(xaxis = list(tickfont = list(size = 10)), 
+         yaxis = list(title = list(text = '확진자수')))
 
-p4 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines+text', x = ~date, y = ~South_Korea, text = ~South_Korea, color = I('#1f77b4'), textfont = list(size = 7))
+p4 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines+text', x = ~date, y = ~South_Korea, text = ~South_Korea, color = I('#1f77b4'), textfont = list(size = 7)) |> 
+  layout(xaxis = list(tickfont = list(size = 10)), 
+         yaxis = list(title = list(text = '확진자수')))
 
 subplot(
-  p1 |> layout(annotations = list(x = 0.25 , y = 1.05, text = "mode = 'markers'", showarrow = F, xref='paper', yref='paper')),
-  p2 |> layout(annotations = list(x = 0.75 , y = 1.05, text = "mode = 'markers+lines'", showarrow = F, xref='paper', yref='paper')),
-  p3 |> layout(annotations = list(x = 0.25 , y = 1.05, text = "mode = 'markers+text'", showarrow = F, xref='paper', yref='paper')),
-  p4 |> layout(annotations = list(x = 0.75 , y = 1.05, text = "mode = 'markers+lines+text", showarrow = F, xref='paper', yref='paper')),
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "mode = 'markers'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "mode = 'markers+lines'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p3 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "mode = 'markers+text'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p4 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "mode = 'markers+lines+text", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
   nrows = 2, 
-  margin = 0.1
-) |> layout(showlegend = FALSE)
+  margin = 0.1, 
+  titleY = TRUE
+) |> layout(showlegend = FALSE) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         margin = margins)
 ```
 
 이 네가지 `mode`는 단일 모드로 사용이 가능하지만 'none'을 제외하고 `+`기호를 사용하여 연결하여 사용하는데 최대 3개까지 연결하여 사용할 수 있다. 여기서 하나 주의해야하는 것은 `+` 기호 앞뒤에 공백이 있어서는 안된다.
 
 ```{r eval = FALSE}
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea)
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = list(text = '확진자수')), 
+         margin = margins)
 
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers + lines', x = ~date, y = ~South_Korea)
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers + lines', x = ~date, y = ~South_Korea) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = list(text = '확진자수')),  
+         margin = margins)
 
 ```
 
 ```{r echo = FALSE}
-p1 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea, color = I('#1f77b4'))
+p1 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea, color = I('#1f77b4')) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = list(text = '확진자수')))
 
-p2 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers + lines', x = ~date, y = ~South_Korea, color = I('#1f77b4'))
+p2 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers + lines', x = ~date, y = ~South_Korea, color = I('#1f77b4')) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = list(text = '확진자수')))
 
 subplot(
   p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "mode = 'lines+markers'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
-  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "mode = 'lines + markers", showarrow = F, xref='paper', yref='paper', xanchor = 'center'))
-) |> layout(showlegend = FALSE)
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "mode = 'lines + markers", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), titleY = T, margin = 0.05
+) |> layout(showlegend = FALSE) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         margin = margins)
 ```
 
 #### marker, add_markers()
@@ -922,6 +1071,77 @@ add_markers(p, x = NULL, y = NULL, z = NULL, ..., data = NULL, inherit = TRUE)\
 :::
 
 `marker` 에서 설정 가능한 세부 type은 20여개가 있지만 이 세부 type의 세부 type까지 포함하면 그 종류가 매우 많아진다. `add_markers()`를 사용한다면 세부 type 설정을 바로 사용할 수 있지만 `add_trace()`를 사용하면 `marker` 매개변수에 세부 type을 `list()`로 설정하여 지정할 수 있다.
+
+`marker`의 설정에서 하나 중요한 type은 `colorbar()`이다. `color` type에 매핑되는 변수가 이산형일 경우는 각각의 카테고리에 따라 설정된 색 팔레트에 정의된 색상이 설정되지만 연속형일 경우는 연속된 색상이 설정된다. 연속된 색상에서 변수에 따른 색상이 선택되어 표시된다. 이렇게 연속된 색상의 설정에 사용되는 색 스케일이 `colorbar()`이다.
+
+::: {custom-style="comment"}
+colorbar(p, ..., limits = NULL, which = 1)\
+- p : plot_ly()로 생성한 plotly 객체\
+- ... : 컬러바 설정을 위한 세부 속성\
+- limits : 컬러바 범위 설정을 위한 수치 벡터\
+- which : 다중 컬러바가 생성된 경우 컬러바 선택\
+:::
+
+컬러바 설정에 사용되는 세부 속성은 현재(22.03) 43개가 제공된다. 이에 대한 세부 속성과 설명은 `plotly` 매뉴얼을 참조하라.[^4]
+
+[^4]: <https://plotly.com/r/reference/#scatter-marker-colorbar>
+
+```{r eval = FALSE}
+df_취업통계_2000 |> 
+  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
+          color = ~취업률_계, colors = 'Accent') |>
+  layout(title = '졸업자 대비 취업자수', 
+         xaxis = list(title =  list(text = '졸업자수')), 
+         yaxis = list(title = '취업자수'),
+         margin = margins)
+
+color_vector <- c('red', 'blue', 'green', 'yellow', 'purple', 'black', 'pink')
+
+df_취업통계_2000 |> 
+  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
+          color = ~취업률_계, colors = color_vector) |>
+  layout(title = '졸업자 대비 취업자수', 
+         xaxis = list(title =  list(text = '졸업자수')), 
+         yaxis = list(title = '취업자수'),
+         margin = margins)
+
+df_취업통계_2000 |> 
+  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
+          color = ~취업률_계, colors = colorRamp(c('red', 'white', 'blue'))) |>
+  layout(title = '졸업자 대비 취업자수', 
+         xaxis = list(title =  list(text = '졸업자수')), 
+         yaxis = list(title = '취업자수'),
+         margin = margins)
+
+```
+
+```{r echo = FALSE}
+p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = 'Accent') |>
+  layout(title = '졸업자 대비 취업자수', 
+         xaxis = list(title =  list(text = '졸업자수')), 
+         yaxis = list(title = '취업자수'),
+         margin = margins)
+
+color_vector <- c('red', 'blue', 'green', 'yellow', 'purple', 'black', 'pink')
+
+p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = color_vector) |>
+  layout(title = '졸업자 대비 취업자수', 
+         xaxis = list(title =  list(text = '졸업자수')), 
+         yaxis = list(title = '취업자수'),
+         margin = margins)
+
+p3 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = colorRamp(c('red', 'white', 'blue'))) |>
+  layout(title = '졸업자 대비 취업자수', 
+         xaxis = list(title =  list(text = '졸업자수')), 
+         yaxis = list(title = '취업자수'),
+         margin = margins)
+
+subplot(
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "colors = 'Accent'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2|> layout(annotations = list(x = 0.5 , y = 1.05, text = "color = color_vector", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p3|> layout(annotations = list(x = 0.5 , y = 1.05, text = "colorRamp", showarrow = F, xref='paper', yref='paper', xanchor = 'center'))
+) |> hide_legend()
+```
 
 #### line, add_lines()
 
