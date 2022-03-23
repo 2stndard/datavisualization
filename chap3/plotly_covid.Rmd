@@ -27,7 +27,7 @@ library(tidyverse)
 library(readxl)
 library(patchwork)
 library(plotly)
-df_입학자 <- read_excel('2021_연도별 입학자수.xlsx', 
+df_입학자 <- read_excel('d:/R/data/2021_연도별 입학자수.xlsx', 
                  ## 'data' 시트의 데이터를 불러오는데,
                  sheet = 'Sheet0',
                  ## 앞의 10행을 제외하고
@@ -44,8 +44,6 @@ colnames(df_입학자) <- c('연도', '지역', '전문대학', '교육대학', 
 df_입학자 <- df_입학자 |> filter(!is.na(지역))
 
 df_입학자_long <- df_입학자 |> pivot_longer(3:10, names_to = '학교종류', values_to = '입학생수')
-
-theme_set(theme_gray())
 ```
 
 ```{r include=FALSE, message = FALSE, warning = FALSE}
@@ -66,20 +64,29 @@ df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 
 R을 다루는 많은 교육코스나 서적에서 데이터의 시각화는 대부분 R base에서 제공하는 함수를 사용하거나 `ggplot2` 패키지를 사용하여는 방법을 위주로 설명한다. 이 두가지 방법은 데이터 시각화 결과가 우수한 편이기 때문에 많이 사용되고 있지만 정적(Static) 시각화이다. 정적 시각화는 최근 인포그래픽(Infographic)이라고 불리며 일반적으로 문서나 인쇄물에 많이 사용되고 웹에 게시되는 이미지로 사용된다. 그렇기 때문에 대부분 png, jpg, pdf 등의 벡터 혹은 픽셀 이미지 파일로 제공된다. 정적 데이터 시각화는 데이터 분석가의 의도에 맞춰 작성되기 때문에 데이터 분석가의 분석에 의존적일 수 밖에 없으며 독자의 의도에 따른 해석은 매우 제한될 수 밖에 없다.
 
-이러한 제한점을 극복하기 위해 사용되는 데이터 시각화 방법이 동적(Dynamic) 시각화 혹은 인터랙티브(Interactive) 시각화라고 하는 방법이다. 이 동적 시각화는 시각화를 사용하는 사용자의 의도에 따라 데이터를 다각적 관점에서 살펴볼 수 있다는 점이 동적 시각화와 가장 크게 차이나는 점이다. 사용자의 의도에 따라 데이터가 동적으로 변동되어야 하기 때문에 데이터 시각화에 사용되는 매체는 인쇄물 형태 매체가 불가능하고 웹을 통해 제공한다. 따라서 일반적으로 동적 시각화는 웹 사이트에서 제공하는 대시보드(DashBoard)의 형태로 제공되는 것이 일반적이기 때문에 동적 시각화를 위해서는 동적 시각화 전용 패키지를 사용해 시각화 객체를 만드는 방법이외에 `shiny` 등의 패키지를 사용하여 대시보드를 만드는 것도 같이 익혀야 한다는 어려움이 따른다. R에서 동적 시각화를 위해 제공되는 패키지는 `plotly`, `rbokeh`, `highcharter` 등이 있다.
+이러한 제한점을 극복하기 위해 사용되는 데이터 시각화 방법이 동적(Dynamic) 시각화 혹은 인터랙티브(Interactive) 시각화라고 하는 방법이다. 이 동적 시각화는 시각화를 사용하는 사용자의 의도에 따라 데이터를 다각적 관점에서 살펴볼 수 있다는 점이 동적 시각화와 가장 크게 차이나는 점이다. 사용자의 의도에 따라 데이터가 동적으로 변동되어야 하기 때문에 데이터 시각화에 사용되는 매체는 인쇄물 형태 매체가 불가능하고 웹을 통해 제공한다. 따라서 일반적으로 동적 시각화는 웹 사이트에서 제공하는 대시보드(DashBoard)의 형태로 제공되는 것이 일반적이기 때문에 동적 시각화를 위해서는 동적 시각화 전용 패키지를 사용해 시각화 객체를 만드는 방법이외에 `shiny` 등의 패키지를 사용하여 대시보드를 만드는 것도 같이 익혀야 한다는 어려움이 따른다. R에서 동적 시각화를 위해 제공되는 패키지는 `plotly`, `rbokeh`, `highcharter` 등이 제공된다. 다음의 R 그래픽 패키지 다운로드 현황에서 보듯이 여전히 R에서 가장 많이 사용되고 있는 그래픽 패키지는 `ggplot2`이지만 최근 들어 그 사용량이 줄고 있고 R에서 많이 사용되던 `lattice`패키지가 점차 줄고 있다. 반면 `plotly`는 2021년 하반기부터 다운로드가 늘고 있고 다른 동적 그래픽 패키지에 비해서는 압도적인 다운로드 수를 보인다. 
+
+```{r}
+library(dlstats)
+
+#x <- cran_stats(c("ggplot2", "plotly", "rbokeh", "highcharter"))
+x1 <- cran_stats(c("ggplot2", "plotly", "rbokeh", "highcharter", 'lattice'))
+
+x1 |> plot_ly() |>
+  add_lines(x = ~end, y = ~downloads, color = ~package) |>
+  layout(title = 'R의 그래픽 패키지 다운로드 현황', xaxis = list(title = list(visible = F)), yaxis = list(title = '다운로드수'))
+
+```
 
 따라서 정적 시각화와 동적 시각화의 어느것이 더 효용성이 있는지를 단언할 수 없다. 데이터 시각화가 사용되는 매체, 데이터 시각화를 보는 대상, 데이터 시각화에서 보여주고자 하는 스토리에 따라서 정적 시각화를 사용해야 할 때와 동적 시각화를 사용해야 할 때를 적절히 선택해야 한다.
 
 이번 장에서는 R에서 동적 시각화로 많이 사용되는 `plotly` 패키지를 사용하여 데이터를 시각화하는 방법을 알아본다. `plotly`를 사용한 데이터 시각화를 실습하기 위한 데이터는 `ggplot2` 실습에서 사용하던 취업통계 데이터(df_취업통계)와 코로나바이러스 데이터 셋을 사용하도록 하겠다.
 
-코로나바이러스 데이터 셋은 R CRAN에서 공식적으로 제공하는 `coronavirus` 패키지를 통해 제공받을 수 있다.\[\^1\]
+코로나바이러스 데이터 셋은 Github에서 매일 업데이트된 csv 파일을 다운로드 받았다. [^1] 이를 `plotly` 실습에 사용하기 위해 다음과 같이 전처리 하였다. 
+
+[^1]: <https://github.com/owid/covid-19-data/blob/master/public/data/owid-covid-data.csv>
 
 ```{r}
-# if(!require(coronavirus)) {
-#   install.packages('coronavirus')
-#   library(coronavirus)
-# }
-
 if(!require(readr)) {
   install.packages('readr')
   library(readr)
@@ -89,38 +96,6 @@ if(!require(lubridate)) {
   install.packages('lubridate')
   library(lubridate)
 }
-# 
-# 
-# coronavirus_df <- read_csv("C:/R/git/datavisualization/chap3/coronavirus.csv", 
-#                            col_types = cols(date = col_date(format = "%Y-%m-%d"),
-#                                             cases = col_number()
-#                                             )
-#                            )
-
-##coronavirus_df <- read_csv("https://raw.githubusercontent.com/RamiKrispin/coronavirus/master/csv/coronavirus.csv", 
-##    col_types = cols(date = col_date(format = "%Y-%m-%d"), 
-##        cases = col_number()))
-
-# covid_stat_by_nation <- coronavirus_df %>%
-#   filter(type != "recovery", !is.na(code3)) %>%
-#   group_by(type, continent_name, country, uid) %>%
-#   summarise(cases = sum(cases), population = max(population), .groups = "drop") %>%
-#   mutate(type = factor(type, levels = c("confirmed", "death"))) %>%
-#   pivot_wider(names_from = type, values_from = cases) %>%
-#   mutate(death_rate = death / confirmed, confirmed_rate = confirmed / population) %>%
-#   filter(!is.na(country))
-
-# covid19_vaccine_df <- read_csv(file = "C:/R/git/datavisualization/chap3/covid19_vaccine.csv",
-#                             col_types = cols(Date = col_date(format = "%Y-%m-%d"),
-#                                              Report_Date_String = col_date(format = "%Y-%m-%d"),
-#                                              UID = col_number(),
-#                                              Province_State =col_character()
-#                                              )
-#                             )
-# covid_joined <- inner_join(covid_stat_by_nation, vaccine_stat_by_nation, by = c('country' = 'country_region', 'uid' = 'uid'))
-
-#https://github.com/owid/covid-19-data/tree/master/public/data
-
 
 covid19_df <- read_csv(file = "D:/R/data/owid-covid-data.csv",
                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
@@ -138,32 +113,31 @@ covid19_df_100_wide <- covid19_df_100 |> select(date, location, new_cases) |>
 
 names(covid19_df_100_wide) <- c('date', 'Asia', 'Europe', 'North_America', 'Oceania', 'South_America', 'South_Korea')
 
-# covid19_df <- covid19_df |> select(iso_code, continent, location, date, population, gdp_per_capita, total_cases, new_cases, total_deaths, new_deaths, icu_patients_per_million, hosp_patients_per_million, reproduction_rate, total_tests, new_tests, total_vaccinations, people_fully_vaccinated, total_boosters,  people_fully_vaccinated_per_hundred, total_boosters_per_hundred)
-# 
-# 
 covid19_stat <- covid19_df |> group_by(iso_code, continent, location) |>
-  summarise(population = max(population, na.rm = T), gdp_per_capita = max(gdp_per_capita, na.rm = T),
-            total_cases = max(total_cases, na.rm = T), new_cases = sum(new_cases, na.rm = T),
-            total_deaths = max(total_deaths, na.rm = T), new_deaths = sum(new_deaths, na.rm = T), death_per_million = round(total_deaths / population *100000, 5),
-            icu_patients_per_million = last(icu_patients_per_million),
-            hosp_patients_per_million = last(hosp_patients_per_million),
-            reproduction_rate = last(reproduction_rate),
-            total_tests = max(total_tests, na.rm = T), new_tests = sum(new_tests, na.rm = T),
-            total_vaccinations = max(total_vaccinations, na.rm = T),
-            people_fully_vaccinated = max(people_fully_vaccinated, na.rm = T),
-            total_boosters = max(total_boosters, na.rm = T),
-            fully_vaccinated_rate = people_fully_vaccinated / population,
-            people_fully_vaccinated_per_hundred = max(people_fully_vaccinated_per_hundred, na.rm = T),
-            total_boosters_per_hundred = max(total_boosters_per_hundred, na.rm = T)
+  summarise(인구수 = max(population, na.rm = T), 인당GDP = max(gdp_per_capita, na.rm = T),
+            전체확진자수 = sum(new_cases, na.rm = T),
+            전체사망자수 = sum(new_deaths, na.rm = T), 
+            십만명당사망자수 = round(total_deaths / population *100000, 5),
+            십만명당중환자실 = last(icu_patients_per_million),
+            재생산지수 = last(reproduction_rate),
+            전체검사자수 = max(total_tests, na.rm = T), new_tests = sum(new_tests, na.rm = T),
+            전체백신접종자수 = max(total_vaccinations, na.rm = T),
+            백신접종자완료자수 = max(people_fully_vaccinated, na.rm = T),
+            부스터접종자수 = max(total_boosters, na.rm = T),
+            백신접종완료률 = people_fully_vaccinated / population,
+            인구백명당백신접종완료률 = max(people_fully_vaccinated_per_hundred, na.rm = T),
+            인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
             ) |> ungroup()
   
 ```
 
-\[\^1\] : `coronavirus` 패키지에서 제공하는 데이터 셋의 자세한 내용은 해당 패키지의 Github에서 확인할 수 있다.(<https://ramikrispin.github.io/coronavirus/articles/intro_coronavirus_dataset.html>)
-
 # plotly란?
 
-`plotly`는 오픈 소스인 JavaScript로 구현된 plotly.js를 기반으로 R에서 생성한 데이터 시각화 객체를 Javascript로 생성해주는 패키지이다. 따라서 `plotly`로 생성된 시각화는 결국 HTML 코드로 구현되고 이 코드는 웹브라우저 상에서 작동함으로써 사용자의 반응에 따른 데이터의 표현이 가능하다. `plotly`를 통해 생성된 데이터 시각화의 HTML은 R에서 JavaScript를 사용할 수 있게하는 `htmlwidgets` 프레임워크에서 동작하기 할 수 있어 HTML자체로 사용할 수도 있고 R Markdown이나 Shiny App, R-Studio, Jupiter Notebook 등에서 자유롭게 사용이 가능하다.
+`plotly`는 오픈 소스인 JavaScript로 구현된 plotly.js를 기반으로 R에서 생성한 데이터 시각화 객체를 Javascript로 생성해주는 패키지이다[^2]. `plotly`는 JavaScript로 구현되기 때문에 `plotly` 객체는 결국 HTML 코드로 구현되고 이 코드는 웹브라우저 상에서 작동함으로써 사용자의 반응에 따른 데이터의 표현이 가능하다. `plotly`를 통해 생성된 데이터 시각화의 HTML은 R에서 JavaScript를 사용할 수 있게하는 `htmlwidgets` 프레임워크에서 동작하기 할 수 있어 HTML자체로 사용할 수도 있고 R Markdown이나 Shiny App, R-Studio, Jupiter Notebook 등에서 자유롭게 사용이 가능하다.
+
+R의 `plotly`패키지는 동적 시각화를 제공하면서 출판이 가능한 품질의 시각화를 만든다. `plotly`로 선 그래프, 산점도, 막대 차트, 박스 플롯, 히스토그램, 히트맵, 서브플롯, 다중 축 및 3D(WebGL 기반) 차트 등의 다양한 시각화를 생성할 수 있는데 생성할 수 있는 시각화의 종류는 `ggplot2`보다 많다. `plotly`는 R에서 무료로 사용 가능한 패키지로 python, julia, F#, MATLAB 등에서도 지원되는 그래픽 라이브러리를 제공하고 있다. 
+
+[^2]: https://plotly.com
 
 R에서 `plotly`를 사용한 인터랙티브 데이터 시각화를 만드는 방법은 두 가지이다. 첫 번째는 R에서 데이터 시각화에 가장 많이 사용하는 `ggplot2`를 사용하여 생성한 객체를 `plotly` 객체로 전환하는 방법이고 두 번쨰는 `plotly` 패키지에서 제공하는 함수들을 사용하여 `plotly` 객체를 직접 생성하는 방법이다.
 
@@ -210,11 +184,11 @@ ggplotly(ggplotly)
 
 ```
 
-앞의 `plotly` 객체에서 보면 `ggplot` 객체를 정확히 전환하지는 못한다.[^1] 그러나 `ggplotly()`는 `ggplot2`패키지를 사용해서 생성한 대부분의 `ggplot` 객체를 전환할 수 있다. 게다가 `ggplot2` 패키지를 확장해서 사용하게 해주는 `ggforce`, `GGally`와 같은 확장 패키지로 생성된 객체도 변환이 가능하다는 장점이 있다. 따라서 `plotly` 객체를 다루는 방법을 잘 익히면 기존에 생성했던 `ggplot` 객체의 시각화를 재활용 할 수있게 된다. 그리고 `plotly`를 사용하다보면 느끼겠지만 `ggplot2`의 통계 요소와 분할 요소의 몇몇 요소들은 `plotly`보다는 `ggplot2`가 훨씬 편리할 떄가 있다. 이러한 경우 `ggplot2`와 `plotly`를 적절히 혼용하면 매우 좋은 결과를 얻을 수 있다.
+앞의 `plotly` 객체에서 보면 `ggplot` 객체를 정확히 전환하지는 못한다.[^3] 그러나 `ggplotly()`는 `ggplot2`패키지를 사용해서 생성한 대부분의 `ggplot` 객체를 전환할 수 있다. 게다가 `ggplot2` 패키지를 확장해서 사용하게 해주는 `ggforce`, `GGally`와 같은 확장 패키지로 생성된 객체도 변환이 가능하다는 장점이 있다. 따라서 `plotly` 객체를 다루는 방법을 잘 익히면 기존에 생성했던 `ggplot` 객체의 시각화를 재활용 할 수있게 된다. 그리고 `plotly`를 사용하다보면 느끼겠지만 `ggplot2`의 통계 요소와 분할 요소의 몇몇 요소들은 `plotly`보다는 `ggplot2`가 훨씬 편리할 떄가 있다. 이러한 경우 `ggplot2`와 `plotly`를 적절히 혼용하면 매우 좋은 결과를 얻을 수 있다.
 
-[^1]: 앞의 예에서 범례에 나타난 오류는 ggplotly()에서 다중 범례(Multiple Legend)의 변환 과정에서 발생하는 문제로 ggplot의 범례를 제거하고 plotly의 범례를 생성함으로써 해결가능하다.
+[^3]: 앞의 예에서 범례에 나타난 오류는 ggplotly()에서 다중 범례(Multiple Legend)의 변환 과정에서 발생하는 문제로 ggplot의 범례를 제거하고 plotly의 범례를 생성함으로써 해결가능하다.
 
-# plotly 구성
+# plotly 시각화 생성
 
 `plotly` 객체는 pltoly.js를 지원하는 스키마로 표현된다. 사실 `ggplot2`이던 `plotly`이던 각각의 시각화 객체는 R에서 특별하게 정의된 데이터 구조로 표현된다. 이 데이터 구조가 R의 그래픽 엔진을 통해 이미지로 표현되는 것이다. 따라서 `plotly` 객체도 우리가 눈으로 보기에는 이미지로 보이지만 R에서는 plotly.js에서 지원하는 데이터 구조로 표현된 데이터 객체인 것이다.
 
@@ -448,9 +422,9 @@ colorbar(p, ..., limits = NULL, which = 1)\
 - which : 다중 컬러바가 생성된 경우 컬러바 선택\
 :::
 
-컬러바 설정에 사용되는 세부 속성은 현재(22.03) 43개가 제공된다. 이에 대한 세부 속성과 설명은 `plotly` 매뉴얼을 참조하라.[^2]
+컬러바 설정에 사용되는 세부 속성은 현재(22.03) 43개가 제공된다. 이에 대한 세부 속성과 설명은 `plotly` 매뉴얼을 참조하라.[^4]
 
-[^2]: <https://plotly.com/r/reference/#scatter-marker-colorbar>
+[^4]: <https://plotly.com/r/reference/#scatter-marker-colorbar>
 
 ```{r eval = FALSE}
 df_취업통계_2000 |> 
@@ -813,9 +787,9 @@ subplot(
 
 스캐터 trace는 점, 선, 문자를 X, Y 축 좌표의 위치를 사용해 시각화를 하는 형태의 trace를 모두 말한다. 따라서 스캐터 trace를 통해 생성 가능한 시각화는 산점도, 선 그래프, 텍스트 차트, 풍선 차트 등이다. 이 스캐터 trace는 `add_trace()`의 `type` 매개변수에 'scatter'를 설정함으로써 사용할 수 있고 `add_*()` 함수(`add_markers()`, `add_lines()`, `add_paths()`, `add_segments()`, `add_ribbons()`)를 사용할 수 있다.
 
-스캐터 trace에서 약 50여개가 넘는 type을 사용하여 세부 설정이 가능하다. 이 50여개의 type 중에는 다시 세부 type을 설정하는 type이 있고 총 4단계까지 내려가는 type도 존재한다. 세부 하위 type은 `list()`를 사용하여 세부 타입을 설정할 수 있다. 이 모든 type을 다 설명할 수는 없기 때문에 주요한 type을 위주로 설명한다. 전체 type은 plotly.com에 수록되어 있다.[^3]
+스캐터 trace에서 약 50여개가 넘는 type을 사용하여 세부 설정이 가능하다. 이 50여개의 type 중에는 다시 세부 type을 설정하는 type이 있고 총 4단계까지 내려가는 type도 존재한다. 세부 하위 type은 `list()`를 사용하여 세부 타입을 설정할 수 있다. 이 모든 type을 다 설명할 수는 없기 때문에 주요한 type을 위주로 설명한다. 전체 type은 plotly.com에 수록되어 있다.[^5]
 
-[^3]: <https://plotly.com/r/reference/scatter/>
+[^5]: <https://plotly.com/r/reference/scatter/>
 
 #### mode
 
@@ -1176,6 +1150,13 @@ fig |> layout(barmode = 'stack',
 `textposition`는 `text`의 위치를 설정하는 type이다. `textposition`에는 'inside', 'outside', 'auto', 'none'의 네 가지를 설정할 수 있다. 'inside'는 막대의 안쪽에 텍스트를 위치시킨다. 이 경우 막대의 너비에 따라 가로로 표시될 수도 있고 세로로 표시될 수도 있다. 'outside'는 막대 끝의 바깥에 텍스트를 위치시키는데 마찬가지로 막대의 너비에 따라 가로 혹은 세로로 표기될 수 있다. 또 'outside'는 막대가 쌓이는 'stack' 형의 막대 그래프에서는 'inside'와 동일하게 표시된다. 'auto'는 `plotly`에서 자동적으로 계산된 형태로 텍스트가 표시된다. 'none'은 텍스트가 표시되지 않는다.
 
 ```{r}
+p_bar_mode1 <- covid19_df_100 |> 
+  mutate(yearmonth = lubridate::floor_date(date, "month")) |> 
+  group_by(iso_code, yearmonth) |>
+  summarise(new_cases = sum(new_cases)) |> 
+  pivot_wider(names_from = yearmonth, values_from = new_cases) |>
+  plot_ly()
+
 fig <- p_bar_mode1 |>
   add_trace(type = 'bar', x = ~iso_code, y = ~`2021-12-01`, color = I('gray30'),  
             name = '2021월 12월', text = ~`2021-12-01`, 
@@ -1209,9 +1190,9 @@ fig |> layout(barmode = 'stack',
 
 ```
 
-`texttemplate`은 텍스트가 표시되는 형태를 설정하는 type이다. `texttemplate`는 `hovertemplate`의 정의와 같이 사용되는데 '%{변수:변수포맷}'의 형태로 사용된다. 변수 포맷에서 사용하는 포맷은 자바 스크립트의 d3 format[^4]을 사용한다. 앞의 예에서 일반대학의 입학생수의 포맷에 천단위 콤마를 넣는다면 '%{text:,}'로 설정하고 소수점 아래 두째 자리까지 표기한다면 '%{text:2f}'로 설정한다.
+`texttemplate`은 텍스트가 표시되는 형태를 설정하는 type이다. `texttemplate`는 `hovertemplate`의 정의와 같이 사용되는데 '%{변수:변수포맷}'의 형태로 사용된다. 변수 포맷에서 사용하는 포맷은 자바 스크립트의 d3 format[^6]을 사용한다. 앞의 예에서 일반대학의 입학생수의 포맷에 천단위 콤마를 넣는다면 '%{text:,}'로 설정하고 소수점 아래 두째 자리까지 표기한다면 '%{text:2f}'로 설정한다.
 
-[^4]: <https://github.com/d3/d3-format/tree/v1.4.5#d3-format>
+[^6]: <https://github.com/d3/d3-format/tree/v1.4.5#d3-format>
 
 ```{r}
 p_bar_mode1 |>
@@ -1660,9 +1641,81 @@ plot_ly() |>
 
 #### gauge
 
+`gauge`는 게이지 형태의 시각화를 통해서 단일 수치를 표현한다. 게이지의 형태는 둥근 반원 형태의 게이지를 사용하는 'angler'와 막대 형태의 게이지를 사용하는 'bullet'의 두가지가 제공된다. 이는 `shape` type을 사용하여 설정이 가능하다.
+
+```{r eval = FALSE}
+plot_ly() |>
+  add_trace(type = 'indicator', mode = "gauge+number", 
+            gauge = list(shape = 'angular'), value = 3.5)
+
+plot_ly() |>
+  add_trace(type = 'indicator', mode = "gauge+number", 
+            gauge = list(shape = 'bullet'), value = 3.5)
+
+```
+
+```{r echo = FALSE}
+p1 <- plot_ly() |>
+  add_trace(type = 'indicator', mode = "gauge+number", 
+            gauge = list(shape = 'angular'), value = 3.5, 
+            domain = list(x = c(0, 0.49), y = c(0.25, 0.75))
+) |> layout(height = 300)
+p2 <- plot_ly() |>
+  add_trace(type = 'indicator', mode = "gauge+number", 
+            gauge = list(shape = 'bullet'), value = 3.5, 
+            domain = list(x = c(0.51, 1), y = c(0.25, 0.75))
+) |> layout(height = 300)
+
+subplot(
+  p1 |>  layout(annotations = list(x = 0.5 , y = 1.1, text = "shape = 'angular'", 
+                                   showarrow = F, xref='paper', yref='paper', 
+                                   xanchor= 'center'), 
+             height = 300), 
+  p2 |>  layout(annotations = list(x = 0.5 , y = 1.1, text = "shape = 'bullet'", 
+                                   showarrow = F, xref='paper', yref='paper', 
+                                   xanchor= 'center'), 
+             height = 300)
+)
+```
+
 ```{r}
 plot_ly() |>
-  add_trace(type = 'indicator', mode = "gauge+number+delta", gauge = list(shape = 'angular'), value = 200, delta = list(reference = 250))
+  add_trace(type = 'indicator', mode = "gauge", 
+            gauge = list(shape = 'bullet', 
+                         axis = list(range = c(0, 5)),
+                         steps = list(
+                           list(range = c(0,1), color = "lightgreen", name = 'E', 
+                                line = list(color = 'white', width = 5)),
+                           list(range = c(1,2), color = "lime", name = 'D', 
+                                line = list(color = 'white', width = 5)),
+                           list(range = c(2,3), color = "yellow", name = 'C', 
+                                line = list(color = 'white', width = 5)),
+                           list(range = c(3,4), color = 'orange', name = 'B', 
+                                line = list(color = 'white', width = 5)),
+                           list(range = c(4,5), color = "darkred", name = 'A', 
+                                line = list(color = 'white', width = 5))
+                           ),
+                         threshold = list(line = list(color = 'red'),
+                                          value = 90)
+                         ), 
+            value = 3.5)
+```
+
+#### delta
+
+`delta`는 데이터의 증감량을 나타내는 인디케이터를 표시한다. 가장 흔히 보이는 곳이 주식관련 시각화인데 전일 대비 주가를 파란색, 빨간색 삼각형과 같이 나타내는 것이 `delta`이다. 증감량을 표시해야 하기 때문에 증감의 기준이 되는 수치인 `reference`가 설정되어야 하고 `increasing`과 `decreasing`을 통해 증감의 표시를 설정할 수 있다.
+
+```{r}
+plot_ly() |>
+  add_trace(type = 'indicator', mode = "gauge+delta", 
+            gauge = list(shape = 'angular'), value = 3.5, 
+            delta = list(reference = 2, 
+                         increasing = list(color = 'darkred', symbol = '+', 
+                                           font = list(family = '나눔손글씨 펜')), 
+                         decreasing = list(color = 'darkblue', symbol = '-')
+                         )
+  )
+
 ```
 
 ## 레이아웃 설정 : layout()
@@ -1881,9 +1934,9 @@ p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1
 | colorscale    | 컬러 스케일의 설정                         |                 | diverging, sequential, sequentialminus |
 | colorway      | 기본 컬러 벡터 설정                        |                 |                                        |
 
-`plotly`에서 사용하는 색의 설정은 색 이름 설정, 16진수로 설정된 RGB값 설정, `rgb()` 함수를 사용한 RGB값의 설정 세 가지 방법이 주로 사용된다. 이외에도 색조, 채도, 명도(lightness)를 사용하는 `hsl()`을 사용하는 방법, 색조, 채도, 명도(value)를 사용하는 `hsv()`를 사용하는 방법도 있다. `plotly`에서 사용이 가능한 색 이름은 W3.org에서 제공하는 CSS 색 이름을 사용한다.[^5]
+`plotly`에서 사용하는 색의 설정은 색 이름 설정, 16진수로 설정된 RGB값 설정, `rgb()` 함수를 사용한 RGB값의 설정 세 가지 방법이 주로 사용된다. 이외에도 색조, 채도, 명도(lightness)를 사용하는 `hsl()`을 사용하는 방법, 색조, 채도, 명도(value)를 사용하는 `hsv()`를 사용하는 방법도 있다. `plotly`에서 사용이 가능한 색 이름은 W3.org에서 제공하는 CSS 색 이름을 사용한다.[^7]
 
-[^5]: <https://www.w3schools.com/cssref/css_colors.asp>
+[^7]: <https://www.w3schools.com/cssref/css_colors.asp>
 
 ```{r}
 p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1, 
