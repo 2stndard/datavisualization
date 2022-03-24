@@ -166,11 +166,11 @@ covid19_df_100 <- covid19_df |>
   filter(date >= today() - 100) |> 
   arrange(date)
 
-covid19_df_100_wide <- covid19_df_100 |> select(date, location, new_cases) |> 
-  pivot_wider(id_cols = date, names_from = location, values_from = new_cases) |> 
+covid19_df_100_wide <- covid19_df_100 |> select(date, location, new_cases, people_fully_vaccinated_per_hundred) |> 
+  pivot_wider(id_cols = date, names_from = location, values_from = c(new_cases, people_fully_vaccinated_per_hundred)) |> 
   arrange(date)
 
-names(covid19_df_100_wide) <- c('date', 'Asia', 'Europe', 'North_America', 'Oceania', 'South_America', 'South_Korea')
+names(covid19_df_100_wide) <- c('date', '확진자_아시아', '확진자_유럽', '확진자_북미', '확진자_오세아니아', '확진자_남미', '확진자_한국', '백신접종완료자_아시아', '백신접종완료자_유럽', '백신접종완료자_북미', '백신접종완료자_오세아니아', '백신접종완료자_남미', '백신접종완료자_한국')
 
 covid19_stat <- covid19_df |> group_by(iso_code, continent, location) |>
   summarise(인구수 = max(population, na.rm = T), 인당GDP = max(gdp_per_capita, na.rm = T),
@@ -609,12 +609,12 @@ df_취업통계_2000 |>
 
 ```{r eval = FALSE}
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
+  plot_ly(x = ~졸업자수, y = ~취업자수, 
           stroke = 'black', color = I('white')) |>
   layout(title = '졸업자 대비 취업자수', margin = margins)
 
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
+  plot_ly(x = ~졸업자수, y = ~취업자수, 
           stroke = I('black'), color = I('white')) |>
   layout(title = '졸업자 대비 취업자수', margin = margins)
 
@@ -915,22 +915,22 @@ subplot(
 ```{r eval = FALSE}
 p_line_wide <- covid19_df_100_wide |> plot_ly()
 
-p_line_wide |> add_trace(type = 'scatter', mode = 'markers', x = ~date, y = ~South_Korea) |>
+p_line_wide |> add_trace(type = 'scatter', mode = 'markers', x = ~date, y = ~확진자_한국) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          yaxis = list(title = list(text = '확진자수')), 
          margin = margins)
 
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea) |>
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~확진자_한국) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          yaxis = list(title = list(text = '확진자수')), 
          margin = margins)
 
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+text', x = ~date, y = ~South_Korea, text = ~South_Korea) |>
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+text', x = ~date, y = ~확진자_한국, text = ~확진자_한국) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          yaxis = list(title = list(text = '확진자수')), 
          margin = margins)
 
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines+text', x = ~date, y = ~South_Korea, text = ~South_Korea) |>
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines+text', x = ~date, y = ~확진자_한국, text = ~확진자_한국) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          yaxis = list(title = list(text = '확진자수')), 
          margin = margins)
@@ -940,19 +940,19 @@ p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines+text', x = ~da
 ```{r echo = FALSE}
 p_line_wide <- covid19_df_100_wide |> plot_ly()
 
-p1 <- p_line_wide |> add_trace(type = 'scatter', mode = 'markers', x = ~date, y = ~South_Korea, color = I('#1f77b4')) |> 
+p1 <- p_line_wide |> add_trace(type = 'scatter', mode = 'markers', x = ~date, y = ~확진자_한국, color = I('#1f77b4')) |> 
   layout(xaxis = list(tickfont = list(size = 10)), 
          yaxis = list(title = list(text = '확진자수')))
 
-p2 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea, color = I('#1f77b4')) |> 
+p2 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~확진자_한국, color = I('#1f77b4')) |> 
   layout(xaxis = list(tickfont = list(size = 10)), 
          yaxis = list(title = list(text = '확진자수')))
 
-p3 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+text', x = ~date, y = ~South_Korea, text = ~South_Korea, color = I('#1f77b4'), textfont = list(size = 7)) |> 
+p3 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+text', x = ~date, y = ~확진자_한국, text = ~확진자_한국, color = I('#1f77b4'), textfont = list(size = 7)) |> 
   layout(xaxis = list(tickfont = list(size = 10)), 
          yaxis = list(title = list(text = '확진자수')))
 
-p4 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines+text', x = ~date, y = ~South_Korea, text = ~South_Korea, color = I('#1f77b4'), textfont = list(size = 7)) |> 
+p4 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines+text', x = ~date, y = ~확진자_한국, text = ~확진자_한국, color = I('#1f77b4'), textfont = list(size = 7)) |> 
   layout(xaxis = list(tickfont = list(size = 10)), 
          yaxis = list(title = list(text = '확진자수')))
 
@@ -972,13 +972,13 @@ subplot(
 이 네가지 `mode`는 단일 모드로 사용이 가능하지만 'none'을 제외하고 `+`기호를 사용하여 연결하여 사용하는데 최대 3개까지 연결하여 사용할 수 있다. 여기서 하나 주의해야하는 것은 `+` 기호 앞뒤에 공백이 있어서는 안된다.
 
 ```{r eval = FALSE}
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea) |>
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~확진자_한국) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          xaxis = list(title = list(text = NULL)), 
          yaxis = list(title = list(text = '확진자수')), 
          margin = margins)
 
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers + lines', x = ~date, y = ~South_Korea) |>
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers + lines', x = ~date, y = ~확진자_한국) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          xaxis = list(title = list(text = NULL)), 
          yaxis = list(title = list(text = '확진자수')),  
@@ -987,12 +987,12 @@ p_line_wide  |> add_trace(type = 'scatter', mode = 'markers + lines', x = ~date,
 ```
 
 ```{r echo = FALSE}
-p1 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~South_Korea, color = I('#1f77b4')) |>
+p1 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~확진자_한국, color = I('#1f77b4')) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          xaxis = list(title = list(text = NULL)), 
          yaxis = list(title = list(text = '확진자수')))
 
-p2 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers + lines', x = ~date, y = ~South_Korea, color = I('#1f77b4')) |>
+p2 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'markers + lines', x = ~date, y = ~확진자_한국, color = I('#1f77b4')) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          xaxis = list(title = list(text = NULL)), 
          yaxis = list(title = list(text = '확진자수')))
@@ -1013,20 +1013,28 @@ subplot(
 p_marker <- df_취업통계_2000 |> plot_ly()
 
 p_marker |>
-  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, y = ~취업자_합계_계,
-            marker = list(color = ~대계열))
+  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자수, y = ~취업자수,
+            marker = list(color = ~대계열)) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
+
 
 p_marker |>
-  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, y = ~취업자_합계_계,
-            color = ~대계열)
+  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자수, y = ~취업자수,
+            color = ~대계열) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
+
 
 p_marker |>
-  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, y = ~취업자_합계_계,
-            marker = list(color = 'blue'))
+  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자수, y = ~취업자수,
+            marker = list(color = 'blue')) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
+
 
 p_marker |>
-  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, y = ~취업자_합계_계,
-            color = I('blue'))
+  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자수, y = ~취업자수,
+            color = I('blue')) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
+
 
 ```
 
@@ -1034,24 +1042,29 @@ p_marker |>
 p_marker <- df_취업통계_2000 |> plot_ly()
 
 p1 <- p_marker |>
-  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, y = ~취업자_합계_계, marker = list(color = ~대계열))
+  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자수, y = ~취업자수, marker = list(color = ~대계열)) |>
+  layout(title = '졸업자 대비 취업자수')
 
 p2 <- p_marker |>
-  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, y = ~취업자_합계_계, color = ~대계열)
+  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자수, y = ~취업자수, color = ~대계열) |>
+  layout(title = '졸업자 대비 취업자수')
 
 p3 <- p_marker |>
-  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, y = ~취업자_합계_계, marker = list(color = 'blue'))
+  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자수, y = ~취업자수, marker = list(color = 'blue')) |>
+  layout(title = '졸업자 대비 취업자수')
 
 p4 <- p_marker |>
-  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, y = ~취업자_합계_계, color = I('blue'))
+  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자수, y = ~취업자수, color = I('blue')) |>
+  layout(title = '졸업자 대비 취업자수')
 
 subplot(
   p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "marker = list(color = ~대계열)", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
   p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "color = ~대계열", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
   p3 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "marker = list(color = 'blue')", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
   p4 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "color = I('blue')", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), 
-  nrows = 2, margin = 0.1
-) |> hide_legend()
+  nrows = 2, margin = 0.1, titleY = T
+) |> hide_legend() |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
@@ -1088,59 +1101,39 @@ colorbar(p, ..., limits = NULL, which = 1)\
 
 ```{r eval = FALSE}
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          color = ~취업률_계, colors = 'Accent') |>
-  layout(title = '졸업자 대비 취업자수', 
-         xaxis = list(title =  list(text = '졸업자수')), 
-         yaxis = list(title = '취업자수'),
-         margin = margins)
+  plot_ly(x = ~졸업자수, y = ~취업자수, 
+          color = ~취업률, colors = 'Accent') |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 color_vector <- c('red', 'blue', 'green', 'yellow', 'purple', 'black', 'pink')
 
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          color = ~취업률_계, colors = color_vector) |>
-  layout(title = '졸업자 대비 취업자수', 
-         xaxis = list(title =  list(text = '졸업자수')), 
-         yaxis = list(title = '취업자수'),
-         margin = margins)
+  plot_ly(x = ~졸업자수, y = ~취업자수, 
+          color = ~취업률, colors = color_vector) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 df_취업통계_2000 |> 
-  plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, 
-          color = ~취업률_계, colors = colorRamp(c('red', 'white', 'blue'))) |>
-  layout(title = '졸업자 대비 취업자수', 
-         xaxis = list(title =  list(text = '졸업자수')), 
-         yaxis = list(title = '취업자수'),
-         margin = margins)
+  plot_ly(x = ~졸업자수, y = ~취업자수, 
+          color = ~취업률, colors = colorRamp(c('red', 'white', 'blue'))) |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 
 ```
 
 ```{r echo = FALSE}
-p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = 'Accent') |>
-  layout(title = '졸업자 대비 취업자수', 
-         xaxis = list(title =  list(text = '졸업자수')), 
-         yaxis = list(title = '취업자수'),
-         margin = margins)
+p1 <- df_취업통계_2000 |> plot_ly(x = ~졸업자수, y = ~취업자수, color = ~취업률, colors = 'Accent')
 
 color_vector <- c('red', 'blue', 'green', 'yellow', 'purple', 'black', 'pink')
 
-p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = color_vector) |>
-  layout(title = '졸업자 대비 취업자수', 
-         xaxis = list(title =  list(text = '졸업자수')), 
-         yaxis = list(title = '취업자수'),
-         margin = margins)
+p2 <- df_취업통계_2000 |> plot_ly(x = ~졸업자수, y = ~취업자수, color = ~취업률, colors = color_vector)
 
-p3 <- df_취업통계_2000 |> plot_ly(x = ~졸업자_계, y = ~취업자_합계_계, color = ~취업률_계, colors = colorRamp(c('red', 'white', 'blue'))) |>
-  layout(title = '졸업자 대비 취업자수', 
-         xaxis = list(title =  list(text = '졸업자수')), 
-         yaxis = list(title = '취업자수'),
-         margin = margins)
+p3 <- df_취업통계_2000 |> plot_ly(x = ~졸업자수, y = ~취업자수, color = ~취업률, colors = colorRamp(c('red', 'white', 'blue')))
 
 subplot(
   p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "colors = 'Accent'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
   p2|> layout(annotations = list(x = 0.5 , y = 1.05, text = "color = color_vector", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
-  p3|> layout(annotations = list(x = 0.5 , y = 1.05, text = "colorRamp", showarrow = F, xref='paper', yref='paper', xanchor = 'center'))
-) |> hide_legend()
+  p3|> layout(annotations = list(x = 0.5 , y = 1.05, text = "colorRamp", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), titleY = T, margin = 0.04
+) |> hide_legend() |>
+  layout(title = '졸업자 대비 취업자수', margin = margins)
 ```
 
 #### line, add_lines()
@@ -1169,22 +1162,28 @@ trace의 `type`과 `mode`를 선그래프에 맞에 설정하거나 `add_lines()
 p_line <- covid19_df_100 |> plot_ly()
 
 p_line |> 
-  add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~new_cases, color = ~ iso_code, colors = 'viridis') |>
-  layout(xaxis = list(title = '날짜'), yaxis = list(title = '확진자수'))
+  add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~people_fully_vaccinated_per_hundred, 
+            color = ~ iso_code, colors = 'viridis') |>
+  layout(title = '최근 100일간 코로나19 백신접종완료자수(인구 100명당)', 
+         xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = '인구 100명당 접종자수'), margin = margins)
+
 ```
 
 선 그래프의 경우는 선을 너무 많이 그려서 꼬이기 시작하면 오히려 데이터를 확인하는데 방해가 되는 시각화가 되는 경우가 있다. 이를 스파게티 선 그래프라고 하는데 하나의 선 그래프에는 보통 5\~6개 이상의 선을 넣지 않는 것이 일반적이다. 따라서 선 그래프의 경우는 변수 매핑에 의해 단번에 선 그래프를 생성하는 방법도 많이 사용하지만 3\~4개의 단일 선 그래프를 겹쳐 그리는 방법도 많이 사용된다. 이렇게 여러 개의 trace를 겹쳐 그린다면 `plotly` 객체에 trace를 순차적으로 추가하여 생성할 수 있다.
 
 ```{r}
 fig <- add_trace(p_line_wide, type = 'scatter', mode = 'lines', x = ~date, 
-                 y = ~South_Korea, name = '한국')
+                 y = ~백신접종완료자_한국, name = '한국')
 
-fig <- fig |> add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~Asia, 
+fig <- fig |> add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~백신접종완료자_아시아, 
                         name = '아시아')
 
-fig |> add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~Europe, 
+fig |> add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~백신접종완료자_유럽, 
                  name = '유럽') |>
-  layout(xaxis = list(title = '날짜'), yaxis = list(title = '확진자수'), colorway = viridisLite::viridis(3))
+  layout(xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = list(text = '접종완료자수')), 
+         colorway = viridisLite::viridis(3))
 ```
 
 이렇게 추가적인 방법으로 시각화를 완성하면 몇 가지 장점이 있다.
@@ -1196,14 +1195,23 @@ fig |> add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~Europe,
 세 번째는 사람이 인식하기 쉬운 넓은 형태의 데이터프레임을 그대로 사용할 수 있다는 점이다. 선 그래프의 선을 변수에 매핑하여 단번에 선 그래프를 완성할 때는 반드시 긴 형태의 데이터프레임으로 피봇하여 사용해야 하지만 긴 형태의 데이터프레임은 사람이 인식하기가 매우 어렵다. 하지만 사람이 인식하기 쉬운 넓은 형태의 데이터프레임을 사용하면 생성된 선 그래프와 데이터를 비교해 볼 수 있다는 장점이 있다.
 
 ```{r}
-fig <- add_trace(p_line_wide, type = 'scatter', mode = 'lines', 
-                 x = ~date, y = ~South_Korea, name = '한국', 
-                 line = list(color = 'red'))
+fig <- plot_ly() |> add_trace(data = covid19_df |> filter(continent == 'Asia'), 
+                 type = 'scatter', mode = 'lines', 
+                 x = ~date, y = ~people_fully_vaccinated_per_hundred, 
+                 name = ~iso_code, 
+                 line = list(color = 'lightgray'), 
+                 showlegend = F, connectgaps = TRUE)
 
-fig |> add_trace(type = 'scatter', mode = 'lines', 
-                        x = ~date, y = ~Asia, name = '아시아', 
-                        line = list(color = 'gray')) |>
-  layout(xaxis = list(title = '날짜'), yaxis = list(title = '확진자수'))
+fig |> add_trace(data = covid19_df |> filter(iso_code == 'KOR'), type = 'scatter', mode = 'lines', 
+                 x = ~date, y = ~people_fully_vaccinated_per_hundred, name = '한국', 
+                 line = list(color = 'red'), 
+                 showlegend = T)|>
+  layout(title = list(text = '아시아 국가별 접종완료자수'),
+         xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = '인구 100명당 접종완료자수'), 
+         showlegend = T, margin = margins)
+
+
 
 ```
 
@@ -1229,24 +1237,40 @@ add_lines(p, x = NULL, y = NULL, z = NULL, ..., data = NULL, inherit = TRUE)\
 
 ```{r eval = FALSE}
 add_trace(p_line_wide, type = 'scatter', mode = 'text', 
-          x = ~date, y = ~South_Korea, text = '한국', showlegend = FALSE)
+          x = ~date, y = ~확진자_한국, text = '한국')|>
+  layout(title = list(text = '우리나라 접종완료자수'),
+         xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = '인구 100명당 접종완료자수'), 
+         margin = margins)
 
 add_trace(p_line_wide, type = 'scatter', mode = 'text', 
-          x = ~date, y = ~South_Korea, text = ~South_Korea, showlegend = FALSE)
+          x = ~date, y = ~확진자_한국, text = ~확진자_한국)|>
+  layout(title = list(text = '우리나라 접종완료자수'),
+         xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = '인구 100명당 접종완료자수'), 
+         margin = margins)
 
 ```
 
 ```{r echo = FALSE}
 p1 <- add_trace(p_line_wide, type = 'scatter', mode = 'text', 
-          x = ~date, y = ~South_Korea, text = '한국', showlegend = FALSE)
+          x = ~date, y = ~확진자_한국, text = '한국') |>
+  layout(xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = '인구 100명당 접종완료자수'))
 
 p2 <- add_trace(p_line_wide, type = 'scatter', mode = 'text', 
-          x = ~date, y = ~South_Korea, text = ~South_Korea, showlegend = FALSE)
+          x = ~date, y = ~확진자_한국, text = ~확진자_한국) |>
+  layout(xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = '인구 100명당 접종완료자수'))
 
 subplot(
   p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "text = '한국'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
-  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "text = ~한국", showarrow = F, xref='paper', yref='paper', xanchor = 'center'))
-) |> hide_legend()
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "text = ~한국", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), titleY = T, margin = 0.05
+) |> hide_legend() |>
+  layout(title = list(text = '우리나라 접종완료자수'),
+         xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = '인구 100명당 접종완료자수'), 
+         margin = margins)
 
 
 ```
@@ -1276,10 +1300,12 @@ p_bar <- covid19_df_100 |> mutate(yearmonth = tsibble::yearmonth(date)) |> group
 
 p_bar |>
   add_trace(type = 'bar', x = ~iso_code, y = ~new_cases) |>
-  layout(xaxis = list(title = '날짜', 
+  layout(title = list(text = '지역별 코로나19 확진자수'),
+         xaxis = list(title = list(text = '지역'), 
                       ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
                       tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
-         yaxis = list(title = '확진자수'))
+         yaxis = list(title = '확진자수'), 
+         margin = margins)
 
 ```
 
@@ -1288,28 +1314,57 @@ p_bar |>
 막대 그래프는 일반적으로 세 가지 형태로 생성된다. `ggplot2`에서는 dodge, stack, fill로 불리며 position을 셋중에 하나로 설정함으로써 자동적으로 그려지지만 `plotly`에서 막대 그래프를 생성하는 `add_trace()`나 `add_bars()`로는 이 세 가지 막대 그래프를 구분하여 생성할 수 없다. 이를 구분하여 생성하기 위한 방법은 차후 설명할 `layout()`의 `barmode` type을 설정함으로써 가능하다. `barmode`는 'stack', 'group', 'overlay', 'relative'의 네 가지 모드에 대해 설정이 가능하다. 'stack'은 세부 그룹 카테고리를 위에 쌓아 올리면서 막대를 구성하고 'group'은 세부 그룹 카테고리를 옆에 배열하여 막대를 그룹화하는 방식이으로 `ggplot2`의 'dodge'에 해당한다. 'overlay'는 막대들이 서로 겹쳐져서 표시되는데 정상적으로 생성하기 위해서는 `opacity`로 투명도를 조절하여야 한다. 'relative'는 Y축을 중간에 두고 양의 값은 위로 음의 값은 아래로 막대가 향하게 하는 막대 그래프이다. `barmode`의 기본값은 'group'이기 때문에 X, Y 축 설정외에 추가적인 그룹화 변수를 매핑하면 기본값인 'group'형 막대 그래프가 생성된다.
 
 ```{r}
-p_bar_mode <- covid19_df_100 |> mutate(yearmonth = lubridate::floor_date(date, "month")) |> group_by(iso_code, yearmonth) |>
-  summarise(new_cases = sum(new_cases)) |> plot_ly()
+p_bar_mode <- covid19_df_100 |> 
+  mutate(yearmonth = lubridate::floor_date(date, "month")) |> 
+  group_by(iso_code, yearmonth) |>
+  summarise(new_cases = sum(new_cases)) |> 
+  plot_ly()
 
 p_bar_mode |>
   add_trace(type = 'bar', x = ~iso_code, y = ~new_cases, 
             color = ~as.factor(yearmonth), colors = 'viridis', 
-            name = ~paste0(lubridate::year(yearmonth), '년 ', lubridate::month(yearmonth, label = TRUE, abbr = FALSE))) |>
-  layout(barmode = 'group')
+            name = ~paste0(lubridate::year(yearmonth), '년 ', 
+                           lubridate::month(yearmonth, label = TRUE, 
+                                            abbr = FALSE))) |>
+  layout(barmode = 'group', 
+         title = list(text = '지역별 코로나19 확진자수'),
+         xaxis = list(title = list(text = '지역'), 
+                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
+                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
+         yaxis = list(title = '확진자수'), 
+         margin = margins)
 
 p_bar_mode |>
   add_trace(type = 'bar', x = ~iso_code, y = ~new_cases, 
             color = ~as.factor(yearmonth), colors = 'viridis', 
-            name = ~paste0(lubridate::year(yearmonth), '년 ', lubridate::month(yearmonth, label = TRUE, abbr = FALSE))) |>
-  layout(barmode = 'stack')
+            name = ~paste0(lubridate::year(yearmonth), '년 ', 
+                           lubridate::month(yearmonth, label = TRUE, 
+                                            abbr = FALSE))) |>
+  layout(barmode = 'stack', 
+         title = list(text = '지역별 코로나19 확진자수'),
+         xaxis = list(title = list(text = '지역'), 
+                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
+                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
+         yaxis = list(title = '확진자수'), 
+         margin = margins)
 
 p_bar_mode |>
   add_trace(type = 'bar', x = ~iso_code, y = ~new_cases, 
             color = ~as.factor(yearmonth), colors = 'viridis', opacity = 0.5, 
-            name = ~paste0(lubridate::year(yearmonth), '년 ', lubridate::month(yearmonth, label = TRUE, abbr = FALSE))) |>
-  layout(barmode = 'overlay')
+            name = ~paste0(lubridate::year(yearmonth), '년 ', 
+                           lubridate::month(yearmonth, label = TRUE, 
+                                            abbr = FALSE))) |>
+  layout(barmode = 'overlay', 
+         title = list(text = '지역별 코로나19 확진자수'),
+         xaxis = list(title = list(text = '지역'), 
+                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
+                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
+         yaxis = list(title = '확진자수'), 
+         margin = margins)
 
-diff_sam <- covid19_df_100 |> mutate(yearmonth = lubridate::floor_date(date, "month")) |> group_by(iso_code, yearmonth) |>
+diff_sam <- covid19_df_100 |> 
+  mutate(yearmonth = lubridate::floor_date(date, "month")) |> 
+  group_by(iso_code, yearmonth) |>
   summarise(new_cases = sum(new_cases)) |> 
   pivot_wider(names_from = iso_code, values_from = new_cases) |>
   select(OWID_SAM) |>
@@ -1321,13 +1376,15 @@ plot_ly() |> add_trace(type = 'bar', x = 1:3, y = diff(diff_sam),
   layout(barmode = 'relative', 
          xaxis = list(ticktext = c('1월', '2월', '3월'), 
                       tickvals = c(1, 2, 3)), 
-         yaxis = list(title = '증감량'))
+         yaxis = list(title = '증감량'), 
+         title = list(text = '남미 코로나19 확진자수 증감'),
+         margin = margins)
 
 ```
 
 앞서 스캐터 trace의 선 그래프를 그릴때 넓은 형태의 데이터프레임을 사용하여 trace를 하나 하나 추가하는 형태의 시각화를 그려보았다. 막대 trace도 동일하게 생성할 수 있다. `plotly` 객체에 계속적으로 막대 trace를 추가한 후 `layout()`의 `barmode`를 원하는 형태로 설정하면 된다. 이 과정에서 `name`으로 각각의 범례에 표시될 아이템 이름을 설정할 수 있고 trace의 추가 순서에 따라 범례의 순서를 설정할 수 있으며, 특정 막대의 색을 강조함으로써 특정 데이터를 강조하는데 유용하게 활용할 수 있다.
 
-```{r eval = FALSE}
+```{r}
 p_bar_mode1 <- covid19_df_100 |> 
   mutate(yearmonth = lubridate::floor_date(date, "month")) |> 
   group_by(iso_code, yearmonth) |>
@@ -1351,11 +1408,13 @@ fig <- fig |>
   add_trace(type = 'bar', x = ~iso_code, y = ~`2022-03-01`, color = I('darkred'),  
             name = '2022월 3월')
 
-fig |> layout(barmode = 'stack', 
+fig |> layout(barmode = 'stack',
+              title = list(text = '지역별 코로나19 확진자수'),
               xaxis = list(title = '지역', 
                            ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
                            tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
-              yaxis = list(title = '확진자수')
+              yaxis = list(title = '확진자수'), 
+              margin = margins
               )
 
 
@@ -1402,10 +1461,12 @@ fig <- fig |>
             )
 
 fig |> layout(barmode = 'stack', 
+              title = list(text = '지역별 코로나19 확진자수'),
               xaxis = list(title = '지역', 
                            ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
                            tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
-              yaxis = list(title = '확진자수')
+              yaxis = list(title = '확진자수'), 
+              margin = margins
               )
 
 ```
@@ -1421,11 +1482,14 @@ p_bar_mode1 |>
             textposition = 'inside', textfont = list(color = 'white', size = 10),
             texttemplate = '%{text:,}'
             ) |> 
-  layout(xaxis = list(title = '지역', 
+  layout(title = list(text = '지역별 코로나19 확진자수'),
+         xaxis = list(title = '지역', 
                       ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
                       tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')
                       ), 
-         yaxis = list(title= '확진자수'))
+         yaxis = list(title= '확진자수'),
+         margin = margins
+         )
 
 ```
 
@@ -1443,11 +1507,13 @@ p_bar_mode1 |>
                           line = list(color = 'lightblue', width = 1.5)
                           )
             ) |>
-  layout(xaxis = list(title = '지역', 
+  layout(title = list(text = '지역별 코로나19 확진자수'),
+         xaxis = list(title = '지역', 
                       ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
                       tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')
                       ), 
-         yaxis = list(title= '확진자수'))
+         yaxis = list(title= '확진자수'),
+         margin = margins)
 
 ```
 
@@ -1470,30 +1536,36 @@ add_boxplot(p, x = NULL, y = NULL, ..., data = NULL, inherit = TRUE)\
 ```{r}
 p_box <- df_취업통계_2000 |> plot_ly()
 
-p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계)
+p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률) |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 ```
 
 각 데이터별로 그룹화하여 분할된 바이올린 trace를 생성하기 위해서는 그룹화할 변수를 `color`나 `linetype`등의 type에 매핑 시키거나 각각의 바이올린 trace를 추가하고 `layout()`의 `boxmode`를 'group'으로 설정함으로써 생성할 수 있다. 다음의 코드는 `color`로 과정구분을 매핑하여 각각의 과정별 박스 플롯을 생성하는 코드이다.
 
 ```{r}
-p_box_group <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
+p_box_group <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, 
                                   color = ~과정구분)
 
-p_box_group %>% layout(boxmode = "group")
+p_box_group %>% layout(boxmode = "group") |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 ```
 
 다음의 코드는 과정구분이 '대학'인 박스 trace와 '전문대학'인 박스 trace를 추가함으로서 그룹화된 박스 플롯을 생성하는 코드이다.
 
 ```{r}
 p_box_add <- p_box |> 
-  add_trace(data = df_취업통계 |> filter(졸업자_계 < 500, 과정구분 == '대학과정'),
-            type = 'box', x = ~대계열, y = ~취업률_계, name = '대학')
+  add_trace(data = df_취업통계_2000 |> filter(과정구분 == '대학과정'),
+            type = 'box', x = ~대계열, y = ~취업률, name = '대학')
 
 p_box_add <- p_box_add |> 
-  add_trace(data = df_취업통계 |> filter(졸업자_계 < 500, 과정구분 == '전문대학과정'), 
-            type = 'box', x = ~대계열, y = ~취업률_계, name = '전문대학')
+  add_trace(data = df_취업통계_2000 |> filter(과정구분 == '전문대학과정'), 
+            type = 'box', x = ~대계열, y = ~취업률, name = '전문대학')
 
-p_box_add %>% layout(boxmode = "group")
+p_box_add %>% layout(boxmode = "group", 
+                     title = list(text = '대학 계열별 취업률 분포'), 
+                     margin = margins)
 
 ```
 
@@ -1502,21 +1574,25 @@ p_box_add %>% layout(boxmode = "group")
 박스 플롯에는 여러가지 요약 통계치가 사용되는데 그중 하나가 전체 데이터의 25% 위치인 Q1과 75% 위치인 Q3이다. 이 위치는 전체 데이터를 Y값에 따라 정렬하고 25%, 75%의 값을 찾는 'linear' 방법이 기본적으로 사용된다. 하지만 `plotly` 는 'inclusive'와 'exclusive'의 두가지 방법을 추가적으로 제공한다. 'exclusive' 방법은 전체 데이터 사례수가 홀수 인경우 중앙값을 사용하여 두 개의 그룹으로 분리하고 다시 이 두개의 그룹의 중앙값을 사용해 Q1과 Q3를 구하는 방법이다. 'inclusive' 방법도 중앙값을 사용하여 두 그룹으로 분리하지만 중앙값을 포함하여 다시 두 그룹의 중앙값을 구하여 Q1과 Q3를 구하는 방법이다. 이들 방법은 사례수가 적은 경우 그 차이가 확실히 드러나지만 사례수가 많으면 그 차이가 잘 드러나지는 않는다.
 
 ```{r}
-p_box_quartilemethod <- df_취업통계_2000 |> filter(대계열 == '인문계열') |> head(9) |> plot_ly()
+p_box_quartilemethod <- df_취업통계_2000 |> filter(대계열 == '인문계열') |> 
+  head(9) |> plot_ly()
 
 p_box_quartilemethod <- p_box_quartilemethod |> 
-  add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
+  add_trace(type = 'box', x = ~대계열, y = ~취업률, 
             quartilemethod = 'linear', name = 'linear')
 
 p_box_quartilemethod <- p_box_quartilemethod |> 
-  add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
+  add_trace(type = 'box', x = ~대계열, y = ~취업률, 
             quartilemethod = 'inclusive', name = 'inclusive')
 
 p_box_quartilemethod <- p_box_quartilemethod |> 
-  add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
+  add_trace(type = 'box', x = ~대계열, y = ~취업률, 
             quartilemethod = 'exclusive', name = 'exclusive')
 
-p_box_quartilemethod %>% layout(boxmode = "group")
+p_box_quartilemethod |>
+  layout(boxmode = "group", 
+         title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 ```
 
 #### boxmean, boxpoints
@@ -1524,48 +1600,63 @@ p_box_quartilemethod %>% layout(boxmode = "group")
 박스 trace에서 제공하는 요약 통계중에 가장 많이 사용되지만 제공되지 않는 요약통계가 바로 평균(mean)이다. `ggplot2`에서는 평균을 표현하기 위해 다소 어려운 과정을 거쳐야 했지만 `plotly`에서는 `boxmean` type의 설정만으로 간단하게 평균값을 표현할 수 있다. `boxmean`은 TRUE/FALSE의 논리값에 표준편차가 추가로 표시되는 'sd'를 제공한다.
 
 ```{r eval = FALSE}
-p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, boxmean = TRUE)
+p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, boxmean = TRUE) |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
-p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, boxmean = 'sd')
+p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, boxmean = 'sd') |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 ```
 
 ```{r echo = FALSE}
-p1 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, boxmean = TRUE, color = I('#1f77b4'))
+p1 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, boxmean = TRUE, color = I('#1f77b4'))
 
-p2 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, boxmean = 'sd', color = I('#1f77b4'))
+p2 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, boxmean = 'sd', color = I('#1f77b4'))
 
 subplot(
   p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = " boxmean = TRUE", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
-  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "boxmean = 'sd'", showarrow = F, xref='paper', yref='paper', xanchor = 'center'))
-) |> hide_legend()
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "boxmean = 'sd'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), margin = 0.05, titleY = T
+) |> hide_legend() |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
+
 
 ```
 
 또 박스 trace에서 유용하게 사용되는 type이 `boxpoints`이다. `boxpoints`는 이상치(outlier)로 표현되는 점의 표현을 제어할 수 있다. `boxpoints`로 설정 가능한 이상치 표시 설정은 'all', 'outliers', 'suspectedoutliers', 'FALSE'의 네 가지 방법이 제공된다. 'all'은 모든 이상치를 보여주지만 'outliers'는 수염 외부에 있는 이상치만 표시하고 'suspectedoutliers' 전체 이상치가 표시되지만 값의 범위가 IQR의 4배가 넘어가는 이상치는 다시 강조되는 방법이다. 'FALSE'는 이상치를 표시하지 않는다.
 
 ```{r eval = FALSE}
-p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
-                   boxpoints = 'all')
+p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, 
+                   boxpoints = 'all') |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
-p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
-                   boxpoints = 'outliers')
+p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, 
+                   boxpoints = 'outliers') |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
-p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
-                   boxpoints = 'suspectedoutliers')
+p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, 
+                   boxpoints = 'suspectedoutliers') |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
-p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
-                   boxpoints = FALSE)
+p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, 
+                   boxpoints = FALSE) |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 ```
 
 ```{r echo = FALSE}
-p1 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, boxpoints = 'all', color = I('#1f77b4'))
+p1 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, boxpoints = 'all', color = I('#1f77b4'))
 
-p2 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, boxpoints = 'outliers', color = I('#1f77b4'))
+p2 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, boxpoints = 'outliers', color = I('#1f77b4'))
 
-p3 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, boxpoints = 'suspectedoutliers', color = I('#1f77b4'))
+p3 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, boxpoints = 'suspectedoutliers', color = I('#1f77b4'))
 
-p4 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, boxpoints = FALSE, color = I('#1f77b4'))
+p4 <- p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, boxpoints = FALSE, color = I('#1f77b4'))
 
 subplot(
   p1 |> layout(annotations = list(x = 0.25 , y = 1.1, text = "boxpoints = 'all'", showarrow = F, xref='paper', yref='paper', align= 'center')),
@@ -1573,7 +1664,9 @@ subplot(
   p3 |> layout(annotations = list(x = 0.15 , y = 1.05, text = "boxpoints = 'suspectedoutliers'", showarrow = F, xref='paper', yref='paper', align= 'center')), 
   p4 |> layout(annotations = list(x = 0.75 , y = 1.05, text = "boxpoints = FALSE", showarrow = F, xref='paper', yref='paper', align= 'center')),
   nrows = 2, margin = 0.1
-) |> hide_legend()
+) |> hide_legend() |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 ```
 
@@ -1586,7 +1679,9 @@ plot_ly() |>
   add_trace(type= 'box', q1=c(1, 2, 3), median=c(4, 5, 6),
             q3=c(7, 8, 9 ), lowerfence=c(-1, 0, 1),
             upperfence=c(8, 9, 10), mean=c(2.2, 2.8, 3.2 ),
-            sd=c(0.2, 0.4, 0.6))
+            sd=c(0.2, 0.4, 0.6)) |>
+  layout(title = list(text = '수동으로 박스플롯 만들기'), 
+         margin = margins)
 ```
 
 #### notched, notchwidth, notchspan, whiskerwidth
@@ -1594,9 +1689,11 @@ plot_ly() |>
 2017년 iPhoneX가 처음 소개되면서 유명세를 탄 디자인 스타일이 notch 스타일이다. 이 notch 스타일은 평면이나 직선의 일부에 삼각형이나 사각형의 홈을 내는 디자인 스타일을 말한다. 박스 trace에도 이 notch 스타일을 적용할 수 있는데 중앙값이 표시되는 부분에 삼각형 홈을 내는 type이 `notched`이다. `notched`는 TRUE/FALSE의 두 가지 중에 하나의 값을 가지는데 TRUE일 경우 notch 디자인으로 설정된다. `notched`가 TRUE로 설정된 박스 플롯은 `notchwidth`, `notchspan`을 사용하여 홈의 크기를 설정할 수 있는데 `notchwidth`는 홈이 파고들어간 너비를 설정하는데 전체 막대의 너비에 대한 비율로 설정하기 때문에 0부터 0.5까지의 값을 가질수 있다. 또 `notchspan`은 수직 방향으로의 홈의 크기를 설정하는 type이다. 막대 외부에 표시되는 수염의 끝에 있는 가로선의 크기를 설정하는 type이 `whiskerwidth`이다. 이 type도 `notchwidth`와 같이 0부터 0.5사이의 값을 가진다.
 
 ```{r}
-p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
+p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률, 
                    notched = TRUE, notchewidth = 0.2, notchespan = 0.5, 
-                   whiskerwidth = 0.3)
+                   whiskerwidth = 0.3) |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 ```
 
@@ -1610,9 +1707,11 @@ p_box |> add_trace(type = 'box', x = ~대계열, y = ~취업률_계,
 
 ```{r}
 p_box |> 
-  add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
-            marker = list(opacity = 0.2, size = 5, color = 'aquablue'),
-            boxpoints = "all", jitter = 0.5, pointpos = 0.5)
+  add_trace(type = 'box', x = ~대계열, y = ~취업률, 
+            marker = list(opacity = 0.2, size = 5, color = 'indigo'),
+            boxpoints = "all", jitter = 0.5, pointpos = 0.5) |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 ```
 
@@ -1622,8 +1721,10 @@ p_box |>
 
 ```{r}
 p_box |> 
-  add_trace(type = 'box', x = ~대계열, y = ~취업률_계, 
-            line = list(width = 0.5, color = 'red'))
+  add_trace(type = 'box', x = ~대계열, y = ~취업률, 
+            line = list(width = 0.5, color = 'darkblue')) |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 ```
 
@@ -1645,26 +1746,31 @@ add_trace(p, type = 'violin', ..., data = NULL, inherit = TRUE)\
 ```{r}
 p_violin <- df_취업통계_2000 |> plot_ly()
 
-p_violin |> add_trace(type = 'violin', x = ~대계열, y = ~취업률_계)
+p_violin |> add_trace(type = 'violin', x = ~대계열, y = ~취업률) |>
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 ```
 
 박스 trace와 마찬가지로 각 데이터별로 그룹화하여 분할된 바이올린 trace를 생성하기 위해서는 그룹화할 변수를 `color`나 `linetype`등의 type에 매핑 시키거나 각각의 바이올린 trace를 추가하고 `layout()`의 `violinmode`를 'group'으로 설정함으로써 생성할 수 있다. 다음의 코드는 `color`로 과정구분을 매핑하여 각각의 과정별 박스 플롯을 생성하는 코드이다.
 
 ```{r}
-p_violin |> add_trace(type = 'violin', x = ~대계열, y = ~취업률_계, 
+p_violin |> add_trace(type = 'violin', x = ~대계열, y = ~취업률, 
                       color = ~과정구분) |> 
-  layout(violinmode = 'group')
+  layout(violinmode = 'group', 
+         title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 ```
 
 다음의 코드는 과정구분이 '대학'인 바이올린 trace와 '전문대학'인 바이올린 trace를 추가함으로서 그룹화된 바이올린 플롯을 생성하는 코드이다.
 
 ```{r}
-p_violin |> add_trace(data = df_취업통계 |> filter(졸업자_계 < 500, 과정구분 == '대학과정'), 
-                      type = 'violin', x = ~대계열, y = ~취업률_계, name = '대학') |> 
-  add_trace(data = df_취업통계 |> filter(졸업자_계 < 500, 과정구분 == '전문대학과정'), 
-            type = 'violin', x = ~대계열, y = ~취업률_계, name = '전문대학') |>
-  layout(violinmode = "group")
-
+p_violin |> add_trace(data = df_취업통계_2000 |> filter(과정구분 == '대학과정'), 
+                      type = 'violin', x = ~대계열, y = ~취업률, name = '대학') |> 
+  add_trace(data = df_취업통계_2000 |> filter(과정구분 == '전문대학과정'), 
+            type = 'violin', x = ~대계열, y = ~취업률, name = '전문대학') |> 
+  layout(violinmode = 'group', 
+         title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 ```
 
 #### box, meanline
@@ -1672,11 +1778,14 @@ p_violin |> add_trace(data = df_취업통계 |> filter(졸업자_계 < 500, 과�
 바이올린 플롯은 박스 플롯와 유사한 정보를 제공하는 시각화이지만 박스 플롯의 정보와 같이 사용되면 더욱 데이터 시각화의 효과가 높아진다. 바이올린 trace에 박스 trace를 추가하는 type은 `box`이고 이 `box` type은 세부 타입을 list로 설정하는 type이다. `box`의 세부 type은 `fillcolor`, `line`(세부 type으로 `color`, `width`), `visible`, `width`의 네 가지이다.
 
 ```{r}
-p_violin |> add_trace(type = 'violin', x = ~대계열, y = ~취업률_계, 
-                      box = list(visible = TRUE, fillcolor = 'red', 
-                                 line = list(color = 'black'), width = 0.5
+p_violin |> add_trace(type = 'violin', x = ~대계열, y = ~취업률, 
+                      box = list(visible = TRUE, fillcolor = 'darkred', 
+                                 line = list(color = 'darkslategray'), width = 0.5
                                  )
-                      )
+                      ) |> 
+  layout(violinmode = 'group', 
+         title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 ```
 
@@ -1684,9 +1793,12 @@ p_violin |> add_trace(type = 'violin', x = ~대계열, y = ~취업률_계,
 
 ```{r}
 p_violin |>
-  add_trace(type = 'violin', x = ~대계열, y = ~취업률_계, 
-            meanline = list(visible = TRUE, color = 'red', width = 1)
-            )
+  add_trace(type = 'violin', x = ~대계열, y = ~취업률, 
+            meanline = list(visible = TRUE, color = 'darkred', width = 1)
+            ) |> 
+  layout(violinmode = 'group', 
+         title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 ```
 
@@ -1696,17 +1808,19 @@ p_violin |>
 
 ```{r}
 p_violin |> 
-  add_trace(data = df_취업통계 |> filter(졸업자_계 < 500, 과정구분 == '대학과정'),
-            type = 'violin', x = ~대계열, y = ~취업률_계, name = '대학', 
+  add_trace(data = df_취업통계_2000 |> filter(과정구분 == '대학과정'),
+            type = 'violin', x = ~대계열, y = ~취업률, name = '대학', 
             side = 'positive', box = list(visible = TRUE, width = 0.5), 
             meanline = list(visible = TRUE, color = 'red', width = 1)
             ) |>
-  add_trace(data = df_취업통계 |> filter(졸업자_계 < 500, 과정구분 == '전문대학과정'), 
-            type = 'violin', x = ~대계열, y = ~취업률_계, name = '전문대학', 
+  add_trace(data = df_취업통계_2000 |> filter(과정구분 == '전문대학과정'), 
+            type = 'violin', x = ~대계열, y = ~취업률, name = '전문대학', 
             side = 'negative', box = list(visible = TRUE, width = 0.5), 
             meanline = list(visible = TRUE, color = 'red', width = 1)
             ) |> 
-  layout(violinmode = "overlay")
+  layout(violinmode = "overlay", 
+         title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 
 ```
@@ -1717,10 +1831,12 @@ p_violin |>
 
 ```{r}
 p_violin |>
-  add_trace(type = 'violin', x = ~대계열, y = ~취업률_계, 
-            meanline = list(visible = TRUE, color = 'red', width = 1), 
-            marker = list(opacity = 0.2, size = 5, color = 'aquablue'),
-            points = "all", jitter = 0.5, pointpos = 0.5)
+  add_trace(type = 'violin', x = ~대계열, y = ~취업률, 
+            meanline = list(visible = TRUE, color = 'dardred', width = 1), 
+            marker = list(opacity = 0.2, size = 5, color = 'indigo'),
+            points = "all", jitter = 0.5, pointpos = 0.5) |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 ```
 
@@ -1744,13 +1860,12 @@ add_pie(p, values = NULL, labels = NULL, ..., data = NULL, inherit = TRUE)\
 
 ```{r}
 p_pie <- df_취업통계_2000 |> group_by(대계열) |>
-  summarise(졸업자수 = sum(졸업자_계)) |> plot_ly()
-
-cols <- viridisLite::inferno(7)
+  summarise(졸업자수 = sum(졸업자수)) |> plot_ly()
 
 p_pie |>
-  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열) |>
-  layout(colorway = viridis::viridis(7))
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열) |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 ```
 
@@ -1760,16 +1875,28 @@ p_pie |>
 
 ```{r eval=FALSE}
 p_pie |>
-  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'value')
+  add_trace(type = 'pie', values = ~졸업자수, 
+            labels = ~대계열, textinfo = 'value') |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 p_pie |>
-  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'percent')
+  add_trace(type = 'pie', values = ~졸업자수, 
+            labels = ~대계열, textinfo = 'percent') |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 p_pie |>
-  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent')
+  add_trace(type = 'pie', values = ~졸업자수, 
+            labels = ~대계열, textinfo = 'label+percent') |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 p_pie |>
-  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+value')
+  add_trace(type = 'pie', values = ~졸업자수, 
+            labels = ~대계열, textinfo = 'label+value') |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 ```
 
@@ -1794,7 +1921,9 @@ p_pie |>
                          font = list(size = 15)), 
             domain = list(x = c(0.51, 1), y = c(0, 0.49)), 
             insidetextfont = list(size = 7)) |>
-  layout(showlegend = FALSE)
+  layout(showlegend = TRUE) |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 
 ```
@@ -1803,32 +1932,47 @@ p_pie |>
 
 `hole`은 원 그래프의 내부에 표시되는 구멍의 크기를 설정하는 type이다. `hole`이 설정되지 않거나 0으로 설정되면 완전한 원 그래프로 표시되지만 0부터 1사이의 값이 설정되면 그 크기만큼 빈 원이 생성되면서 도넛 그래프로 전환된다.
 
-```{r eval=FALSE}
+```{r}
 p_pie |>
-  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', hole = 0.4)
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, 
+            textinfo = 'label+percent', hole = 0.4) |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 ```
 
 #### marker
 
 ```{r eval=FALSE}
 p_pie |>
-  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', marker = list(colors = 'viridis', line = list(color = 'white', width = 1)))
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, 
+            textinfo = 'label+percent', 
+            marker = list(colors = 'viridis', line = list(color = 'white', width = 2))) |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 ```
 
 #### insidetextorientation
 
 ```{r eval=FALSE}
 p_pie |>
-  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'horizontal')
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'horizontal') |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 p_pie |>
-  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'radial')
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'radial') |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 p_pie |>
-  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'tangential')
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'tangential') |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 p_pie |>
-  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'auto')
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'auto') |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 ```
 
@@ -1837,8 +1981,10 @@ p_pie |>
   add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'horizontal', title = list(text = "insidetextorientation = 'horizontal'", position = 'top center', font = list(size = 15)), domain = list(x = c(0, 0.49), y = c(0.51, 1)), insidetextfont = list(size = 6)) |>
   add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'radial', title = list(text = "insidetextorientation = 'radial'", position = 'top center', font = list(size = 15)), domain = list(x = c(0.51, 1), y = c(0.51, 1)), insidetextfont = list(size = 6)) |>
   add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'tangential', title = list(text = "insidetextorientation = 'tangential'", position = 'top center', font = list(size = 15)), domain = list(x = c(0, 0.49), y = c(0, 0.49)), insidetextfont = list(size = 6)) |>
-  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'auto', title = list(text = "insidetextorientation = 'auto'", position = 'top center', font = list(size = 15)), domain = list(x = c(0.59, 1), y = c(0, 0.49)), insidetextfont = list(size = 6)) |>
-  layout(showlegend = FALSE)
+  add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, textinfo = 'label+percent', insidetextorientation = 'auto', title = list(text = "insidetextorientation = 'auto'", position = 'top center', font = list(size = 15)), domain = list(x = c(0.51, 1), y = c(0, 0.49)), insidetextfont = list(size = 6)) |>
+  layout(showlegend = FALSE) |> 
+  layout(title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins)
 
 ```
 
@@ -1918,7 +2064,7 @@ plot_ly() |>
                          threshold = list(line = list(color = 'red'),
                                           value = 90)
                          ), 
-            value = 3.5)
+            value = 3.5) |> layout(height = 100)
 ```
 
 #### delta
@@ -1959,15 +2105,16 @@ plot_ly() |>
 | yref    | y가 참조하는 범위 설정                      | 'container'는 전체 플롯 width, 'paper'는 플롯이 표시되는 범위 |                     |
 
 ```{r}
-p_title_marker <- df_취업통계 |> filter(졸업자_계 < 500) |> plot_ly()
+p_title_marker <- df_취업통계_2000 |> plot_ly()
 
 p_title_1 <- p_title_marker |>
-  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, 
-            y = ~취업자_합계_계)
+  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자수, 
+            y = ~취업자수)
 
 p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1, 
                                  xanchor = 'left', yanchor = 'top'
-                                 )
+                                 ), 
+                    margin= margins
                     )
 ```
 
@@ -1984,15 +2131,17 @@ p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1
 
 ```{r}
 p_title_1 |> layout(title = list(text = "<b><i>졸업수 대비 취업률</b></i>", 
-                                 x = 0.1, xanchor = 'left', yanchor = 'top')
+                                 x = 0.1, xanchor = 'left', yanchor = 'top'),
+                    margin = margins
                     )
 ```
 
 `plotly`가 HTML 텍스트 tag를 일부만 지원함으로써 문자열 스타일링에 한계가 있을듯 하지만 '<span>'을 사용하는 HTML inline 속성을 지원하기 때문에 CSS의 스타일을 사용하여 문자열의 세부 설정이 가능하다. 다음은 HTML의 inline 속성을 사용하여 제목을 설정하는 코드이다.
 
 ```{r}
-p_title_1 |> layout(title = list(text = "<span style = 'font-size:15pt'><span style = 'color:red;font-weight:bold;'> 졸업수</span><span style = 'font-size:10pt'> 대비</span> <span style = 'color:blue;font-weight:bold;'>취업률</span></span>", 
-                                 x = 0.1, xanchor = 'left', yanchor = 'top')
+p_title_1 |> 
+  layout(title = list(text = "<span style = 'font-size:15pt'><span style = 'color:red;font-weight:bold;'> 졸업수</span><span style = 'font-size:10pt'> 대비</span> <span style = 'color:blue;font-weight:bold;'>취업률</span></span>", 
+                      x = 0.1, xanchor = 'left', yanchor = 'top')
                     )
 ```
 
@@ -2033,57 +2182,19 @@ p_title_1 |> layout(title = list(text = "<span style = 'font-size:15pt'><span st
 +--------------------------+-----------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------+
 
 ```{r}
-p_title_line <- df_입학자 |> filter(지역 == '전체') |> plot_ly()
-
-p_title_2 <- add_trace(p_title_line, type = 'scatter', mode = 'lines', 
-                       x = ~연도, y = ~전문대학, name = '전문대학')
-
-p_title_2 <- p_title_2 |> add_trace(type = 'scatter', mode = 'lines',
-                                    x = ~연도, y = ~일반대학, name = '대학')
-
-p_title_2 <- p_title_2 |> add_trace(type = 'scatter', mode = 'lines', 
-                                    x = ~연도, y = ~석사, name = '석사', showlegend = FALSE)
-
-p_title_2 <- p_title_2 |> add_trace(type = 'scatter', mode = 'lines', 
-                                    x = ~연도, y = ~박사, name = '박사')
-
-p_title_2 |> layout(title = list(text = '연도별 입학생수 추이', x = 0.1, 
-                                 xanchor = 'left', yanchor = 'top'),
-                    legend = list(bgcolor = "#E2E2E2", bordercolor = 'gray',
-                                  borderwidth = 2, orientation = 'h', 
-                                  x = 0.5, y = -0.2, xanchor = 'center')
-                    )
+covid19_df_100 |>
+  plot_ly(type = 'scatter', mode = 'lines', x = ~date, y = ~new_cases, linetype = ~iso_code) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = list(text = '확진자수')), 
+         margin = margins, 
+         legend = list(bgcolor = "#E2E2E2", bordercolor = 'gray',
+                       borderwidth = 2, orientation = 'h', 
+                       x = 0.5, y = -0.2, xanchor = 'center')
+         )
 
 ```
 
-```{r}
-p_title_line <- df_입학자 |> filter(지역 == '전체') |> plot_ly()
-
-p_title_2 <- add_trace(p_title_line, type = 'scatter', mode = 'lines', 
-                       x = ~연도, y = ~전문대학, name = '전문대학', legendgroup = '학부')
-
-p_title_2 <- p_title_2 |> 
-  add_trace(type = 'scatter', mode = 'lines', 
-            x = ~연도, y = ~일반대학, name = '대학', legendgroup = '학부')
-
-p_title_2 <- p_title_2 |> 
-  add_trace(type = 'scatter', mode = 'lines', 
-            x = ~연도, y = ~석사, name = '석사', legendgroup = '대학원')
-
-p_title_2 <- p_title_2 |> 
-  add_trace(type = 'scatter', mode = 'lines', 
-            x = ~연도, y = ~박사, name = '박사', legendgroup = '대학원')
-
-p_title_2 |> layout(title = list(text = '연도별 입학생수 추이', x = 0.1, 
-                                 xanchor = 'left', yanchor = 'top'),
-                    legend = list(bgcolor = "#E2E2E2", bordercolor = 'gray',
-                                  borderwidth = 2, orientation = 'h', 
-                                  x = 0.5, y = -0.25, xanchor = 'center', 
-                                  grouptitlefont = list(color = 'red')
-                                  )
-                    )
-
-```
 
 ### 여백 설정 : margin
 
@@ -2099,13 +2210,16 @@ p_title_2 |> layout(title = list(text = '연도별 입학생수 추이', x = 0.1
 | pad        | 플로팅 지역과 축과의 여백 설정 |                 |           |
 
 ```{r}
-p_title_2 |> layout(title = list(text = '연도별 입학생수 추이', x = 0.1, 
-                                 xanchor = 'left', yanchor = 'top'),
-                    legend = list(bgcolor = "#E2E2E2", bordercolor = 'gray',
-                                  borderwidth = 2, orientation = 'h', 
-                                  x = 0.5, y = -0.25, xanchor = 'center'), 
-                    margin = list(autoexpand = TRUE)
-                    )
+covid19_df_100 |>
+  plot_ly(type = 'scatter', mode = 'lines', x = ~date, y = ~new_cases, linetype = ~iso_code) |>
+  layout(title = '최근 100일간 코로나19 확진자수', 
+         xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = list(text = '확진자수')), 
+         margin = list(t = 50, b = 25, l = 25, r = 25), 
+         legend = list(bgcolor = "#E2E2E2", bordercolor = 'gray',
+                       borderwidth = 2, orientation = 'h', 
+                       x = 0.5, y = -0.2, xanchor = 'center')
+         )
 
 ```
 
@@ -2115,8 +2229,8 @@ p_title_2 |> layout(title = list(text = '연도별 입학생수 추이', x = 0.1
 
 ```{r}
 p_title_1 <- p_title_marker |>
-  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자_계, 
-            y = ~취업자_합계_계, color = ~대계열)
+  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자수, 
+            y = ~취업자수, color = ~대계열)
 
 p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1, 
                                  xanchor = 'left', yanchor = 'top'), 
@@ -2330,7 +2444,8 @@ subplot(
 `xref`와 `yref`는 `x`, `y`, `ax`, `ay`의 절대 좌표와 상대 좌표의 참조 기준을 설정한다. `xref`, `yref`가 'x', 'y'등의 축으로 설정되면 해당 축의 스케일에 맞게 `x`, `y`, `ax`, `ay`의 좌표와 거리를 계산하고 'paper'로 설정되면 전체 플롯 영역을 0부터 1까지로 정규화한 상대적 거리로 계산된다.
 
 ```{r}
-df_annotation <- df_취업통계 |> filter(졸업자_계 < 500, 학과명 == '경영학과') |> select(과정구분, 학과명, 졸업자_계, 취업자_합계_계)
+df_annotation <- df_취업통계 |> filter(졸업자_계 < 500, 학과명 == '컴퓨터공학과') |> 
+  select(과정구분, 학과명, 졸업자_계, 취업자_합계_계)
 
 p_title_1 |> 
   layout(title = list(text = '<b>졸업자 대비 취업자수</b>', x = 0.1, 
@@ -2357,14 +2472,14 @@ plot_ly() %>%
 ```
 
 ```{r}
-df_annotation <- df_취업통계 |> filter(졸업자_계 < 500, 학과명 == '경영학과') |> select(과정구분, 학과명, 졸업자_계, 취업자_합계_계)
-
 p_title_1 |> 
   layout(title = list(text = '<b>졸업자 대비 취업자수</b>', x = 0.1, 
                       xanchor = 'left', yanchor = 'bottom', size = 15), 
          font = list(family = "나눔고딕", color = 'black', size = 10), 
          annotations = list(text = ~paste0('<b>', df_annotation$과정구분, ':', df_annotation$학과명, '</b>'), 
-                            x = df_annotation$졸업자_계, y = df_annotation$취업자_합계_계, ax = 30, ay = -30), 
+                            x = df_annotation$졸업자_계, 
+                            y = df_annotation$취업자_합계_계, 
+                            ax = 30, ay = -30), 
          margin = list(t = 50)) |>
   add_annotations(xref = 'paper', yref = 'paper', 
                   text = '전문대학 경영학과 데이터', x = 0.01, y = 1.06,
@@ -2376,11 +2491,19 @@ p_title_1 |>
   layout(title = list(text = '<b>졸업자 대비 취업자수</b>', x = 0.1, 
                       xanchor = 'left', yanchor = 'top', size = 15), 
          font = list(family = "나눔고딕", color = 'black', size = 10), 
-         annotations = list(text = ~paste0('<b>', df_annotation$과정구분[1], ':', df_annotation$학과명[1], '</b>'), x = df_annotation$졸업자_계[1], y = df_annotation$취업자_합계_계[1], ax = 30, ay = -30, 
-                            arrowhead = 3, arrowcolor = 'red', arrowsize = 1.2)
+         annotations = list(text = ~paste0('<b>', df_annotation$과정구분[1], ':', df_annotation$학과명[1], '</b>'), 
+                            x = df_annotation$졸업자_계[1], 
+                            y = df_annotation$취업자_합계_계[1], 
+                            ax = 30, ay = -30, 
+                            arrowhead = 3, arrowcolor = 'red', 
+                            arrowsize = 1.2)
          ) |>
-  add_annotations(text = ~paste0('<b>', df_annotation$과정구분[2], ':', df_annotation$학과명[2], '</b>'), x = df_annotation$졸업자_계[2], y = df_annotation$취업자_합계_계[2], ax = 30, ay = -30, 
-                            arrowhead = 6, arrowcolor = 'blue', arrowsize = 0.8, 
+  add_annotations(text = ~paste0('<b>', df_annotation$과정구분[2], ':', df_annotation$학과명[2], '</b>'), 
+                  x = df_annotation$졸업자_계[2], 
+                  y = df_annotation$취업자_합계_계[2], 
+                  ax = 30, ay = -30, 
+                  arrowhead = 6, arrowcolor = 'blue', 
+                  arrowsize = 0.8, 
                   font = list(family = '나눔손글씨 펜', size = 15))
 ```
 
