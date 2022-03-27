@@ -1,0 +1,251 @@
+---
+title : 데이터 시각화를 위한 plotly
+output: 
+  officedown::rdocx_document:
+    reference_docx: bookdown.docx
+    plots:
+      style: Normal
+      align: center
+      fig.lp: 'fig:'
+      topcaption: false
+      fig_caption: yes
+      caption:
+        style: Image Caption
+        pre: '실행결과 3- '
+        sep: '.'
+        tnd: 0
+        tns: '-'
+        fp_text: !expr officer::fp_text_lite(bold = TRUE)
+      Normal: ['First Paragraph']
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6.5)
+library(showtext)
+showtext_auto()
+library(tidyverse)
+library(readxl)
+library(patchwork)
+library(plotly)
+df_입학자 <- read_excel('d:/R/data/2021_연도별 입학자수.xlsx', 
+                 ## 'data' 시트의 데이터를 불러오는데,
+                 sheet = 'Sheet0',
+                 ## 앞의 10행을 제외하고
+                 skip = 3, 
+                 ## 첫번째 행은 열 이름을 설정
+                 col_names = FALSE, 
+                 ## 열의 타입을 설정, 처음 8개는 문자형으로 다음 56개는 수치형으로 설정
+                 col_types = c(rep('text', 2), rep('numeric', 30)))
+df_입학자 <- df_입학자 |> select(1, 2, 5, 7, 9, 11, 13, 19, 29, 31)
+
+## df_입학자의 열이름을 적절한 이름으로 설정
+colnames(df_입학자) <- c('연도', '지역', '전문대학', '교육대학', '일반대학', '방송통신대학', '산업대학', '원격및사이버대학', '석사', '박사')
+
+df_입학자 <- df_입학자 |> filter(!is.na(지역))
+
+df_입학자_long <- df_입학자 |> pivot_longer(3:10, names_to = '학교종류', values_to = '입학생수')
+```
+
+```{r include=FALSE, message = FALSE, warning = FALSE}
+df_취업통계 <- read_excel('d:/R/data/2020년 학과별 고등교육기관 취업통계.xlsx', 
+                     ## '학과별' 시트의 데이터를 불러오는데,
+                     sheet = '학과별',
+                     ## 앞의 13행을 제외하고
+                     skip = 13, 
+                     ## 첫번째 행은 열 이름으로 설정
+                     col_names = TRUE, 
+                     ## 열의 타입을 설정, 처음 9개는 문자형으로 다음 79개는 수치형으로 설정
+                     col_types = c(rep('text', 9), rep('numeric', 79)))
+
+## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
+df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
+
+```
+
+R을 다루는 많은 교육코스나 서적에서 데이터의 시각화는 대부분 R base에서 제공하는 함수를 사용하거나 `ggplot2` 패키지를 사용하여는 방법을 위주로 설명한다. 이 두가지 방법은 데이터 시각화 결과가 우수한 편이기 때문에 많이 사용되고 있지만 정적(Static) 시각화이다. 정적 시각화는 최근 인포그래픽(Infographic)이라고 불리며 일반적으로 문서나 인쇄물에 많이 사용되고 웹에 게시되는 이미지로 사용된다. 그렇기 때문에 대부분 png, jpg, pdf 등의 벡터 혹은 픽셀 이미지 파일로 제공된다. 정적 데이터 시각화는 데이터 분석가의 의도에 맞춰 작성되기 때문에 데이터 분석가의 분석에 의존적일 수 밖에 없으며 독자의 의도에 따른 해석은 매우 제한될 수 밖에 없다.
+
+이러한 제한점을 극복하기 위해 사용되는 데이터 시각화 방법이 동적(Dynamic) 시각화 혹은 인터랙티브(Interactive) 시각화라고 하는 방법이다. 이 동적 시각화는 시각화를 사용하는 사용자의 의도에 따라 데이터를 다각적 관점에서 살펴볼 수 있다는 점이 동적 시각화와 가장 크게 차이나는 점이다. 사용자의 의도에 따라 데이터가 동적으로 변동되어야 하기 때문에 데이터 시각화에 사용되는 매체는 인쇄물 형태 매체가 불가능하고 웹을 통해 제공한다. 따라서 일반적으로 동적 시각화는 웹 사이트에서 제공하는 대시보드(DashBoard)의 형태로 제공되는 것이 일반적이기 때문에 동적 시각화를 위해서는 동적 시각화 전용 패키지를 사용해 시각화 객체를 만드는 방법이외에 `shiny` 등의 패키지를 사용하여 대시보드를 만드는 것도 같이 익혀야 한다는 어려움이 따른다. R에서 동적 시각화를 위해 제공되는 패키지는 `plotly`, `rbokeh`, `highcharter` 등이 제공된다. 다음의 R 그래픽 패키지 다운로드 현황에서 보듯이 여전히 R에서 가장 많이 사용되고 있는 그래픽 패키지는 `ggplot2`이지만 최근 들어 그 사용량이 줄고 있고 R에서 많이 사용되던 `lattice`패키지가 점차 줄고 있다. 반면 `plotly`는 2021년 하반기부터 다운로드가 늘고 있고 다른 동적 그래픽 패키지에 비해서는 압도적인 다운로드 수를 보인다.
+
+```{r}
+library(dlstats)
+
+#x <- cran_stats(c("ggplot2", "plotly", "rbokeh", "highcharter"))
+x1 <- cran_stats(c("ggplot2", "plotly", "rbokeh", "highcharter", 'lattice'))
+
+x1 |> plot_ly() |>
+  add_lines(x = ~end, y = ~downloads, color = ~package) |>
+  layout(title = 'R의 그래픽 패키지 다운로드 현황', xaxis = list(title = list(visible = F)), yaxis = list(title = '다운로드수'))
+
+```
+
+따라서 정적 시각화와 동적 시각화의 어느것이 더 효용성이 있는지를 단언할 수 없다. 데이터 시각화가 사용되는 매체, 데이터 시각화를 보는 대상, 데이터 시각화에서 보여주고자 하는 스토리에 따라서 정적 시각화를 사용해야 할 때와 동적 시각화를 사용해야 할 때를 적절히 선택해야 한다.
+
+이번 장에서는 R에서 동적 시각화로 많이 사용되는 `plotly` 패키지를 사용하여 데이터를 시각화하는 방법을 알아본다. `plotly`를 사용한 데이터 시각화를 실습하기 위한 데이터는 `ggplot2` 실습에서 사용하던 취업통계 데이터(df_취업통계)와 코로나바이러스 데이터 셋을 사용하도록 하겠다.
+
+코로나바이러스 데이터 셋은 Github에서 매일 업데이트된 csv 파일을 다운로드 받았다. [^1] 이를 `plotly` 실습에 사용하기 위해 다음과 같이 전처리 하였다.
+
+[^1]: <https://github.com/owid/covid-19-data/blob/master/public/data/owid-covid-data.csv>
+
+```{r eval = FALSE}
+if(!require(readr)) {
+  install.packages('readr')
+  library(readr)
+}
+
+if(!require(lubridate)) {
+  install.packages('lubridate')
+  library(lubridate)
+}
+
+covid19_df <- read_csv(file = "D:/R/data/owid-covid-data.csv",
+                            col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                                             )
+                            )
+
+covid19_df <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-data.csv",
+                            col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                                             )
+                            )
+
+
+covid19_df_100 <- covid19_df |> 
+  filter((iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM'))) |>
+  filter(date >= today() - 100) |> 
+  arrange(date)
+
+covid19_df_100_wide <- covid19_df_100 |> select(date, location, new_cases) |> 
+  pivot_wider(id_cols = date, names_from = location, values_from = new_cases) |> 
+  arrange(date)
+
+## 공백을 쓰려면 ``
+names(covid19_df_100_wide) <- c('date', 'Asia', 'Europe', 'North_America', 'Oceania', 'South_America', 'South_Korea')
+
+covid19_stat <- covid19_df |> group_by(iso_code, continent, location) |>
+  summarise(인구수 = max(population, na.rm = T), 인당GDP = max(gdp_per_capita, na.rm = T),
+            전체확진자수 = sum(new_cases, na.rm = T),
+            전체사망자수 = sum(new_deaths, na.rm = T), 
+            십만명당사망자수 = round(total_deaths / population *100000, 5),
+            십만명당중환자실 = last(icu_patients_per_million),
+            재생산지수 = last(reproduction_rate),
+            전체검사자수 = max(total_tests, na.rm = T), new_tests = sum(new_tests, na.rm = T),
+            전체백신접종자수 = max(total_vaccinations, na.rm = T),
+            백신접종자완료자수 = max(people_fully_vaccinated, na.rm = T),
+            부스터접종자수 = max(total_boosters, na.rm = T),
+            백신접종완료률 = people_fully_vaccinated / population,
+            인구백명당백신접종완료률 = max(people_fully_vaccinated_per_hundred, na.rm = T),
+            인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
+            ) |> ungroup()
+
+margins <- list(t = 50, b = 25, l = 25, r = 25)
+  
+```
+
+```{r echo = FALSE}
+if(!require(readr)) {
+  install.packages('readr')
+  library(readr)
+}
+
+if(!require(lubridate)) {
+  install.packages('lubridate')
+  library(lubridate)
+}
+
+covid19_df <- read_csv(file = "D:/R/data/owid-covid-data.csv",
+                            col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                                             )
+                            )
+
+# covid19_df <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-data.csv",
+#                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
+#                                              )
+#                             )
+
+
+covid19_df_100 <- covid19_df |> 
+  filter((iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM'))) |>
+  filter(date >= today() - 100) |> 
+  arrange(date)
+
+covid19_df_100_wide <- covid19_df_100 |> select(date, location, new_cases, people_fully_vaccinated_per_hundred) |> 
+  pivot_wider(id_cols = date, names_from = location, values_from = c(new_cases, people_fully_vaccinated_per_hundred)) |> 
+  arrange(date)
+
+names(covid19_df_100_wide) <- c('date', '확진자_아시아', '확진자_유럽', '확진자_북미', '확진자_오세아니아', '확진자_남미', '확진자_한국', '백신접종완료자_아시아', '백신접종완료자_유럽', '백신접종완료자_북미', '백신접종완료자_오세아니아', '백신접종완료자_남미', '백신접종완료자_한국')
+
+covid19_stat <- covid19_df |> group_by(iso_code, continent, location) |>
+  summarise(인구수 = max(population, na.rm = T), 인당GDP = max(gdp_per_capita, na.rm = T),
+            전체확진자수 = sum(new_cases, na.rm = T),
+            전체사망자수 = sum(new_deaths, na.rm = T), 
+            십만명당사망자수 = round(total_deaths / population *100000, 5),
+            십만명당중환자실 = last(icu_patients_per_million),
+            재생산지수 = last(reproduction_rate),
+            전체검사자수 = max(total_tests, na.rm = T), new_tests = sum(new_tests, na.rm = T),
+            전체백신접종자수 = max(total_vaccinations, na.rm = T),
+            백신접종자완료자수 = max(people_fully_vaccinated, na.rm = T),
+            부스터접종자수 = max(total_boosters, na.rm = T),
+            백신접종완료률 = people_fully_vaccinated / population,
+            인구백명당백신접종완료률 = max(people_fully_vaccinated_per_hundred, na.rm = T),
+            인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
+            ) |> ungroup()
+
+margins <- list(t = 50, b = 25, l = 25, r = 25)
+  
+```
+
+
+
+```{r echo = FALSE, dpi = 120}
+p1 <- covid19_df_100 |>
+  group_by(iso_code) |>
+  summarise(new_cases = sum(new_cases)) |>
+  plot_ly(x = ~iso_code, y = ~new_cases, text = ~new_cases, 
+          textposition = 'inside', 
+          textfont = list(color = 'white', size = 5.5), color = I('#1f77b4')) |> 
+  layout(title = list(text = '지역별 코로나19 확진자수'),
+         xaxis = list(title = '지역', tickfont = list(size = 7)),
+         yaxis = list(title = '확진자수'), 
+         margin = margins)
+
+p2 <- covid19_df_100 |>
+  group_by(iso_code) |>
+  summarise(new_cases = sum(new_cases)) |>
+  plot_ly(x = ~iso_code, y = ~new_cases, text = ~new_cases, 
+          textposition = 'outside', 
+          textfont = list(color = 'black', size = 6), color = I('#1f77b4')) |> 
+  layout(title = list(text = '지역별 코로나19 확진자수'),
+         xaxis = list(title = '지역', tickfont = list(size = 7)),
+         yaxis = list(title = '확진자수'), 
+         margin = margins)
+
+p3 <- covid19_df_100 |>
+  group_by(iso_code) |>
+  summarise(new_cases = sum(new_cases)) |>
+  plot_ly(x = ~iso_code, y = ~new_cases, text = ~new_cases, 
+          textposition = 'auto', 
+          textfont = list(size = 5.5), marker = list(color = '#1f77b4')) |> 
+  layout(title = list(text = '지역별 코로나19 확진자수'),
+         xaxis = list(title = '지역', tickfont = list(size = 7)),
+         yaxis = list(title = '확진자수'), 
+         margin = margins)
+
+p4 <- covid19_df_100 |>
+  group_by(iso_code) |>
+  summarise(new_cases = sum(new_cases)) |>
+  plot_ly(x = ~iso_code, y = ~new_cases, text = ~new_cases, 
+          textposition = 'none', 
+          textfont = list(color = 'black', size = 7), color = I('#1f77b4')) |> 
+  layout(title = list(text = '지역별 코로나19 확진자수'),
+         xaxis = list(title = '지역', tickfont = list(size = 7)),
+         yaxis = list(title = '확진자수'), 
+         margin = margins)
+
+subplot(
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.15, text = "textposition = 'inside'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.15, text = "textposition = 'outside'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), 
+  p3 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "textposition = 'auto'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p4 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "textposition = 'none'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  nrows = 2, margin = 0.05
+) |> hide_legend()
+
+```
