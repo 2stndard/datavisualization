@@ -109,12 +109,22 @@ covid19_df <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-
 
 
 covid19_df_100 <- covid19_df |> 
-  filter((iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM'))) |>
-  filter(date >= max() - 100) |> 
+  filter((iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM', 'OWID_AFR'))) |>
+  filter(date >= max(date) - 100) |>
   arrange(date)
 
-covid19_df_100_wide <- covid19_df_100 |> select(date, location, new_cases) |> 
-  pivot_wider(id_cols = date, names_from = location, values_from = new_cases) |> 
+covid19_df_100_wide <- covid19_df_100 |> 
+  select(date, location, new_cases, people_fully_vaccinated_per_hundred) |> 
+  mutate(location = case_when(
+    location == 'South Korea' ~ '한국', 
+    location == 'Asia' ~ '아시아', 
+    location == 'Europe' ~ '유럽', 
+    location == 'Oceania' ~ '오세아니아', 
+    location == 'North America' ~ '북미', 
+    location == 'South America' ~ '남미', 
+    location == 'Africa' ~ '아프리카')) |>
+    rename('date' = 'date', '확진자' = 'new_cases', '백신접종완료자' = 'people_fully_vaccinated_per_hundred') |>
+  pivot_wider(id_cols = date, names_from = location, values_from = c(확진자, 백신접종완료자)) |>
   arrange(date)
 
 ## 공백을 쓰려면 ``
@@ -161,17 +171,24 @@ covid19_df <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-
                                               )
                              )
 
-
 covid19_df_100 <- covid19_df |> 
-  filter((iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM'))) |>
-  filter(date >= max(date) - 100) |> 
+  filter((iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM', 'OWID_AFR'))) |>
+  filter(date >= max(date) - 100) |>
   arrange(date)
 
-covid19_df_100_wide <- covid19_df_100 |> select(date, location, new_cases, people_fully_vaccinated_per_hundred) |> 
-  pivot_wider(id_cols = date, names_from = location, values_from = c(new_cases, people_fully_vaccinated_per_hundred)) |> 
+covid19_df_100_wide <- covid19_df_100 |> 
+  select(date, location, new_cases, people_fully_vaccinated_per_hundred) |> 
+  mutate(location = case_when(
+    location == 'South Korea' ~ '한국', 
+    location == 'Asia' ~ '아시아', 
+    location == 'Europe' ~ '유럽', 
+    location == 'Oceania' ~ '오세아니아', 
+    location == 'North America' ~ '북미', 
+    location == 'South America' ~ '남미', 
+    location == 'Africa' ~ '아프리카')) |>
+    rename('date' = 'date', '확진자' = 'new_cases', '백신접종완료자' = 'people_fully_vaccinated_per_hundred') |>
+  pivot_wider(id_cols = date, names_from = location, values_from = c(확진자, 백신접종완료자)) |>
   arrange(date)
-
-names(covid19_df_100_wide) <- c('date', '확진자_아시아', '확진자_유럽', '확진자_북미', '확진자_오세아니아', '확진자_남미', '확진자_한국', '백신접종완료자_아시아', '백신접종완료자_유럽', '백신접종완료자_북미', '백신접종완료자_오세아니아', '백신접종완료자_남미', '백신접종완료자_한국')
 
 covid19_stat <- covid19_df |> group_by(iso_code, continent, location) |>
   summarise(인구수 = max(population, na.rm = T), 인당GDP = max(gdp_per_capita, na.rm = T),
@@ -392,11 +409,12 @@ legend_items <- covid19_df_100 |>
     iso_code == 'OWID_EUR' ~ '유럽',
     iso_code == 'OWID_NAM' ~ '북미',
     iso_code == 'OWID_OCE' ~ '오세아니아',
-    iso_code == 'OWID_SAM' ~ '남미')) |>
+    iso_code == 'OWID_SAM' ~ '남미', 
+    iso_code == 'OWID_AFR' ~ '아프리카')) |>
   select(legend_name) |>
   pull()
 
-legend_items <- fct_relevel(legend_items, '한국', '아시아', '유럽', '북미', '남미', '오세아니아')
+legend_items <- fct_relevel(legend_items, '한국', '아시아', '유럽', '북미', '남미', '오세아니아', '아프리카')
 
 covid19_df_100 |>
   plot_ly(x = ~date, y = ~new_cases, name = ~legend_items) |>
@@ -1138,22 +1156,26 @@ subplot(
 ```{r eval = FALSE}
 p_line_wide <- covid19_df_100_wide |> plot_ly()
 
-p_line_wide |> add_trace(type = 'scatter', mode = 'markers', x = ~date, y = ~확진자_한국) |>
+p_line_wide |> add_trace(type = 'scatter', mode = 'markers', 
+                         x = ~date, y = ~확진자_한국) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          yaxis = list(title = list(text = '확진자수')), 
          margin = margins)
 
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~확진자_한국) |>
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', 
+                          x = ~date, y = ~확진자_한국) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          yaxis = list(title = list(text = '확진자수')), 
          margin = margins)
 
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+text', x = ~date, y = ~확진자_한국, text = ~확진자_한국) |>
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+text', 
+                          x = ~date, y = ~확진자_한국, text = ~확진자_한국) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          yaxis = list(title = list(text = '확진자수')), 
          margin = margins)
 
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines+text', x = ~date, y = ~확진자_한국, text = ~확진자_한국) |>
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines+text', 
+                          x = ~date, y = ~확진자_한국, text = ~확진자_한국) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          yaxis = list(title = list(text = '확진자수')), 
          margin = margins)
@@ -1195,13 +1217,15 @@ subplot(
 이 네가지 `mode`는 단일 모드로 사용이 가능하지만 'none'을 제외하고 `+`기호를 사용하여 연결하여 사용하는데 최대 3개까지 연결하여 사용할 수 있다. 여기서 하나 주의해야하는 것은 `+` 기호 앞뒤에 공백이 있어서는 안된다.
 
 ```{r eval = FALSE}
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', x = ~date, y = ~확진자_한국) |>
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers+lines', 
+                          x = ~date, y = ~확진자_한국) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          xaxis = list(title = list(text = NULL)), 
          yaxis = list(title = list(text = '확진자수')), 
          margin = margins)
 
-p_line_wide  |> add_trace(type = 'scatter', mode = 'markers + lines', x = ~date, y = ~확진자_한국) |>
+p_line_wide  |> add_trace(type = 'scatter', mode = 'markers + lines', 
+                          x = ~date, y = ~확진자_한국) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          xaxis = list(title = list(text = NULL)), 
          yaxis = list(title = list(text = '확진자수')),  
@@ -1302,7 +1326,7 @@ subplot(
   p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "color = ~대계열", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
   p3 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "marker = list(color = 'blue')", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
   p4 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "color = I('blue')", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), 
-  nrows = 2, margin = 0.1, titleY = T
+  nrows = 2, margin = 0.04, titleY = T
 ) |> hide_legend() |>
   layout(title = '졸업자 대비 취업자수', margin = margins)
 
@@ -1378,7 +1402,7 @@ p_line <- covid19_df_100 |> plot_ly()
 
 p_line |> 
   add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~people_fully_vaccinated_per_hundred, 
-            color = ~ iso_code, colors = 'viridis') |>
+            color = ~ iso_code) |>
   layout(title = '최근 100일간 코로나19 백신접종완료자수(인구 100명당)', 
          xaxis = list(title = list(text = NULL)), 
          yaxis = list(title = '인구 100명당 접종자수'), margin = margins)
@@ -1388,14 +1412,14 @@ p_line |>
 선 그래프의 경우는 선을 너무 많이 그려서 꼬이기 시작하면 오히려 데이터를 확인하는데 방해가 되는 시각화가 되는 경우가 있다. 이를 스파게티 선 그래프라고 하는데 하나의 선 그래프에는 보통 5\~6개 이상의 선을 넣지 않는 것이 일반적이다. 따라서 선 그래프의 경우는 변수 매핑에 의해 단번에 선 그래프를 생성하는 방법도 많이 사용하지만 긴 형태의 데이터프레임으로 변환하여야 하고 매핑된 변수의 카테고리가 너무 많으면 스파게티 선 그래프가 생성된다. 따라서 사용자가 그리기를 원하는 3\~4개의 단일 선 그래프를 겹쳐 그리는 방법도 많이 사용된다.
 
 ```{r}
-fig <- add_trace(p_line_wide, type = 'scatter', mode = 'lines', x = ~date, 
-                 y = ~백신접종완료자_한국, name = '한국')
-
-fig <- fig |> add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~백신접종완료자_아시아, 
-                        name = '아시아')
-
-fig |> add_trace(type = 'scatter', mode = 'lines', x = ~date, y = ~백신접종완료자_유럽, 
-                 name = '유럽') |>
+covid19_df_100_wide |> 
+  plot_ly(x = ~date) |>
+  add_trace(type = 'scatter', mode = 'lines', 
+            y = ~백신접종완료자_한국, name = '한국') |> 
+  add_trace(type = 'scatter', mode = 'lines', y = ~백신접종완료자_아시아, 
+            name = '아시아') |> 
+  add_trace(type = 'scatter', mode = 'lines', y = ~백신접종완료자_유럽, 
+            name = '유럽') |>
   layout(title = '한국, 유럽, 아시아의 접종완료자수(인구 100명 당)', 
          xaxis = list(title = list(text = NULL)), 
          yaxis = list(title = list(text = '접종완료자수')), 
@@ -1418,16 +1442,16 @@ fig <- plot_ly() |> add_trace(data = covid19_df |> filter(continent == 'Asia'),
                  line = list(color = 'lightgray'), 
                  showlegend = F, connectgaps = TRUE)
 
-fig |> add_trace(data = covid19_df |> filter(iso_code == 'KOR'), type = 'scatter', mode = 'lines', 
+fig <- fig |> add_trace(data = covid19_df |> filter(iso_code == 'KOR'), type = 'scatter', mode = 'lines', 
                  x = ~date, y = ~people_fully_vaccinated_per_hundred, name = '한국', 
                  line = list(color = 'red'), 
-                 showlegend = T)|>
+                 showlegend = T)
+
+fig |>
   layout(title = list(text = '아시아 국가별 접종완료자수'),
          xaxis = list(title = list(text = NULL)), 
          yaxis = list(title = '인구 100명당 접종완료자수'), 
          showlegend = T, margin = margins)
-
-
 
 ```
 
@@ -1455,16 +1479,16 @@ add_lines(p, x = NULL, y = NULL, z = NULL, ..., data = NULL, inherit = TRUE)\
 ```{r eval = FALSE}
 add_trace(p_line_wide, type = 'scatter', mode = 'text', 
           x = ~date, y = ~확진자_한국, text = '한국')|>
-  layout(title = list(text = '우리나라 접종완료자수'),
+  layout(title = list(text = '우리나라 확진자수'),
          xaxis = list(title = list(text = NULL)), 
-         yaxis = list(title = '인구 100명당 접종완료자수'), 
+         yaxis = list(title = '확진자수'), 
          margin = margins)
 
 add_trace(p_line_wide, type = 'scatter', mode = 'text', 
           x = ~date, y = ~확진자_한국, text = ~확진자_한국)|>
-  layout(title = list(text = '우리나라 접종완료자수'),
+  layout(title = list(text = '확진자수'),
          xaxis = list(title = list(text = NULL)), 
-         yaxis = list(title = '인구 100명당 접종완료자수'), 
+         yaxis = list(title = '확진자수'), 
          margin = margins)
 
 ```
@@ -1473,23 +1497,21 @@ add_trace(p_line_wide, type = 'scatter', mode = 'text',
 p1 <- add_trace(p_line_wide, type = 'scatter', mode = 'text', 
           x = ~date, y = ~확진자_한국, text = '한국') |>
   layout(xaxis = list(title = list(text = NULL)), 
-         yaxis = list(title = '인구 100명당 접종완료자수'))
+         yaxis = list(title = '확진자수'))
 
 p2 <- add_trace(p_line_wide, type = 'scatter', mode = 'text', 
           x = ~date, y = ~확진자_한국, text = ~확진자_한국) |>
   layout(xaxis = list(title = list(text = NULL)), 
-         yaxis = list(title = '인구 100명당 접종완료자수'))
+         yaxis = list(title = '확진자수'))
 
 subplot(
   p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "text = '한국'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
-  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "text = ~한국", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), titleY = T, margin = 0.05
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "text = ~확진자_한국", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), titleY = T, margin = 0.05
 ) |> hide_legend() |>
-  layout(title = list(text = '우리나라 접종완료자수'),
+  layout(title = list(text = '우리나라 확진자수'),
          xaxis = list(title = list(text = NULL)), 
-         yaxis = list(title = '인구 100명당 접종완료자수'), 
+         yaxis = list(title = '확진자수'), 
          margin = margins)
-
-
 ```
 
 #### 막대(bar) trace : 막대 그래프
@@ -1543,15 +1565,16 @@ add_bars(p, x = NULL, y = NULL, ..., data = NULL, inherit = TRUE)\
 앞서 설명한 바와 같이 막대 그래프(`add_bars()`)는 X축과 Y축의 이변량을 필요로 하는 시각화이고 히스토그램(`add_histogram()`)은 X축에 따른 사례수를 구간(bin)에 따라 막대로 표시한 시각화이다.
 
 ```{r}
-p_bar <- covid19_df_100 |> mutate(yearmonth = tsibble::yearmonth(date)) |> group_by(iso_code, yearmonth) |>
+p_bar <- covid19_df_100 |> mutate(yearmonth = tsibble::yearmonth(date)) |> 
+  group_by(iso_code, yearmonth) |>
   summarise(new_cases = sum(new_cases)) |> plot_ly()
 
 p_bar |>
   add_trace(type = 'bar', x = ~iso_code, y = ~new_cases) |>
   layout(title = list(text = '지역별 코로나19 확진자수'),
          xaxis = list(title = list(text = '지역'), 
-                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
-                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
+                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미', '아프리카'), 
+                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM', 'OWID_AFR')), 
          yaxis = list(title = '확진자수'), 
          margin = margins)
 
@@ -1579,8 +1602,8 @@ p_bar_mode |>
   layout(barmode = 'group', 
          title = list(text = '지역별 코로나19 확진자수'),
          xaxis = list(title = list(text = '지역'), 
-                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
-                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
+                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미', '아프리카'), 
+                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM', 'OWID_AFR')), 
          yaxis = list(title = '확진자수'), 
          margin = margins)
 
@@ -1593,8 +1616,8 @@ p_bar_mode |>
   layout(barmode = 'stack', 
          title = list(text = '지역별 코로나19 확진자수'),
          xaxis = list(title = list(text = '지역'), 
-                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
-                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
+                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미', '아프리카'), 
+                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM', 'OWID_AFR')), 
          yaxis = list(title = '확진자수'), 
          margin = margins)
 
@@ -1607,8 +1630,8 @@ p_bar_mode |>
   layout(barmode = 'overlay', 
          title = list(text = '지역별 코로나19 확진자수'),
          xaxis = list(title = list(text = '지역'), 
-                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
-                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
+                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미', '아프리카'), 
+                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM', 'OWID_AFR')), 
          yaxis = list(title = '확진자수'), 
          margin = margins)
 
@@ -1669,8 +1692,8 @@ fig <- fig |>
 fig |> layout(barmode = 'stack', 
               title = list(text = '지역별 코로나19 확진자수'),
               xaxis = list(title = '지역', 
-                           ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
-                           tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
+                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미', '아프리카'), 
+                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM', 'OWID_AFR')), 
               yaxis = list(title = '확진자수'), 
               margin = margins
               )
@@ -1683,8 +1706,8 @@ fig |> layout(barmode = 'stack',
 fig |> layout(barmode = 'group', 
               title = list(text = '지역별 코로나19 확진자수'),
               xaxis = list(title = '지역', 
-                           ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
-                           tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')), 
+                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미', '아프리카'), 
+                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM', 'OWID_AFR')), 
               yaxis = list(title = '확진자수'), 
               margin = margins
               )
@@ -1707,8 +1730,8 @@ p_bar_mode1 |>
             ) |>
   layout(title = list(text = '지역별 코로나19 확진자수'),
          xaxis = list(title = '지역', 
-                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미'), 
-                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')
+                      ticktext = c('한국', '아시아', '유럽', '북미', '오세아니아', '남미', '아프리카'), 
+                      tickvals = c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM', 'OWID_AFR')
                       ), 
          yaxis = list(title= '확진자수'),
          margin = margins)
@@ -2576,14 +2599,12 @@ covid19_df_100 |>
 
 ```{r}
 covid19_df_100 |>
-  plot_ly(type = 'scatter', mode = 'lines', x = ~date, y = ~new_cases, linetype = ~iso_code) |>
+  plot_ly(type = 'scatter', mode = 'lines', x = ~date, y = ~new_cases, 
+          linetype = ~iso_code) |>
   layout(title = '최근 100일간 코로나19 확진자수', 
          xaxis = list(title = list(text = NULL)), 
          yaxis = list(title = list(text = '확진자수')), 
-         margin = list(t = 50, b = 25, l = 25, r = 25), 
-         legend = list(bgcolor = "#E2E2E2", bordercolor = 'gray',
-                       borderwidth = 2, orientation = 'h', 
-                       x = 0.5, y = -0.2, xanchor = 'center')
+         margin = list(t = 100, b = 100, l = 100, r = 100)
          )
 
 ```
@@ -2593,13 +2614,16 @@ covid19_df_100 |>
 `layout()`에서 전체 플롯 크기의 설정을 위해서는 `autosize`, `height`, `width`의 세 가지 type이 사용된다. `autosize`는 사용자가 정의하지 않은 레이아웃의 너비 또는 높이를 자동적으로 설정하는 논리값을 설정한다. `height`와 `width`는 전체 플롯 레이아웃의 높이와 너비를 설정하는 type으로 기본값이 450과 700이다.
 
 ```{r}
-p_title_1 <- p_title_marker |>
-  add_trace(type = 'scatter', mode = 'markers', x = ~졸업자수, 
-            y = ~취업자수, color = ~대계열)
+p_title_2 <-covid19_df_100 |>
+  plot_ly(type = 'scatter', mode = 'lines', x = ~date, y = ~new_cases, 
+          linetype = ~iso_code)
 
-p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1, 
-                                 xanchor = 'left', yanchor = 'top'), 
-                    width = 450, height = 700)
+p_title_2 |> 
+  layout(title = list(text = '최근 100일간 코로나19 확진자수', 
+                      x = 0.1, xanchor = 'left', yanchor = 'top'),
+         xaxis = list(title = list(text = NULL)), 
+         yaxis = list(title = list(text = '확진자수')), 
+         width = 450, height = 700)
 
 ```
 
@@ -2616,10 +2640,13 @@ p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1
 전체적인 폰트의 설정은 다음과 같이 설정할 수 있다. `ggplot2`에서는 한글 폰트의 설정에 다소 어려움이 있었지만 `plotly`에서는 `family` type에 바로 폰트 이름을 설정하면 쉽게 한글 폰트를 사용할 수 있다.
 
 ```{r}
-p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1, 
-                                 xanchor = 'left', yanchor = 'top'), 
-                    font = list(family = "나눔손글씨 붓", color = 'blue', size = 15)
-                    )
+p_title_2 |> 
+  layout(title = list(text = '최근 100일간 코로나19 확진자수', x = 0.1,
+                      xanchor = 'left', yanchor = 'top'),
+         font = list(family = "나눔손글씨 붓", color = 'blue',
+                     size = 15), 
+         margin = margins
+         )
 ```
 
 #### 색 설정 : colors
@@ -2638,11 +2665,14 @@ p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1
 [^7]: <https://www.w3schools.com/cssref/css_colors.asp>
 
 ```{r}
-p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1, 
-                                 xanchor = 'left', yanchor = 'top'), 
-                    font = list(family = "나눔손글씨 붓", color = 'blue', size = 15), 
-                    paper_bgcolor = 'floralwhite', plot_bgcolor = 'antiquewhite'
-                    )
+p_title_2 |> 
+  layout(title = list(text = '최근 100일간 코로나19 확진자수', x = 0.1, 
+                      xanchor = 'left', yanchor = 'top'),
+         font = list(family = "나눔손글씨 붓", color = 'blue', 
+                     size = 15),
+         paper_bgcolor = 'floralwhite', plot_bgcolor = 'antiquewhite',
+         margin = margins
+         )
 
 ```
 
@@ -2700,50 +2730,59 @@ p_title_1 |> layout(title = list(text = '졸업자 대비 취업자수', x = 0.1
 | tickprefix, ticksuffix            | 눈금자 라벨의 접두어, 접미어 설정                        | 문자열                                               |                                           |
 +-----------------------------------+----------------------------------------------------------+------------------------------------------------------+-------------------------------------------+
 
+축 설정에 가장 많이 사용되는 속성중에 하나는 축 제목이다. 축 제목은 `title` 속성을 사용하여 설정이 가능한데 축 제목은 설정하는 두 가지 방법이 있다. 첫 번째는 `title`에 바로 문자열을 설정함으로써 해당 축의 제목을 설정하는 방법이다. 이 방법은 이전 버전의 `plotly`에서 사용되던 방법인데 이 방법을 사용하면 축 제목의 폰트 패밀리, 색, 크기를 설정할 수 없다. 만약 세부 설정을 해야한다면 `title`을 `list()`로 세부 속성 값들을 리스트로 묶어 설정해야 한다. 첫 번쨰 방법은 쉽게 사용이 가능하지만 현재 버전의 `plotly`에서는 권장되지 않기 때문에 가급적 두번쨰 방법을 사용하는 것이 좋을 듯 하다.  
+
 ```{r}
-p_title_1 |> layout(title = list(text = '<b>졸업자 대비 취업자수</b>', x = 0.1, 
-                                 xanchor = 'left', yanchor = 'top', size = 15), 
-                    font = list(family = "나눔고딕", color = 'black', size = 10), 
-                    legend = list(title = list(text = '계열', side = 'top')
-                                  ), 
-                    paper_bgcolor = 'floralwhite', plot_bgcolor = 'antiquewhite', 
-                    xaxis = list(title = list(text = '졸업자', 
-                                              font = list(family = '나눔명조', size = 20, color = 'Crimson')
-                                              )
-                                 ),  ## 정상적 방법 
-                    yaxis = list(title = '취업자') ## 약식 방법
-                    )
+p_title_2 |> 
+  layout(title = list(text = '<b>최근 100일간 코로나19 확진자수</b>', x = 0.1,
+                      xanchor = 'left', yanchor = 'top', size = 15),
+         font = list(family = "나눔고딕", color = 'black', size = 10), 
+         legend = list(title = list(text = '지역', side = 'top')),
+         paper_bgcolor = 'floralwhite', plot_bgcolor = 'antiquewhite',
+         xaxis = list(title = list(text = '졸업자', 
+                                   font = list(family = '나눔명조', 
+                                               size = 20, color = 'Crimson'))
+                      ),  ## 정상적 방법 
+         yaxis = list(title = '취업자'), ## 약식 방법
+         margin = margins
+         )
+```
+
+다음의 예는 Y축의 grid와 zeroline의 속성을 설정하는 예이다. 
+
+```{r}
+p_title_2 |> 
+  layout(title = list(text = '<b>최근 100일간 코로나19 확진자수</b>',
+                      x = 0.1, xanchor = 'left', yanchor = 'top', size = 15),
+         font = list(family = "나눔고딕", color = 'black', size = 10),
+         legend = list(title = list(text = '계열', side = 'top')),
+         paper_bgcolor = 'floralwhite', plot_bgcolor = 'antiquewhite',
+         xaxis = list(title = list(text = '졸업자', 
+                                   font = list(family = '나눔명조', 
+                                               size = 20, color = 'Crimson')
+                                   )
+                      ),
+         yaxis = list(title = '취업자', gridcolor = 'white', gridwidth = 2, 
+                      zerolinewidth = 5, zerolinecolor = 'darkred')
+         )
 ```
 
 ```{r}
-p_title_1 |> layout(title = list(text = '<b>졸업자 대비 취업자수</b>', x = 0.1, 
-                                 xanchor = 'left', yanchor = 'top', size = 15), 
-                    font = list(family = "나눔고딕", color = 'black', size = 10), 
-                    legend = list(title = list(text = '계열', side = 'top')
-                                  ), 
-                    paper_bgcolor = 'floralwhite', plot_bgcolor = 'antiquewhite', 
-                    xaxis = list(title = list(text = '졸업자', font = list(family = '나눔명조', size = 20, color = 'Crimson')
-                                              ),  ## 정상적 방법
-                                 zerolinewidth = 3, zerolinecolor = 'white'), 
-                    yaxis = list(title = '취업자', gridcolor = 'white', gridwidth = 2) ## 약식 방법
-                    )
-```
-
-```{r}
-p_title_1 |> layout(title = list(text = '<b>졸업자 대비 취업자수</b>', x = 0.1, 
-                                 xanchor = 'left', yanchor = 'top', size = 15), 
-                    font = list(family = "나눔고딕", color = 'black', size = 10), 
-                    legend = list(title = list(text = '계열', side = 'top')), 
-                    paper_bgcolor = 'floralwhite', plot_bgcolor = 'antiquewhite', 
-                    xaxis = list(title = list(text = '졸업자', 
-                                              font = list(family = '나눔명조', size = 20, color = 'Crimson')
-                                              ), 
-                                              tickmode = 'array', 
-                                              ticktext = c('소규모', '중규모', '대규모'),
-                                              tickvals = c(100, 300, 400)
-                                 ),  ## 정상적 방법 
-                    yaxis = list(title = '취업자', ticks="inside", tick0 = 100, dtick = 100) ## 약식 방법
-                    )
+p_title_1 |> 
+  layout(title = list(text = '<b>최근 100일간 코로나19 확진자수</b>', 
+                      x = 0.1, xanchor = 'left', yanchor = 'top', size = 15),
+         font = list(family = "나눔고딕", color = 'black', size = 10),
+         legend = list(title = list(text = '계열', side = 'top')),
+         paper_bgcolor = 'floralwhite', plot_bgcolor = 'antiquewhite',
+         xaxis = list(title = list(text = '졸업자', 
+                                   font = list(family = '나눔명조', 
+                                               size = 20, color = 'Crimson')), 
+                      tickmode = 'array',
+                      ticktext = c('소규모', '중규모', '대규모'),
+                      tickvals = c(100, 300, 400)
+                      ),
+         yaxis = list(title = '취업자', ticks="inside", tick0 = 100, dtick = 100)
+         )
 ```
 
 #### 주석 설정 : annotations
@@ -2906,26 +2945,134 @@ p_title_1 |>
 
 데이터를 설명하기 위해 넣는 주석은 주로 문자열에 국한된다. 하지만 데이터를 설명하기 위해서는 선, 네모, 원 등의 다양한 도형을 사용할 필요가 있다. 이와 같이 데이터를 설명하기 위한 각종 도형을 사용자가 직접 그리기 위해서는 `layout()`의 `shape` type을 설정하여 생성할 수 있다. `shape` type에서 설정가능한 세부 type은 다음과 같다.
 
-+----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
-| type           | 설명                                             | type 값 및 설명                                                     | 세부 type |
-+================+==================================================+=====================================================================+===========+
-| type           | 그려질 도형의 형태 설정                          | 'circle'은 원, 'rect'는 사각형, 'path'는 SVG path, 'line'은 선 설정 |           |
-+----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
-| name           | 그려질 도형의 이름 설정                          |                                                                     |           |
-+----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
-| x0, x1, y0, y1 | 도형의 X, Y축 시작점(x0, y0)과 끝점(x1, y1) 설정 |                                                                     |           |
-+----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
-| layer          | 그려지는 도형 레이어의 위치를 설정               | 'above'는 다른 도형보다 위, 'below'는 다론 도형보다 아래에 위치     |           |
-+----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
-|                |                                                  |                                                                     |           |
-+----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
-|                |                                                  |                                                                     |           |
-+----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
-|                |                                                  |                                                                     |           |
-+----------------+--------------------------------------------------+---------------------------------------------------------------------+-----------+
++----------------------+--------------------------------------------------+----------------------------------+--------------------+
+| 속성                 | 설명                                             | 속성 값                          | 세부 속성          |
++======================+==================================================+==================================+====================+
+| type                 | 그려질 도형의 형태 설정                          | 'circle', 'rect', 'path', 'line' |                    |
++----------------------+--------------------------------------------------+----------------------------------+--------------------+
+| name                 | 그려질 도형의 이름 설정                          | 문자열                           |                    |
++----------------------+--------------------------------------------------+----------------------------------+--------------------+
+| x0, x1, y0, y1       | 도형의 X, Y축 시작점(x0, y0)과 끝점(x1, y1) 설정 | 수치 또는 카테고리 좌표 문자열   |                    |
++----------------------+--------------------------------------------------+----------------------------------+--------------------+
+| xref, yref           | 주석 도형이 그려지는 좌표의 참조 대상 설정       | 'paper', X축 또는 Y축 이름       |                    |
++----------------------+--------------------------------------------------+----------------------------------+--------------------+
+| xsizemode, ysizemode | X, Y축데 따른 크기 조절 모드 설정                | 'scaled', 'pixel'                |                    |
++----------------------+--------------------------------------------------+----------------------------------+--------------------+
+| layer                | 그려지는 도형 레이어의 위치를 설정               | 'above', 'below'                 |                    |
++----------------------+--------------------------------------------------+----------------------------------+--------------------+
+| line                 | 선 도형의 세부 설정                              | 세부 속성들의 리스트             | color, dash, width |
++----------------------+--------------------------------------------------+----------------------------------+--------------------+
+| filcolor             | 도형 내부 색 설정                                | 컬러 값                          |                    |
++----------------------+--------------------------------------------------+----------------------------------+--------------------+
 
 ```{r}
-add_segments
-
-
+covid19_df_100 |>
+  plot_ly(x = ~date, y = ~new_cases, color = ~iso_code) |> 
+  add_trace(type = 'scatter', mode = 'line') |>
+  layout(title = list(text = '지역별 코로나19 확진자수'),
+         xaxis = list(title = '지역'),
+         yaxis = list(title = '확진자수'), 
+         margin = margins, 
+         shapes = list(list(type = 'rect',
+                            x0 = as.Date('2022-01-01'), x1 = as.Date('2022-01-31'),
+                            y0 = 0, y1 = 2000000, fillcolor = "red",
+                            line = list(color = "red"), opacity = 0.2), 
+                       list(type = 'line', x0 = 0, x1= 1, 
+                            y0 = 1250000, y1 = 1250000, 
+                            xref = 'paper', yref = 'y', 
+                            line = list(color = 'blue')
+                            )
+                       )
+         )
 ```
+
+### 서브 플롯 : subplot()
+
+데이터를 시각화할 때 하나의 시각화에 여러 개의 데이터를 표시하는 경우 각각의 데이터 trace들이 너무 많아지거나 일부 구간에 중복되면 데이터의 정확한 확인이 어렵다. 이럴때는 각각의 데이터 trace들을 따로 떼서 작은 시각화를 여러개 그려줌으로써 해결할 수 있다. 이렇게 여러개의 `plotlt` 객체를 모아서 하나의 `plotly` 시각화로 만들어주는 함수가 `subplot()`이다. 앞서 `plotly`의 설명 과정에서 여러개의 시각화가 모여서 그려진 사례는 모두 `subplot()`과 'annotation'을 사용해서 만들었다. 
+
+`subplot()`의 주요 사용법은 다음과 같다. 
+
+::: {custom-style="comment"}
+subplot(..., nrows = 1, widths = NULL, heights = NULL, margin = 0.02, shareX = FALSE, shareY = FALSE, titleX = shareX, titleY = shareY, which_layout = "merge")\
+- ... : plotly나 ggplot2 객체의 이름, 리스트, tibble\
+- nrows : subplot의 행의 개수\
+- widths : 각각의 subplot의 0부터 1사이의 상대적 열 너비\
+- heights : 각각의 subplot의 0부터 1사이의 상대적 열 높이\
+- margin : 0부터 1사이의 단일 수치나 4개의 수치(왼쪽, 오른쪽, 위, 아래)의 여백\
+- shareX : X축을 공유할지에 대한 논리값\
+- shareY : Y축을 공유할지에 대한 논리값\
+- which_layout : 어떤 플롯의 레이아웃에 적용할지 결정, 기본값은 "merge"로 뒤 플롯의 레이아웃 옵션이 앞 옵션보다 우선함을 의미\
+:::
+
+`subplot()`은 subplot으로 그릴 각각의 `plotly` 객체나 `ggplot2`를 먼저 생성하고 이들 객체들을 `subplot()`을 사용하여 묶어 그려주는 형태로 사용된다. 이 과정에서 `shareX`, `shareY`를 사용하여 X, Y축의 공유를 설정하거나 `nrows`를 사용하여 `subplot()`의 행 개수를 설정할 수 있다. 또 각각의 서브 플롯이 겹쳐지지 않도록 `margin`을 설정할 수 있다.   
+
+```{r}
+p_line_wide <- covid19_df_100_wide |> plot_ly()
+
+p1 <- p_line_wide |> add_trace(type = 'scatter', mode = 'lines', x = ~date, 
+                               y = ~확진자_한국, color = I('#1f77b4')) |> 
+  layout(xaxis = list(tickfont = list(size = 10), title = list(title = NULL)), 
+         yaxis = list(title = list(text = '확진자수')))
+
+p2 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'lines', x = ~date, 
+                                y = ~확진자_아시아, color = I('#1f77b4')) |> 
+  layout(xaxis = list(tickfont = list(size = 10), title = list(title = NULL)), 
+         yaxis = list(title = list(text = '확진자수')))
+
+p3 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'lines', x = ~date, 
+                                y = ~확진자_유럽, color = I('#1f77b4')) |> 
+  layout(xaxis = list(tickfont = list(size = 10), title = list(title = NULL)), 
+         yaxis = list(title = list(text = '확진자수')))
+
+p4 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'lines', x = ~date, 
+                                y = ~확진자_북미, color = I('#1f77b4')) |> 
+  layout(xaxis = list(tickfont = list(size = 10), title = list(title = NULL)), 
+         yaxis = list(title = list(text = '확진자수')))
+
+p5 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'lines', x = ~date, 
+                                y = ~확진자_남미, color = I('#1f77b4')) |> 
+  layout(xaxis = list(tickfont = list(size = 10), title = list(title = NULL)), 
+         yaxis = list(title = list(text = '확진자수')))
+
+p6 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'lines', x = ~date, 
+                                y = ~확진자_오세아니아, color = I('#1f77b4')) |> 
+  layout(xaxis = list(tickfont = list(size = 10), title = list(title = NULL)), 
+         yaxis = list(title = list(text = '확진자수')))
+
+p7 <- p_line_wide  |> add_trace(type = 'scatter', mode = 'lines', x = ~date, 
+                                y = ~확진자_아프리카, color = I('#1f77b4')) |> 
+  layout(xaxis = list(tickfont = list(size = 10), title = list(title = NULL)), 
+         yaxis = list(title = list(text = '확진자수')))
+
+subplot(
+  p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "한국'", 
+                                  showarrow = F, xref='paper', yref='paper', 
+                                  xanchor = 'center')),
+  p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "아시아'", 
+                                  showarrow = F, xref='paper', yref='paper', 
+                                  xanchor = 'center')),
+  p3 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "유럽'", 
+                                  showarrow = F, xref='paper', yref='paper', 
+                                  xanchor = 'center')),
+  p4 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "북미", 
+                                  showarrow = F, xref='paper', yref='paper', 
+                                  xanchor = 'center')),
+  p5 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "남미'", 
+                                  showarrow = F, xref='paper', yref='paper', 
+                                  xanchor = 'center')),
+  p6 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "오세아니아", 
+                                  showarrow = F, xref='paper', yref='paper', 
+                                  xanchor = 'center')),
+  p7 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "아프리카", 
+                                  showarrow = F, xref='paper', yref='paper', 
+                                  xanchor = 'center')),
+  nrows = 3, 
+  margin = 0.025, 
+  shareY = TRUE, shareX = TRUE) |> 
+  layout(showlegend = FALSE, 
+         title = '최근 100일간 코로나19 확진자수',
+         margin = margins)
+```
+
+
+
