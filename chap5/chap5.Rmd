@@ -18,74 +18,18 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, out.width = '100%', dpi = 120, fig.width = 6.5)
-
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6.5, dpi = 130)
 library(showtext)
 showtext_auto()
 library(tidyverse)
 library(readxl)
-library(scales)
 library(patchwork)
-library(officer)
-library(officedown)
-fp <- fp_par(
-  text.align = "center", 
-  padding.bottom = 20, padding.top = 120, 
-  border.bottom = fp_border())
+library(plotly)
 
-ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
-
-
-df_입학자 <- read_excel('c:/R/git/datavisualization/chap3/2021_연도별 입학자수.xlsx', 
-                 ## 'data' 시트의 데이터를 불러오는데,
-                 sheet = 'Sheet0',
-                 ## 앞의 10행을 제외하고
-                 skip = 3, 
-                 ## 첫번째 행은 열 이름을 설정
-                 col_names = FALSE, 
-                 ## 열의 타입을 설정, 처음 8개는 문자형으로 다음 56개는 수치형으로 설정
-                 col_types = c(rep('text', 2), rep('numeric', 30)))
-df_입학자 <- df_입학자 |> select(1, 2, 5, 7, 9, 11, 13, 19, 29, 31)
-
-## df_입학자의 열이름을 적절한 이름으로 설정
-colnames(df_입학자) <- c('연도', '지역', '전문대학', '교육대학', '일반대학', '방송통신대학', '산업대학', '원격및사이버대학', '석사', '박사')
-
-df_입학자 <- df_입학자 |> filter(!is.na(지역))
-
-df_입학자_long <- df_입학자 |> pivot_longer(3:10, names_to = '학교종류', values_to = '입학생수')
-
-theme_set(
-  theme(
-    ## 축의 눈금자(ticks)를 모두 제거
-    axis.ticks = element_blank(),
-    ## 축의 선을 grey50으로 설정
-    axis.line = element_line(colour = "grey50"),
-    ## 전체 제목의 크기를 15, 수평 정렬은 중간, 아래 여백을 20으로 설정
-    plot.title = element_text(size = 15, vjust = 0.5, margin = margin(b = 10)), 
-    ## 패널의 눈금선의 색을 'wheat3'로 설정
-    panel.grid = element_line(color = "wheat3"), ###b4aea9
-    ## 패널의 부눈금선을 제거
-    panel.grid.minor = element_blank(),
-    ## 패널의 X축 주눈금선을 제거
-    panel.grid.major.x = element_blank(),
-    ## 패널의 Y축 주눈금선을 'dashed'형태로 설정
-    panel.grid.major.y = element_line(linetype = "dashed"),
-    ## 패널의 배경색과 선색을 'seashell'으로 설정
-    panel.background = element_rect(fill = "snow", color = "snow"),
-    ## 전체 배경색과 선색을 'seashell'으로 설정
-    plot.background = element_rect(fill = "snow", color = "snow"),
-    ## 범례 배경색과 선색을 'seashell'으로 설정
-    legend.background = element_rect(fill = "snow", color = "snow"),
-    ## 범례 키의 배경색과 'seashell', 선색을 제거
-    legend.key = element_rect(fill = "snow", color = NA),  #fbf9f4
-    legend.title = element_text(hjust = 0.5)
-    )
-  )
 ```
 
-```{r include=FALSE}
-
-df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
+```{r include=FALSE, message = FALSE, warning = FALSE}
+df_취업통계 <- read_excel('d:/R/data/2020년 학과별 고등교육기관 취업통계.xlsx', 
                      ## '학과별' 시트의 데이터를 불러오는데,
                      sheet = '학과별',
                      ## 앞의 13행을 제외하고
@@ -98,6 +42,57 @@ df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과�
 ## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
 df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
 
+library(readr)
+library(lubridate)
+
+# covid19_df <- read_csv(file = "D:/R/data/owid-covid-data.csv",
+#                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
+#                                              )
+#                             )
+
+covid19_df <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-data.csv",
+                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                                              )
+                             )
+
+covid19_df_100 <- covid19_df |> 
+  filter((iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM', 'OWID_AFR'))) |>
+  filter(date >= max(date) - 100) |>
+  mutate(location = case_when(
+    location == 'South Korea' ~ '한국', 
+    location == 'Asia' ~ '아시아', 
+    location == 'Europe' ~ '유럽', 
+    location == 'Oceania' ~ '오세아니아', 
+    location == 'North America' ~ '북미', 
+    location == 'South America' ~ '남미', 
+    location == 'Africa' ~ '아프리카')) |>
+  arrange(date)
+
+covid19_df_100$location <- fct_relevel(covid19_df_100$location, '한국', '아시아', '유럽', '북미', '남미', '아프리카', '오세아니아')
+
+covid19_df_100_wide <- covid19_df_100 |> 
+  select(date, location, new_cases, people_fully_vaccinated_per_hundred) |> 
+  rename('date' = 'date', '확진자' = 'new_cases', '백신접종완료자' = 'people_fully_vaccinated_per_hundred') |>
+  pivot_wider(id_cols = date, names_from = location, values_from = c('확진자', '백신접종완료자')) |>
+  arrange(date)
+
+covid19_stat <- covid19_df |> group_by(iso_code, continent, location) |>
+  summarise(인구수 = max(population, na.rm = T), 인당GDP = max(gdp_per_capita, na.rm = T),
+            전체확진자수 = sum(new_cases, na.rm = T),
+            전체사망자수 = sum(new_deaths, na.rm = T), 
+            십만명당사망자수 = round(total_deaths / population *100000, 5),
+            십만명당중환자실 = last(icu_patients_per_million),
+            재생산지수 = last(reproduction_rate),
+            전체검사자수 = max(total_tests, na.rm = T), new_tests = sum(new_tests, na.rm = T),
+            전체백신접종자수 = max(total_vaccinations, na.rm = T),
+            백신접종자완료자수 = max(people_fully_vaccinated, na.rm = T),
+            부스터접종자수 = max(total_boosters, na.rm = T),
+            백신접종완료률 = people_fully_vaccinated / population,
+            인구백명당백신접종완료률 = max(people_fully_vaccinated_per_hundred, na.rm = T),
+            인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
+            ) |> ungroup()
+
+margins <- list(t = 50, b = 25, l = 25, r = 25)
 ```
 
 상관관계(Correlation)의 시각화는 X축과 Y축으로 표현된 데이터가 전반적으로 어떠한 관계를 가지는지를 표현한 시각화이다. 관계의 시각화는 단순히 X축 데이터의 분포에 따라 Y축 데이터의 분포가 어떻게 분포하는지를 위주로 표현되는데 관계의 시각화에 따라 나타나는 상관관계는 부가적인 통계 처리 정보가 보완되지 않는다면 단순 관계에 불과할 뿐 인과관계를 표현하는 것은 아니다. 상관관계의 시각화를 설명하기 위해 앞으로 졸업자수에 따른 취업자 수의 시각화를 볼 것이다. 당연히 졸업자가 많은 학과는 상대적으로 취업자 수도 많게 될 것이다. 하지만 이러한 시각화 결과 만으로 단순히 졸업자가 많은 과는 취업자도 많다는 결론에 도달해서는 안된다는 것이다. 이를 증명하기 위해 다양한 통계적 검증 과정이 필요하고 이 검증 과정을 통해 독립변수가 종속 변수를 변화시키는 원인이라는 결론에 도달해야 한다. 그렇다면 관계의 시각화는 필요없는 것일까? 그렇지 않다. 어떤 독립 변수가 어떤 종속 변수와 밀접하게 관계가 있는지를 먼저 관계의 시각화를 통해 확인하여야 통계적 검증을 수행할 수 있다. 그저 데이터가 존재한다는 이유만으로 모든 변수간의 인과 관계를 검증할 수는 없는 것이다. 과거 컴퓨터 시스템이 발달하지 못했던 떄는 여러가지 통계적 방법론을 사용하여 이 상관관계를 확인하였지만 1장에서 본 바와 같이 통계적 방법론이 동일해도 시각화의 결과 큰 관계가 없는 경우도 있다. 따라서 상관관계를 확인하기 위한 통계치와 시각화 결과를 반드시 같이 확인해야 한다.
@@ -119,28 +114,40 @@ df_취업통계$대계열 <- fct_relevel(df_취업통계$대계열, '인문계�
 
 ```
 
-# 데이터를 점으로 찍자 - 산점도(Scatter Plot)
+# 탐색적 데이터 분석의 시작 - 산점도
 
 ------------------------------------------------------------------------
 
 산점도는 x, y 두개의 변수에 따른 데이터의 위치를 점으로 표현한 시각화 방법이다. 산점도를 통해 데이터의 전반적 분포와 X축의 독립변수에 따른 Y축의 종속변수가 어떻게 분포하는지를 한눈에 확인할 수 있고 그 분포 모양에 따라 상관관계와 상관강도를 알아볼 수 있다.
 
-`ggplot2`에서 산점도를 만들기 위해서는 `geom_point()`를 사용한다.
+앞선 장에서 살펴본 바와 같이 산점도는 `ggplot2`는 `geom_point()`, `plotly`는 `add_markers()`나 `add_trace()`를 사용하여 쉽게 만들 수 있다. 
 
-```{r fig.cap='기본 산점도'}
+```{r fig.cap='기본 산점도 - ggplot2'}
 df_취업통계 |> 
   ggplot() +
   ## X축이 졸업자_계, Y축이 취업자_합계_계에 매핑된 geom_point 레이어 생성
   geom_point(aes(x = 졸업자_계, y = 취업자_합계_계)) + 
   ## X축과 Y축의 범위를 설정
-  lims(x = c(0, 2500), y = c(0, 2000)) +
-  labs(title = '기본 산점도', x = '졸업자수', y = '취업자수')
+  labs(title = '기본 산점도 - ggplot2', x = '졸업자수', y = '취업자수')
 
 ```
 
+```{r fig.cap='기본 산점도 - plotly'}
+df_취업통계 |> 
+  plot_ly() |>
+  add_trace(type = 'scatter', type = 'markers', x = ~졸업자_계, y = ~취업자_합계_계) |>
+  layout(title = list(text = '기본산점도 - plotly'), 
+         xaxis = list(title = '졸업자수'), 
+         yaxis = list(title = '취업자수'), 
+         margin = margins)
+
+```
+
+## overplotting의 제거
+
 산점도를 만들때 주의해야 할 것이 산점도에 너무 많은 점이 한곳에 표현되는 오버플로팅(Over-Ploting)이 일어나지 않도록 해야한다는 점이다. 위의 산점도를 보면 다행이 선형 상관관계가 눈에 보이지만 좌측 하단 구간은 데이터가 집중되다보니 검정색 지역만 눈에 보인다. 그 지역에서도 데이터가 특히 밀집된 지역이 존재하겠지만 데이터가 오버플로팅되어 이러한 데이터의 밀집을 전혀 확인할 수 없다. 이런 오버플로팅을 해결하는 방법은 다음과 같다.
 
--   데이터 사이즈의 축소
+### 데이터 사이즈의 축소
 
 플로팅되는 데이터를 랜덤 샘플링과 같은 방법을 통해 축소시키는 방법이다. 다음은 오버플로팅 된 데이터를 랜덤 샘플링을 통해 2000, 1000, 500개로 축소한 산점도이다.
 
@@ -169,6 +176,8 @@ df_취업통계_sample_250 <- df_취업통계 |>
   sample_n(250)
 ```
 
+`ggplot2`를 사용하여 데이터를 축소를 통한 오버플로팅 제거는 다음과 같다. 
+
 ```{r eval = FALSE}
 df_취업통계_sample |> 
   ggplot() +
@@ -193,7 +202,7 @@ df_취업통계_sample_250 |>
 
 ```
 
-```{r echo = FALSE, fig.cap=' 샘플수 조절들을 통한 오버플로팅 제거'}
+```{r echo = FALSE, fig.cap=' 샘플수 조절들을 통한 오버플로팅 제거 - ggplot2'}
 fig1 <- df_취업통계_sample |> 
   ggplot() +
   geom_point(aes(x = 졸업자_계, y = 취업자_합계_계)) + 
@@ -215,10 +224,94 @@ fig4 <- df_취업통계_sample_250 |>
   labs(title = '산점도(n=250)', x = '졸업자수', y = '취업자수')
 (fig1 + fig2) / (fig3 + fig4)
 ```
+`plotly`를 사용하여 데이터를 축소를 통한 오버플로팅 제거는 다음과 같다. 
 
--   표시점의 투명도(alpha) 조절
+```{r eval = FALSE}
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계) |> 
+  layout(title = '산점도(n=2000)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+df_취업통계_sample_1000 |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계) |> 
+  layout(title = '산점도(n=1000)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+df_취업통계_sample_500 |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계) |> 
+  layout(title = '산점도(n=500)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+df_취업통계_sample_250 |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계) |> 
+  layout(title = '산점도(n=250)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+
+```
+
+```{r echo = FALSE, fig.cap=' 샘플수 조절들을 통한 오버플로팅 제거 - plotly'}
+fig1 <- df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(n=2000)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+
+fig2 <- df_취업통계_sample_1000 |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(n=1000)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+
+fig3 <- df_취업통계_sample_500 |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(n=500)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+
+fig4 <- df_취업통계_sample_250 |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(n=250)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+subplot(fig1, fig2, fig3, fig4, 
+        nrows = 2, margin = 0.075, 
+        titleX = TRUE, titleY = TRUE) |> hide_legend()
+```
+
+### 표시점의 투명도(alpha) 조절
 
 위의 실행결과를 보면 샘플수 조절만으로는 오버플로팅이 완전히 해결되지는 않아 보인다. 이때 사용할 수 있는 또 하나의 방법이 표시점의 투명도를 조절하는 방법이다. 샘플수 축소와 투명도 조절을 잘 사용하면 효과적으로 오버플로팅을 제거할 수 있다.
+
+`ggplot2`를 사용하여 점의 투명도 조절를 통한 오버플로팅 제거는 다음과 같다. 
 
 ```{r eval = FALSE}
 df_취업통계_sample |> 
@@ -244,7 +337,7 @@ df_취업통계_sample |>
 
 ```
 
-```{r echo = FALSE, fig.cap=' 투명도 조절을 통한 오버플로팅 제거'}
+```{r echo = FALSE, fig.cap=' 투명도 조절을 통한 오버플로팅 제거 - ggplot2'}
 fig1 <- df_취업통계_sample |> 
   ggplot() +
   geom_point(aes(x = 졸업자_계, y = 취업자_합계_계), alpha = 1) + 
@@ -268,9 +361,174 @@ fig4 <- df_취업통계_sample |>
 (fig1 + fig2) / (fig3 + fig4)
 ```
 
--   표시점의 크기(size) 조절
+`plotly`를 사용하여 점의 투명도 조절를 통한 오버플로팅 제거는 다음과 같다. 
 
-산점도의 오버플로팅을 제거하는데 사용할 수 있는 또 하나의 방법은 표시점의 크기를 조절하는 것이다.
+```{r eval = FALSE}
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 1) |> 
+  layout(title = '산점도(alpha = 1)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.75) |> 
+  layout(title = '산점도(alpha = 0.75)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.5) |> 
+  layout(title = '산점도(alpha = 0.5)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.25) |> 
+  layout(title = '산점도(alpha = 0.25)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+```
+
+```{r echo = FALSE, fig.cap=' 투명도 조절을 통한 오버플로팅 제거 - plotly'}
+fig1 <- df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 1, color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(alpha = 1)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+
+fig2 <- df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.75, color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(alpha = 0.75)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+
+fig3 <- df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.5, color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(alpha = 0.5)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+
+fig4 <- df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.25, color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(alpha = 0.25)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+subplot(fig1, fig2, fig3, fig4, 
+        nrows = 2, margin = 0.075, 
+        titleX = TRUE, titleY = TRUE) |> hide_legend()
+```
+`plotly`에서는 `alpha` 속성과 함께 `opacity`를 사용하여 오버플로팅을 제거할 수 있다. `opacity`는 점들이 겹쳐질 때 겹쳐지는 부분의 투명도를 계속해서 유지하는 투명도 설정이다. 이 속성은 서로 겹치는 부분이 얼마나 겹쳐있는지를 알 수 없기 때문에 분포의 집중도를 알 수 없다는 단점이 있다. 
+
+```{r eval = FALSE}
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 1) |> 
+  layout(title = '산점도(opacity = 1)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.75) |> 
+  layout(title = '산점도(opacity = 0.75)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.5) |> 
+  layout(title = '산점도(opacity = 0.5)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.25) |> 
+  layout(title = '산점도(opacity = 0.25)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+```
+
+```{r echo = FALSE, fig.cap=' opacity 조절을 통한 오버플로팅 제거 - plotly'}
+fig1 <- df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 1, color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(opacity = 1)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+
+fig2 <- df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.75, color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(opacity = 0.75)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+
+fig3 <- df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.5, color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(opacity = 0.5)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+
+fig4 <- df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, opacity = 0.25, color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(opacity = 0.25)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+subplot(fig1, fig2, fig3, fig4, 
+        nrows = 2, margin = 0.075, 
+        titleX = TRUE, titleY = TRUE) |> hide_legend()
+```
+
+### 표시점의 크기(size) 조절
+
+산점도의 오버플로팅을 제거하는데 사용할 수 있는 또 하나의 방법은 표시점의 크기를 조절하는 것이다. 크기를 작게하면 단위 면적당 점을 더 많이 표시할 수 있기 때문에 오버플로팅을 다소 해소할 수 있다. 
+
+`ggplot2`를 사용하여 점의 크기 조절를 통한 오버플로팅 제거는 다음과 같다. 
 
 ```{r eval = FALSE}
 df_취업통계_sample |> 
@@ -290,13 +548,13 @@ df_취업통계_sample |>
 
 df_취업통계_sample |> 
   ggplot() +
-  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계), size = '.') + 
+  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계), size = 0.25) + 
   labs(title = '산점도(size = 0.25)', x = '졸업자수', y = '취업자수')
 
 
 ```
 
-```{r echo = FALSE, fig.cap=' 사이즈 조절을 통한 오버플로팅 제거'}
+```{r echo = FALSE, fig.cap='사이즈 조절을 통한 오버플로팅 제거 - ggplot2'}
 fig1 <- df_취업통계_sample |> 
   ggplot() +
   geom_point(aes(x = 졸업자_계, y = 취업자_합계_계), size = 1) + 
@@ -320,9 +578,95 @@ fig4 <- df_취업통계_sample |>
 (fig1 + fig2) / (fig3 + fig4)
 ```
 
+`plotly`를 사용하여 점의 크기 조절를 통한 오버플로팅 제거는 다음과 같다. `ggplot2`와 달리 `plotly`의 `size`는 0보다 큰 값이어야 한다. 
+
+```{r eval = FALSE}
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, 
+            marker = list(size = 10)) |> 
+  layout(title = '산점도(size = 10)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, 
+            marker = list(size = 5)) |> 
+  layout(title = '산점도(size = 5)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, 
+            marker = list(size = 2.5)) |> 
+  layout(title = '산점도(size = 2.5)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, 
+            marker = list(size = 1)) |> 
+  layout(title = '산점도(size = 1)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+```
+
+```{r echo = FALSE, fig.cap='size 조절을 통한 오버플로팅 제거 - plotly'}
+fig1 <- df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, marker = list(size = 10), color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(size = 10)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+
+fig2 <- df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, marker = list(size = 5), color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(size = 5)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+
+fig3 <- df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, marker = list(size = 2.5), color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도(size = 2.5)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+
+fig4 <- df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, marker = list(size = 1), color = I('#1f77b4')) |> 
+  layout(xaxis = list(title = list(text = '졸업자수', standoff = 5)), 
+         yaxis = list(title = '취업자수')
+  ) |> add_annotations(text = '산점도((size = 1)', x = 0.5, y = 1.05, 
+                       xref = 'paper', yref = 'paper', showarrow = FALSE, 
+                       xanchor = 'center')
+subplot(fig1, fig2, fig3, fig4, 
+        nrows = 2, margin = 0.075, 
+        titleX = TRUE, titleY = TRUE) |> hide_legend()
+```
+
 위의 세가지 방법을 모두 사용하여 오버플로팅을 다음과 같이 제거할 수 있다.
 
-```{r fig.cap=' 세가지 미적요소 조절을 통한 오버플로팅 제거'}
+```{r fig.cap=' 세가지 미적요소 조절을 통한 오버플로팅 제거 - ggplot2'}
 df_취업통계_sample |> 
   ggplot() +
   ## X축을 졸업자_계, Y축을 취업자_합계_계로 매핑하고 size와 alpha를 설정한 geom_point 레이어 생성
@@ -331,13 +675,30 @@ df_취업통계_sample |>
 
 ```
 
+```{r fig.cap=' 세가지 미적요소 조절을 통한 오버플로팅 제거 - plotly'}
+df_취업통계_sample |> 
+  plot_ly() |>
+  add_markers(x = ~졸업자_계, y = ~취업자_합계_계, alpha = 0.5,
+            marker = list(size = 5)) |> 
+  layout(title = '산점도(n = 2000, alpha = 0.5, size = 5)',
+         xaxis = list(title = '졸업자수'), 
+         xaxis = list(title = '취업자수'), 
+         margin = margins
+  )
+
+```
+
 오버플로팅을 해결하는 방법으로 추가적으로 사용할 수 있는 방법은 밀도 분포 시각화를 사용하는 방법이 있다. 이는 다음 장에서 추가적으로 설명하겠다.
 
-# 추세가 가장 좋은 데이터는 뭐야 - 추세선 산점도
+# 어느 계열이 졸업자 대비 취업자가 많은가? - 추세선 산점도
 
 ------------------------------------------------------------------------
 
-산점도를 사용하는 가장 큰 이유는 데이터의 전체적인 분포를 보면서 데이터의 관계성을 확인하는데 있다. 이 관계성을 확인하는 과정에서 산점도는 사실 노이즈가 많이 발생한다. 이 노이즈들 사이에서 데이터의 관계성 패턴을 시각화하는 것이 추세선이다. `ggplot2`는 이 추세선을 `geom_smooth()`를 통해 제공한다. 다음은 `geom_smooth()`를 사용해 앞선 산점도에 추세선을 표현한 결과이다.
+산점도를 사용하는 가장 큰 이유는 데이터의 전체적인 분포를 보면서 데이터의 관계성을 확인하는데 있다. 이 관계성을 확인하는 과정에서 산점도는 사실 노이즈가 많이 발생한다. 이 노이즈들 사이에서 데이터의 관계성 패턴을 시각화하는 것이 추세선이다. 
+
+## ggplot2를 이용한 추세선
+
+`ggplot2`는 이 추세선을 `geom_smooth()`를 사용하면 매우 쉽게 그릴 수 있다. 다음은 `geom_smooth()`를 사용해 앞선 산점도에 추세선을 표현한 결과이다.
 
 ```{r fig.cap=' 추세선이 추가된 산점도'}
 ## 샘플수가 2000개인 df_취업통계_sample을 ggplot객체로 생성
@@ -356,18 +717,34 @@ p_scatter1 <- p_scatter +
 p_scatter1
 ```
 
-앞의 실행결과 같이 추세선은 전체를 대상으로 생성할 수도 있지만 그룹별로 추세선을 생성할 수도 있다. 다음은 앞선 산점도를 대계열별로 그룹화하고 각각의 그룹에 대한 추세선을 추가한 산점도이다.
+앞의 실행결과를 보면 졸업자수가 약 300명까지의 기울기에 비해 300명에서 약 500명까지의 기울기가 다소 큰 것으로 보인다. 또 500명 이상의 졸업자수를 가진 학과의 취업자수 기울기가 300에서 500명 사이의 기울기보다 작게 보인다. 따라서 300명에서 500명까지의 구간이 가장 취업자 비율이 높은 구간이라는 것을 알 수 있다.  
 
-```{r fig.cap=' 그룹별 추세선이 포함된 산점도'}
+반면 어느 계열이 취업자 비율이 더 높을까? 이를 확인하기 위해서는 다음과 같이 각 계열별로 추세선을 추가하여 확인할 수 있다. 
+
+```{r eval = FALSE, fig.cap=' 그룹별 추세선이 포함된 산점도'}
 p_scatter2 <- p_scatter +
   ## X축을 졸업자_계, Y축을 취업자_합계_계, color를 대계열로 매핑한 geom_point로 산점도 레이어 생성
   geom_point(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열)) + 
   ## X축을 졸업자_계, Y축을 취업자_합계_계, color를 대계열로 매핑한 geom_smooth로 추세선 레이어 생성
-  geom_smooth(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열)) +
+  geom_smooth(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열, method = 'lm')) +
   labs(title = '그룹별 추세선이 포함된 산점도')
 
 p_scatter2
 ```
+
+```{r echo = FALSE, fig.cap=' 그룹별 추세선이 포함된 산점도'}
+p_scatter2 <- p_scatter +
+  ## X축을 졸업자_계, Y축을 취업자_합계_계, color를 대계열로 매핑한 geom_point로 산점도 레이어 생성
+  geom_point(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열)) + 
+  ## X축을 졸업자_계, Y축을 취업자_합계_계, color를 대계열로 매핑한 geom_smooth로 추세선 레이어 생성
+  geom_smooth(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열, linetype = 대계열), method = 'lm') +
+  scale_color_brewer(palette = 'Blues') +
+  labs(title = '그룹별 추세선이 포함된 산점도')
+
+p_scatter2
+```
+
+
 
 # 데이터가 밀집된 구간은? - 러그 산점도
 
