@@ -147,15 +147,8 @@ margins <- list(t = 50, b = 25, l = 25, r = 25)
 ```
 
 ```{r echo = FALSE}
-if(!require(readr)) {
-  install.packages('readr')
-  library(readr)
-}
-
-if(!require(lubridate)) {
-  install.packages('lubridate')
-  library(lubridate)
-}
+library(readr)
+library(lubridate)
 
 # covid19_df <- read_csv(file = "D:/R/data/owid-covid-data.csv",
 #                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
