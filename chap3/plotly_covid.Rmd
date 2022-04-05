@@ -129,17 +129,20 @@ covid19_stat <- covid19_df |> group_by(iso_code, continent, location) |>
   summarise(인구수 = max(population, na.rm = T), 인당GDP = max(gdp_per_capita, na.rm = T),
             전체확진자수 = sum(new_cases, na.rm = T),
             전체사망자수 = sum(new_deaths, na.rm = T), 
-            십만명당사망자수 = round(total_deaths / population *100000, 5),
             십만명당중환자실 = last(icu_patients_per_million),
             재생산지수 = last(reproduction_rate),
-            전체검사자수 = max(total_tests, na.rm = T), new_tests = sum(new_tests, na.rm = T),
+            봉쇄지수 = max(stringency_index), 
+            전체검사자수 = max(total_tests, na.rm = T), 
+            신규검사자수 = sum(new_tests, na.rm = T),
             전체백신접종자수 = max(total_vaccinations, na.rm = T),
             백신접종자완료자수 = max(people_fully_vaccinated, na.rm = T),
             부스터접종자수 = max(total_boosters, na.rm = T),
-            백신접종완료률 = people_fully_vaccinated / population,
             인구백명당백신접종완료률 = max(people_fully_vaccinated_per_hundred, na.rm = T),
             인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
-            ) |> ungroup()
+            ) |> 
+    ungroup() |>
+    mutate(십만명당사망자수 = round(전체사망자수 / 인구수 *100000, 5),
+           백신접종완료률 = 백신접종자완료자수 / 인구수)
 
 ## 여백 설정을 위한 리스트 설정
 margins <- list(t = 50, b = 25, l = 25, r = 25)
@@ -185,20 +188,23 @@ covid19_stat <- covid19_df |> group_by(iso_code, continent, location) |>
   summarise(인구수 = max(population, na.rm = T), 인당GDP = max(gdp_per_capita, na.rm = T),
             전체확진자수 = sum(new_cases, na.rm = T),
             전체사망자수 = sum(new_deaths, na.rm = T), 
-            십만명당사망자수 = round(total_deaths / population *100000, 5),
             십만명당중환자실 = last(icu_patients_per_million),
             재생산지수 = last(reproduction_rate),
-            전체검사자수 = max(total_tests, na.rm = T), new_tests = sum(new_tests, na.rm = T),
+            봉쇄지수 = max(stringency_index), 
+            전체검사자수 = max(total_tests, na.rm = T), 
+            신규검사자수 = sum(new_tests, na.rm = T),
             전체백신접종자수 = max(total_vaccinations, na.rm = T),
             백신접종자완료자수 = max(people_fully_vaccinated, na.rm = T),
             부스터접종자수 = max(total_boosters, na.rm = T),
-            백신접종완료률 = people_fully_vaccinated / population,
             인구백명당백신접종완료률 = max(people_fully_vaccinated_per_hundred, na.rm = T),
             인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
-            ) |> ungroup()
+            ) |> 
+    ungroup() |>
+    mutate(십만명당사망자수 = round(전체사망자수 / 인구수 *100000, 5),
+           백신접종완료률 = 백신접종자완료자수 / 인구수)
 
 margins <- list(t = 50, b = 25, l = 25, r = 25)
-  
+
 ```
 
 # plotly란?
