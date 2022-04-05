@@ -527,11 +527,13 @@ scale_x_upset(order_by = c("freq", "degree"), n_sets = Inf, n_intersections = In
 빈도수를 표현하는 `geom_bar()`의 X축 스케일을 `scale_x_upset()`으로 설정하여 업셋 그래프를 그리는 코드는 다음과 같다. 
 
 ```{r fig.cap='기본 업셋 그래프'}
-df_과정구분_upset |> ggplot() +
+fig <- df_과정구분_upset |> ggplot() +
   ## X축을 학제리스트로 매핑한 geom_bar 레이어 생성
   geom_bar(aes(x=학제리스트)) +
   ## X축 스케일을 업셋 스케일로 설정
   scale_x_upset()
+
+ggplotly(fig)
 ```
 
 7개의 학제에 대한 조합이 표현되다보니 조합의 수가 너무 많아 보인다. 이 중 빈도가 많은 10개의 조합만 표시하도록하는 코드는 다음과 같다. 
