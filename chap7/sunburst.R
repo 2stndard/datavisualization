@@ -59,13 +59,31 @@ df_18세인구 |>
 unique(covid19_stat$continent)[!is.na(unique(covid19_stat$continent))]
 covid19_stat$location
 
-labels = 
+df_sunburst <- rbind(covid19_stat |> 
+  filter(iso_code %in% c('OWID_AFR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')) |>
+  select(continent, location, 전체확진자수), 
+  covid19_stat |> 
+    filter(!is.na(continent)) |>
+    group_by(continent) |> top_n(5, wt = 전체확진자수) |>
+    select(continent, location, 전체확진자수)
+)
+
+df_sunburst_root <- covid19_stat |> 
+  filter(!is.na(continent)) |>
+  group_by(continent) |> top_n(5, wt = 전체확진자수) |>
+  select(continent, location, 전체확진자수)
 
 
-covid19_stat |> filter(!is.na(continent)) |> 
+
   plot_ly() |>
-  add_trace(type = 'sunburst'
-            
+  add_trace(type = 'sunburst',  
+            labels = pull(df_sunburst[2]), 
+            parents = pull(df_sunburst[1]), 
+            values = pull(df_sunburst[3]),
+            branchvalues = 'total', 
+            insidetextorientation='radial', 
+            marker = list(colors = RColorBrewer::brewer.pal(5, 'Blues')), 
+            count = "branches"
             )
 
 covid19_df |> filter(iso_code == 'AIA') |> View()
