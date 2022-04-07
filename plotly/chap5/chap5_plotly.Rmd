@@ -1281,7 +1281,7 @@ subplot(p1, p2, nrows = 2) |>
 ```
 
 ```{r echo = FALSE}
-total_deaths_5_nations_by_day <- covid19_df |> 
+total_deaths_5_nations_by_day <- df_covid19 |> 
   filter((iso_code %in% c('KOR', 'USA', 'JPN', 'GBR', 'FRA'))) |>
   filter(date > max(date)-200) 
 
