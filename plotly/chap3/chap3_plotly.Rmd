@@ -570,9 +570,9 @@ df_covid19_100 |>
 | colorscale    | 컬러 스케일의 설정                         | 세부 속성들의 리스트 | diverging, sequential, sequentialminus |
 | colorway      | 기본 컬러 벡터 설정                        | 컬러 리스트          |                                        |
 
-`plotly`에서 사용하는 색의 설정은 색 이름 설정, 16진수로 설정된 RGB값 설정, `rgb()` 함수를 사용한 RGB값의 설정 세 가지 방법이 주로 사용된다. 이외에도 색조, 채도, 명도(lightness)를 사용하는 `hsl()`을 사용하는 방법, 색조, 채도, 명도(value)를 사용하는 `hsv()`를 사용하는 방법도 있다. `plotly`에서 사용이 가능한 색 이름은 W3.org에서 제공하는 CSS 색 이름을 사용한다.[^7]
+`plotly`에서 사용하는 색의 설정은 색 이름 설정, 16진수로 설정된 RGB값 설정, `rgb()` 함수를 사용한 RGB값의 설정 세 가지 방법이 주로 사용된다. 이외에도 색조, 채도, 명도(lightness)를 사용하는 `hsl()`을 사용하는 방법, 색조, 채도, 명도(value)를 사용하는 `hsv()`를 사용하는 방법도 있다. `plotly`에서 사용이 가능한 색 이름은 W3.org에서 제공하는 CSS 색 이름을 사용한다.[^1]
 
-[^7]: <https://www.w3schools.com/cssref/css_colors.asp>
+[^1]: <https://www.w3schools.com/cssref/css_colors.asp>
 
 ```{r eval = FALSE, fig.cap='layout을 사용한 배경색 설정'}
 p_layout_2 |> 
@@ -1392,38 +1392,155 @@ subplot(
 
 ```
 
-
 # plotly 시각화 사용하기
 
-`ggplot2`와 같은 정적 시각화는 시각화 그래프를 만든 이후에는 더 이상의 편집이 불가하다. 따라서 시각화를 일부를 변경하기 위해서는 다시 코딩해서 만들어야하는 불편함이 따른다. 특히 특정 위치의 데이터 값을 확인하거나 특정 구간 데이터를 줌인하기 위해서도 다시 코딩해야하는데 단지 한번의 데이터 확인을 위해 코드를 고쳐야 한다는 것은 큰 어려움이 따른다. 따라서 데이터 분석 과정에서 첫 번쨰로 수행하는 탐색적 데이터 분석(EDA : Exploratory Data Analysis)에 적절한 시각화 방법이 아니다. 반면 `plotly`와 같은 동적 시각화에서는 특징적 데이터 값의 확인, 줌인, 줌 아웃, 특정 데이터만의 표기 등과 같은 탐색적 데이터 분석에 필수적인 기능을 제공한다. 따라서 시각화를 완성한 이후에도 그 사용법을 잘 알아둘 필요가 있다. 당연히 `plolty`에도 완성된 시각화에서 제공하는 다양한 기능이 있다. 
-
-## 마우스를 사용한 데이터 확인
-
-`plotly` 시각화에서 가장 쉽게 사용하는 기능은 마우스를 사용하여 해당 위치의 데이터 정보를 확인하는 기능이다. `plotly` 객체로 생성된 시각화 위에 표현된 각 trace들은 자체 데이터를 JSON의 형태로 포함하고 있기 때문에 마우스 포인터를 trace위에 위치시키면 해당 trace의 정보가 표시된다. 
-
-마우스 포인터를 사용하여 표시되는 기본 정보는 X, Y축에 매핑된 정보와 trace에 설정되거나 매핑된 `name` 속성이 표시된다. 이 정보를 변경하기 위해서는 두가지 방법이 있는데 앞선 plotly 시각화 생성에서 설명한 호버(hover)의 설정인 `hoverinfo`를 사용하는 방법과 `hovertemplate`를 사용하는 방법이다. `hoverinfo`(실행결과 2-\*)를 사용하는 방법이 보다 간단하고 쉬운 반면 `hovertemplate`(실행결과 2-\*)는 표시되는 정보를 세부적으로 설정할 수 있다는 장점이 있다.
-
-![박스 trace의 정보 표시](D:/R/git/datavisualization/plotly/chap3/이미지 1.png)
-
-## 마우스 드래그를 통한 줌
-
-![마우스 드래그를 통한 줌](D:/R/git/datavisualization/plotly/chap3/이미지 2-1.png)
-
-## 마우스 휠을 사용한 줌
-
-## 축의 이동
-
-## 범례의 사용
-
-`plotly`에서 범례는 단순히 trace들의 이름과 표현방식을 매핑해주는 역할을 넘어 trace들의 표시를 조절할 수 있는 기능이 있다. 범례의 아이템을 클릭하면 해당 trace가 표시를 토글하는 역할을 한다. 따라서 여러 데이터 trace중에 특정한 trace만을 확인하기 위해서 해당 trace만 남기고 다른 trace의 표시를 꺼둘수 있는 기능이 있다. 또 `legendgroup`으로 그룹화된 범례는 해당 그룹의 아이템의 클릭만으로 그 그룹의 전체 trace를 켜거나 꺼둘 수 있다. 
-
-![범례의 토글](D:/R/git/datavisualization/plotly/chap3/이미지 3.png)
+`ggplot2`와 같은 정적 시각화는 시각화 그래프를 만든 이후에는 더 이상의 편집이 불가하다. 따라서 시각화를 일부를 변경하기 위해서는 다시 코딩해서 만들어야하는 불편함이 따른다. 특히 특정 위치의 데이터 값을 확인하거나 특정 구간 데이터를 줌인하기 위해서도 다시 코딩해야하는데 단지 한번의 데이터 확인을 위해 코드를 고쳐야 한다는 것은 큰 어려움이 따른다. 따라서 데이터 분석 과정에서 첫 번쨰로 수행하는 탐색적 데이터 분석(EDA : Exploratory Data Analysis)에 적절한 시각화 방법이 아니다. 반면 `plotly`와 같은 동적 시각화에서는 특징적 데이터 값의 확인, 줌인, 줌 아웃, 특정 데이터만의 표기 등과 같은 탐색적 데이터 분석에 필수적인 기능을 제공한다. 따라서 시각화를 완성한 이후에도 그 사용법을 잘 알아둘 필요가 있다. 당연히 `plolty`에도 완성된 시각화에서 제공하는 다양한 기능이 있다.
 
 ## modebar의 사용
 
-`plotly`가 시각화 사용자와의 상호작용을 위한 주요 기능을 제공하는 메뉴가 'modebar'이다. 'modebar'는 `plotly`가 실행되는 R-Studio나 웹 브라우저에서 오른쪽 상단에 나타나는 버튼 메뉴를 말한다. 기본적으로 설정되는 'modebar'는 다음의 그림과 같이  8개의 기능을 버튼을 통해 제공한다. 
+`plotly`가 시각화 사용자와의 상호작용을 위한 주요 기능을 제공하는 메뉴가 'modebar'이다. 'modebar'는 `plotly`가 실행되는 R-Studio나 웹 브라우저에서 오른쪽 상단에 나타나는 버튼 메뉴를 말한다. 기본적으로 설정되는 'modebar'는 다음의 그림과 같이 8개의 기능을 버튼을 통해 제공한다.
 
-![modebar 버튼과 기능](D:/R/git/datavisualization/plotly/chap3/이미지 2.png)
+![modebar 버튼과 기능](D:/R/git/datavisualization/plotly/chap3/ployly_3_1.png)
+
+## 마우스를 사용한 데이터 확인
+
+`plotly` 시각화에서 가장 쉽게 사용하는 기능은 마우스를 사용하여 해당 위치의 데이터 정보를 확인하는 기능이다. `plotly` 객체로 생성된 시각화 위에 표현된 각 trace들은 자체 데이터를 JSON의 형태로 포함하고 있기 때문에 마우스 포인터를 trace위에 위치시키면 해당 trace의 정보가 표시된다.
+
+마우스 포인터를 사용하여 표시되는 기본 정보는 X, Y축에 매핑된 정보와 trace에 설정되거나 매핑된 `name` 속성이 표시된다. 이 정보를 변경하기 위해서는 두가지 방법이 있는데 앞선 plotly 시각화 생성에서 설명한 호버(hover)의 설정인 `hoverinfo`를 사용하는 방법과 `hovertemplate`를 사용하는 방법이다. `hoverinfo`(실행결과 2-\*)를 사용하는 방법이 보다 간단하고 쉬운 반면 `hovertemplate`(실행결과 2-\*)는 표시되는 정보를 세부적으로 설정할 수 있다는 장점이 있다.
+
+![박스 trace의 정보 표시](D:/R/git/datavisualization/plotly/chap3/ployly_3_2.png)
+
+## 마우스 드래그를 통한 줌
+
+`plotly`로 완성된 시각화에서 trace가 나타나는 plotting area에서 마우스를 클릭한 상태로 드래그하면 다음 그림과 같이 줌 인 영역을 선택할 수 있다. 이렇게 영역을 선택한 후에 마우스 클릭을 놓으면 해당 부분이 줌인 되어 표시되게 된다. 만약 다시 처음의 상태로 돌아가려면 모드바의 집 아이콘인 'Reset Axes' 버튼을 사용한다.
+
+![마우스 드래그를 통한 줌](D:/R/git/datavisualization/plotly/chap3/ployly_3_3.png)
+
+## 마우스 휠을 사용한 줌
+
+줌인과 줌아웃을 지원하는 많은 프로그램에서는 마우스 휠을 사용하는 프로그램이 많다. `plotly`도 마우스 휠을 사용하여 줌인과 줌아웃을 사용할 수 있는데 이 기능은 기본적으로 지원하지 않고 `config()`를 사용하여 설정해야 한다. `config()`는 `plotly` 시각화가 사용자와의 상호작용을 지원하는 기능을 조절하고 설정하는 다양한 속성을 조절하는 함수이다. `config()`에서 설정할 수 있는 주요 속성은 다음과 같다.[^2]
+
+[^2]: <https://github.com/plotly/plotly.js/blob/master/src/plot_api/plot_config.js>
+
+| 속성                   | 설명                                           | 속성값                                            | 세부 속성                                                                                |
+|------------------------|------------------------------------------------|---------------------------------------------------|------------------------------------------------------------------------------------------|
+| staticPlot             | 정적 시각화로 설정                             | 논리값                                            |                                                                                          |
+| editable               | 시각화를 편집할 수 있는지를 설정               | 논리값                                            |                                                                                          |
+| edit                   | editable이 TRUE인 경우 편집 가능한 세부 속성   | 세부 속성들의 리스트                              | annotationPosition, annotationText, axisTitleText, legendPosition, legendText, titleText |
+| scrollZoom             | 마우스 휠을 줌으로 사용할지를 설정             | 'cartesian', 'gl3d', 'geo', 'mapbox', TRUE, FALSE |                                                                                          |
+| doubleClick            | 마우스 더블 클릭을 어떤 기능으로 사용할지 설정 | FALSE, 'reset', 'autosize', 'reset+autosize'      |                                                                                          |
+| showTips               | 팁(호버)를 사용할지 설정                       | 논리값                                            |                                                                                          |
+| displayModeBar         | 모드바의 표시 방법 설정                        | 'hover', TRUE, FALSE                              |                                                                                          |
+| modeBarButtonsToRemove | 모드바의 버튼 중 없앨 버튼 설정                | 버튼 ID 문자열                                    |                                                                                          |
+| modeBarButtonsToAdd    | 모드바에 포함시킬 버튼 설정                    | 버튼 ID 문자열                                    |                                                                                          |
+| toImageButtonOptions   | 이미지 저장 버튼의 설정                        |                                                   |                                                                                          |
+| displaylogo            | 모드바의 plotly 로고를 표시할지 설정           | 논리값                                            |                                                                                          |
+
+```{r eval = FALSE}
+df_취업률_2000 |> 
+  plot_ly() |> 
+  add_trace(type = 'box', data = df_취업률_2000 |> filter(과정구분 == '대학과정'),
+            x = ~대계열, y = ~취업률, name = '대학') |> 
+  add_trace(type = 'box', data = df_취업률_2000 |> filter(과정구분 == '전문대학과정'), 
+            x = ~대계열, y = ~취업률, name = '전문대학') |> 
+  layout(boxmode = "group", 
+         title = list(text = '대학 계열별 취업률 분포'), 
+         margin = margins) |>
+  ## 마우스 휠을 줌으로 사용하기 위해 속성 설정
+  config(scrollZoom = TRUE)
+         
+```
+
+## 축의 이동
+
+`plotly` 시각화에서 마우스를 사용한 기능중에 또 하나가 축의 이동이다. `plotly`의 플롯 영역(plotting area)에서 마우스를 클릭하고 드래그를 하면 줌인의 기능을 위한 사각형이 만들어지지만 X, Y축의 위치에서 마우스를 클릭하고 드래그하면 축을 이동시킬수 있다. 따라서 줌인한 후에 축을 이동시키면 사용자가 자세히 보기를 원하는 지역의 데이터를 확인할 수 있다. 
+
+![축의 이동](D:/R/git/datavisualization/plotly/chap3/ployly_3_4.png)
+
+## 범례의 사용
+
+`plotly`에서 범례는 단순히 trace들의 이름과 표현방식을 매핑해주는 역할을 넘어 trace들의 표시를 조절할 수 있는 기능이 있다. 범례의 아이템을 클릭하면 해당 trace가 표시를 토글하는 역할을 한다. 따라서 여러 데이터 trace중에 특정한 trace만을 확인하기 위해서 해당 trace만 남기고 다른 trace의 표시를 꺼둘수 있는 기능이 있다. 또 `legendgroup`으로 그룹화된 범례는 해당 그룹의 아이템의 클릭만으로 그 그룹의 전체 trace를 켜거나 꺼둘 수 있다.
+
+![범례의 토글](D:/R/git/datavisualization/plotly/chap3/ployly_3_5.png)
+
+
+# plotly 시각화 보여주기
+
+R에서 만들어진 데이터 시각화를 보여주기 위해서 가장 많이 사용되는 방법은 jpg, pdf 형태의 이미지로 만들어서 인포그래픽이나 보고서로 만들어서 사용한다. 하지만 이렇게 사용되면 구지 동적 시각화를 만들 이유가 없다. 따라서 동적 시각화의 기능을 충분히 사용하기 위해서는 사용자와의 상호작용이 가능한 매체를 통해 제공해야 한다. 
+
+## 정적 이미지로 저장하기
+
+`plotly`로 만든 시각화를 정적 이미지로 만들기 위해서는 앞서 설명한 모드바의 카메라 아이콘인 'download plot as a png' 버튼을 사용하면 간단히 저장할 수 있다. 저장되는 이미지는 `plotly`의 다양한 기능을 사용하여 편집한 형태로 저장되기 때문에 하나의 `plotly` 시각화를 만들어서 탐색적 데이터 분석을 수행한 후 결과를 이미지로 저장할 수 있다. 또 `config()`의 속성을 사용하여 저장되는 파일 형식이나 이미지 사이즈를 설정할 수 있다. 저장되는 이미지 파일 형식은  픽셀 이미지 형식으로 많이 사용되는 'png', 'jpeg'와 구글에서 개발한 'webp'를 지원하며 벡터 이미지 형식으로 'svg'를 지원한다. 
+
+```{r}
+save_fig <- subplot(
+  p1, 
+  subplot(p2, p3, p4, p5, p6, p7,
+          nrows = 2, 
+          shareX = TRUE, shareY = TRUE), 
+  nrows = 2, margin = 0.04
+  ## shareX, shareY를 TRUE로 설정하여 축을 공유
+  ) |> 
+  layout(showlegend = TRUE, 
+         title = '최근 100일간 코로나19 확진자수',
+         margin = margins) |>
+  config(
+    ##  이미지 저장 버튼의 세부 속성 설정
+    toImageButtonOptions = list(
+      ## 파일이름 설정
+      filename= '이미지',
+      ## 저장 포팻 설정
+      format = "svg",
+      ## 높이, 너비 설정
+      width = 800, height = 600
+      )
+    )
+```
+
+## R-Studio로 사용하기
+
+R의 사용자라면 대부분 R을 사용하기 쉽게 만들어주는 IDE 프로그램을 사용할 것이다. 특히 가장 많이 사용하는 R의 IDE 프로그램은 R-Studio인데 R-Studio에서 만들어진 시각화는 R-Studio의 기본 'plots' 패널이 출력된다. `plotly` 시각화의 모든 기능은 'plots' 패널에서 사용이 가능하지만 그 크기가 한정적이어서 사용에 원활치는 않다. 따라서 R-Studio에서 효과적으로 사용하기 위해서는 'plots' 패널의 zoom 버튼을 사용하여 'View Zoom' 패널을 띄워 사용하면 `plotly` 시각화의 기능을 충실히 사용할 수 있다. 
+
+## HTML로 사용하기
+
+앞서 두 가지 방법은 시각화를 만든 작성자 위주로 사용할 수 있는 방법이다. 하지만 동적 시각화의 효율적 사용을 위해서라면 여러 사람이 사용해야 할 것이다. 따라서 `plotly` 시각화를 HTML 파일로 저장하여 전달하면 웹 브라우저에 `plotly` 시각화를 띄워 사용할 수 있다. 
+
+`plotly` 시각화를 HTML 파일로 저장하는 방법은 두 가지가 있는데 앞서 설명한 R-Stutio 'plot' 패널의 export->Save as Web Page...메뉴를 사용하여 저장할 수 있다. 
+
+![plot 패널의 save as web page](D:/R/git/datavisualization/plotly/chap3/ployly_3_6.png)
+
+또 R 코드를 사용한다면 `htmlwidgets::saveWidget()`를 사용하여 다음과 같이 저장할 수 있다. 
+
+```{r}
+save_fig |> htmlwidgets::saveWidget('save_fig.html', selfcontained = F)
+
+```
+
+`htmlwidgets::saveWidget()`을 사용해서 생성된 HTML파일은 생각보다 사이즈가 크다. 보통 4~5MB정도의 크기로 생성되는데 이 파일에는 모든 자바스크립트와 CSS 정보가 담겨있다. 이정도 크기의 HTML파일은 블로그에 올릴 때 크기의 문제가 발생되는 경우가 있다. 따라서 `plotly` 시각화의 운영을 위한 최소한의 필수적 정보만을 담은 HTML파일을 만들기 위해서는 `partial_buldle()`을 사용한다. 
+
+```{r}
+save_fig1 <- save_fig |>
+  partial_bundle() |>
+  htmlwidgets::saveWidget('save_fig1.html')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
