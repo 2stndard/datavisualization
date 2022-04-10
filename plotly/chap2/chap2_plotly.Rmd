@@ -2037,37 +2037,41 @@ p_bar_mode |>
 
 ```{r fig.cap='relative형 막대 trace'}
 ## 최종 결과는 diff_sam에 저장
-diff_sam <- 
+diff_kor <- 
   ## 긴 형태의 100일 코로나19 데이터에서
   df_covid19_100 |> 
   ## date의 월 단위 열을 yearmonth에 저장
-  mutate(yearmonth = lubridate::floor_date(date, "month")) |> 
+  mutate(date_by_week = lubridate::floor_date(date, "week"), 
+         yearweekth =  paste0(lubridate::year(date_by_week), '년 ', 
+                           lubridate::week(date_by_week), '주')) |> 
   ## iso_code, yearmonth로 그룹화
-  group_by(iso_code, yearmonth) |>
+  group_by(iso_code, date_by_week, yearweekth) |>
   ## new_cases 합계 산출
-  summarise(new_cases = sum(new_cases)) |> 
-  ## 지역이름을 열로 값을 new_cases로 설정한 넓은 데이터프레임 생성
-  pivot_wider(names_from = iso_code, values_from = new_cases) |>
-  ## 남미 열만 선택
-  select(OWID_SAM) |>
-  ## 선택된 열을 벡터로 변환
-  pull()
+  summarise(new_cases = sum(new_cases))
+
+diff_kor_value <- diff_kor |> 
+  filter(iso_code == 'KOR') |> 
+  select(new_cases) |> pull()
+
+diff_kor_ticktext <- diff_kor |> 
+  filter(iso_code == 'KOR') |> 
+  select(yearweekth) |> pull()
 
 ## 빈 plotly객체 생성
 plot_ly() |> 
   ## 막대 trace 추가
   add_trace(type = 'bar', 
             ## X축은 1부터 3까지, Y축은 전월 대비 차분 산출
-            x = 1:length(diff(diff_sam)), y = diff(diff_sam), 
+            x = 1:length(diff(diff_kor_value)), y = diff(diff_kor_value), 
             ## 차분이 0보다 크면 'darkred', 아니면 'darkblue'로 설정
-            color = I(ifelse(diff(diff_sam) > 0, "lightblue", "darkblue"))
+            color = I(ifelse(diff(diff_kor_value) > 0, "lightblue", "darkblue"))
                        ) |> 
   ## barmode를 relative로 설정
   layout(barmode = 'relative', 
-         xaxis = list(ticktext = c('1월', '2월', '3월', '4월'), 
-                      tickvals = c(1, 2, 3, 4)), 
+         xaxis = list(tickvals = 1:length(diff(diff_kor_value)), 
+                      ticktext = diff_kor_ticktext),
          yaxis = list(title = '증감량'), 
-         title = list(text = '남미 코로나19 확진자수 증감'),
+         title = list(text = '우리나라 코로나19 확진자수 증감'),
          margin = margins)
 
 ```

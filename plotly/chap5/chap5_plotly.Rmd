@@ -50,13 +50,12 @@ library(lubridate)
 #                                              )
 #                             )
 
-covid19_df <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-data.csv",
-                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
-                                              )
-                             )
-
-covid19_df_100 <- covid19_df |> 
-  filter((iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM', 'OWID_AFR'))) |>
+df_covid19 <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-data.csv",
+                            col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                                             )
+                            )
+df_covid19_100 <- df_covid19 |> 
+  filter(iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM', 'OWID_AFR')) |>
   filter(date >= max(date) - 100) |>
   mutate(location = case_when(
     location == 'South Korea' ~ '한국', 
@@ -66,18 +65,20 @@ covid19_df_100 <- covid19_df |>
     location == 'North America' ~ '북미', 
     location == 'South America' ~ '남미', 
     location == 'Africa' ~ '아프리카')) |>
+  mutate(location = fct_relevel(location, '한국', '아시아', '유럽', '북미', '남미', '아프리카', '오세아니아')) |>
   arrange(date)
 
-covid19_df_100$location <- fct_relevel(covid19_df_100$location, '한국', '아시아', '유럽', '북미', '남미', '아프리카', '오세아니아')
-
-covid19_df_100_wide <- covid19_df_100 |> 
-  select(date, location, new_cases, people_fully_vaccinated_per_hundred) |> 
+df_covid19_100_wide <- df_covid19_100 |>
+  select(date, location, new_cases, people_fully_vaccinated_per_hundred) |>
   rename('date' = 'date', '확진자' = 'new_cases', '백신접종완료자' = 'people_fully_vaccinated_per_hundred') |>
-  pivot_wider(id_cols = date, names_from = location, values_from = c('확진자', '백신접종완료자')) |>
+  pivot_wider(id_cols = date, names_from = location, 
+              values_from = c('확진자', '백신접종완료자')) |>
   arrange(date)
 
-covid19_stat <- covid19_df |> group_by(iso_code, continent, location) |>
-  summarise(인구수 = max(population, na.rm = T), 인당GDP = max(gdp_per_capita, na.rm = T),
+df_covid19_stat <- df_covid19 |> 
+  group_by(iso_code, continent, location) |>
+  summarise(인구수 = max(population, na.rm = T), 
+            인당GDP = max(gdp_per_capita, na.rm = T),
             전체확진자수 = sum(new_cases, na.rm = T),
             전체사망자수 = sum(new_deaths, na.rm = T), 
             십만명당중환자실 = last(icu_patients_per_million),
