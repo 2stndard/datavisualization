@@ -204,7 +204,7 @@ vaccine_top5_by_continent |>
             textfont = list(color = 'black'), 
             orientation = 'v'
             ) |>
-  layout(barmode = 'group', title = '완전 백신 접종률 상위 top 10 국가', 
+  layout(barmode = 'group', title = '대륙별 완전 백신 접종률 상위 top 5 국가', 
          xaxis = list(title = '백신접종완료율', 
                       ticksuffix = '%', range = c(0, 105)), 
          yaxis = list(title = '', autorange = 'reversed', 
@@ -213,7 +213,7 @@ vaccine_top5_by_continent |>
          margin = margins)
 ```
 
-```{r echo = FALSE}
+```{r echo = FALSE, fig.height = 7}
 vaccine_top5_by_continent <- df_covid19_stat |>
   filter(인구수 > 10000000, !is.na(continent)) |>
   group_by(continent) |>
@@ -232,16 +232,24 @@ vaccine_top5_by_continent |>
             textfont = list(color = 'black'), 
             orientation = 'v'
             ) |>
-  layout(barmode = 'group', title = '완전 백신 접종률 상위 top 10 국가', 
+  layout(barmode = 'group', title = '대륙별 완전 백신 접종률 상위 top 5 국가', 
          xaxis = list(title = '백신접종완료율', 
                       ticksuffix = '%', range = c(0, 105)), 
          yaxis = list(title = '', autorange = 'reversed', 
                       tickvals = ~seq,
                       ticktext = ~location), 
-         margin = margins)
+         margin = list(r = 100, t = 80), 
+         size = list(height = 900)
+  )
 ```
 
+대륙별 완전 백신 접종률 상위 top 5 국가의 결과를 보면 대부분 70% 후반의 백신 접종률을 보이지만 아프리카와 북미 지역은 상대적으로 백신 접종률이 떨어지는 것으로 나타난다. 아프리카는 대륙의 국가들의 소득이 낮기 때문에 그럴수 있으리라 추정도 가능하지만 북미 지역의 경우 쿠바와 캐나다만 접종률이 높고 나머지 국가들은 60%중반을 넘기지 못하는 것으로 나타난다. 특히 미국의 백신 접종률이 60% 중반밖에 되지 못한다. 또하나 특징적인 부분이 오세아니아인데 오세아니아는 호주만 표기되었다. 이는 데이터 전처리 과정에서 인구 천만명이상의 국가를 대상으로 하였기 때문에 오세아니아 대륙에 인구 천만명 이상 국가가 호주밖에 없기 때문에 이러한 결과가 나왔다. 
+
 ## 백신 접종률이 높은 국가의 사망률은? – 이중 축의 사용
+
+시각화를 하다보면 하나의 그래프에 여러 개의 데이터를 표현해야하는 경우가 많다. 다른 종류의 데이터를 표현하는데에는 서로 동일한 시각화 방법을 사용할 수도 있고 다른 시각화 방법을 사용할 수도 있다. 가장 흔하게 사용하는 경우가 막대 그래프와 선그래프를 혼용하는 경우이다. 이렇게 하나 이상의 데이터 계열을 표현하는 경우에는 보통 X, Y축 중 한 축의 스케일은 공유하지만 나머지 한 축은 각각의 데이터에 대한 스케일을 가질 수 있다. 따라서 추가적인 축의 설정이 필요하다. `plotly`에서는 기본적으로 설정되는 X축은 xaxis, Y축은 yaxis로 `layout()`에서 설정이 가능하고 추가적으로 설정하는 축은 뒤에 숫자를 붙여 설정할 수 있다. X축을 추가적으로 설정하려면 xaxis2, Y축을 추가적으로 설정하려면 yaxis2로 설정한다. 이렇게 설정된 추가 축을 사용하는 trace에 `xaxis`, `yaxis` 속성을 사용하여 해당 trace가 참조해야하는 축을 매칭한다. 이 두 속성을 설정하지 않으면 `layout()`에서 설정되는 `xaxis`와 `yaxis`가 매칭되지만 `xaxis`와 `yaxis`에 'x2', 'y2'로 설정하면 `layout()`의 `xaxis2`, `yaxis2`에 매칭된다. 기본 축 설정인 `xaxis`와 `yaxis`의 속성 설정과 다른 하나는 `overlaying`인데 `overlaying`에 공유해야 할 축의 id를 설정함으로써 해당 축에 부가적인 축이라는 것을 설정해야 한다. 서로 축이 겹쳐서 그려지지 않도록 `side` 속성을 사용하여 축이 그려지는 위치를 설정할 수 있다. 
+
+이중 축의 사례를 살펴보기 위해 앞에서 그렸던 완전 백신 접종률 상위 10 국가 막대 그래프에 인구 10만명당 사망자수를 점으로 표시하는 스캐터 trace를 추가해보도록 하겠다. 백신 접종률의 Y축 스케일은 0%부터 100%까지의 스케일을 가지지만 해당 국가의 인구 10만명당 사망자수는 0.3부터 281까지의 스케일을 가지기 때문에 추가적인 Y축이 필요하게 된다. 따라서 인구 10만명당 사망자수를 표시하는 `add_trace()`의 `yaxis` 속성에 'y2'를 설정하여 추가적인 축을 사용하는 trace로 설정하고 `layout`에 'y2'에 해당하는 축에 대한 `yaxis2`를 설정한다. 그리고 `overlaying` 속성에 'y'를 설정하여 Y축에 대한 보조축이라는 점을 설정하였고 `side`를 'right'로 설정하여 `yaxis2`가 오른쪽에 표시되도록 설정하였다. 
 
 ```{r eval = FALSE}
 vaccine_top10 |> 
@@ -269,6 +277,7 @@ vaccine_top10 |>
 
 ```
 
+
 ```{r echo = FALSE}
 vaccine_top10 |> 
   plot_ly() |>
@@ -295,7 +304,10 @@ vaccine_top10 |>
 
 ```
 
-## 이중 축 사용
+백신 접종 완료율과 인구 10만명당 사망자수를 동시에 표기해보니 포르투갈, 칠레, 스페인, 아르헨티나는 높은 백신 접종률에도 불구하고 10만명당 200명 이상의 사망자가 나왔다. 하지만 쿠바, 우리나라, 캄보디아, 호주등의 국가는 높은 접종률을 보이면서 10만명당 사망자수도 낮게 나타난다. 
+
+
+앞서 그렸던 대륙별 완전 백신 접종률 상위 top 5 국가에 인구 10만명당 사망률을 추가적으로 표시하고 축을 추가하는 방법은 다음과 같다. 
 
 ```{r eval = FALSE}
 vaccine_top5_by_continent |> 
@@ -314,7 +326,7 @@ vaccine_top5_by_continent |>
             textposition = 'right'
             )|>
   layout(barmode = 'group', 
-         title = list(text = '완전 백신 접종률 상위 top 10 국가', 
+         title = list(text = '대륙별 완전 백신 접종률 상위 top 5 국가', 
                       y = 0.97, yref = 'container'), 
          xaxis = list(title = '백신접종완료율', range = c(0, 105), 
                       ticksuffix = '%'), 
@@ -349,7 +361,7 @@ vaccine_top5_by_continent |>
             textposition = 'right'
             )|>
   layout(barmode = 'group', 
-         title = list(text = '완전 백신 접종률 상위 top 10 국가', 
+         title = list(text = '대륙별 완전 백신 접종률 상위 top 5 국가', 
                       y = 0.97, yref = 'container'), 
          xaxis = list(title = '백신접종완료율', range = c(0, 105), 
                       ticksuffix = '%'), 
@@ -365,6 +377,8 @@ vaccine_top5_by_continent |>
           margin = list(r = 100, t = 80))
 
 ```
+대륙별 완전 백신 접종률 상위 국가들의 인구 10만명당 사망자수를 살펴보면 아시아 국가의 접종률이 높은 국가들은 전반적으로 낮은 사망자수를 나타냈고 유럽과 남미는 백신 접종률이 높았지만 사망자 수도 높게 나타나고 있음을 알 수 있다. 
+
 
 ## 꼭 수직 막대를 사용해야 한다면 - 롤리팝 그래프
 
@@ -380,29 +394,49 @@ df_lolipop <- df_covid19_stat |>
   arrange(desc(인구백명당백신접종완료률))
 
 df_lolipop |> 
-  plot_ly() |>
-  add_segments(x = ~reorder(location, desc(인구백명당백신접종완료률)), 
-               xend = ~reorder(location, desc(인구백명당백신접종완료률)),
-            y = ~인구백명당백신접종완료률, 
-            yend = 0, color = I('gray')
-            ) |>
-  add_trace(type = 'scatter', mode = 'markers',  
-            x = ~reorder(location, desc(인구백명당백신접종완료률)), 
+  plot_ly(x = ~reorder(location, desc(인구백명당백신접종완료률))) |>
+  add_segments(xend = ~reorder(location, desc(인구백명당백신접종완료률)),
+               y = ~인구백명당백신접종완료률, 
+               yend = 0, color = I('gray'), 
+               showlegend = FALSE
+               ) |>
+  add_segments(xend = ~reorder(location, desc(인구백명당백신접종완료률)),
+               y = ~십만명당사망자수, 
+               yend = 0, color = I('gray'),  yaxis = "y2",
+               showlegend = FALSE
+               ) |>
+  add_trace(type = 'scatter', mode = 'markers', name = '접종완료율',
             y = ~인구백명당백신접종완료률, color = I('darkblue')) |>
+  add_trace(type = 'scatter', mode = 'markers', 
+            symbol = I('circle-open'),
+            name = '사망자수', yaxis = "y2",
+            y = ~십만명당사망자수, color = I('black'),
+            text = ~round(십만명당사망자수, 1), 
+            textposition = 'right'
+            )|>
   layout(barmode = 'group', 
          title = list(text = '아시아 국가의 백신접종률', 
                       y = 0.97, yref = 'container'), 
          yaxis = list(title = '백신접종완료율', range = c(0, 105), 
                       ticksuffix = '%'), 
          xaxis = list(title = ''),
-          margin = margins, showlegend = FALSE)
+         yaxis2 = list(title = list(text = '인구10만명당 사망자수', 
+                                    standoff = 10), 
+                       side = "right", overlaying = "y",
+                       range = c(0, 200), ticksuffix = '명'),
+         margin = list(t = 50, b = 25, l = 25, r = 70), 
+         legend = list(orientation = 'h', y = -0.5, x = 0.5, 
+                       yref = 'container', xanchor = 'center'),
+          showlegend = T)
 ```
+
+아시아 지역 인구 5백만명 이상 국가들의 접종 완료율과 사망자수를 롤리팝 그래프로 보면 전반적으로 접종률이 높은 아랍에미레이트, 싱가포르, 우리나라, 캄보디아, 일본 등의 국가는 사망다수도 비교적 낮게 나타난다. 반면 접종률이 낮게 나타나는 이라크, 키르기스탄, 레바논, 팔레스타인, 요르단, 아제르바이잔 등의 국가는 사망자수이 높게 나타나고 있다. 
 
 # 차이(difference)의 시각화
 
 앞에서 설명한 비교의 시각화는 특정 변수의 변량값들을 서로 비교함으로써 상대적인 위치를 찾아내기 위한 시각화 방법이다. 하지만 동일 시각화 대상들의 시점이나 조건의 변화에 따른 변량 값의 차이를 확인하기 위해 사용하는 시각화 방법이 차이의 시각화이다. 시계열 그래프가 시간 변화의 조건에 따른 변량의 차이를 표현하는 좋은 예이기는 하지만 보통 차이의 시각화는 두 시점이나 두 조건의 차이를 보여주는 것이 효과적이다. 
 
-## dumbell
+## 효율적 대륙별 사망자의 최대와 최소 시각화 - 덤델 그래프
 
 덤벨(Dumbbell) 그래프는 동일한 변수의 두개의 값을 비교하기 위해 사용하는 차트이다. 일반적으로 양쪽 끝을 둥글게 만들고 그 사이를 선으로 연결하여 생긴 형태가 운동할때 쓰는 아령과 같이 생겨서 붙여진 이름이다.앞서 롤리팝 그래프와 같이 `plotly`는 덤벨 그래프를 위한 함수를 제공하지 않기 떄문에 `scatter` trace의 `markers`와 `add_segments()`를 사용하여 그려야 한다. 다음은 대륙별 인구수가 백만 이상의 국가 중에 십만명당 사망자수가 가장 작은 나라와 가장 큰 나라의 차이를 시각화하는 코드이다.   
 
@@ -430,6 +464,8 @@ df_covid19_stat |>
          margin = margins
          )
 ```
+
+대륙별 10만명당 사망자수 차이 시각화를 보면 남미의 경우 최소 사망자수 국가와 최대 사망자수 국가의 차이가 약 620명으로 가장 크게 나타난다. 반면 아시아 국가의 경우 최대와 최소의 차이가 약 165명정도로 가장 작게 나타나고 있음을 알 수 있다. 
 
 ## 피라미드 그래프
 
@@ -514,6 +550,7 @@ df_covid19_stat |>
          margin = margins) 
 
 ```
+
 ```{r echo=FALSE}
 df_covid19_stat |>
   filter(iso_code %in% c('OWID_HIC', 'OWID_LIC', 'OWID_LMC', 'OWID_UMC')) |>
@@ -560,31 +597,11 @@ df_covid19_stat |>
 
 ```
 
-## sunburst
+## 다단계 구성의 시각화 - 선버스트 차트
 
 'sunburst'의 사전적 의미는 '햇살'이다. 햇살처럼 퍼저나가는 데이터를 표현하기 위해 사용되는 형태의 시각화이다. `plotly`에서 지원하는 선버스트 trace는 루트(root)에서 잎(leaf)까지 원의 방사형 바깥쪽으로 퍼져나가면서 계층화된 데이터를 시각화한다. 따라서 선버스트 trace를 그리기 위해서는 계층화된 데이터가 필요하다. 선버스트 trace의 각 섹터는 `labels`과 `parents`의 속성에서 설정하는데 `label`은 선버스트 trace에서 표시되는 섹터의 표시 라벨의 벡터가 설정되고 `parents`는 각 섹터의 부모 섹터를 가리키는 라벨을 설정한다. 만약 `parents`에 설정된 부모 섹터가 ''이면 가장 안쪽의 노드인 루트 노드가 된다. 
 
-다음은 선버스트 trace를 위해 필요한 데이터의 전처리 과정이다. df_sunburst_cases 데이터프레임을 만들기 위해서 두 개의 데이터프레임을 `rbind()`로 붙여 하나의 데이터프레임으로 만들었다. 첫 번째 데이터프레임은 각 대륙별 전체 확진자수 데이터프레임이고 두 번째 데이터프레임은 각 대륙별로 전체 확진자수가 많은 5개 국가의 데이터프레임이다.   
-
-```{r}
-df_sunburst_cases <- rbind(
-  ## 각 대륙별 전체 확진자수 데이터프레임
-  df_covid19_stat |> 
-  filter(iso_code %in% c('OWID_AFR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')) |>
-  select(continent, location, 전체확진자수),
-  ## 전체 확진자가 많은 대륙별 5개국 데이터 프레임
-  df_covid19_stat |> 
-    filter(!is.na(continent)) |>
-    group_by(continent) |> top_n(5, wt = 전체확진자수) |>
-    select(continent, location, 전체확진자수)
-)
-
-head(df_sunburst_cases, 10)
-```
-
-전처리된 데이터프레임을 보면 대륙의 데이터를 나타내는 행에는 'continent' 열이 비어있다. 각 대륙의 확진자가 많은 5개국은 'continent' 열에 대륙 이름이 기록되었다. 따라서 `parents` 속성이 'continent'열로 설정되고 전체 섹터의 이름으로 설정되는 `label`은 'location'열로 설정되었다. 이들 섹터의 값은 전체 확진자 열로 설정된다. 
-
-다음의 코드에서 추가적으로 설정된 속성이 `branchvalues`와 `insidetextorientation`이다. `branchvalues`는 `values`로 설정된 아이템의 합계 산출 방법을 설정한다. "total"로 설정하면 `values`의 아이템이 모든 하위 항목의 값으로 간주된다. 예를 들어 부모 섹터의 `values`가 50, 2개의 자식 섹터의 `values`가 각각 20라면 부모 섹터의 40%씩을 차지하게 된다. 반면 "remainer"는 부모 섹터와 자식 섹터에 해당하는 `values`를 모두 더해서 비율을 산출하게 된다. 앞의 예처럼 부모 섹터가 50, 2개의 자식 섹터가 각각 20이라면 20/(50+20+20)이므로 22%가 산출된다. 
+선버스트 trace에서 추가적으로 알아두어야 할 속성이 `branchvalues`와 `insidetextorientation`이다. `branchvalues`는 `values`로 설정된 아이템의 합계 산출 방법을 설정한다. "total"로 설정하면 `values`의 아이템이 모든 하위 항목의 값으로 간주된다. 예를 들어 부모 섹터의 `values`가 50, 2개의 자식 섹터의 `values`가 각각 20라면 부모 섹터의 40%씩을 차지하게 된다. 반면 "remainer"는 부모 섹터와 자식 섹터에 해당하는 `values`를 모두 더해서 비율을 산출하게 된다. 앞의 예처럼 부모 섹터가 50, 2개의 자식 섹터가 각각 20이라면 20/(50+20+20)이므로 22%가 산출된다.
 
 ```{r echo = FALSE}
 fig1 <- plot_ly(
@@ -621,12 +638,37 @@ subplot(fig1 |>
 
 ```
 
+`insidetextorientation`은 선버스트 trace에 표시되는 내부 정보 문자열이 표시되는 각도를 설정한다. `insidetextorientation`는 'radial'과 'horizontal'의 두 가지 방법이 사용되는데 'radial'은 섹터의 각도에 따라 문자가 회전하고 'horizontal'은 섹터의 각도와 관계없이 수평으로 표기된다. 
+
+다음은 선버스트 trace를 위해 필요한 데이터의 전처리 과정이다. df_sunburst_cases 데이터프레임을 만들기 위해서 두 개의 데이터프레임을 `rbind()`로 붙여 하나의 데이터프레임으로 만들었다. 첫 번째 데이터프레임은 각 대륙별 전체 확진자수 데이터프레임이고 두 번째 데이터프레임은 각 대륙별로 전체 확진자수가 많은 5개 국가의 데이터프레임이다.   
+
+```{r}
+df_sunburst_cases <- rbind(
+  ## 각 대륙별 전체 확진자수 데이터프레임
+  df_covid19_stat |> 
+  filter(iso_code %in% c('OWID_AFR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')) |>
+  select(continent, location, 전체확진자수),
+  ## 전체 확진자가 많은 대륙별 5개국 데이터 프레임
+  df_covid19_stat |> 
+    filter(!is.na(continent)) |>
+    group_by(continent) |> top_n(5, wt = 전체확진자수) |>
+    select(continent, location, 전체확진자수)
+)
+
+head(df_sunburst_cases, 10)
+```
+
+전처리된 데이터프레임을 보면 대륙의 데이터를 나타내는 행에는 'continent' 열이 비어있다. 각 대륙의 확진자가 많은 5개국은 'continent' 열에 대륙 이름이 기록되었다. 따라서 `parents` 속성이 'continent'열로 설정되고 전체 섹터의 이름으로 설정되는 `label`은 'location'열로 설정되었다. 이들 섹터의 값은 전체 확진자 열로 설정된다. 
+
+이제 전처리된 데이터를 사용하여 선버스트 차트를 만든다. `add_trace()`의 `type`에 'sunburst'를 설정함으로써 해당 trace가 선버스트 trace임을 설정하고 선버스트 trace에 필수적으로 필요한 `labels`, `parents`, `values` 속성에 전처리한 데이터 중 해당 열을 매핑하여 완성하였다. 
+
 ```{r eval = FALSE, message=FALSE, warning=FALSE, error=FALSE}
-plot_ly() |>
+df_sunburst_cases |>
+  plot_ly() |>
   add_trace(type = 'sunburst',  
-            labels = pull(df_sunburst_cases[2]), 
-            parents = pull(df_sunburst_cases[1]), 
-            values = pull(df_sunburst_cases[3]),
+            labels = ~location, 
+            parents = ~continent, 
+            values = ~전체확진자수,
             branchvalues = 'total', 
             insidetextorientation='radial', 
             textinfo = 'label+percent parent+percent entry', 
@@ -635,11 +677,12 @@ plot_ly() |>
 ```
 
 ```{r echo = FALSE, message=FALSE, warning=FALSE, error=FALSE}
-plot_ly() |>
+df_sunburst_cases |>
+  plot_ly() |>
   add_trace(type = 'sunburst',  
-            labels = pull(df_sunburst_cases[2]), 
-            parents = pull(df_sunburst_cases[1]), 
-            values = pull(df_sunburst_cases[3]),
+            labels = ~location, 
+            parents = ~continent, 
+            values = ~전체확진자수,
             branchvalues = 'total', 
             insidetextorientation='radial', 
             marker = list(colors = RColorBrewer::brewer.pal(5, 'Blues')), 
@@ -648,7 +691,11 @@ plot_ly() |>
             )
 ```
 
-# 데이터는 이렇게 흘러갑니다. - 산키 다이어그램
+다른 trace와는 달리 선버스트 trace는 마우스 클릭에 따른 추가적인 사용자 반응 작용이 있다. 선버스트 차트에서 특정 섹터를 클릭하면 해당 부분 섹터가 확대되어 표시됨으로써 세부 데이터를 확인하기 쉬워진다. 
+
+![아시아 섹터를 클릭한 선버스트 차트의 반응 결과](D:/R/git/datavisualization/plotly/chap6/sunburst.png)
+
+## 데이터는 이렇게 흘러갑니다. - 산키 다이어그램
 
 ------------------------------------------------------------------------
 
