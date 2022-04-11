@@ -379,84 +379,6 @@ vaccine_top5_by_continent |>
 ```
 대륙별 완전 백신 접종률 상위 국가들의 인구 10만명당 사망자수를 살펴보면 아시아 국가의 접종률이 높은 국가들은 전반적으로 낮은 사망자수를 나타냈고 유럽과 남미는 백신 접종률이 높았지만 사망자 수도 높게 나타나고 있음을 알 수 있다. 
 
-## 삼중 축의 사용
-
-```{r}
-axis <- function(title) {
-  list(
-    title = title,
-    titlefont = list(
-      size = 20
-    ),
-    tickfont = list(
-      size = 15
-    ),
-    tickcolor = 'rgba(0,0,0,0)',
-    ticklen = 5
-  )
-}
-
-
-fig <- vaccine_top10 %>% plot_ly()
-fig <- fig %>% add_trace(
-    type = 'scatterternary',
-    mode = 'markers',
-    a = ~인구백명당백신접종완료률,
-    b = ~십만명당사망자수,
-    c = ~인당GDP,
-    text = ~location,
-    marker = list( 
-      symbol = 100,
-      color = '#DB7365',
-      size = 14,
-      line = list('width' = 2)
-    )
-  )
-fig <- fig %>% layout(
-    title = "Simple Ternary Plot with Markers",
-    ternary = list(
-      sum = 100,
-      aaxis = list(
-    title = '인구백명당백신접종완료률',
-    titlefont = list(
-      size = 20
-    ),
-    tickfont = list(
-      size = 15
-    ),
-    tickcolor = 'rgba(0,0,0,0)',
-    ticklen = 5
-  ),
-      baxis = list(
-    title = '십만명당사망자수',
-    titlefont = list(
-      size = 20
-    ),
-    tickfont = list(
-      size = 15
-    ),
-    tickcolor = 'rgba(0,0,0,0)',
-    ticklen = 5
-  ),
-      caxis = list(
-    title = '인당GDP',
-    titlefont = list(
-      size = 20
-    ),
-    tickfont = list(
-      size = 15
-    ),
-    tickcolor = 'rgba(0,0,0,0)',
-    ticklen = 5
-  )
-    )
-  )
-
-fig
-```
-
-
-
 ## 꼭 수직 막대를 사용해야 한다면 - 롤리팝 그래프
 
 보통 우리가 보는 시각화는 인쇄물 형태이던 웹 브라우저 등의 모니터 화면으로 보던 좌우의 확장보다는 상하의 확장에 더 유연하다. 따라서 좌우로 표현되어야 하는 막대가 많이지면 앞서와 같이 상하 확정을 사용하는 수평형 막대 그래프를 사용한다. 하지만 한눈에 보이는 추세와 비교를 같이 표시하기 위해서는 막대의 너비가 다소 부담스러울 수 있다. 이런 경우 효과적으로 사용되는 시각화가 바로 롤리팝 그래프이다. 
@@ -513,7 +435,7 @@ df_lolipop |>
 
 앞에서 설명한 비교의 시각화는 특정 변수의 변량값들을 서로 비교함으로써 상대적인 위치를 찾아내기 위한 시각화 방법이다. 하지만 동일 시각화 대상들의 시점이나 조건의 변화에 따른 변량 값의 차이를 확인하기 위해 사용하는 시각화 방법이 차이의 시각화이다. 시계열 그래프가 시간 변화의 조건에 따른 변량의 차이를 표현하는 좋은 예이기는 하지만 보통 차이의 시각화는 두 시점이나 두 조건의 차이를 보여주는 것이 효과적이다. 
 
-## 효율적 대륙별 사망자의 최대와 최소 시각화 - 덤델 그래프
+## 대륙별 사망자의 최대값과 최소값은? - 덤델 그래프
 
 덤벨(Dumbbell) 그래프는 동일한 변수의 두개의 값을 비교하기 위해 사용하는 차트이다. 일반적으로 양쪽 끝을 둥글게 만들고 그 사이를 선으로 연결하여 생긴 형태가 운동할때 쓰는 아령과 같이 생겨서 붙여진 이름이다.앞서 롤리팝 그래프와 같이 `plotly`는 덤벨 그래프를 위한 함수를 제공하지 않기 떄문에 `scatter` trace의 `markers`와 `add_segments()`를 사용하여 그려야 한다. 다음은 대륙별 인구수가 백만 이상의 국가 중에 십만명당 사망자수가 가장 작은 나라와 가장 큰 나라의 차이를 시각화하는 코드이다.   
 
@@ -544,10 +466,14 @@ df_covid19_stat |>
 
 대륙별 10만명당 사망자수 차이 시각화를 보면 남미의 경우 최소 사망자수 국가와 최대 사망자수 국가의 차이가 약 620명으로 가장 크게 나타난다. 반면 아시아 국가의 경우 최대와 최소의 차이가 약 165명정도로 가장 작게 나타나고 있음을 알 수 있다. 
 
-## 피라미드 그래프
+## 피라미드를 그려보자 - 퍼널 차트
+
+피라미드 그래프는 보통 인구 연령별 인구수를 표현하는 그래프에서 많이 사용된다. 하지만 `plotly`에서는 피라미드 그래프라는 이름으로 사용되지 않고 퍼널(깔때기, funnel) trace라는 이름으로 사용된다. 퍼널 trace는 변량의 크기를 길이로 표현한 막대로 표현하고 각 막대의 중간을 맞춰 양쪽으로 퍼져나가는 깔때기 형태의 trace이다.  이 퍼널 차트는 영업 및 마케팅 부서에서 자주 사용되는데 여러 단계별로 값이나 지표가 변화하는 것을 한 눈에 표현하기 위한 목적으로 사용한다. 
+
+코로나19 데이터를 사용하여 퍼널 차트를 만들기 위해 일간 코로나19 데이터를 주(week) 단위로 요약하여 주 단위로 값의 변화를 살펴보겠다. 먼저 최근 100일간의 우리나라 코로나19 신규 확진자 데이터를 주 단위로 요약하는 전처리는 다음과 같다.    
 
 ```{r}
-diff_kor <- 
+df_funnel <- 
   df_covid19_100 |> 
   filter(iso_code == 'KOR') |>
   ## date의 월 단위 열을 yearmonth에 저장
@@ -558,8 +484,12 @@ diff_kor <-
   group_by(iso_code, date_by_week, yearweekth) |>
   ## new_cases 합계 산출
   summarise(new_cases = sum(new_cases))
+```
 
-diff_kor |>
+전처리된 데이터를 사용하여 퍼널 차트를 그려본다. X축은 데이터 값인 신규 확진자 수를 매핑하고 Y축은 단계로 구분했던 연도의 주(Week) 차수를 매핑함으로서 퍼널 차트를 쉽게 그릴 수 있다.  
+
+```{r fig.cap = '우리나라 주별 확진자 퍼널 차트'}
+df_funnel |>
   plot_ly() |>
   add_trace(type = 'funnel', x = ~new_cases, y = ~date_by_week, 
             text = ~new_cases, texttemplate = '%{text:,.0f}') |>
@@ -571,6 +501,111 @@ diff_kor |>
 
 ```
 
+앞선 퍼널 차트에서 보면 우리나라의 신규 확진자 수는 2022년 4주차부터 늘어나기 시작해서 2022년 11주차(3.13~3.19)까지 급격히 증가하고 감소하는 상황이라는 것이  한눈에 보인다. 
+
+만약 이 퍼널 차트를 전체 대륙이 한꺼번에 나타나도록 그리기 위해서는 어떻게 해야할까? 여러 변량을 추가하려면 `add_trace()`를 추가하면 간단히 그려진다. 다음은 아시아와 유럽의 신규 확진자 주별 데이터에 대한 퍼널 차트이다. 
+
+```{r eval = FALSE}
+df_funnel_Asia <- 
+  df_covid19_100 |> 
+  filter(location == '아시아') |>
+  ## date의 월 단위 열을 yearmonth에 저장
+  mutate(date_by_week = lubridate::floor_date(date, "week"), 
+         yearweekth =  paste0(lubridate::year(date_by_week), '년 ', 
+                           lubridate::week(date_by_week), '주')) |> 
+  ## iso_code, yearmonth로 그룹화
+  group_by(iso_code, date_by_week, yearweekth) |>
+  ## new_cases 합계 산출
+  summarise(new_cases = sum(new_cases))
+
+df_funnel_Europe <- 
+  df_covid19_100 |> 
+  filter(location == '유럽') |>
+  ## date의 월 단위 열을 yearmonth에 저장
+  mutate(date_by_week = lubridate::floor_date(date, "week"), 
+         yearweekth =  paste0(lubridate::year(date_by_week), '년 ', 
+                           lubridate::week(date_by_week), '주')) |> 
+  ## iso_code, yearmonth로 그룹화
+  group_by(iso_code, date_by_week, yearweekth) |>
+  ## new_cases 합계 산출
+  summarise(new_cases = sum(new_cases))
+
+df_funnel_Asia |> 
+  plot_ly() |>
+  add_trace(type = 'funnel', name = '아시아', 
+            x = ~new_cases, y = ~date_by_week, 
+            text = ~new_cases, texttemplate = '%{text:,.0f}') |>
+  add_trace(data = df_funnel_Europe,type = 'funnel', name = '유럽',
+            x = ~new_cases, y = ~date_by_week, 
+            text = ~new_cases, texttemplate = '%{text:,.0f}') |>
+  layout(title = '아시아와 유럽의 주별 확진자수', 
+    yaxis = list(title = '', 
+                      tickvals = ~date_by_week, 
+                      ticktext = ~yearweekth), 
+    margin = margins)
+
+```
+
+```{r echo = FALSE}
+df_funnel_2 <- 
+  df_covid19_100 |> 
+  filter(location %in% c('아시아', '유럽')) |>
+  ## date의 월 단위 열을 yearmonth에 저장
+  mutate(date_by_week = lubridate::floor_date(date, "week"), 
+         yearweekth =  paste0(lubridate::year(date_by_week), '년 ', 
+                           lubridate::week(date_by_week), '주')) |> 
+  ## iso_code, yearmonth로 그룹화
+  group_by(iso_code, date_by_week, yearweekth) |>
+  ## new_cases 합계 산출
+  summarise(new_cases = sum(new_cases))
+
+
+df_funnel_Asia <- 
+  df_covid19_100 |> 
+  filter(location == '아시아') |>
+  ## date의 월 단위 열을 yearmonth에 저장
+  mutate(date_by_week = lubridate::floor_date(date, "week"), 
+         yearweekth =  paste0(lubridate::year(date_by_week), '년 ', 
+                           lubridate::week(date_by_week), '주')) |> 
+  ## iso_code, yearmonth로 그룹화
+  group_by(iso_code, date_by_week, yearweekth) |>
+  ## new_cases 합계 산출
+  summarise(new_cases = sum(new_cases))
+
+df_funnel_Europe <- 
+  df_covid19_100 |> 
+  filter(location == '유럽') |>
+  ## date의 월 단위 열을 yearmonth에 저장
+  mutate(date_by_week = lubridate::floor_date(date, "week"), 
+         yearweekth =  paste0(lubridate::year(date_by_week), '년 ', 
+                           lubridate::week(date_by_week), '주')) |> 
+  ## iso_code, yearmonth로 그룹화
+  group_by(iso_code, date_by_week, yearweekth) |>
+  ## new_cases 합계 산출
+  summarise(new_cases = sum(new_cases))
+
+df_funnel_Asia |> 
+  plot_ly() |>
+  add_trace(type = 'funnel', name = '아시아', 
+            x = ~new_cases, y = ~date_by_week, 
+            text = ~new_cases, texttemplate = '%{text:,.0f}', 
+            color = I(RColorBrewer::brewer.pal(3, 'Blues')[3]), 
+            textfont = list(color = 'white')) |>
+  add_trace(data = df_funnel_Europe,type = 'funnel', name = '유럽',
+            x = ~new_cases, y = ~date_by_week, 
+            text = ~new_cases, texttemplate = '%{text:,.0f}', 
+            color = I(RColorBrewer::brewer.pal(3, 'Blues')[2]), 
+            textfont = list(color = 'black')) |>
+  layout(title = '아시아와 유럽의 주별 확진자수', 
+    yaxis = list(title = '', 
+                      tickvals = ~date_by_week, 
+                      ticktext = ~yearweekth), 
+    margin = margins)
+  
+
+```
+
+퍼널 차트의 또하나의 표현 방식은 퍼널 면적(funnel area) 차트이다. 퍼널 면적 차트가 완전한 피라미드 형태의 차트이다. 앞선 퍼널 차트에서 각각의 막대 사이의 공간을 없애고 삼각형 형태로 표현되며 면적으로 데이터 값을 표현한다. 
 
 # 구성의 시각화
 
@@ -872,7 +907,6 @@ df_sankey |> plot_ly(
 
 
 ```
-
 
 ## radar
 

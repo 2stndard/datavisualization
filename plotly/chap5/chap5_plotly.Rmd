@@ -29,7 +29,7 @@ library(plotly)
 ```
 
 ```{r include=FALSE, message = FALSE, warning = FALSE}
-df_취업통계 <- read_excel('d:/R/data/2020년 학과별 고등교육기관 취업통계.xlsx', 
+df_취업률 <- read_excel('d:/R/data/2020년 학과별 고등교육기관 취업통계.xlsx', 
                      ## '학과별' 시트의 데이터를 불러오는데,
                      sheet = '학과별',
                      ## 앞의 13행을 제외하고
@@ -39,8 +39,23 @@ df_취업통계 <- read_excel('d:/R/data/2020년 학과별 고등교육기관 �
                      ## 열의 타입을 설정, 처음 9개는 문자형으로 다음 79개는 수치형으로 설정
                      col_types = c(rep('text', 9), rep('numeric', 79)))
 
-## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
-df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
+## df_취업률에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업률에 저장
+df_취업률 <- df_취업률 |> 
+  select(1:9, ends_with('계'), '입대자')
+
+
+## 랜덤 샘플을 위한 시드 설정
+set.seed(123)
+
+## df_취업률에서 졸업자가 500명 이하인 학과 2000개 샘플링
+df_취업률_2000 <- df_취업률 |> 
+  filter(졸업자_계 < 500) |> 
+  sample_n(2000)
+
+## 열 이름을 적절히 설정
+names(df_취업률_2000)[10:12] <- c('졸업자수', '취업률', '취업자수')
+names(df_취업률)[10:12] <- c('졸업자수', '취업률', '취업자수')
+
 
 library(readr)
 library(lubridate)
