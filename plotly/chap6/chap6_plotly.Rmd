@@ -808,17 +808,19 @@ df_radar_deaths <- df_covid19_stat |>
   filter(iso_code %in% c('OWID_AFR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')) |>
   select(continent, location, 십만명당사망자수)
 
-plot_ly() |>
+df_radar_veccine |>
+  plot_ly() |>
   add_trace(type = 'scatterpolar',  
-            theta = pull(df_radar_veccine[2]), 
-            r = pull(df_radar_veccine[3]), 
+            theta = ~location, 
+            r = ~백신접종완료률, 
             fill = 'toself'
             )
 
-plot_ly() |>
+df_radar_deaths |>
+  plot_ly() |>
   add_trace(type = 'scatterpolar',  
-            theta = pull(df_radar_deaths[2]), 
-            r = pull(df_radar_deaths[3]), 
+            theta = ~location, 
+            r = ~십만명당사망자수, 
             fill = 'toself'
             )
 
@@ -832,27 +834,30 @@ plot_ly() |>
 대부분의 보고문서들은 네모난 종이위에 표현되거나 네모난 화면위에 표현된다. 앞서 기술한 파이 차트나 도넛 차트는 원형으로 표현되기 떄문에 네모난 종이나 화면에 표현하면 시각화에 사용되지 못하는 공간이 많아져서 전체 영역을 호과적으로 사용하지 못한다. 이러한 단점을 극복하기 위해 네모난 사각형을 사용하여 전체의 비율을 표현한 시각화 방법이 트리맵이다. 
 
 ```{r eval = FALSE}
-plot_ly() |>
+df_sunburst_cases |>
+  plot_ly() |>
   add_trace(type = 'treemap',  
-            labels = pull(df_sunburst_cases[2]), 
-            parents = pull(df_sunburst_cases[1]), 
-            values = pull(df_sunburst_cases[3]),
+            labels = ~location, 
+            parents = ~continent, 
+            values = ~전체확진자수,
             textinfo = 'label+value+percent parent+percent entry'
             )
 ```
 
 
 ```{r echo = FALSE}
-plot_ly() |>
+df_sunburst_cases |>
+  plot_ly() |>
   add_trace(type = 'treemap',  
-            labels = pull(df_sunburst_cases[2]), 
-            parents = pull(df_sunburst_cases[1]), 
-            values = pull(df_sunburst_cases[3]),
+            labels = ~location, 
+            parents = ~continent, 
+            values = ~전체확진자수,
             marker = list(colors = RColorBrewer::brewer.pal(5, 'Blues')), 
             textinfo = 'label+value+percent parent+percent entry'
             )
 ```
 
+![아시아 섹터를 클릭한 트리맵 차트의 반응 결과](D:/R/git/datavisualization/plotly/chap6/treemap.png)
 
 ## 수학의 정석에 있던거였는데? – 벤 다이어그램
 
