@@ -379,6 +379,83 @@ vaccine_top5_by_continent |>
 ```
 대륙별 완전 백신 접종률 상위 국가들의 인구 10만명당 사망자수를 살펴보면 아시아 국가의 접종률이 높은 국가들은 전반적으로 낮은 사망자수를 나타냈고 유럽과 남미는 백신 접종률이 높았지만 사망자 수도 높게 나타나고 있음을 알 수 있다. 
 
+## 삼중 축의 사용
+
+```{r}
+axis <- function(title) {
+  list(
+    title = title,
+    titlefont = list(
+      size = 20
+    ),
+    tickfont = list(
+      size = 15
+    ),
+    tickcolor = 'rgba(0,0,0,0)',
+    ticklen = 5
+  )
+}
+
+
+fig <- vaccine_top10 %>% plot_ly()
+fig <- fig %>% add_trace(
+    type = 'scatterternary',
+    mode = 'markers',
+    a = ~인구백명당백신접종완료률,
+    b = ~십만명당사망자수,
+    c = ~인당GDP,
+    text = ~location,
+    marker = list( 
+      symbol = 100,
+      color = '#DB7365',
+      size = 14,
+      line = list('width' = 2)
+    )
+  )
+fig <- fig %>% layout(
+    title = "Simple Ternary Plot with Markers",
+    ternary = list(
+      sum = 100,
+      aaxis = list(
+    title = '인구백명당백신접종완료률',
+    titlefont = list(
+      size = 20
+    ),
+    tickfont = list(
+      size = 15
+    ),
+    tickcolor = 'rgba(0,0,0,0)',
+    ticklen = 5
+  ),
+      baxis = list(
+    title = '십만명당사망자수',
+    titlefont = list(
+      size = 20
+    ),
+    tickfont = list(
+      size = 15
+    ),
+    tickcolor = 'rgba(0,0,0,0)',
+    ticklen = 5
+  ),
+      caxis = list(
+    title = '인당GDP',
+    titlefont = list(
+      size = 20
+    ),
+    tickfont = list(
+      size = 15
+    ),
+    tickcolor = 'rgba(0,0,0,0)',
+    ticklen = 5
+  )
+    )
+  )
+
+fig
+```
+
+
 
 ## 꼭 수직 막대를 사용해야 한다면 - 롤리팝 그래프
 
