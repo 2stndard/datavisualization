@@ -2094,20 +2094,6 @@ p_bar_mode1 <-
   ## plotlt 객체 생성
   plot_ly()
 
-## 최종 결과는 fig에 저장
-fig <- p_bar_mode1 |>
-  ## 막대 trace를 추가
-  add_trace(type = 'bar',
-            ## X, Y축을 변수에 매핑, color를 설정
-            x = ~location, y = ~`2021-12-01`, color = I('gray30'),  
-            ## 범례 이름 설정, text는 변수(특수문자가 포함되어 ` 사용) 매핑
-            name = '2021월 12월', text = ~`2021-12-01`, 
-            ## textposition을 'inside'로 설정
-            textposition = 'inside', 
-            ## textfont의 세부 속성 설정
-            textfont = list(color = 'white', size = 10)
-            )
-
 ## 최종 결과는 다시 fig에 저장
 fig <- 
   ## 앞서 생성한 fig에 
@@ -2156,6 +2142,20 @@ fig <-
             textfont = list(color = 'white', size = 10)
             )
 
+## 최종 결과는 fig에 저장
+fig <- p_bar_mode1 |>
+  ## 막대 trace를 추가
+  add_trace(type = 'bar',
+            ## X, Y축을 변수에 매핑, color를 설정
+            x = ~location, y = ~`2022-04-01`, color = I('gray30'),  
+            ## 범례 이름 설정, text는 변수(특수문자가 포함되어 ` 사용) 매핑
+            name = '2022월 4월', text = ~`2022-04-01`, 
+            ## textposition을 'inside'로 설정
+            textposition = 'inside', 
+            ## textfont의 세부 속성 설정
+            textfont = list(color = 'white', size = 10)
+            )
+
 fig |> 
   ## barmode를 stack으로 설정
   layout(barmode = 'stack', 
@@ -2192,7 +2192,7 @@ p_bar_mode1 |>
   ## 막대 trace 추가
   add_trace(type = 'bar', 
             x = ~location, y = ~`2022-03-01`, color = I('darkblue'),  
-            name = '2021월 12월', text = ~`2021-12-01`, 
+            text = ~`2022-03-01`, 
             textposition = 'inside', 
             textfont = list(color = 'black', size = 10),
             ## texttemplate를 설정
