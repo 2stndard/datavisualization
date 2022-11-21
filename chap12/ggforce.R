@@ -1,17 +1,43 @@
 library(ggforce)
 install.packages('concaveman')
 library(concaveman)
+library(readxl)
+library(tidyverse)
+
+df_취업통계 <- read_excel('c:/R/git/datavisualization/chap3/2020년 학과별 고등교육기관 취업통계.xlsx', 
+                      ## '학과별' 시트의 데이터를 불러오는데,
+                      sheet = '학과별',
+                      ## 앞의 13행을 제외하고
+                      skip = 13, 
+                      ## 첫번째 행은 열 이름으로 설정
+                      col_names = TRUE, 
+                      ## 열의 타입을 설정, 처음 9개는 문자형으로 다음 79개는 수치형으로 설정
+                      col_types = c(rep('text', 9), rep('numeric', 79)))
+
+## df_취업통계에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업통계에 저장
+df_취업통계 <- df_취업통계 |> select(1:9, ends_with('계'), '입대자')
+
 df_취업통계 |> 
-  ggplot(aes(x = 졸업자수, y = 취업자수, color = 대계열)) +
+  ggplot(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열)) +
   ## X축이 졸업자_계, Y축이 취업자_합계_계에 매핑된 geom_point 레이어 생성
   geom_point() +
   geom_mark_rect() 
 
 df_취업통계 |> 
-  ggplot(aes(x = 졸업자수, y = 취업자수)) +
+  ggplot(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열)) +
+  ## X축이 졸업자_계, Y축이 취업자_합계_계에 매핑된 geom_point 레이어 생성
+  geom_point() +
+  geom_mark_ellipse() 
+
+
+df_취업통계 |> 
+  ggplot(aes(x = 졸업자_계, y = 취업자_합계_계, color = 대계열)) +
   ## X축이 졸업자_계, Y축이 취업자_합계_계에 매핑된 geom_point 레이어 생성
   geom_point() +
   geom_mark_hull(aes(color = 대계열, filter = 대계열 == '의약계열')) 
+
+
+
   
   ## X축과 Y축의 범위를 설정
   lims(x = c(0, 2500), y = c(0, 2000)) +

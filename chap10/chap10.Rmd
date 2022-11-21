@@ -120,7 +120,7 @@ if(!require(sf)) {
 }
 
 ## read_sf()을 사용하여 TL_SCCO_CTPRVN.shp 파일을 읽어옴(옵션은 한글깨짐을 방지하기 위한 인코딩값, 띄어쓰기 주의)
-spdf_shp <- st_read('파일 저장 경로/TL_SCCO_CTPRVN.shp'), options = 'ENCODING=CP949')
+spdf_shp <- st_read('파일 저장 경로/TL_SCCO_CTPRVN.shp', options = 'ENCODING=CP949')
 
 ## spdf_shp 클래스 확인
 class(spdf_shp)
