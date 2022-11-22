@@ -21,7 +21,7 @@ names(df_행정구역) <- c('구이름', '대학수')
 df_행정구역$구이름 <- gsub('서울 ', '', df_행정구역$구이름)
 
 ## geojson_read()을 사용하여 TL_SCCO_CTPRVN.json 파일을 읽어옴
-spdf_geojson <- geojson_read('C:/R/git/datavisualization/map/TL_SCCO_SIG.json',  what = "sp")
+spdf_geojson <- geojson_read('D:/R/git/datavisualization/chap10/TL_SCCO_SIG.json',  what = "sp")
 
 ## st_as_sf()를 사용해 sp객체를 sf객체로 변환
 sf_spdf_geojson <- st_as_sf(spdf_geojson)
@@ -75,7 +75,7 @@ resultreg <- assign_polygons(sf_spdf_seoul_joined, new_cells_reg)
 
 
 ## assign_polygons()의 결과를 ggplot 객체 데이터로 사용
-resultreg |>
+hexmap <- resultreg |>
   ggplot() +
   ## fill을 대학수로 매핑한 geom_sf 레이어 생성
   geom_sf(aes(fill = 대학수)) + 
@@ -85,3 +85,5 @@ resultreg |>
   scale_fill_gradient(low = 'white', high = 'dodgerblue') + 
   theme_void() + 
   labs(title = '서울의 구별 대학수')
+
+ggplotly(hexmap)
