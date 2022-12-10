@@ -1,5 +1,5 @@
 ---
-title : 시간의 시각화
+title : 시간과 흐름 시각화
 output:
   officedown::rdocx_document:
     reference_docx: bookdown.docx
@@ -1243,3 +1243,210 @@ df_covid19_100 |>
          margin = margins)
 
 ```
+
+
+
+# 퍼널 차트
+
+인구 연령별 인구수를 표현 그래프에서 많이 사용된다. 하지만 `plotly`에서는 피라미드 그래프라는 이름으로 사용되지 않고 퍼널(깔때기, funnel) trace라는 이름으로 사용된다. 퍼널 trace는 변량의 크기를 길이로 표현한 막대로 표현하고 각 막대의 중간을 맞춰 양쪽으로 퍼져나가는 깔때기 형태의 trace이다. 이 퍼널 차트는 영업 및 마케팅 부서에서 자주 사용되는데 여러 단계별로 값이나 지표가 변화하는 것을 한 눈에 표현하기 위한 목적으로 사용한다.
+
+코로나19 데이터를 사용하여 퍼널 차트를 만들기 위해 일간 코로나19 데이터를 주(week) 단위로 요약하여 주 단위로 값의 변화를 살펴보겠다. 먼저 최근 100일간의 우리나라 코로나19 신규 확진자 데이터를 주 단위로 요약하는 전처리는 다음과 같다.
+
+-   R
+
+```{r}
+df_funnel <- 
+  df_covid19_100 |> 
+  filter(iso_code == 'KOR') |>
+  ## date의 월 단위 열을 yearmonth에 저장
+  mutate(date_by_week = lubridate::floor_date(date, "week"), 
+         yearweekth =  paste0(lubridate::year(date_by_week), '년 ', 
+                           lubridate::week(date_by_week), '주')) |> 
+  ## iso_code, yearmonth로 그룹화
+  group_by(iso_code, date_by_week, yearweekth) |>
+  ## new_cases 합계 산출
+  summarise(new_cases = sum(new_cases))
+```
+
+전처리된 데이터를 사용하여 퍼널 차트를 그려본다. X축은 데이터 값인 신규 확진자 수를 매핑하고 Y축은 단계로 구분했던 연도의 주(Week) 차수를 매핑함으로서 퍼널 차트를 쉽게 그릴 수 있다.
+
+```{r fig.cap = '우리나라 주별 확진자 퍼널 차트'}
+df_funnel |>
+  plot_ly() |>
+  add_trace(type = 'funnel', x = ~new_cases, y = ~date_by_week, 
+            text = ~new_cases, texttemplate = '%{text:,.0f}') |>
+  layout(title = '우리나라 주별 확진자수', 
+    yaxis = list(title = '', 
+                      tickvals = ~date_by_week, 
+                      ticktext = ~yearweekth), 
+    margin = margins)
+
+```
+
+-   python
+
+```{python eval = FALSE}
+import datetime
+
+df_funnel = df_covid19_100.copy()
+df_funnel = df_funnel.loc[(df_funnel['iso_code'] == 'KOR')]
+df_funnel['date_by_week'] = df_funnel['date'].dt.floor('7D')
+df_funnel['yearweekth'] = df_funnel['date'].dt.isocalendar().year.astype(str) + '년' + df_funnel['date'].dt.isocalendar().week.astype(str) + '주'
+df_funnel = df_funnel.groupby(yearweekth)['new_cases'].agg([('new_cases', 'sum')])
+fig = go.Figure()
+fig.add_trace(go.Funnel(
+    x = df_funnel['new_cases'], y = df_funnel.index, 
+    text = df_funnel['new_cases'], texttemplate = '%{text:,.0f}'
+))
+
+fig.update_layout(title = dict(text = '우리나라 주별 확진자수', x = 0.5), 
+    yaxis = dict(title = '', 
+                      ticktext = df_funnel.index), 
+    margin = margins)
+
+
+```
+
+앞선 퍼널 차트에서 보면 우리나라의 신규 확진자 수는 2022년 4주차부터 늘어나기 시작해서 2022년 11주차(3.13\~3.19)까지 급격히 증가하고 감소하는 상황이라는 것이 한눈에 보인다.
+
+만약 이 퍼널 차트를 전체 대륙이 한꺼번에 나타나도록 그리기 위해서는 어떻게 해야할까? 여러 변량을 추가하려면 `add_trace()`를 추가하면 간단히 그려진다. 다음은 아시아와 유럽의 신규 확진자 주별 데이터에 대한 퍼널 차트이다.
+
+-   R
+
+```{r eval = FALSE}
+df_funnel_Asia <- 
+  df_covid19_100 |> 
+  filter(location == '아시아') |>
+  ## date의 월 단위 열을 yearmonth에 저장
+  mutate(date_by_week = lubridate::floor_date(date, "week"), 
+         yearweekth =  paste0(lubridate::year(date_by_week), '년 ', 
+                           lubridate::week(date_by_week), '주')) |> 
+  ## iso_code, yearmonth로 그룹화
+  group_by(iso_code, date_by_week, yearweekth) |>
+  ## new_cases 합계 산출
+  summarise(new_cases = sum(new_cases))
+
+df_funnel_Europe <- 
+  df_covid19_100 |> 
+  filter(location == '유럽') |>
+  ## date의 월 단위 열을 yearmonth에 저장
+  mutate(date_by_week = lubridate::floor_date(date, "week"), 
+         yearweekth =  paste0(lubridate::year(date_by_week), '년 ', 
+                           lubridate::week(date_by_week), '주')) |> 
+  ## iso_code, yearmonth로 그룹화
+  group_by(iso_code, date_by_week, yearweekth) |>
+  ## new_cases 합계 산출
+  summarise(new_cases = sum(new_cases))
+
+df_funnel_Asia |> 
+  plot_ly() |>
+  add_trace(type = 'funnel', name = '아시아', 
+            x = ~new_cases, y = ~date_by_week, 
+            text = ~new_cases, texttemplate = '%{text:,.0f}') |>
+  add_trace(data = df_funnel_Europe,type = 'funnel', name = '유럽',
+            x = ~new_cases, y = ~date_by_week, 
+            text = ~new_cases, texttemplate = '%{text:,.0f}') |>
+  layout(title = '아시아와 유럽의 주별 확진자수', 
+    yaxis = list(title = '', 
+                      tickvals = ~date_by_week, 
+                      ticktext = ~yearweekth), 
+    margin = margins)
+
+```
+
+```{r echo = FALSE}
+# df_funnel_2 <- 
+#   df_covid19_100 |> 
+#   filter(location %in% c('아시아', '유럽')) |>
+#   ## date의 월 단위 열을 yearmonth에 저장
+#   mutate(date_by_week = lubridate::floor_date(date, "week"), 
+#          yearweekth =  paste0(lubridate::year(date_by_week), '년 ', 
+#                            lubridate::week(date_by_week), '주')) |> 
+#   ## iso_code, yearmonth로 그룹화
+#   group_by(iso_code, date_by_week, yearweekth) |>
+#   ## new_cases 합계 산출
+#   summarise(new_cases = sum(new_cases))
+
+
+df_funnel_Asia <- 
+  df_covid19_100 |> 
+  filter(location == '아시아') |>
+  ## date의 월 단위 열을 yearmonth에 저장
+  mutate(date_by_week = lubridate::floor_date(date, "week"), 
+         yearweekth =  paste0(lubridate::year(date_by_week), '년 ', 
+                           lubridate::week(date_by_week), '주')) |> 
+  ## iso_code, yearmonth로 그룹화
+  group_by(iso_code, date_by_week, yearweekth) |>
+  ## new_cases 합계 산출
+  summarise(new_cases = sum(new_cases))
+
+df_funnel_Europe <- 
+  df_covid19_100 |> 
+  filter(location == '유럽') |>
+  ## date의 월 단위 열을 yearmonth에 저장
+  mutate(date_by_week = lubridate::floor_date(date, "week"), 
+         yearweekth =  paste0(lubridate::year(date_by_week), '년 ', 
+                           lubridate::week(date_by_week), '주')) |> 
+  ## iso_code, yearmonth로 그룹화
+  group_by(iso_code, date_by_week, yearweekth) |>
+  ## new_cases 합계 산출
+  summarise(new_cases = sum(new_cases))
+
+df_funnel_Asia |> 
+  plot_ly() |>
+  add_trace(type = 'funnel', name = '아시아', 
+            x = ~new_cases, y = ~date_by_week, 
+            text = ~new_cases, texttemplate = '%{text:,.0f}', 
+            color = I(RColorBrewer::brewer.pal(3, 'Blues')[3]), 
+            textfont = list(color = 'white')) |>
+  add_trace(data = df_funnel_Europe,type = 'funnel', name = '유럽',
+            x = ~new_cases, y = ~date_by_week, 
+            text = ~new_cases, texttemplate = '%{text:,.0f}', 
+            color = I(RColorBrewer::brewer.pal(3, 'Blues')[2]), 
+            textfont = list(color = 'black')) |>
+  layout(title = '아시아와 유럽의 주별 확진자수', 
+    yaxis = list(title = '', 
+                      tickvals = ~date_by_week, 
+                      ticktext = ~yearweekth), 
+    margin = margins)
+  
+
+```
+
+-   python
+
+```{python eval = FALSE}
+import datetime
+
+df_funnel_asia = df_covid19_100.copy()
+df_funnel_asia = df_funnel_asia.loc[(df_funnel_asia['location'] == '아시아')]
+df_funnel_asia['date_by_week'] = df_funnel_asia['date'].dt.floor('7D')
+df_funnel_asia['yearweekth'] = df_funnel_asia['date'].dt.isocalendar().year.astype(str) + '년' + df_funnel_asia['date'].dt.isocalendar().week.astype(str) + '주'
+df_funnel_asia = df_funnel_asia.groupby('yearweekth')['new_cases'].agg([('new_cases', 'sum')])
+
+df_funnel_europe = df_covid19_100.copy()
+df_funnel_europe = df_funnel_europe.loc[(df_funnel_europe['location'] == '유럽')]
+df_funnel_europe['date_by_week'] = df_funnel_europe['date'].dt.floor('7D')
+df_funnel_europe['yearweekth'] = df_funnel_europe['date'].dt.isocalendar().year.astype(str) + '년' + df_funnel_europe['date'].dt.isocalendar().week.astype(str) + '주'
+df_funnel_europe = df_funnel_europe.groupby('yearweekth')['new_cases'].agg([('new_cases', 'sum')])
+
+fig = go.Figure()
+
+fig.add_trace(go.Funnel(
+    x = df_funnel_asia['new_cases'], y = df_funnel_asia.index, name = '아시아', 
+    text = df_funnel_asia['new_cases'], texttemplate = '%{text:,.0f}'
+))
+
+fig.add_trace(go.Funnel(
+    x = df_funnel_europe['new_cases'], y = df_funnel_europe.index, name = '유럽',
+    text = df_funnel_europe['new_cases'], texttemplate = '%{text:,.0f}', 
+))
+
+fig.update_layout(title = dict(text = '우리나라 주별 확진자수', x = 0.5), 
+                  yaxis = dict(title = '',  ticktext = df_funnel.index),
+                  margin = margins)
+
+```
+
+퍼널 차트의 또하나의 표현 방식은 퍼널 면적(funnel area) 차트이다. 퍼널 면적 차트가 완전한 피라미드 형태의 차트이다. 앞선 퍼널 차트에서 각각의 막대 사이의 공간을 없애고 삼각형 형태로 표현되며 면적으로 데이터 값을 표현한다.
+

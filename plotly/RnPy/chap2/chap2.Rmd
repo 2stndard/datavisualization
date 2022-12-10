@@ -152,12 +152,12 @@ df_covid19_stat <- df_covid19 |>
             전체백신접종자수 = max(total_vaccinations, na.rm = T),
             백신접종자완료자수 = max(people_fully_vaccinated, na.rm = T),
             부스터접종자수 = max(total_boosters, na.rm = T),
-            인구백명당백신접종완료률 = max(people_fully_vaccinated_per_hundred, na.rm = T),
+            인구백명당백신접종완료율 = max(people_fully_vaccinated_per_hundred, na.rm = T),
             인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
             ) |> 
     ungroup() |>
     mutate(십만명당사망자수 = round(전체사망자수 / 인구수 *100000, 5),
-           백신접종완료률 = 백신접종자완료자수 / 인구수)
+           백신접종완료율 = 백신접종자완료자수 / 인구수)
 
 
 ```
@@ -202,12 +202,12 @@ df_covid19_stat <- df_covid19 |>
             전체백신접종자수 = max(total_vaccinations, na.rm = T),
             백신접종자완료자수 = max(people_fully_vaccinated, na.rm = T),
             부스터접종자수 = max(total_boosters, na.rm = T),
-            인구백명당백신접종완료률 = max(people_fully_vaccinated_per_hundred, na.rm = T),
+            인구백명당백신접종완료율 = max(people_fully_vaccinated_per_hundred, na.rm = T),
             인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
             ) |> 
     ungroup() |>
     mutate(십만명당사망자수 = round(전체사망자수 / 인구수 *100000, 5),
-           백신접종완료률 = 백신접종자완료자수 / 인구수)
+           백신접종완료율 = 백신접종자완료자수 / 인구수)
 
 margins <- list(t = 50, b = 25, l = 25, r = 25)
 
@@ -250,26 +250,18 @@ df_covid19_100_wide = df_covid19_100_wide.pivot(index='date', columns='location'
 df_covid19_100_wide.columns = ['확진자_한국', '확진자_아시아', '확진자_유럽', '확진자_북미', '확진자_남미', '확진자_아프리카','확진자_오세아니아',
                               '백신접종완료자_한국', '백신접종완료자_아시아', '백신접종완료자_유럽', '백신접종완료자_북미', '백신접종완료자_남미', '백신접종완료자_아프리카','백신접종완료자_오세아니아']
                               
-df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=True).agg(
+df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=False).agg(
     인구수 = ('population', 'max'),
-    인당GDP = ('gdp_per_capita', 'max'), 
-    전체확진자수 = ('new_cases', 'sum'),
     전체사망자수 = ('new_deaths', 'sum'), 
-    십만명당중환자실 = ('icu_patients_per_million', 'last'),
-    재생산지수 = ('reproduction_rate', 'last'),
-    봉쇄지수 = ('stringency_index', 'max'), 
-    전체검사자수 = ('total_tests', 'max'), 
-    신규검사자수 = ('new_tests', 'sum'),
-    전체백신접종자수 = ('total_vaccinations', 'max'),
     백신접종자완료자수 = ('people_fully_vaccinated', 'max'),
-    부스터접종자수 = ('total_boosters', 'max'),
-    인구백명당백신접종완료률 = ('people_fully_vaccinated_per_hundred', 'max'),
+    인구백명당백신접종완료율 = ('people_fully_vaccinated_per_hundred', 'max'),
     인구백명당부스터접종자수 = ('total_boosters_per_hundred', 'max')
+
 ).reset_index()
 
 df_covid19_stat['십만명당사망자수'] = round(df_covid19_stat['전체사망자수'] / df_covid19_stat['인구수'] *100000, 5)
 
-df_covid19_stat['백신접종완료률'] = df_covid19_stat['백신접종자완료자수'] / df_covid19_stat['인구수']
+df_covid19_stat['백신접종완료율'] = df_covid19_stat['백신접종자완료자수'] / df_covid19_stat['인구수']
 ```
 
 ## 대학 학과 취업률 데이터 셋
@@ -966,8 +958,8 @@ p4 <- df_covid19_100 |>
 subplot(
   p1 |> layout(annotations = list(x = 0.5 , y = 1.20, text = "textposition = 'inside'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
   p2 |> layout(annotations = list(x = 0.5 , y = 1.2, text = "textposition = 'outside'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), 
-  p3 |> layout(annotations = list(x = 0.5 , y = -0.7, text = "textposition = 'auto'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
-  p4 |> layout(annotations = list(x = 0.5 , y = -0.7, text = "textposition = 'none'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p3 |> layout(annotations = list(x = 0.5 , y = 1.2, text = "textposition = 'auto'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
+  p4 |> layout(annotations = list(x = 0.5 , y = 1.2, text = "textposition = 'none'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
   nrows = 2, margin = 0.1
 ) |> hide_legend()
 
