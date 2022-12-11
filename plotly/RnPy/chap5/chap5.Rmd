@@ -1,20 +1,17 @@
 ---
 title : 시간과 흐름 시각화
-output:
+output: 
   officedown::rdocx_document:
-    reference_docx: bookdown.docx
     plots:
+      fig_caption: no
       style: Normal
       align: center
-      fig.lp: 'fig:'
-      topcaption: false
       caption:
         style: Image Caption
-        pre: '실행결과 5-'
-        sep: ''
-        tnd: 0
-        tns: '-'
-        fp_text: !expr officer::fp_text_lite(bold = TRUE)
+        pre: '실행결과 IV - '
+        sep: 'R. '
+        topcaption: false
+      Normal: ['First Paragraph']
 ---
 
 
@@ -142,7 +139,7 @@ df_취업률_2000 <- df_취업률 |>
 ## 열 이름을 적절히 설정
 names(df_취업률_2000)[10:12] <- c('졸업자수', '취업률', '취업자수')
 
-margins = list(t = 50, b = 25, l = 25, r = 25)
+margins_R = list(t = 50, b = 25, l = 25, r = 25)
 
 ```
 
@@ -153,7 +150,7 @@ from pandas.api.types import CategoricalDtype
 from matplotlib import pyplot as plt
 import plotly.graph_objects as go
 
-df_covid19 = pd.read_csv("https://covid.ourworldindata.org/data/owid-covid-data.csv")
+df_covid19 = pd.read_csv("D:/R/git/datavisualization/plotly/RnPy/owid-covid-data_221203.csv")
 
 df_covid19['date'] = pd.to_datetime(df_covid19['date'], format="%Y-%m-%d")
 
@@ -183,25 +180,16 @@ df_covid19_100_wide.columns = ['확진자_한국', '확진자_아시아', '확�
                               
 df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=False).agg(
     인구수 = ('population', 'max'),
-    인당GDP = ('gdp_per_capita', 'max'), 
     전체확진자수 = ('new_cases', 'sum'),
     전체사망자수 = ('new_deaths', 'sum'), 
-    십만명당중환자실 = ('icu_patients_per_million', 'last'),
-    재생산지수 = ('reproduction_rate', 'last'),
-    봉쇄지수 = ('stringency_index', 'max'), 
-    전체검사자수 = ('total_tests', 'max'), 
-    신규검사자수 = ('new_tests', 'sum'),
-    전체백신접종자수 = ('total_vaccinations', 'max'),
     백신접종자완료자수 = ('people_fully_vaccinated', 'max'),
-    부스터접종자수 = ('total_boosters', 'max'),
-    인구백명당백신접종완료률 = ('people_fully_vaccinated_per_hundred', 'max'),
+    인구백명당백신접종완료율 = ('people_fully_vaccinated_per_hundred', 'max'),
     인구백명당부스터접종자수 = ('total_boosters_per_hundred', 'max')
-)
+).reset_index()
 
 df_covid19_stat['십만명당사망자수'] = round(df_covid19_stat['전체사망자수'] / df_covid19_stat['인구수'] *100000, 5)
 
-df_covid19_stat['백신접종완료률'] = df_covid19_stat['백신접종자완료자수'] / df_covid19_stat['인구수']
-
+df_covid19_stat['백신접종완료율'] = df_covid19_stat['백신접종자완료자수'] / df_covid19_stat['인구수']
 
 ######################################   
 ## python 코드
@@ -224,17 +212,28 @@ df_취업률_2000 = df_취업률_2000.iloc[range(0, len(df_취업률_2000.index)
 
 df_취업률_2000 = df_취업률_2000.rename(columns = {'졸업자_계':'졸업자수', '취업률_계':'취업률', '취업자_합계_계':'취업자수'})
 
+margins_P = dict(t = 50, b = 25, l = 25, r = 25)
+
 ```
 
-시간의 시각화는 시간의 흐름에 따른 데이터의 변화를 시각화 한 것이다. 시간의 시각화는 추세(Trend)라고 하는 시간에 따른 데이터의 변화가 발생하는데 추세가 꼭 시간의 흐름에 종속되지는 않는다. 예를 들자면 회차(물론 이 또한 시간의 흐름과 무관하지 않지만)나 이벤트의 발생과 같은 흐름도 추세에 속할 수 있다. 하지만 시간의 흐름에 따른 추세의 측정에 있어 하나 중요한 것은 그것이 시간이든 회차이든 특정 이벤트이던 그들의 흐름을 측정하는 간격이나 성질이 일정해야 한다는 것이다. 시간의 경우 추세를 측정하기위해서는 시간적 간격, 즉, 연도별, 월별, 일별 등의 간격이 동일해야 하고 회차의 경우 1회, 2회와 같이 연속된 회차로 기록되어야 유의미하다. 만약 시간의 간격이 어느 구간에서는 연도별, 어느 구간에서는 월별로 표현된다면 추세를 정확히 파악하기 어렵다. 따라서 추세에는 데이터의 흐름, 특히 흐름의 측정 간격이 매우 중요하다.
+시간과 흐름의 시각화는 시간이나 특정 이벤트, 서로 다른 데이터의 변화에 따라 발생하는 변화와 흐름을 시각화 한 것이다. 시간의 시각화는 추세(Trend)라고 하는 시간에 따른 데이터의 변화를 관찰하는데 매우 용이하다. 하지만 추세는 꼭 시간의 흐름에 종속되지는 않는다. 예를 들자면 회차(물론 이 또한 시간의 흐름과 무관하지 않지만)나 이벤트의 발생과 같은 데이터의 순차적 발생도 추세에 속할 수 있다. 하지만 시간의 흐름에 따른 추세의 측정에 있어 하나 중요한 것은 그것이 시간이든 회차이든 특정 이벤트이던 그들의 흐름을 측정하는 간격이나 성질이 일정해야 한다는 것이다. 시간의 경우 추세를 측정하기위해서는 시간적 간격, 즉, 연도별, 월별, 일별 등의 간격이 동일해야 하고 회차의 경우 1회, 2회와 같이 연속된 회차로 기록되어야 유의미하다. 만약 시간의 간격이 어느 구간에서는 연도별, 어느 구간에서는 월별로 표현된다면 추세를 정확히 파악하기 어렵다. 따라서 추세에는 데이터의 흐름, 특히 흐름의 측정 간격이 매우 중요하다.
 
-시간을 시각화할 때는 데이터의 포인트와 해당 데이터의 바로 전 데이터와 다음 데이터를 연결하는 선 그래프가 많이 사용되지만 막대 그래프도 많이 사용된다.
+시간을 시각화할 때는 데이터의 포인트와 해당 데이터의 바로 전 데이터와 다음 데이터를 연결하는 선 그래프가 많이 사용되지만 막대 그래프도 많이 사용된다. 
 
 # 선 그래프
 
-선 그래프 (또는 꺾은 선형 차트)는 특정한 변량의 흐름에 따라 변화되는 데이터 값들을 선으로 연결하여 그 변화량을 보여주는 시각화 방법이다. 이 선그래프가 가장 효과적으로 사용되는 시각화가 시간의 흐름에 따라 변화하는 시계열 데이터에 대한 시각화 방법이다. 각각의 시간에 관측된 데이터 포인트들을 같은 변수이나 변량끼리 선으로 연결하였기 때문에 그 기본은 산점도에 있다고 할수도 있다.
+특정한 변량의 흐름에 따라 변화되는 데이터 값들을 선으로 연결하여 그 변화량을 보여주는 시각화 방법이다. 이 선그래프가 가장 효과적으로 사용되는 시각화가 시간의 흐름에 따라 변화하는 시계열 데이터에 대한 시각화 방법이다. 
+
+선 그래프는 간단하고 이해하기 쉽고 효율적이므로 한 번에 많은 데이터 비교하거나, 시간 경과에 따른 변화 및 추세 표시, 중요한 컨텍스트 및 주석 포함하는 시각화, 예측 데이터 및 불확실성의 표시, 데이터 시리즈 내 및 데이터 시리즈 전반의 이상 징후 강조 등에 사용된다. 하지만 단순한 사물의 수량 표시, 이산형 데이터 작업
+일부와 전체 비교를 위한 시각화, 데이터가 희소한 데이터 세트의 시각화에는 적합하지 않다. 
+
+선 그래프 (또는 꺾은 선형 차트)는 각각의 시간에 관측된 데이터 포인트들을 같은 변수이나 변량끼리 선으로 연결하였기 때문에 그 기본은 산점도에 있다고 할수도 있다.
+
+`plolty`에서 선 그래프를 위해 트레이스를 제공하지 않는다. 앞서 산점도를 그릴때 사용했던 scatter 트레이스의 'mode'에 'lines'를 추가해 줌으로써 그릴 수 있다. 다음은 코로나 19의 인구 10만명당 사망자수 누적값의 추세를 나타내는 R과 python 코드이다. 시각화를 위해 먼저 우리나라, 미국, 일본, 영국, 프랑스 다섯 국가의 데이터만 필터링한 데이터를 사용하도록 전처리하였다. 각 국가의 선을 보다 쉽게 구분하기 위해 선의 형태를 다르게 설정하였고, 중간중간 빈 데이터를 이어주도록 속성을 설정하였다. 
 
 -   R
+
+R에서 선 그래프를 그리기 위해서는 `add_trace(type = 'scatter', mode = 'lines', ...)`을 사용하거나 `add_lines()`를 사용한다. 
 
 ```{r eval = FALSE}
 total_deaths_5_nations_by_day <- df_covid19 |> 
@@ -249,7 +248,7 @@ total_deaths_5_nations_by_day |>
   layout(title = '코로나 19 사망자수 추세', 
          xaxis = list(title = ''), 
          yaxis = list(title = '10만명당 사망자수 누계'), 
-         margin = margins)
+         margin = margins_R)
 
 ```
 
@@ -263,12 +262,12 @@ total_deaths_5_nations_by_day |>
   plot_ly() |>
   add_trace(type = 'scatter', mode = 'lines', 
             x = ~date, y = ~total_deaths_per_million , linetype = ~location, connectgaps = T, 
-            color = ~location, colors = RColorBrewer::brewer.pal(7, 'Blues')[3:7]
+            color = ~location, colors = RColorBrewer::brewer.pal(9, 'Blues')[seq(from = 9, to = 5, by = -1)]
 ) |>
   layout(title = '코로나 19 사망자수 추세', 
          xaxis = list(title = ''), 
          yaxis = list(title = '10만명당 사망자수 누계'), 
-         margin = margins)
+         margin = margins_R)
 
 ```
 
@@ -311,24 +310,32 @@ for location, group in total_deaths_5_nations_by_day.groupby('location'):
         mode = 'lines', 
         x = group['date'], 
         y = group['total_deaths_per_million'], 
-        line = dict(dash = nations[location], color = "#08519C"), 
+        line = dict(dash = nations[location]), 
         name = location,
         connectgaps = True
     ))
 
 fig.update_layout(title = dict(text = '코로나 19 사망자수 추세', x = 0.5), 
                   xaxis = dict(title = ''), 
-                  yaxis = dict(title = '10만명당 사망자수 누계'))   
+                  yaxis = dict(title = '10만명당 사망자수 누계'), 
+                 colorway = ("#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAED6"))   
     
 fig.show()
 
 ```
 
-![](p1.png)
 
-앞의 시각화를 보면 주요 5개국의 10만명당 사망자수 누계의 추세를 보이고 있다. 2020년 4\~5월 경부터 영국, 프랑스의 사망자수가 급격히 증가하고 이 시기부터 미국의 사망자수도 증가하였지만 초기의 사망자 추세는 영국, 프랑스보다는 증가 추세가 높지 않았다. 하지만 2020년 연말에 접어들면서 이 세 나라의 증가세가 비슷해지기 시작했고 이후 미국의 증가세는 꾸준히 증가한 반면 프랑스와 영국은 2021년 상반기부터 증가 추세가 낮아지기 시작했다. 반면 우리나라와 일본의 경우 2021년까지 매우 낮은 증가세를 모이지만 꾸준히 증가하였고 2022년에 들어서 우리나라의 증가세가 급격히 늘어나기 시작한 것으로 나타나고 있다.
+## 주석을 사용하는 선 그래프
 
-이 시각화를 보면 범례를 사용하여 각 선에 해당하는 국가를 나타내고 있다. 하지만 선에 따른 국가를 확인하기 위해서는 범례와 데이터 선을 번갈아 찾아야 하기 때문에 다소 불편함이 따른다. 선 옆에 바로 국가명을 표현해 주면 이러한 불편함이 다소 감소될 수 있다.
+이 시각화를 보면 5개 국가의 사망수의 흐름이 잘 표현되어 있다. 하지만 하나 아쉬운 점은 범례를 사용하여 각 선에 해당하는 국가를 나타내고 있는데 선에 따른 국가를 확인하기 위해서는 범례와 데이터 선을 번갈아 찾아야 한다는 불편함이 따른다. 그래서 선 그래프를 사용하는 많은 경우에서 범례를 사용하기 보다는 선 옆에 바로 범례를 표현하는 방법을 사용한다. 또 다른 시각화에도 많이 사용되지만 선 그래프에서는 시간의 흐름을 표시하는 경우가 많기 때문에 시간의 흐름에 따라 발생되는 다양한 이벤트를 표시하는 경우도 많다. 예를 들어 우리나라의 코로나 19 확진자수는 설이나 추석 등의 장기 연휴가 끝나면 급증하는 경향을 보인다. 또 특정한 정책이 시행되는 날의 이후 시계열적 데이터의 강한 변동이 보이는 경우도 많다. 따라서 이러한 달력상의, 사회상의 이벤트를 표시하는 경우가 많다. 
+
+이렇게 `plotly`에서 범례를 선 그래프 뒤에 붙여주는 기능이나 시간축상의 혹은 데이터 축상의 특정한 이벤트를 표시하는 것은 주석(annotation)으로 처리하는 방법을 써야 한다.  
+
+주석은 플롯 위에 표시되는 텍스트 기반 정보를 말한다. 주석이 위치하는 좌표는 플롯의 상대 좌표나 그래프의 실제 데이터 좌표를 기준으로 위치를 지정하는데, 기본적으로 주석은 주석위 정확한 위치를 표시하는 화살표를 사용한다. 
+
+`plotly`에서 제공하는 주석은 'data'로 표시되는 트레이스도, 'layout'으로 표시되는 레이 아웃에도 속하지 않는 'layer'에 속한다. 'layer'는 'data'나 'layout'과 같이 `plolty`를 구성하는 필수적인 요소는 아니다. 따라서 'data'와 'layout'의 보완적 요소로써 'annotation', 'shape', 'images' 등의 요소들을 사용할 수 있다. 
+
+다음은 5개국의 코로나 19 누적 사망자수를 표시하는 선 그래프이다. 앞의 선 그래프와 다른 것은 범례를 사용하지 않고 데이터의 끝에 해당 데이터의 해당 데이터의 이름을 붙여주는 R과 python 코드이다. 먼저 선 그래프의 오른쪽에 범례를 표시하기 위해 Y축의 오른쪽에 여분의 공간이 필요하다. 이를 위해 마지막 날짜의 180일 후 날짜를 산출하였다. 다음으로 scatter 트레이스의 'line' 모드를 설정하고 5개국의 코로나 19 누적 사망자수의 선 그래프를 그리고 범례를 없앤다. 이 후 각각 데이터의 마지막 날 데이터의 위치에 'xanchor' 가 'left'로, 'textposition'이 'middle right'로 설정된 각각의 데이터 이름을 주석(annotation)으로 붙여준다. 여기서 'showarrow'를 FALSE로 설정하여 화살표를 없애고 좌표점에 데이터를 표시하도록 하였다. 다음으로 2022년 설날('2022-02-01')의 한국 데이터의 위치를 화살표로 '설날'로 표시하였다. 
 
 -   R
 
@@ -340,16 +347,22 @@ total_deaths_5_nations_by_day |>
   plot_ly() |>
   add_trace(type = 'scatter', mode = 'lines', 
             x = ~date, y = ~total_deaths_per_million , linetype = ~location, connectgaps = T) |>
-  add_trace(type = 'scatter', mode = 'text', 
+  add_annotations( 
             x =~ (total_deaths_5_nations_by_day |> filter(date == max(date)) |> select(date) |> pull()), 
             y = ~(total_deaths_5_nations_by_day |> filter(date == max(date)) |> select(total_deaths_per_million) |> pull()),
             text = ~(total_deaths_5_nations_by_day |> filter(date == max(date)) |> select(location) |> pull()), 
-            textposition = 'middle right'
+            textposition = 'middle right', xanchor = 'left', showarrow = FALSE
+  ) |>
+  add_annotations( 
+            x = '2022-02-01', 
+            y = ~(total_deaths_5_nations_by_day |> filter(date == '2022-02-01', iso_code == 'KOR') |> select(total_deaths_per_million) |> pull()),
+            text = '설날', 
+            textposition = 'middle right', xanchor = 'right'
   ) |>
   layout(title = '코로나 19 사망자수 추세', 
          xaxis = list(title = '', range = c('2020-02-15', format(last_day, format="%Y-%m-%d"))), 
          yaxis = list(title = '10만명당 사망자수 누계'), 
-         margin = margins,
+         margin = margins_R,
          showlegend = FALSE)
 
 ```
@@ -364,16 +377,22 @@ total_deaths_5_nations_by_day |>
   add_trace(type = 'scatter', mode = 'lines', 
             x = ~date, y = ~total_deaths_per_million , linetype = ~location, connectgaps = T, 
             color = ~location, colors = RColorBrewer::brewer.pal(7, 'Blues')[3:7]) |>
-  add_trace(type = 'scatter', mode = 'text', 
+  add_annotations( 
             x =~ (total_deaths_5_nations_by_day |> filter(date == max(date)) |> select(date) |> pull()), 
             y = ~(total_deaths_5_nations_by_day |> filter(date == max(date)) |> select(total_deaths_per_million) |> pull()),
             text = ~(total_deaths_5_nations_by_day |> filter(date == max(date)) |> select(location) |> pull()), 
-            textposition = 'middle right'
+            textposition = 'middle right', xanchor = 'left', showarrow = FALSE
+  ) |>
+  add_annotations( 
+            x = '2022-02-01', 
+            y = ~(total_deaths_5_nations_by_day |> filter(date == '2022-02-01', iso_code == 'KOR') |> select(total_deaths_per_million) |> pull()),
+            text = '설날', 
+            textposition = 'middle right', xanchor = 'right'
   ) |>
   layout(title = '코로나 19 사망자수 추세', 
          xaxis = list(title = '', range = c('2020-02-15', format(last_day, format="%Y-%m-%d"))), 
          yaxis = list(title = '10만명당 사망자수 누계'), 
-         margin = margins,
+         margin = margins_R,
          showlegend = FALSE)
 
 ```
@@ -399,7 +418,13 @@ for location, group in total_deaths_5_nations_by_day.groupby('location'):
         showlegend = False, 
         textposition = 'middle right'
     ))    
-    
+
+fig.add_annotation(
+    x = '2022-02-01', 
+    y = total_deaths_5_nations_by_day.loc[(total_deaths_5_nations_by_day['date'] == '2022-02-01') & (total_deaths_5_nations_by_day['iso_code'] == 'KOR'), 'total_deaths_per_million'].values[0],
+    text = '설날', showarrow=True, arrowhead=1, arrowsize = 1.5
+)    
+
 fig.update_layout(title = dict(text = '코로나 19 사망자수 추세', x = 0.5), 
                   xaxis = dict(title = '', 
                                range = [total_deaths_5_nations_by_day['date'].min(), total_deaths_5_nations_by_day['date'].max() + timedelta(days=150)]), 
@@ -415,7 +440,7 @@ for location, group in total_deaths_5_nations_by_day.groupby('location'):
         mode = 'lines', 
         x = group['date'], 
         y = group['total_deaths_per_million'], 
-        line = dict(dash = nations[location], color = "#08519C"), 
+        line = dict(dash = nations[location]), 
         name = location,
         connectgaps = True, showlegend = False
     ))
@@ -427,15 +452,24 @@ for location, group in total_deaths_5_nations_by_day.groupby('location'):
         showlegend = False, 
         textposition = 'middle right'
     ))    
-    
+
+fig.add_annotation(
+    x = '2022-02-01', 
+    y = total_deaths_5_nations_by_day.loc[(total_deaths_5_nations_by_day['date'] == '2022-02-01') & (total_deaths_5_nations_by_day['iso_code'] == 'KOR'), 'total_deaths_per_million'].values[0],
+    text = '설날', 
+    showarrow=True,
+    arrowhead=1, 
+    arrowsize = 1.5
+)    
+
 fig.update_layout(title = dict(text = '코로나 19 사망자수 추세', x = 0.5), 
                   xaxis = dict(title = '', 
                                range = [total_deaths_5_nations_by_day['date'].min(), total_deaths_5_nations_by_day['date'].max() + timedelta(days=150)]), 
-                  yaxis = dict(title = '10만명당 사망자수 누계'))   
+                  yaxis = dict(title = '10만명당 사망자수 누계'), 
+                 colorway = ("#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAED6"))   
 fig.show()
 ```
 
-![](p2.png)
 
 ## rangeslider를 사용한 선 그래프
 
@@ -456,9 +490,9 @@ total_deaths_5_nations_by_day |>
   layout(title = '코로나 19 사망자수 추세', 
          xaxis = list(title = '', rangeslider = list(visible = T)), 
          yaxis = list(title = '10만명당 사망자수 누계'), 
-         showlegend = T, margin = margins, 
+         showlegend = T, margin = margins_R, 
          title='Time Series with Rangeslider',
-         margin = margins)
+         margin = margins_R)
 
 ```
 
@@ -473,9 +507,9 @@ total_deaths_5_nations_by_day |>
   layout(title = '코로나 19 사망자수 추세', 
          xaxis = list(title = '', rangeslider = list(visible = T)), 
          yaxis = list(title = '10만명당 사망자수 누계'), 
-         showlegend = T, margin = margins, 
+         showlegend = T, margin = margins_R, 
          title='Time Series with Rangeslider',
-         margin = margins)
+         margin = margins_R)
 
 ```
 
@@ -567,7 +601,7 @@ total_deaths_5_nations_by_day |>
                           )
                         )
                       ),
-         showlegend = T, margin = margins
+         showlegend = T, margin = margins_R
          )
 
 ```
@@ -598,7 +632,7 @@ total_deaths_5_nations_by_day |>
                           )
                         )
                       ),
-         showlegend = T, margin = margins
+         showlegend = T, margin = margins_R
          )
 
 ```
@@ -684,7 +718,7 @@ total_deaths_5_nations_by_day |>
   layout(title = '코로나 19 사망자수 추세', 
          xaxis = list(title = ''), 
          yaxis = list(title = '10만명당 사망자수 누계'), 
-         margin = margins, 
+         margin = margins_R, 
          hovermode="x")
 
 ```
@@ -699,7 +733,7 @@ total_deaths_5_nations_by_day |>
   layout(title = '코로나 19 사망자수 추세', 
          xaxis = list(title = ''), 
          yaxis = list(title = '10만명당 사망자수 누계'), 
-         margin = margins, 
+         margin = margins_R, 
          hovermode="x")
 
 ```
@@ -761,7 +795,7 @@ total_deaths_5_nations_by_day |>
          xaxis = list(title = '', 
                       spikemode = 'toaxis+across'), 
          yaxis = list(title = '10만명당 사망자수 누계'), 
-         margin = margins, 
+         margin = margins_R, 
          hovermode="x")
 
 
@@ -778,7 +812,7 @@ total_deaths_5_nations_by_day |>
          xaxis = list(title = '', 
                       spikemode = 'toaxis+across'), 
          yaxis = list(title = '10만명당 사망자수 누계'), 
-         margin = margins, 
+         margin = margins_R, 
          hovermode="x")
 
 
@@ -831,6 +865,8 @@ fig.show()
 ```
 
 ![](p6.png)
+
+# 시간축의 설정
 
 # 캔들 스틱 차트
 
@@ -1206,7 +1242,7 @@ subplot(p1 |>
 ```
 
 
-# 시간축의 설정
+
 
 # 스파크라인
 
@@ -1240,7 +1276,7 @@ df_covid19_100 |>
   ## 생성된 subplot의 layout 설정
   layout(showlegend = FALSE, 
          title = '최근 100일간 코로나19 확진자수',
-         margin = margins)
+         margin = margins_R)
 
 ```
 
@@ -1279,7 +1315,7 @@ df_funnel |>
     yaxis = list(title = '', 
                       tickvals = ~date_by_week, 
                       ticktext = ~yearweekth), 
-    margin = margins)
+    margin = margins_R)
 
 ```
 
@@ -1302,7 +1338,7 @@ fig.add_trace(go.Funnel(
 fig.update_layout(title = dict(text = '우리나라 주별 확진자수', x = 0.5), 
     yaxis = dict(title = '', 
                       ticktext = df_funnel.index), 
-    margin = margins)
+    margin = margins_P)
 
 
 ```
@@ -1350,7 +1386,7 @@ df_funnel_Asia |>
     yaxis = list(title = '', 
                       tickvals = ~date_by_week, 
                       ticktext = ~yearweekth), 
-    margin = margins)
+    margin = margins_R)
 
 ```
 
@@ -1408,7 +1444,7 @@ df_funnel_Asia |>
     yaxis = list(title = '', 
                       tickvals = ~date_by_week, 
                       ticktext = ~yearweekth), 
-    margin = margins)
+    margin = margins_R)
   
 
 ```
@@ -1444,9 +1480,107 @@ fig.add_trace(go.Funnel(
 
 fig.update_layout(title = dict(text = '우리나라 주별 확진자수', x = 0.5), 
                   yaxis = dict(title = '',  ticktext = df_funnel.index),
-                  margin = margins)
+                  margin = margins_P)
 
 ```
 
 퍼널 차트의 또하나의 표현 방식은 퍼널 면적(funnel area) 차트이다. 퍼널 면적 차트가 완전한 피라미드 형태의 차트이다. 앞선 퍼널 차트에서 각각의 막대 사이의 공간을 없애고 삼각형 형태로 표현되며 면적으로 데이터 값을 표현한다.
+
+# 산키 다이어그램
+
+산키 다이어그램은 두개 혹은 두개 이상의 변수간의 데이터 흐름을 잘 보여주는 다이어그램이다. 각각의 변수 항목의 변량들은 왼쪽과 오른쪽에 네모 박스로 표현하고 변량들의 데이터가 연관된 항목간의 데이터 량에 따라 굵기가 다른 선으로 이어지는 형태로 표현되는 다이어그램으로 비교적 최근부터 사용되기 시작한 그래프 형태이다.
+
+최근 `plotly`에서 제공하는 trace에 `sankey`를 제공하기 때문에 추가적인 패키지의 도움없이 산키 다이어그램을 만들수 있지만 `ggplot2`의 경우는 확장 패키지로 만들어진 `ggsankey` 패키지를 통해 `ggplot` 객체의 산키 다이어그램을 만들 수 있다. 이외에도 `networkD3` 패키지를 사용할 수 있다.
+
+산키 다이어그램을 생성하기 위해서는 세가지 데이터가 필요하다.
+
+첫번째는 (네모 박스로 표현되는) 각각 노드의 이름, 두번째는 각각의 노드들이 연결되는 링크에 대한 정보, 세번째는 링크의 굵기가 표현될 데이터 정보이다.
+
+이번 절에서 만들어 볼 산키 다이어그램은 취업통계 데이터를 사용하여 대학 과정(전문대학과정, 대학과정, 대학원과정)에 따른 졸업자가 졸업 후 어떤 진로를 선택했는지(취업, 진학 등)의 흐름을 연결하는 다이어그램이다. 이 산키 다이어그램을 생성하기 위해서는 앞서 설명한 세가지 데이터를 만들기 위해 다음과 같이 전처리하였다.
+
+```{r}
+df_sankey <- df_취업률 |> 
+  ## 열 중에서 3열(과정구분, 왼쪽 노드로 사용)과 12열, 21열부터 26열(오른쪽 노드로 사용)까지를 선택
+  select(3, 12, 21:26) |> 
+  ## 과정구분 열을 사용하여 그룹화
+  group_by(과정구분) |>
+  ## 전체 열에 대해 `sum`을 적용(summarise_all은 전체 열에 동일한 요약함수를 적영하는 함수임)
+  summarise_all(sum) |>
+  ## 열이름을 적절히 변경
+  rename(c('취업' = '취업자_합계_계', '진학' = '진학자_계', '취업불가' = '취업불가능자_계', '외국인' = '외국인유학생_계', '제외인정' = '제외인정자_계', '기타' = '기타_계', '미상' = '미상_계')) |>
+  ##  첫번째 열을 제외하고 나머지 열들에 긴 형태의 데이터로 변환, 열 이름이 들어간 열은 '구분'으로 데이터 값이 들어간 열은 '학생수'열로 설정
+  pivot_longer(cols = 2:8, names_to = '졸업구분', values_to = '학생수') |>
+  ## 과정구분 열과 구분 열의 순서설정을 위해 팩터 레벨 설정
+  mutate(과정구분_node = case_when(
+    과정구분 == '전문대학과정' ~ 0, 
+    과정구분 == '대학과정' ~ 1,
+    과정구분 == '대학원과정' ~ 2),
+    졸업구분_node = case_when(
+      졸업구분 == '취업' ~ 3, 
+      졸업구분 == '진학' ~ 4, 
+      졸업구분 == '취업불가' ~ 5, 
+      졸업구분 == '외국인' ~ 6, 
+      졸업구분 == '제외인정' ~ 7, 
+      졸업구분 == '기타' ~ 8, 
+      졸업구분 == '미상' ~ 9)
+    ) |>
+  arrange(과정구분_node, 졸업구분_node)
+
+head(df_sankey, 10)
+```
+
+이 데이터에서 뜻하는 것은 '과정구분'(전문대학, 대학, 대학원)의 졸업자가 '졸업구분'(취업, 진학 등)으로 몇 명이 배출되었는지를 한 행에 나타낸다. 예를 들어 첫 번쨰 행의 경우 전문대학과정 졸업자 중에 취업으로 간 학생은 105904명이라는 의미이다.
+
+이 데이터에서 앞서 설명한 세가지 데이터 벡터를 생성한다.
+
+첫 번째 벡터는 노드의 이름을 가지는 벡터이다. 노드의 이름은 '과정구분' 열과 '졸업구분' 열의 각각의 변량을 벡터로 만들었다.
+
+```{r}
+## 왼쪽 노드로 사용할 변량을 from에 저장
+from <- unique(as.character(df_sankey$과정구분))
+
+## 오른쪽 노드로 사용할 변량을 to에 저장
+to <- unique(as.character(df_sankey$졸업구분))
+
+## 전체 노드 벡터 생성
+node <- c(from, to)
+
+node
+```
+
+두번째로는 노드 링크 정보를 생성한다. 노드 링크 정보는 앞서 전처리한 df_sankey에서 '과정구분' 열에서 '졸업구분'열로 이동하는 의미로 구성하였고 각각의 노드에 대한 번호를 만들었 때문에 'source'를 '과정구분_node' 열 벡터로, 'target'을 '졸업구분_node' 열로 설정한다.
+
+여기서 중요한 것이 R에서 사용하는 인덱스는 일반적으로 1부터 시작하지만 여기서 사용하는 인덱스는 0부터 시작한다는 것이다.
+
+세번쨰로 노드 데이터 정보를 생성한다. 앞서 데이터를 전처리 할 때 노드 링크의 순서에 따라 데이터를 정리해 놓았기 때문에 df_sankey의 학생수 열을 사용할 수 있다.
+
+이제 데이터의 전처리가 끝났으니 `plotly`의 `sankey` trace를 사용하여 산키 다이어그램을 생성한다.
+
+```{r fig.cap='산키 다이어그램'}
+df_sankey |> plot_ly(
+    type = "sankey",
+    orientation = "h",
+
+    node = list(
+      label = node,
+      color = c(rep('lightblue', 3), rep('darkblue', 7)),
+      pad = 15,
+      thickness = 20,
+      line = list(
+        color = "black",
+        width = 0.5
+      )
+    ),
+
+    link = list(
+      source = ~과정구분_node,
+      target = ~졸업구분_node,
+      value =  ~학생수
+    )
+  ) |>
+  layout(title = '대학과정별 졸업자의 졸업 후 진로', 
+         margin = margins_R)
+
+
+```
 

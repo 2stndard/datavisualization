@@ -72,7 +72,7 @@ df_covid19_stat <- df_covid19 |>
     mutate(십만명당사망자수 = round(전체사망자수 / 인구수 *100000, 5),
            백신접종완료율 = 백신접종자완료자수 / 인구수)
 
-margins <- list(t = 50, b = 25, l = 25, r = 25)
+margins_R <- list(t = 50, b = 25, l = 25, r = 25)
 
 
 ```
@@ -767,7 +767,6 @@ p_histogram |>
 ```
 
 ```{r echo = FALSE, fig.cap='histfunc에 따른 R의 히스토그램'}
-margins = list(t = 50, b = 25, l = 25, r = 25)
 
 p1 <- p_histogram |> add_trace(type = 'histogram', x = ~대계열, stroke = I('white'), histfunc = 'count', color = I('#1f77b4'), stroke = I('white')) |>
   layout(yaxis = list(title = list(text = '학과수')))
@@ -785,7 +784,7 @@ subplot(
   p4 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "histfunc = 'max'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), 
   nrows = 2, margin = 0.1, titleY = TRUE
 ) |> hide_legend() |>
-  layout(title = '취업률 histogram', margin = margins)
+  layout(title = '취업률 histogram', margin = margins_R)
 
 ```
 
@@ -949,7 +948,7 @@ p_box_group |>
   ## boxmode를 group으로 설정
   layout(boxmode = "group") |>
   layout(title = list(text = '대학 계열별 취업률 분포'), 
-         margin = margins)
+         margin = margins_R)
 ```
 
 -   python
@@ -1297,7 +1296,7 @@ df_취업률_500 |>
             meanline = list(visible = TRUE, color = 'darkblue', width = 1)) |> 
   layout(violinmode = "overlay", 
          title = list(text = '대학 계열별 취업률 분포'), 
-         margin = margins)
+         margin = margins_R)
 
 ```
 

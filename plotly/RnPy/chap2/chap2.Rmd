@@ -526,7 +526,7 @@ df_covid19_100 |>
 python에서 'layout' 속성의 설정은 'data' 속성과 같이 `Figure()`에서 설정이 가능하다. 'data' 속성의 설정이 끝나면 'layout' 속성들로 구성된 딕셔너리를 'layout' 키워드를 사용하여 설정한다. 다음의 코드는 앞서 그린 시각화에 'layout' 속성인 'title' 속성으로 시각화 제목, 'xaxis' 속성을 'title', 'showgrid' 속성의 딕셔너리로 설정하였고, 'yaxis' 속성을 'title' 속성의 딕셔너리로 설정하였다. 또 'margin' 속성으로 미리 설정된 딕셔너리로 설정하였다. 
 
 ```{python eval = FALSE}
-margins_python = {'t' : 50, 'b' : 25, 'l' : 25, 'r' : 25}
+margins_P = {'t' : 50, 'b' : 25, 'l' : 25, 'r' : 25}
 
 fig = go.Figure(
     data = {
@@ -548,7 +548,7 @@ fig = go.Figure(
         'title' : "날짜",
         'showgrid' : False},
       'yaxis' : {'title' : "확진자수"}, 
-      'margin' : margins_python
+      'margin' : margins_P
       }
 )
 
