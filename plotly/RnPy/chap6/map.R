@@ -81,15 +81,16 @@ fig
 spdf_shp <- sf::st_read('D:/R/git/datavisualization/chap10/TL_SCCO_CTPRVN.shp', options = 'ENCODING=CP949')
 
 inner_join(spdf_shp, df_입학자_join, by = c('CTPRVN_CD' = 'id')) |>
+  plot_ly(split=~CTP_KOR_NM, color = ~일반대학, colors = "Blues",
+          showlegend = FALSE) 
+
+
+
   plot_geo() |>
   add_trace(z = ~일반대학)
 
 
-
-mapboxToken <- paste(readLines("../.mapbox_token"), collapse="")    # You need your own token
-Sys.setenv("MAPBOX_TOKEN" = mapboxToken) # for Orca
-
-fig <- plot_mapbox(nc, split=~CTP_KOR_NM) 
+fig <- 
 
 map_data("world", "South Korea")
 
@@ -98,4 +99,8 @@ map_data("world", "South Korea") %>%
   plot_geo(x = ~long, y = ~lat) %>%
   add_markers(size = I(1))
 
+sf_korea <- raster::getData('GADM', country='KOR', level = 1, type = "sf")
 
+View(sf_korea)
+
+department <- map %>% as.data.frame() %>% .[, 13]

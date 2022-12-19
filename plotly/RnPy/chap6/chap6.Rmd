@@ -1,0 +1,1114 @@
+---
+title : 지수와 지도의 시각화
+output: 
+  officedown::rdocx_document:
+    plots:
+      fig_caption: no
+      style: Normal
+      align: center
+      caption:
+        style: Image Caption
+        pre: '실행결과 IV - '
+        sep: 'R. '
+        topcaption: false
+      Normal: ['First Paragraph']
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6.5, dpi = 130, eval = FALSE)
+library(showtext)
+showtext_auto()
+library(tidyverse)
+library(readxl)
+library(patchwork)
+library(plotly)
+
+```
+
+```{r echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE}
+##  R code
+## 데이터 전처리를 위한 패키지 설치 및 로딩
+if(!require(readr)) {
+  install.packages('readr')
+  library(readr)
+}
+
+if(!require(lubridate)) {
+  install.packages('lubridate')
+  library(lubridate)
+}
+
+if(!require(tidyverse)) {
+  install.packages('tidyverse')
+  library(tidyverse)
+}
+
+## 1. covid19 원본 데이터 셋 로딩
+## covid19 데이터 로딩(파일을 다운로드 받은 경우)
+# df_covid19 <- read_csv(file = "데이터저장경로/owid-covid-data.csv",
+#                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
+#                                              )
+#                             )
+## covid19 데이터 로딩(온라인에서 바로 로딩할 경우)
+# df_covid19 <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-data.csv",
+#                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
+#                                              )
+#                             )
+
+df_covid19 <- read_csv(file = "D:/R/git/datavisualization/plotly/RnPy/owid-covid-data_221203.csv",
+                            col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                                             )
+                            )
+## 2. 전체 데이터셋 중 최근 100일간의 데이터를 필터링한 df_covid19_100 생성
+df_covid19_100 <- df_covid19 |> 
+  ## 한국 데이터와 각 대륙별 데이터만을 필터링
+  filter(iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM', 'OWID_AFR')) |>
+  ## 읽은 데이터의 마지막 데이터에서 100일전 데이터까지 필터링
+  filter(date >= max(date) - 100) |>
+  ## 국가명을 한글로 변환
+  mutate(location = case_when(
+    location == 'South Korea' ~ '한국', 
+    location == 'Asia' ~ '아시아', 
+    location == 'Europe' ~ '유럽', 
+    location == 'Oceania' ~ '오세아니아', 
+    location == 'North America' ~ '북미', 
+    location == 'South America' ~ '남미', 
+    location == 'Africa' ~ '아프리카')) |>
+  ## 국가 이름의 순서를 설정 
+  mutate(location = fct_relevel(location, '한국', '아시아', '유럽', '북미', '남미', '아프리카', '오세아니아')) |>
+  ## 날짜로 정렬
+  arrange(date)
+
+
+## 3. df_covid19_100을 한국과 각 대륙별열로 배치한 넓은 형태의 데이터프레임으로 변환
+df_covid19_100_wide <- df_covid19_100 |>
+  ## 날짜, 국가명, 확진자와, 백신접종완료자 데이터만 선택
+  select(date, location, new_cases, people_fully_vaccinated_per_hundred) |>
+  ## 열 이름을 적절히 변경
+  rename('date' = 'date', '확진자' = 'new_cases', '백신접종완료자' = 'people_fully_vaccinated_per_hundred') |>
+  ## 넓은 형태의 데이터로 변환
+  pivot_wider(id_cols = date, names_from = location, 
+              values_from = c('확진자', '백신접종완료자')) |>
+  ## 날짜로 정렬
+  arrange(date)
+
+## 4. covid19 데이터를 국가별로 요약한 df_covid19_stat 생성
+df_covid19_stat <- df_covid19 |> 
+  group_by(iso_code, continent, location) |>
+  summarise(인구수 = max(population, na.rm = T), 
+            인당GDP = max(gdp_per_capita, na.rm = T),
+            전체확진자수 = sum(new_cases, na.rm = T),
+            전체사망자수 = sum(new_deaths, na.rm = T), 
+            십만명당중환자실 = last(icu_patients_per_million),
+            재생산지수 = last(reproduction_rate),
+            봉쇄지수 = max(stringency_index), 
+            전체검사자수 = max(total_tests, na.rm = T), 
+            신규검사자수 = sum(new_tests, na.rm = T),
+            전체백신접종자수 = max(total_vaccinations, na.rm = T),
+            백신접종자완료자수 = max(people_fully_vaccinated, na.rm = T),
+            부스터접종자수 = max(total_boosters, na.rm = T),
+            인구백명당백신접종완료률 = max(people_fully_vaccinated_per_hundred, na.rm = T),
+            인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
+            ) |> 
+    ungroup() |>
+    mutate(십만명당사망자수 = round(전체사망자수 / 인구수 *100000, 5),
+           백신접종완료률 = 백신접종자완료자수 / 인구수)
+
+
+```
+
+```{r echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE}
+## R 코드
+
+df_취업률 <- read_excel('d:/R/data/2020년 학과별 고등교육기관 취업통계.xlsx', 
+                     ## '학과별' 시트의 데이터를 불러오는데,
+                     sheet = '학과별',
+                     ## 앞의 13행을 제외하고
+                     skip = 13, 
+                     ## 첫번째 행은 열 이름으로 설정
+                     col_names = TRUE, 
+                     ## 열의 타입을 설정, 처음 9개는 문자형으로 다음 79개는 수치형으로 설정
+                     col_types = c(rep('text', 9), rep('numeric', 79)))
+
+## df_취업률에서 첫번째부터 9번째까지의 열과 '계'로 끝나는 열을 선택하여 다시 df_취업률에 저장
+df_취업률 <- df_취업률 |> 
+  select(1:9, ends_with('계'), '입대자')
+
+## df_취업률에서 졸업자가 500명 이하인 학과 2000개 샘플링
+df_취업률_2000 <- df_취업률 |> 
+  filter(졸업자_계 < 500) |>
+  mutate(id = row_number()) |>
+  filter(row_number() %in% seq(from = 1, to = nrow(df_취업률), by = 4))
+
+## 열 이름을 적절히 설정
+names(df_취업률_2000)[10:12] <- c('졸업자수', '취업률', '취업자수')
+
+margins_R = list(t = 50, b = 25, l = 25, r = 25)
+
+```
+
+```{python echo = FALSE, message = FALSE, warning = FALSE, eval = FALSE}
+import pandas as pd
+from datetime import datetime, timedelta
+from pandas.api.types import CategoricalDtype
+from matplotlib import pyplot as plt
+import plotly.graph_objects as go
+
+df_covid19 = pd.read_csv("D:/R/git/datavisualization/plotly/RnPy/owid-covid-data_221203.csv")
+
+df_covid19['date'] = pd.to_datetime(df_covid19['date'], format="%Y-%m-%d")
+
+df_covid19_100 = df_covid19[(df_covid19['iso_code'].isin(['KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM', 'OWID_AFR'])) & (df_covid19['date'] >= (max(df_covid19['date']) - timedelta(days = 100)))]
+
+
+df_covid19_100.loc[df_covid19_100['location'] == 'South Korea', "location"] = '한국'
+df_covid19_100.loc[df_covid19_100['location'] == 'Asia', "location"] = '아시아'
+df_covid19_100.loc[df_covid19_100['location'] == 'Europe', "location"] = '유럽'
+df_covid19_100.loc[df_covid19_100['location'] == 'Oceania', "location"] = '오세아니아'
+df_covid19_100.loc[df_covid19_100['location'] == 'North America', "location"] = '북미'
+df_covid19_100.loc[df_covid19_100['location'] == 'South America', "location"] = '남미'
+df_covid19_100.loc[df_covid19_100['location'] == 'Africa', "location"] = '아프리카'
+
+ord = CategoricalDtype(categories = ['한국', '아시아', '유럽', '북미', '남미', '아프리카', '오세아니아'], ordered = True)
+
+df_covid19_100['location'] = df_covid19_100['location'].astype(ord)
+
+df_covid19_100 = df_covid19_100.sort_values(by = 'date')
+
+df_covid19_100_wide = df_covid19_100.loc[:,['date', 'location', 'new_cases', 'people_fully_vaccinated_per_hundred']].rename(columns={'new_cases':'확진자', 'people_fully_vaccinated_per_hundred':'백신접종완료자'})
+
+df_covid19_100_wide = df_covid19_100_wide.pivot(index='date', columns='location', values=['확진자', '백신접종완료자']).sort_values(by = 'date')
+
+df_covid19_100_wide.columns = ['확진자_한국', '확진자_아시아', '확진자_유럽', '확진자_북미', '확진자_남미', '확진자_아프리카','확진자_오세아니아',
+                              '백신접종완료자_한국', '백신접종완료자_아시아', '백신접종완료자_유럽', '백신접종완료자_북미', '백신접종완료자_남미', '백신접종완료자_아프리카','백신접종완료자_오세아니아']
+                              
+df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=False).agg(
+    인구수 = ('population', 'max'),
+    전체확진자수 = ('new_cases', 'sum'),
+    전체사망자수 = ('new_deaths', 'sum'), 
+    백신접종자완료자수 = ('people_fully_vaccinated', 'max'),
+    인구백명당백신접종완료율 = ('people_fully_vaccinated_per_hundred', 'max'),
+    인구백명당부스터접종자수 = ('total_boosters_per_hundred', 'max')
+).reset_index()
+
+df_covid19_stat['십만명당사망자수'] = round(df_covid19_stat['전체사망자수'] / df_covid19_stat['인구수'] *100000, 5)
+
+df_covid19_stat['백신접종완료율'] = df_covid19_stat['백신접종자완료자수'] / df_covid19_stat['인구수']
+
+######################################   
+## python 코드
+## 대학 학과 취업률 데이터 셋
+
+df_취업률 = pd.read_excel("d:/R/data/2020년 학과별 고등교육기관 취업통계.xlsx", 
+                           sheet_name = '학과별',
+                           skiprows=(13), 
+                           header = 0)
+
+df_취업률 = pd.concat([df_취업률.iloc[:, 0:8], 
+                    df_취업률.loc[:, df_취업률.columns.str.endswith('계')], 
+                    df_취업률.loc[:, '입대자']], 
+                   axis = 1
+                   )
+
+df_취업률_2000 = df_취업률.loc[(df_취업률['졸업자_계'] < 500)]
+
+df_취업률_2000 = df_취업률_2000.iloc[range(0, len(df_취업률_2000.index) , 4)]
+
+df_취업률_2000 = df_취업률_2000.rename(columns = {'졸업자_계':'졸업자수', '취업률_계':'취업률', '취업자_합계_계':'취업자수'})
+
+margins_P = dict(t = 50, b = 25, l = 25, r = 25)
+
+```
+
+이번 장에서는 지금까지 살펴본 시각화외에도 `plotly`에서 추가적으로 제공하는 시각화 중 지수(index)의 시가화와 지도의 시각화를 살펴보도록 하겠다.
+
+지수(Index)는 데이터 들을 특징일 종합하여 하나의 수치로 표현한 것을 말한다. 평균, 표준편차와 같은 수치도 가장 흔하게 만날 수 있는 지수 중에 하나이고 매일 매일 주식 시장 전체의 가격 변동을 종합한 KOPIS나 KOSDAQ와 같은 주가 종합 지수도 있다. 이렇게 하나의 수치를 시각화로 표현하는 방법을 `plotly`에서 제공한다.
+
+지도(Map)의 시각화는 매우 흔하게 사용하는 시각화로 보통 행정 구역과 같은 공간 단위별로 수집된 데이터에 대해 무늬나 색상의 단계로 데이터를 표현하는 단계 구분도(Choropleth map)나 지도위에 위경도 좌표를 지닌 객체들을 표현하는 분산 맵(Scatter map) 등이 사용된다.
+
+# 인디케이터(indicator)
+
+인디케이터의 사전적 의미는 '가리키는 것'이다. 특정한 지시, 징후, 징표를 가리키는 것이라는 의미가 적절할 것이다. `plotly`에서 인디케이터의 의미는 'value' 속성으로 지정된 단일 값을 시각화하는 것이다. `plotly`에서는 인디케이터를 시각화하기 위해 indicator 트레이스를 제공한다. indicator 트레이스는 인디케이터로 표현할 수치를 수치, 델타, 게이지의 세 가지 방법을 사용하여 시각화하는 것이다. 이 세가지 방법은 'mode' 속성을 통해 설정이 가능한데, 다음은 indicator 트레이스에서 사용하는 주요 속성이다.
+
+![](indicator_attr.png)
+
+## 수치(number) 인디케이터
+
+수치 인디케이터는 단일 수치값을 시각화하는 방법이다. 이 수치 인디케이터는 indicator 트레이스 속성 중에 'number' 속성에 의해 설정이 가능하다. 를 구성하는 각각의 구성 요소는 다음과 같다.
+
+![](indicator_number_attr.png)
+
+수치 인디케이터는 전체 인디케이터에서 표현되는 부분 중에 수치값을 표현하는 부분으로 수치 인디케이터가 단독으로 사용되기 보다는 뒤에 설명할 'delta'나 'guage'와 함께 전체 인디케이터를 구성하는 일부분으로 사용되는 경우가 일반적이다. 하지만 단순한 현재 수치를 표현할 때는 단독으로 사용될 수 있다.
+
+다음은 주요 5개국의 코로나 19 사망자수 선 그래프에 한국의 코로나 사망자수를 indicator 트레이스로 추가하는 R과 python 코드이다. 한국의 코로나 사망자수를 그리고 나서 그래프 영역의 특정 부분(X축의 0.4\~0.6, Y축의 0,85\~0.95)에 수치 속성만을 가지는 indicator 트레이스를 추가하였다. indicator 트레이스의 'value'를 설정하기 위해 앞서 코로나 사망자수를 그리는데 사용했던 total_deaths_5\_nations_by_day 데이터프레임에서 한국의 10만명당 사망자수 데이터를 산출하고 이 데이터를 사용하여 indicator 트레이스를 생성하였다. indicator 트레이스의 위치를 설정하는데 'domain' 속성을 사용한다.
+
+-   R
+
+R에서 indicator 트레이스를 만들기 위해서는 `add_trace(type = 'indicator', ...)`를 사용한다. 수치 인디케이터는 'mode' 속성을 'number'로 설정하고 'number' 속성을 설정하여 만들 수 있다.
+
+```{r echo=FALSE, eval = TRUE}
+## 5개국 데이터로 전처리
+total_deaths_5_nations_by_day <- df_covid19 |> 
+  filter((iso_code %in% c('KOR', 'USA', 'JPN', 'GBR', 'FRA'))) |>
+  filter(!is.na(total_deaths_per_million))
+
+```
+
+```{r eval = TRUE}
+number_KOR <- total_deaths_5_nations_by_day |>
+  filter(date == max(date), iso_code == 'KOR') |>
+  select(total_deaths_per_million) |> pull()
+
+fig1 <- total_deaths_5_nations_by_day |>
+  plot_ly() |>
+  ## scatter 트레이스 생성
+  add_trace(type = 'scatter', mode = 'lines', 
+            x = ~date, y = ~total_deaths_per_million , 
+            linetype = ~location, connectgaps = T) |>
+  ## layout의 제목, 축제목, 여백 속성 설정
+  layout(title = list(text = '코로나 19 사망자수 추세', pad = list(b = 5)), 
+         xaxis = list(title = ''), 
+         yaxis = list(title = '10만명당 사망자수 누계', domain = c(0, 0.8)), 
+         margin = margins_R)
+
+fig1 |>
+  add_trace(type = 'indicator', mode = 'number', 
+            value = number_KOR,  
+            title = list(text = paste0('<b>한국 코로나 사망자(10만명당)</b>\n', year(today()), '년', month(today()), '월', day(today()), '일'),
+                     font = list(family = '나눔고딕', size = 15)
+                     ),
+            number = list(font = list(family = '나눔고딕', 
+                                      size = 15), 
+                          suffix = '명'),
+            domain = list(x = c(0.4, 0.6), y = c(0.8, 0.9)))
+
+```
+
+```{r echo=FALSE}
+number_KOR <- total_deaths_5_nations_by_day |>
+  filter(date == max(date), iso_code == 'KOR') |>
+  select(total_deaths_per_million) |> pull()
+
+fig1 <- total_deaths_5_nations_by_day |>
+  plot_ly() |>
+  ## scatter 트레이스 생성
+  add_trace(type = 'scatter', mode = 'lines', 
+            x = ~date, y = ~total_deaths_per_million , 
+            linetype = ~location, connectgaps = T, 
+            color = ~location, colors = RColorBrewer::brewer.pal(9, 'Blues')[seq(from = 9, to = 5, by = -1)]
+) |>
+  ## layout의 제목, 축제목, 여백 속성 설정
+  layout(title = list(text = '코로나 19 사망자수 추세', pad = list(b = 5)), 
+         xaxis = list(title = ''), 
+         yaxis = list(title = '10만명당 사망자수 누계', domain = c(0, 0.8)), 
+         margin = margins_R)
+
+fig1 |>
+  add_trace(type = 'indicator', mode = 'number', 
+            value = number_KOR,  
+            title = list(text = paste0('<b>한국 코로나 사망자(10만명당)</b>\n', year(today()), '년', month(today()), '월', day(today()), '일'),
+                     font = list(family = '나눔고딕', size = 15)
+                     ),
+            number = list(font = list(family = '나눔고딕', 
+                                      size = 15), 
+                          suffix = '명'),
+            domain = list(x = c(0.4, 0.6), y = c(0.8, 0.9)))
+
+```
+
+-   python
+
+python에서 indicator 트레이스를 만들기 위해서는 `add_trace()`에 `plotly.graph_objects.Indicator()`를 사용한다. 수치 인디케이터는 'number' 속성을 설정하여 만들 수 있다.
+
+```{python}
+from datetime import datetime, timedelta
+
+today = datetime.today()
+
+number_KOR = total_deaths_5_nations_by_day.loc[(total_deaths_5_nations_by_day['date']==total_deaths_5_nations_by_day['date'].max()) & (total_deaths_5_nations_by_day['iso_code']=='KOR')]
+number_KOR = number_KOR.loc[:,'total_deaths_per_million'].values[0]
+
+fig = go.Figure()
+for location, group in total_deaths_5_nations_by_day.groupby('location'):
+    fig.add_trace(go.Scatter(
+        mode = 'lines', 
+        x = group['date'], 
+        y = group['total_deaths_per_million'], 
+        line = dict(dash = nations[location]), 
+        name = location,
+        connectgaps = True
+    ))
+
+fig.update_layout(title = dict(text = '코로나 19 사망자수 추세', x = 0.5), 
+                  xaxis = dict(title = ''), 
+                  yaxis = dict(title = '10만명당 사망자수 누계', domain = (0, 0.8)))   
+
+fig.add_trace(go.Indicator(
+    mode = 'number', value = number_KOR,
+    title = dict(text = '<b>한국 코로나 사망자(10만명당)</b><br>' + str(today.year) + '년' + str(today.month) + '월' + str(today.day) + '일\n',
+                 font = dict(family = '나눔고딕', size = 15)),
+    number = dict(font = dict(family = '나눔고딕', size = 15),
+                  suffix = '명'),
+    domain = dict(x = (0.4, 0.6), y = (0.8, 0.9))
+))
+
+fig.show()
+
+```
+
+```{python echo = FALSE}
+from datetime import datetime, timedelta
+
+today = datetime.today()
+
+number_KOR = total_deaths_5_nations_by_day.loc[(total_deaths_5_nations_by_day['date']==total_deaths_5_nations_by_day['date'].max()) & (total_deaths_5_nations_by_day['iso_code']=='KOR')]
+number_KOR = number_KOR.loc[:,'total_deaths_per_million'].values[0]
+
+fig = go.Figure()
+for location, group in total_deaths_5_nations_by_day.groupby('location'):
+    fig.add_trace(go.Scatter(
+        mode = 'lines', 
+        x = group['date'], 
+        y = group['total_deaths_per_million'], 
+        line = dict(dash = nations[location]), 
+        name = location,
+        connectgaps = True
+    ))
+
+fig.update_layout(title = dict(text = '코로나 19 사망자수 추세', x = 0.5), 
+                  xaxis = dict(title = ''), 
+                  yaxis = dict(title = '10만명당 사망자수 누계', domain = (0, 0.8)), 
+                 colorway = ("#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAED6"))   
+
+fig.add_trace(go.Indicator(
+    mode = 'number', value = number_KOR,
+    title = dict(text = '<b>한국 코로나 사망자(10만명당)</b><br>' + str(today.year) + '년' + str(today.month) + '월' + str(today.day) + '일\n',
+                 font = dict(family = '나눔고딕', size = 15)),
+    number = dict(font = dict(family = '나눔고딕', size = 15),
+                  suffix = '명'),
+    domain = dict(x = (0.4, 0.6), y = (0.8, 0.9))
+))
+
+fig.show()
+
+```
+
+## 델타(delta) 인디케이터
+
+델타 인디케이터는
+
+![](indicator_delta_attr.png)
+
+-   R
+
+```{r eval = TRUE}
+number1_KOR <- total_deaths_5_nations_by_day |>
+  filter(date == max(date)-1, iso_code == 'KOR') |>
+  select(total_deaths_per_million) |> pull()
+
+fig1 <- total_deaths_5_nations_by_day |>
+  plot_ly() |>
+  ## scatter 트레이스 생성
+  add_trace(type = 'scatter', mode = 'lines', 
+            x = ~date, y = ~total_deaths_per_million , 
+            linetype = ~location, connectgaps = T) |>
+  ## layout의 제목, 축제목, 여백 속성 설정
+  layout(title = list(text = '코로나 19 사망자수 추세', pad = list(b = 5)), 
+         xaxis = list(title = ''), 
+         yaxis = list(title = '10만명당 사망자수 누계', domain = c(0, 0.8)), 
+         margin = margins_R)
+
+fig1 |>
+  add_trace(type = 'indicator', mode = 'number+delta', 
+            value = number_KOR,  
+            title = list(text = paste0('<b>한국 코로나 사망자(10만명당)</b>\n', year(today()), '년', month(today()), '월', day(today()), '일'),
+                     font = list(family = '나눔고딕', size = 15)
+                     ),
+            number = list(font = list(family = '나눔고딕', 
+                                      size = 15), 
+                          suffix = '명'),
+            delta = list(reference = number1_KOR, position = 'right', 
+                         increasing = list(color = 'red'),
+                         decreasing = list(color = 'blue'),
+                         font = list(family = '나눔고딕', size = 10)),
+            domain = list(x = c(0.4, 0.6), y = c(0.8, 0.9)))
+
+```
+
+```{r echo = FALSE}
+number1_KOR <- total_deaths_5_nations_by_day |>
+  filter(date == max(date)-1, iso_code == 'KOR') |>
+  select(total_deaths_per_million) |> pull()
+
+delta_KOR <- number_KOR - number1_KOR 
+
+fig1 <- total_deaths_5_nations_by_day |>
+  plot_ly() |>
+  ## scatter 트레이스 생성
+  add_trace(type = 'scatter', mode = 'lines', 
+            x = ~date, y = ~total_deaths_per_million , 
+            linetype = ~location, connectgaps = T, 
+            color = ~location, colors = RColorBrewer::brewer.pal(9, 'Blues')[seq(from = 9, to = 5, by = -1)]
+) |>
+  ## layout의 제목, 축제목, 여백 속성 설정
+  layout(title = list(text = '코로나 19 사망자수 추세', pad = list(b = 5)), 
+         xaxis = list(title = ''), 
+         yaxis = list(title = '10만명당 사망자수 누계', domain = c(0, 0.8)), 
+         margin = margins_R)
+
+fig1 |>
+  add_trace(type = 'indicator', mode = 'number+delta', 
+            value = number_KOR,  
+            title = list(text = paste0('<b>한국 코로나 사망자(10만명당)</b>\n', year(today()), '년', month(today()), '월', day(today()), '일'),
+                     font = list(family = '나눔고딕', size = 15)
+                     ),
+            number = list(font = list(family = '나눔고딕', 
+                                      size = 15), 
+                          suffix = '명'),
+            delta = list(reference = number1_KOR, position = 'right', 
+                         increasing = list(color = 'red'),
+                         decreasing = list(color = 'blue'),
+                         font = list(family = '나눔고딕', size = 10)),
+            domain = list(x = c(0.4, 0.6), y = c(0.8, 0.9)))
+
+```
+
+-   python
+
+```{python}
+number1_KOR = total_deaths_5_nations_by_day.loc[(total_deaths_5_nations_by_day['date']==total_deaths_5_nations_by_day['date'].max()- timedelta(days = 1)) & (total_deaths_5_nations_by_day['iso_code']=='KOR')]
+number1_KOR = number1_KOR.loc[:,'total_deaths_per_million'].values[0]
+
+fig = go.Figure()
+for location, group in total_deaths_5_nations_by_day.groupby('location'):
+    fig.add_trace(go.Scatter(
+        mode = 'lines', 
+        x = group['date'], 
+        y = group['total_deaths_per_million'], 
+        line = dict(dash = nations[location]), 
+        name = location,
+        connectgaps = True
+    ))
+
+fig.update_layout(title = dict(text = '코로나 19 사망자수 추세', x = 0.5), 
+                  xaxis = dict(title = ''), 
+                  yaxis = dict(title = '10만명당 사망자수 누계', domain = (0, 0.8)))   
+
+fig.add_trace(go.Indicator(
+    mode = 'number+delta', value = number_KOR,
+    title = dict(text = '<b>한국 코로나 사망자(10만명당)</b><br>' + str(today.year) + '년' + str(today.month) + '월' + str(today.day) + '일\n',
+                 font = dict(family = '나눔고딕', size = 15)),
+    number = dict(font = dict(family = '나눔고딕', size = 15),
+                  suffix = '명'),
+    delta = dict(reference = number1_KOR, position = 'right', 
+                 increasing = dict(color = 'red'),
+                 decreasing = dict(color = 'blue'),
+                 font = dict(family = '나눔고딕', size = 10)),
+    domain = dict(x = (0.4, 0.6), y = (0.8, 0.9))
+))
+
+fig.show()
+
+```
+
+```{python echo = FALSE}
+number1_KOR = total_deaths_5_nations_by_day.loc[(total_deaths_5_nations_by_day['date']==total_deaths_5_nations_by_day['date'].max()- timedelta(days = 1)) & (total_deaths_5_nations_by_day['iso_code']=='KOR')]
+number1_KOR = number1_KOR.loc[:,'total_deaths_per_million'].values[0]
+
+fig = go.Figure()
+for location, group in total_deaths_5_nations_by_day.groupby('location'):
+    fig.add_trace(go.Scatter(
+        mode = 'lines', 
+        x = group['date'], 
+        y = group['total_deaths_per_million'], 
+        line = dict(dash = nations[location]), 
+        name = location,
+        connectgaps = True
+    ))
+
+fig.update_layout(title = dict(text = '코로나 19 사망자수 추세', x = 0.5), 
+                  xaxis = dict(title = ''), 
+                  yaxis = dict(title = '10만명당 사망자수 누계', domain = (0, 0.8)), 
+                 colorway = ("#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAED6"))   
+
+fig.add_trace(go.Indicator(
+    mode = 'number+delta', value = number_KOR,
+    title = dict(text = '<b>한국 코로나 사망자(10만명당)</b><br>' + str(today.year) + '년' + str(today.month) + '월' + str(today.day) + '일\n',
+                 font = dict(family = '나눔고딕', size = 15)),
+    number = dict(font = dict(family = '나눔고딕', size = 15),
+                  suffix = '명'),
+    delta = dict(reference = number1_KOR, position = 'right', 
+                 increasing = dict(color = 'red'),
+                 decreasing = dict(color = 'blue'),
+                 font = dict(family = '나눔고딕', size = 10)),
+    domain = dict(x = (0.4, 0.6), y = (0.8, 0.9))
+))
+
+fig.show()
+
+```
+
+## 게이지(gauge) 인디케이터
+
+게이지 인디케이터는 둥근 반원의 형태의 틀에 둥글게 그려지는 막대의 각도에 의해 최소값과 최대값 사이에서의 현재의 지수를 표현할 때 사용하는 시각화이다. 이 시각화를 구성하는데에는 주 표현값인 'value' 값 이외에 'steps', 'threshold', 'delta'의 속성을 사용한다. 게이지 인디케이터는 indicator 트레이스에 'mode' 속성에 "gauge"를 포함하여 만들 수 있다. "gauge"만을 사용하거나, "number+gauge"를 사용하여 수치와 함꼐 게이지를 사용하거나, "number+gauge+delta"를 사용하여 수치, 게이지, 증감 기호를 모두 사용할 수도 있다.
+
+다음은 indicator 트레이스 중 'gauge'와 관련된 주요 속성이다.
+
+![](indicator_gauge_attr.png)
+
+-   R
+
+```{r eval = TRUE}
+max_deaths_per_million_by_day <- total_deaths_5_nations_by_day |> group_by(location) |>
+  summarise(최대사망자 = max(new_deaths_per_million, na.rm = TRUE))
+
+deaths_per_million_in_lateast <- total_deaths_5_nations_by_day |> group_by(location) |>
+  filter(is.na(new_deaths_per_million) == FALSE) |>
+  filter(date == max(date)) |>
+  select(iso_code, date, new_deaths_per_million)
+
+
+df_gauge <- left_join(max_deaths_per_million_by_day, deaths_per_million_in_lateast, by = 'location') |> arrange(location)
+
+fig_gauge <- df_gauge |> plot_ly() |>
+  add_trace(type = 'indicator', mode = "gauge+number", title = pull(df_gauge[3, 1]),
+            domain = list(row = 1, column = 1), value = pull(df_gauge[3, 5]), 
+            gauge = list(axis = list(
+              range = list(NULL, pull(df_gauge[3, 2])*1.2)),
+              steps = list(
+                list(range = c(0, pull(df_gauge[3, 2])*1.2*0.5), color = "lightgray"),
+                list(range = c(pull(df_gauge[3, 2])*1.2*0.5, pull(df_gauge[3, 2])*1.2*0.75), color = "darkgray"),
+                list(range = c(pull(df_gauge[3, 2])*1.2*0.75, pull(df_gauge[3, 2])*1.2), color = "gray")),
+              threshold = list(line = list(color = 'white'),
+                value = pull(df_gauge[3, 2])), 
+              bar = list(color = "darkblue")), 
+            number = list(suffix = '명'))
+
+fig_gauge <- fig_gauge |>
+  add_trace(type = 'indicator', mode = "gauge+number", title = pull(df_gauge[1, 1]),
+            domain = list(row = 0, column = 0), value = pull(df_gauge[1, 5]), 
+            gauge = list(axis = list(
+              range = list(NULL, pull(df_gauge[1, 2])*1.2)),
+              steps = list(
+                list(range = c(0, pull(df_gauge[1, 2])*1.2*0.5), color = "lightgray"),
+                list(range = c(pull(df_gauge[1, 2])*1.2*0.5, pull(df_gauge[1, 2])*1.2*0.75), color = "darkgray"),
+                list(range = c(pull(df_gauge[1, 2])*1.2*0.75, pull(df_gauge[1, 2])*1.2), color = "gray")),
+              threshold = list(line = list(color = 'white'),
+              value = pull(df_gauge[1, 2])), 
+            bar = list(color = "darkblue")), 
+            number = list(suffix = '명'))
+
+fig_gauge <- fig_gauge |>
+  add_trace(type = 'indicator', mode = "gauge+number", title = pull(df_gauge[2, 1]),
+            domain = list(row = 0, column = 2), value = pull(df_gauge[2, 5]), 
+            gauge = list(axis = list(
+              range = list(NULL, pull(df_gauge[2, 2])*1.2)),
+              steps = list(
+                list(range = c(0, pull(df_gauge[2, 2])*1.2*0.5), color = "lightgray"),
+                list(range = c(pull(df_gauge[2, 2])*1.2*0.5, pull(df_gauge[2, 2])*1.2*0.75), color = "darkgray"),
+                list(range = c(pull(df_gauge[2, 2])*1.2*0.75, pull(df_gauge[2, 2])*1.2), color = "gray")),
+              threshold = list(line = list(color = 'white'),
+              value = pull(df_gauge[2, 2])), 
+            bar = list(color = "darkblue")), 
+            number = list(suffix = '명'))
+
+fig_gauge <- fig_gauge |>
+  add_trace(type = 'indicator', mode = "gauge+number", title = pull(df_gauge[4, 1]),
+            domain = list(row = 2, column = 0), value = pull(df_gauge[4, 5]), 
+            gauge = list(axis = list(
+              range = list(NULL, pull(df_gauge[4, 2])*1.2)),
+              steps = list(
+                list(range = c(0, pull(df_gauge[4, 2])*1.2*0.5), color = "lightgray"),
+                list(range = c(pull(df_gauge[4, 2])*1.2*0.5, pull(df_gauge[4, 2])*1.2*0.75), color = "darkgray"),
+                list(range = c(pull(df_gauge[4, 2])*1.2*0.75, pull(df_gauge[4, 2])*1.2), color = "gray")),
+              threshold = list(line = list(color = 'white'),
+              value = pull(df_gauge[4, 2])), 
+            bar = list(color = "darkblue")), 
+            number = list(suffix = '명'))
+
+fig_gauge <- fig_gauge |>
+  add_trace(type = 'indicator', mode = "gauge+number", title = pull(df_gauge[5, 1]),
+            domain = list(row = 2, column = 2), value = pull(df_gauge[5, 5]), 
+            gauge = list(axis = list(
+              range = list(NULL, pull(df_gauge[5, 2])*1.2)),
+              steps = list(
+                list(range = c(0, pull(df_gauge[5, 2])*1.2*0.5), color = "lightgray"),
+                list(range = c(pull(df_gauge[5, 2])*1.2*0.5, pull(df_gauge[5, 2])*1.2*0.75), color = "darkgray"),
+                list(range = c(pull(df_gauge[5, 2])*1.2*0.75, pull(df_gauge[5, 2])*1.2), color = "gray")),
+              threshold = list(line = list(color = 'white'),
+              value = pull(df_gauge[5, 2])), 
+            bar = list(color = "darkblue")), 
+            number = list(suffix = '명'))
+
+fig_gauge |> layout(grid=list(rows=3, columns=3), 
+                    margin = margins_R, 
+                    title = '10만명당 사망자수(최근 공식발표 기준)')
+
+
+```
+
+-   python
+
+```{python}
+deaths_per_million_in_lateast = total_deaths_5_nations_by_day[total_deaths_5_nations_by_day['new_deaths_per_million'].isna() == False]
+deaths_per_million_in_lateast = pd.merge(deaths_per_million_in_lateast.groupby('location')['date'].max(), deaths_per_million_in_lateast, on = ("location", 'date'))[['iso_code', 'location', 'date', 'new_deaths_per_million']]
+df_gauge = pd.merge(deaths_per_million_in_lateast, total_deaths_5_nations_by_day.groupby('location')['new_deaths_per_million'].max().reset_index(), on = 'location').sort_values('location')
+df_gauge.columns = ('iso_code', 'location', 'date', '최근사망자', '최대사망자')
+
+fig = go.Figure()
+fig.add_trace(go.Indicator(
+    type = 'indicator', mode = "gauge+number", title = df_gauge.iloc[2, 1],
+            domain = dict(row = 1, column = 1), value = df_gauge.iloc[2, 3], 
+            gauge = dict(axis = dict(
+              range = (0, df_gauge.iloc[2, 4]*1.2)),
+              steps = [
+                dict(range = (0, (df_gauge.iloc[2, 4])*1.2*0.5), color = "lightgray"),
+                dict(range = ((df_gauge.iloc[2, 4])*1.2*0.5, (df_gauge.iloc[2, 4])*1.2*0.75), color = "darkgray"), 
+                dict(range = ((df_gauge.iloc[2, 4])*1.2*0.75, (df_gauge.iloc[2, 4])*1.2), color = "gray")],
+              threshold = dict(
+                line = dict(color = 'white'),
+                value = df_gauge.iloc[2, 4]), 
+              bar = dict(color = "darkblue")), 
+            number = dict(suffix = '명')
+))
+
+fig.add_trace(go.Indicator(
+    type = 'indicator', mode = "gauge+number", title = df_gauge.iloc[0, 1],
+            domain = dict(row = 0, column = 0), value = df_gauge.iloc[0, 3], 
+            gauge = dict(axis = dict(
+              range = (0, df_gauge.iloc[0, 4]*1.2)),
+              steps = [
+                dict(range = (0, (df_gauge.iloc[0, 4])*1.2*0.5), color = "lightgray"),
+                dict(range = ((df_gauge.iloc[0, 4])*1.2*0.5, (df_gauge.iloc[0, 4])*1.2*0.75), color = "darkgray"),
+                dict(range = ((df_gauge.iloc[0, 4])*1.2*0.75, (df_gauge.iloc[0, 4])*1.2), color = "gray")],
+              threshold = dict(
+                line = dict(color = 'white'),
+                value = df_gauge.iloc[0, 4]), 
+              bar = dict(color = "darkblue")), 
+            number = dict(suffix = '명')))
+
+fig.add_trace(go.Indicator(
+    type = 'indicator', mode = "gauge+number", title = df_gauge.iloc[1, 1],
+            domain = dict(row = 0, column = 2), value = df_gauge.iloc[1, 3], 
+            gauge = dict(axis = dict(
+              range = (0, df_gauge.iloc[1, 4]*1.2)),
+              steps = [
+                dict(range = (0, (df_gauge.iloc[1, 4])*1.2*0.5), color = "lightgray"),
+                dict(range = ((df_gauge.iloc[1, 4])*1.2*0.5, (df_gauge.iloc[1, 4])*1.2*0.75), color = "darkgray"),
+                dict(range = ((df_gauge.iloc[1, 4])*1.2*0.75, (df_gauge.iloc[1, 4])*1.2), color = "gray")],
+              threshold = dict(
+                line = dict(color = 'white'),
+                value = df_gauge.iloc[1, 4]), 
+              bar = dict(color = "darkblue")), 
+            number = dict(suffix = '명')))
+
+fig.add_trace(go.Indicator(
+    type = 'indicator', mode = "gauge+number", title = df_gauge.iloc[3, 1],
+            domain = dict(row = 2, column = 0), value = df_gauge.iloc[3, 3], 
+            gauge = dict(axis = dict(
+              range = (0, df_gauge.iloc[3, 4]*1.2)),
+              steps = [
+                dict(range = (0, (df_gauge.iloc[3, 4])*1.2*0.5), color = "lightgray"),
+                dict(range = ((df_gauge.iloc[3, 4])*1.2*0.5, (df_gauge.iloc[3, 4])*1.2*0.75), color = "darkgray"),
+                dict(range = ((df_gauge.iloc[3, 4])*1.2*0.75, (df_gauge.iloc[3, 4])*1.2), color = "gray")],
+              threshold = dict(
+                line = dict(color = 'white'),
+                value = df_gauge.iloc[3, 4]), 
+              bar = dict(color = "darkblue")), 
+            number = dict(suffix = '명')))
+
+fig.add_trace(go.Indicator(
+    type = 'indicator', mode = "gauge+number", title = df_gauge.iloc[4, 1],
+            domain = dict(row = 2, column = 2), value = df_gauge.iloc[4, 3], 
+            gauge = dict(axis = dict(
+              range = (0, df_gauge.iloc[4, 4]*1.2)),
+              steps = [
+                dict(range = (0, (df_gauge.iloc[4, 4])*1.2*0.5), color = "lightgray"),
+                dict(range = ((df_gauge.iloc[4, 4])*1.2*0.5, (df_gauge.iloc[4, 4])*1.2*0.75), color = "darkgray"),
+                dict(range = ((df_gauge.iloc[4, 4])*1.2*0.75, (df_gauge.iloc[4, 4])*1.2), color = "gray")],
+              threshold = dict(
+                line = dict(color = 'white'),
+                value = df_gauge.iloc[4, 4]), 
+              bar = dict(color = "darkblue")), 
+            number = dict(suffix = '명')))
+
+fig.update_layout(grid=dict(rows=3, columns=3),
+              title = dict(text = '10만명당 사망자수(최근 공식발표 기준)', x = 0.5))
+
+fig.show()
+
+```
+
+### bullet
+
+-   R
+
+```{r eval = TRUE}
+fig_gauge <- df_gauge |> plot_ly() |>
+  add_trace(type = 'indicator', mode = "gauge+number", title = pull(df_gauge[3, 1]),
+            domain = list(x = c(0.3,0.8), y = c(0.82, 0.9)),
+            value = pull(df_gauge[3, 5]), 
+            gauge = list(axis = list(
+              range = list(NULL, pull(df_gauge[3, 2])*1.2)),
+              steps = list(
+                list(range = c(0, pull(df_gauge[3, 2])*1.2*0.5), color = "lightgray"),
+                list(range = c(pull(df_gauge[3, 2])*1.2*0.5, pull(df_gauge[3, 2])*1.2*0.75), color = "darkgray"),
+                list(range = c(pull(df_gauge[3, 2])*1.2*0.75, pull(df_gauge[3, 2])*1.2), color = "gray")),
+              shape = "bullet",
+              threshold = list(
+                line = list(color = 'white'),
+                value = pull(df_gauge[3, 2])), 
+              bar = list(color = "darkblue")), 
+            number = list(suffix = '명'))
+
+fig_gauge <- fig_gauge |>
+  add_trace(type = 'indicator', mode = "gauge+number", title = pull(df_gauge[1, 1]),
+            domain = list(x = c(0.3,0.8), y = c(0.62, 0.7)),
+            value = pull(df_gauge[1, 5]), 
+            gauge = list(axis = list(
+              shape = "bullet",
+              range = list(NULL, pull(df_gauge[1, 2])*1.2)),
+              steps = list(
+                list(range = c(0, pull(df_gauge[1, 2])*1.2*0.5), color = "lightgray"),
+                list(range = c(pull(df_gauge[1, 2])*1.2*0.5, pull(df_gauge[1, 2])*1.2*0.75), color = "darkgray"),
+                list(range = c(pull(df_gauge[1, 2])*1.2*0.75, pull(df_gauge[1, 2])*1.2), color = "gray")),
+              shape = "bullet",
+              threshold = list(
+              line = list(color = 'white'),
+              value = pull(df_gauge[1, 2])), 
+            bar = list(color = "darkblue")), 
+            number = list(suffix = '명'))
+
+fig_gauge <- fig_gauge |>
+  add_trace(type = 'indicator', mode = "gauge+number", title = pull(df_gauge[2, 1]),
+            domain = list(x = c(0.3,0.8), y = c(0.42, 0.5)),
+            value = pull(df_gauge[2, 5]), 
+            gauge = list(axis = list(
+              shape = "bullet",
+              range = list(NULL, pull(df_gauge[2, 2])*1.2)),
+              steps = list(
+                list(range = c(0, pull(df_gauge[2, 2])*1.2*0.5), color = "lightgray"),
+                list(range = c(pull(df_gauge[2, 2])*1.2*0.5, pull(df_gauge[2, 2])*1.2*0.75), color = "darkgray"),
+                list(range = c(pull(df_gauge[2, 2])*1.2*0.75, pull(df_gauge[2, 2])*1.2), color = "gray")),
+              shape = "bullet",
+              threshold = list(
+              line = list(color = 'white'),
+              value = pull(df_gauge[2, 2])), 
+            bar = list(color = "darkblue")), 
+            number = list(suffix = '명'))
+
+fig_gauge <- fig_gauge |>
+  add_trace(type = 'indicator', mode = "gauge+number", title = pull(df_gauge[4, 1]),
+            domain = list(x = c(0.3,0.8), y = c(0.22, 0.3)),
+            value = pull(df_gauge[4, 5]), 
+            gauge = list(axis = list(
+              shape = "bullet",
+              range = list(NULL, pull(df_gauge[4, 2])*1.2)),
+              steps = list(
+                list(range = c(0, pull(df_gauge[4, 2])*1.2*0.5), color = "lightgray"),
+                list(range = c(pull(df_gauge[4, 2])*1.2*0.5, pull(df_gauge[4, 2])*1.2*0.75), color = "darkgray"),
+                list(range = c(pull(df_gauge[4, 2])*1.2*0.75, pull(df_gauge[4, 2])*1.2), color = "gray")),
+              shape = "bullet",
+              threshold = list(
+              line = list(color = 'white'),
+              value = pull(df_gauge[4, 2])), 
+            bar = list(color = "darkblue")), 
+            number = list(suffix = '명'))
+
+fig_gauge <- fig_gauge |>
+  add_trace(type = 'indicator', mode = "gauge+number", title = pull(df_gauge[5, 1]),
+            domain = list(x = c(0.3,0.8), y = c(0.02, 0.1)),
+            value = pull(df_gauge[5, 5]), 
+            gauge = list(axis = list(
+              shape = "bullet",
+              range = list(NULL, pull(df_gauge[5, 2])*1.2)),
+              steps = list(
+                list(range = c(0, pull(df_gauge[5, 2])*1.2*0.5), color = "lightgray"),
+                list(range = c(pull(df_gauge[5, 2])*1.2*0.5, pull(df_gauge[5, 2])*1.2*0.75), color = "darkgray"),
+                list(range = c(pull(df_gauge[5, 2])*1.2*0.75, pull(df_gauge[5, 2])*1.2), color = "gray")),
+              shape = "bullet",
+              threshold = list(
+              line = list(color = 'white'),
+              value = pull(df_gauge[5, 2])), 
+            bar = list(color = "darkblue")), 
+            number = list(suffix = '명'))
+
+fig_gauge |> layout(margin = margins_R, 
+                    title = '10만명당 사망자수(최근 공식발표 기준)')
+```
+
+-   python
+
+```{python}
+fig = go.Figure()
+fig.add_trace(go.Indicator(
+    type = 'indicator', mode = "gauge+number", title = df_gauge.iloc[2, 1],
+            domain = dict(x = (0.3,0.8), y = (0.82, 0.9)),
+            value = df_gauge.iloc[2, 3], 
+            gauge = dict(axis = dict(
+              range = (0, df_gauge.iloc[2, 4]*1.2)),
+              shape = "bullet",
+              steps = [
+                dict(range = (0, (df_gauge.iloc[2, 4])*1.2*0.5), color = "lightgray"),
+                dict(range = ((df_gauge.iloc[2, 4])*1.2*0.5, (df_gauge.iloc[2, 4])*1.2*0.75), color = "darkgray"),
+                dict(range = ((df_gauge.iloc[2, 4])*1.2*0.75, (df_gauge.iloc[2, 4])*1.2), color = "gray")],
+              threshold = dict(
+                line = dict(color = 'white'),
+                value = df_gauge.iloc[2, 4]), 
+              bar = dict(color = "darkblue")), 
+            number = dict(suffix = '명')))
+
+fig.add_trace(go.Indicator(
+    type = 'indicator', mode = "gauge+number", title = df_gauge.iloc[0, 1],
+            domain = dict(x = (0.3,0.8), y = (0.62, 0.7)),
+            value = df_gauge.iloc[0, 3], 
+            gauge = dict(axis = dict(
+              range = (0, df_gauge.iloc[0, 4]*1.2)),
+              shape = "bullet",
+              steps = [
+                dict(range = (0, (df_gauge.iloc[0, 4])*1.2*0.5), color = "lightgray"),
+                dict(range = ((df_gauge.iloc[0, 4])*1.2*0.5, (df_gauge.iloc[0, 4])*1.2*0.75), color = "darkgray"),
+                dict(range = ((df_gauge.iloc[0, 4])*1.2*0.75, (df_gauge.iloc[0, 4])*1.2), color = "gray")],
+              threshold = dict(
+                line = dict(color = 'white'),
+                value = df_gauge.iloc[0, 4]), 
+              bar = dict(color = "darkblue")), 
+            number = dict(suffix = '명')))
+
+fig.add_trace(go.Indicator(
+    type = 'indicator', mode = "gauge+number", title = df_gauge.iloc[1, 1],
+            domain = dict(x = (0.3,0.8), y = (0.42, 0.5)),
+            value = df_gauge.iloc[1, 3], 
+            gauge = dict(axis = dict(
+              range = (0, df_gauge.iloc[1, 4]*1.2)),
+              shape = "bullet",
+              steps = [
+                dict(range = (0, (df_gauge.iloc[1, 4])*1.2*0.5), color = "lightgray"),
+                dict(range = ((df_gauge.iloc[1, 4])*1.2*0.5, (df_gauge.iloc[1, 4])*1.2*0.75), color = "darkgray"),
+                dict(range = ((df_gauge.iloc[1, 4])*1.2*0.75, (df_gauge.iloc[1, 4])*1.2), color = "gray")],
+              threshold = dict(
+                line = dict(color = 'white'),
+                value = df_gauge.iloc[1, 4]), 
+              bar = dict(color = "darkblue")), 
+            number = dict(suffix = '명')))
+
+fig.add_trace(go.Indicator(
+    type = 'indicator', mode = "gauge+number", title = df_gauge.iloc[3, 1],
+            domain = dict(x = (0.3,0.8), y = (0.22, 0.3)),
+            value = df_gauge.iloc[3, 3], 
+            gauge = dict(axis = dict(
+              range = (0, df_gauge.iloc[3, 4]*1.2)),
+              shape = "bullet",
+              steps = [
+                dict(range = (0, (df_gauge.iloc[3, 4])*1.2*0.5), color = "lightgray"),
+                dict(range = ((df_gauge.iloc[3, 4])*1.2*0.5, (df_gauge.iloc[3, 4])*1.2*0.75), color = "darkgray"),
+                dict(range = ((df_gauge.iloc[3, 4])*1.2*0.75, (df_gauge.iloc[3, 4])*1.2), color = "gray")],
+              threshold = dict(
+                line = dict(color = 'white'),
+                value = df_gauge.iloc[3, 4]), 
+              bar = dict(color = "darkblue")), 
+            number = dict(suffix = '명')))
+
+fig.add_trace(go.Indicator(
+    type = 'indicator', mode = "gauge+number", title = df_gauge.iloc[4, 1],
+            domain = dict(x = (0.3,0.8), y = (0.02, 0.1)),
+            value = df_gauge.iloc[4, 3], 
+            gauge = dict(axis = dict(
+              range = (0, df_gauge.iloc[4, 4]*1.2)),
+              shape = "bullet",
+              steps = [
+                dict(range = (0, (df_gauge.iloc[4, 4])*1.2*0.5), color = "lightgray"),
+                dict(range = ((df_gauge.iloc[4, 4])*1.2*0.5, (df_gauge.iloc[4, 4])*1.2*0.75), color = "darkgray"),
+                dict(range = ((df_gauge.iloc[4, 4])*1.2*0.75, (df_gauge.iloc[4, 4])*1.2), color = "gray")],
+              threshold = dict(
+                line = dict(color = 'white'),
+                value = df_gauge.iloc[4, 4]), 
+              bar = dict(color = "darkblue")), 
+            number = dict(suffix = '명')))
+
+fig.update_layout(grid=dict(rows=3, columns=3),
+              title = dict(text = '10만명당 사망자수(최근 공식발표 기준)', x = 0.5))
+
+fig.show()
+```
+
+# 지도
+
+## choropleth
+
+-   R
+
+```{r eval = TRUE}
+library(raster)
+library(sf)
+
+# Get the map data in sf format
+map_data <- getData("GADM", country = "KOR", level = 1, type = "sf")
+st_crs(map_data) <- st_crs(map_data)
+
+province <- map_data$HASC_1
+
+####  충원율 데이터
+df_충원율 <- read_excel('D:/R/git/datavisualization/plotly/RnPy/chap6/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx', 
+                     ## 'data' 시트의 데이터를 불러오는데,
+                     sheet = 'Sheet1',
+                     ## 앞의 10행을 제외하고
+                     skip = 7, 
+                     ## 첫번째 행은 열 이름을 설정
+                     col_names = FALSE, 
+                     ## 열의 타입을 설정, 처음 8개는 문자형으로 다음 56개는 수치형으로 설정
+                     col_types = c(rep('text', 2), rep('numeric', 12)))
+
+df_충원율 <- df_충원율 |> dplyr::select(1, 2, 3, 4, 5)
+
+## df_입학자의 열이름을 적절한 이름으로 설정
+colnames(df_충원율) <- c('연도', '지역', '정원내모집인원', '정원내입학생수', '신입생충원율')
+
+
+df_충원율 <- df_충원율 |> filter(연도 == '2022', 지역 != '전국') |> 
+  mutate(id = case_when(
+    지역 == '강원' ~ 'KR.KW', 
+    지역 == '경기' ~ 'KR.KG',
+    지역 == '경남' ~ 'KR.KN',
+    지역 == '경북' ~ 'KR.KB',
+    지역 == '광주' ~ 'KR.KJ',
+    지역 == '대구' ~ 'KR.TG',
+    지역 == '대전' ~ 'KR.TJ',
+    지역 == '부산' ~ 'KR.PU',
+    지역 == '서울' ~ 'KR.SO',
+    지역 == '세종' ~ 'KR.SJ',
+    지역 == '울산' ~ 'KR.UL',
+    지역 == '인천' ~ 'KR.IN',
+    지역 == '전남' ~ 'KR.CN',
+    지역 == '전북' ~ 'KR.CB',
+    지역 == '제주' ~ 'KR.CJ',
+    지역 == '충남' ~ 'KR.GN',
+    지역 == '충북' ~ 'KR.GB'
+  ))
+
+plot_dat <- left_join(map_data, df_충원율, by = c("HASC_1" = "id")) %>%
+  st_as_sf()
+
+
+plot_ly(plot_dat) %>%
+  add_sf(type = "scatter", 
+         split = ~지역,
+         color = ~신입생충원율,
+         showlegend = F,       # don't show a legend for each region
+         colors = "Blues",
+         text = ~paste0(지역, "\n", round(신입생충원율, 2), '%'),
+         hoveron = "fills",
+         hoverinfo = "text") %>%
+  layout(title = '22년 전국 대학 신입생 충원율', 
+         margin = margins_R) 
+
+```
+
+
+-   python
+
+```{python}
+import json
+
+def cat(row):
+    key = row['지역']
+    value = {'강원' : '42','경기' : '41','경남' : '48','경북' : '47','광주' : '29','대구' : '27','대전' : '30','부산' : '26','서울' : '11','세종' : '36','울산' : '31','인천' : '28','전남' : '46','전북' : '45','제주' : '50','충남' : '44','충북' : '43'}.get(key)
+    return value
+
+geometry = json.load(open('D:/R/git/datavisualization/plotly/RnPy/chap6/TL_SCCO_CTPRVN.json', encoding='utf-8'))
+
+df_충원율 = pd.read_excel("D:/R/git/datavisualization/plotly/RnPy/chap6/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx", 
+                           sheet_name = 'Sheet1',
+                           skiprows=(6), 
+                           header = 0)
+df_충원율 = df_충원율.iloc[:, 0:5]
+df_충원율.columns = ('연도', '지역', '정원내모집인원', '정원내입학생수', '신입생충원율')
+df_충원율['지역코드']= df_충원율.apply(cat, axis=1)
+df_충원율 = df_충원율[(df_충원율['지역'] != '전국')&(df_충원율['연도'] == 2022)]
+
+fig = go.Figure()
+
+fig.add_trace(go.Choropleth(
+  geojson=geometry, 
+  featureidkey='properties.CTPRVN_CD', 
+  locations = df_충원율['지역코드'], 
+  z = df_충원율['신입생충원율'], 
+  colorscale="Blues", 
+#  text = df_충원율['신입생충원율'],
+  marker=dict(line=dict(width=1), opacity = 0.5),
+  colorbar = dict(y = 0.5, yanchor = 'middle'),
+  text = df_충원율['지역'] + '\n' + round(df_충원율['신입생충원율'], 2).astype(str) + '%',
+#  hoveron = "fills",
+  hoverinfo = "text"
+))
+
+fig.update_layout(
+  title = dict(text = '한국지도', x = 0.5),
+  geo=dict(
+    showframe = True,
+    fitbounds = "locations",
+    visible = False,
+    center=dict(lon=126.98, lat=37.56)
+  ),
+  autosize=False,
+  margin = dict(t = 50, b = 25, l = 25, r = 25,
+    pad=4,
+    autoexpand=True
+  ))
+
+```
+
+## scatter
+
+-   R
+
+```{r}
+df_univ <- read_excel("D:/R/git/datavisualization/plotly/RnPy/chap6/university.xlsx", 
+                      col_types = c('text', 'numeric', 'numeric'))
+                       
+map_data_lev2 <- getData("GADM", country = "KOR", level = 2, type = "sf")
+
+plot_dat_seoul <- plot_dat |> filter(GID_1 == 'KOR.16_1')
+
+plot_mapbox(plot_dat_seoul) |>
+  add_sf() |>
+  add_markers(data = df_univ, 
+              x = ~lon, y = ~lat, 
+              marker = list(color = 'white'),
+              text = ~학교명) |>
+  layout(title = '서울지역 주요 대학', 
+        margin = margins_R, 
+        showlegend = FALSE)
+
+```
+
+-   python
+
+```{python}
+mapbox_access_token = open(".mapbox_token").read()
+
+fig = go.Figure(go.Scattermapbox(
+        lat=df_univ['lat'],
+        lon=df_univ['lon'],
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            size=9
+        ),
+        text=df_univ['학교명'],
+    ))
+
+fig.update_layout(
+    autosize=True,
+    hovermode='closest',
+    mapbox=dict(
+        accesstoken= mapbox_access_token,
+        bearing=0,
+        center=dict(lon=126.98, lat=37.56),
+        pitch=0,
+        zoom=10
+    ),
+)
+
+fig.show()
+
+```
