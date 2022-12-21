@@ -228,9 +228,9 @@ R의 `ggplot2`나 python의 `matplotlib`, `seaborn`로 만든 정적 시각화�
 
 ## modebar의 사용
 
-`plotly`가 시각화 사용자와의 상호작용을 위한 주요 기능을 제공하는 메뉴가 'modebar'이다. 'modebar'는 `plotly`가 실행되는 R-Studio, Jupiter Notbook이나 웹 브라우저의 오른쪽 상단에 나타나는 버튼 메뉴를 말한다. 기본적으로 설정되는 'modebar'는 다음의 그림과 같이 8개의 기능을 버튼을 통해 제공한다.
+`plotly`가 시각화 사용자와의 상호작용을 위한 주요 기능을 제공하는 메뉴가 'modebar'이다. 'modebar'는 `plotly`가 실행되는 R-Studio, Jupiter Notbook이나 웹 브라우저의 오른쪽 상단에 나타나는 버튼 메뉴를 말한다. scatter 트레이스에 나오는 'modebar'는 다음의 그림과 같이 8개의 기능을 버튼을 통해 제공한다. 각각의 트레이스에 따라 제공하는 'modebar'가 달라지는데 scatter 트레이스에 가장 기본적인 'modebar'가 나온다. 
 
-![그림 II-7. modebar 버튼과 기능](D:/R/git/datavisualization/plotly/chap3/ployly_3_1.png)
+![modebar 버튼과 기능](D:/R/git/datavisualization/plotly/chap3/ployly_3_1.png)
 
 ### 시각화 저장 버튼  ![](download-plot-as-a-png.png)
 
@@ -265,8 +265,7 @@ Pan 기능은 시각화의 표현 비율을 그대로 두고 그래프를 이동
 
 ## 마우스의 기능
 
-
-## 호버를 통한 데이터 확인
+### 호버를 통한 데이터 확인
 
 `plotly` 시각화에서 가장 쉽게 사용하는 기능은 마우스를 사용하여 해당 위치의 데이터 정보를 확인하는 기능이다. `plotly` 객체로 생성된 시각화 위에 표현된 각 트레이스들은 자체 데이터를 JSON의 형태로 포함하고 있기 때문에 마우스 포인터를 트레이스위에 위치시키면 호버를 통해 해당 트레이스의 정보가 표시된다.
 
@@ -274,61 +273,101 @@ Pan 기능은 시각화의 표현 비율을 그대로 두고 그래프를 이동
 
 ![박스 트레이스의 호버 표시](D:/R/git/datavisualization/plotly/chap3/ployly_3_2.png)
 
-## 드래그를 통한 Zoom In
+### 드래그를 통한 Zoom In
 
 `plotly`로 완성된 시각화에서 트레이스가 나타나는 플롯팅 영역(plotting area)에서 마우스 왼쪽 버튼을 클릭한 상태에서 드래그하면 다음 그림과 같이 줌 인 영역을 선택할 수 있다. 이렇게 영역을 선택한 후에 마우스 클릭을 놓으면 해당 부분이 줌인 되어 표시되게 된다. 만약 다시 처음의 상태로 돌아가려면 모드바의 집 아이콘인 'Reset Axes' 버튼을 사용한다.
 
 ![마우스 드래그를 통한 줌](D:/R/git/datavisualization/plotly/chap3/ployly_3_3.png)
 
-## 드래그를 통한 축 이동
+### 드래그를 통한 축 이동과 압축(팽창)
 
-`plolty`에서 마우스를 드래그를 통해 추가적으로 할 수 있는 기능은 축 이동이다. X축과 Y축의 위치에서 마우스의 왼쪽 버튼을 클릭한 상태에서 상하 또는 좌우로 드래그를 하면 축의 범위가 조절된다. 이를 통해 데이터가 표현되는 축의 범위를 변
+`plolty`에서 마우스를 드래그를 통해 추가적으로 할 수 있는 기능은 축 이동과 축 압축이다. X축과 Y축의 위치에서 마우스의 왼쪽 버튼을 클릭한 상태에서 상하 또는 좌우로 드래그를 하면 축의 범위가 조절된다. 이를 통해 데이터가 표현되는 축의 범위를 변경할 수 있다. 만약 처음 눈금 라벨의 아래나 마지막 눈금 라벨의 위(Y축), 처음 눈금 라벨의 왼쪽이나 마지막 눈금 라벨의 오른쪽(X축)에서 마우스를 클릭하고 드래그하면 축의 원점이나 최종점이 고정된 채 축을 압축하거나 팽창 할 수 있다. 
 
-## 마우스 휠을 사용한 줌
-
-줌인과 줌아웃을 지원하는 많은 프로그램에서는 마우스 휠을 사용하는 프로그램이 많다. `plotly`도 마우스 휠을 사용하여 줌인과 줌아웃을 사용할 수 있는데 이 기능은 기본적으로 지원하지 않고 `config()`를 사용하여 설정해야 한다. `config()`는 `plotly` 시각화가 사용자와의 상호작용을 지원하는 기능을 조절하고 설정하는 다양한 속성을 조절하는 함수이다. `config()`에서 설정할 수 있는 주요 속성은 다음과 같다.[^6]
-
-[^6]: <https://github.com/plotly/plotly.js/blob/master/src/plot_api/plot_config.js>
-
-+------------------------+------------------------------------------------+---------------------------------------------------+------------------------------------------------------------------------------------------+
-| 속성                   | 설명                                           | 속성값                                            | 세부 속성                                                                                |
-+========================+================================================+===================================================+==========================================================================================+
-| staticPlot             | 정적 시각화로 설정                             | 논리값                                            |                                                                                          |
-+------------------------+------------------------------------------------+---------------------------------------------------+------------------------------------------------------------------------------------------+
-| editable               | 시각화를 편집할 수 있는지를 설정               | 논리값                                            |                                                                                          |
-+------------------------+------------------------------------------------+---------------------------------------------------+------------------------------------------------------------------------------------------+
-| edit                   | editable이 TRUE인 경우 편집 가능한 세부 속성   | 세부 속성들의 리스트                              | annotationPosition, annotationText, axisTitleText, legendPosition, legendText, titleText |
-+------------------------+------------------------------------------------+---------------------------------------------------+------------------------------------------------------------------------------------------+
-| scrollZoom             | 마우스 휠을 줌으로 사용할지를 설정             | 'cartesian', 'gl3d', 'geo', 'mapbox', TRUE, FALSE |                                                                                          |
-+------------------------+------------------------------------------------+---------------------------------------------------+------------------------------------------------------------------------------------------+
-| doubleClick            | 마우스 더블 클릭을 어떤 기능으로 사용할지 설정 | FALSE, 'reset', 'autosize', 'reset+autosize'      |                                                                                          |
-+------------------------+------------------------------------------------+---------------------------------------------------+------------------------------------------------------------------------------------------+
-| showTips               | 팁(호버)를 사용할지 설정                       | 논리값                                            |                                                                                          |
-+------------------------+------------------------------------------------+---------------------------------------------------+------------------------------------------------------------------------------------------+
-| displayModeBar         | 모드바의 표시 방법 설정                        | 'hover', TRUE, FALSE                              |                                                                                          |
-+------------------------+------------------------------------------------+---------------------------------------------------+------------------------------------------------------------------------------------------+
-| modeBarButtonsToRemove | 모드바의 버튼 중 없앨 버튼 설정                | 버튼 ID 문자열                                    |                                                                                          |
-+------------------------+------------------------------------------------+---------------------------------------------------+------------------------------------------------------------------------------------------+
-| modeBarButtonsToAdd    | 모드바에 포함시킬 버튼 설정                    | 버튼 ID 문자열                                    |                                                                                          |
-+------------------------+------------------------------------------------+---------------------------------------------------+------------------------------------------------------------------------------------------+
-| toImageButtonOptions   | 이미지 저장 버튼의 설정                        |                                                   |                                                                                          |
-+------------------------+------------------------------------------------+---------------------------------------------------+------------------------------------------------------------------------------------------+
-| displaylogo            | 모드바의 plotly 로고를 표시할지 설정           | 논리값                                            |                                                                                          |
-+------------------------+------------------------------------------------+---------------------------------------------------+------------------------------------------------------------------------------------------+
-
-## 축의 이동
-
-`plotly` 시각화에서 마우스를 사용한 기능중에 또 하나가 축의 이동이다. `plotly`의 플롯 영역(plotting area)에서 마우스를 클릭하고 드래그를 하면 줌인의 기능을 위한 사각형이 만들어지지만 X, Y축의 위치에서 마우스를 클릭하고 드래그하면 축을 이동시킬수 있다. 따라서 줌인한 후에 축을 이동시키면 사용자가 자세히 보기를 원하는 지역의 데이터를 확인할 수 있다.
-
-![그림 II-10. 축의 이동](D:/R/git/datavisualization/plotly/chap3/ployly_3_4.png)
+![](axis.png)
 
 ## 범례의 사용
 
-`plotly`에서 범례는 단순히 trace들의 이름과 표현방식을 매핑해주는 역할을 넘어 trace들의 표시를 조절할 수 있는 기능이 있다. 범례의 아이템을 클릭하면 해당 trace가 표시를 토글하는 역할을 한다. 따라서 여러 데이터 trace중에 특정한 trace만을 확인하기 위해서 해당 trace만 남기고 다른 trace의 표시를 꺼둘수 있는 기능이 있다. 또 `legendgroup`으로 그룹화된 범례는 해당 그룹의 아이템의 클릭만으로 그 그룹의 전체 trace를 켜거나 꺼둘 수 있다.
+`plotly`에서 범례는 단순히 트레이스 이름과 표현방식을 매핑해주는 역할을 넘어 트레이스들의 표시를 조절할 수 있는 기능이 있다. 범례의 아이템을 클릭하면 해당 트레이스의 표시를 토글하는 역할을 하는 것으로, 여러 데이터 트레이스 중에 특정한 트레이스만을 확인하기 위해서 해당 트레이스만 남기고 다른 트레이스의 표시를 제거함으로써 자신이 보기 원하는 데이터만 선별하여 볼 수 있게 된다. 이 기능은 대시보드에서  흔히 제공하는 옵션 중에 하나인데 `plotly`에서는 범례를 사용하여 이 기능을 기본적으로 제공한다는 것이다. 특히 이 기능이 더 편리한 것은 현재 표시되고 있는 데이터의 범위에 따라 X축과 Y축의 범위가 자동적으로 다시 설정되어 남은 데이터의 특징이 더 잘 보인다는 장점이 있다. 다음은 범례를 사용하여 한국과 일본의 데이터만 남긴 결과이다. 
 
-![그림 II-11. 범례의 토글](D:/R/git/datavisualization/plotly/chap3/ployly_3_5.png)
+![범례의 토글](legend.png)
 
 
 # Plotly 배포
+
+## Off-line 배포
+
+데이터 시각화는 보통 데이터 분석의 결과가 요약되는 보고서에 첨부되어 데이터 분석의 결과를 보다 설득력있게 제공하는데 많이 활용된다. `plotly`의 결과도 정적 이미지로 저장하여 보고서에 포함시켜 사용할 수 있다. 이를 위해서는 앞에서 살펴본 모드바의 다운로드 기능을 사용하여 'png' 형태의 파일로 다운로드 받아 사용할 수 있지만 R과 python 코드에서 바로 저장할 수도 있다. 
+
+-   R
+
+R에서 `plotly` 시각화를 정적 이미지로 다운로드 받기 위해서는 
+
+
+
+Packages & Example Data
+If you have not already done so, install and load these packages:
+
+plotly
+htmlwidgets
+We’ll use the mtcars dataset for this example, which is already included in R.
+
+df <- datasets::mtcars
+Let’s create a basic plotly scatterplot that we’ll store in an object called fig, which we’ll adjust throughout the tutorial to demonstrate the features:
+
+fig <- 
+  df %>% 
+  plot_ly(
+    x = ~disp,
+    y = ~mpg,
+    color = ~factor(cyl),
+    type = "scatter",
+    mode = "markers"
+  )
+ 
+fig #display the graph
+
+
+ 
+
+Method 1: Menu Interfaces
+Perhaps the easiest way to write your graphic as a PNG file is to click the “download plot as PNG” button in the toolbar at the top of the graph. When a plotly graph is displayed (either in the viewer window of RStudio or on a webpage), you can hover your cursor over the top of the graph to find the button here:
+
+using the download image as png button on plotly
+
+If you are using RStudio, the “Export” menu will give you more control over the output file. If you select “Save an image…” you can specify the image type (i.e., png, jpeg) and size before saving.
+
+Exporting images from the RStudio viewer menu
+
+Both of these methods save a static image of the graph. That is, they don’t have any of the interactive features that make plotly so great! To retain those features, you can select the “Save as a web page…” option the Export menu. This will save the graphic as an html file. You can share these files with colleagues so that they can open it in a web browser and interact with the graphic.
+
+Exporting plotly graphs as an html file
+
+ 
+
+Method 2: R Code
+You can also save plotly graphics with R code. These methods can be integrated into a loop or other programmatic process to easily create multiple graphs at once.
+
+
+The simplest method is to use the export function from the plotly package. You simply specify which graph to save (called fig in our example) and specify the file location, name, and type with the file argument.
+
+This function can save plotly graphs as .png, .jpeg, .webp, .svg, and .pdf.
+It will save the file in your working directory, or you can specify a different file path with the file argument.
+
+plotly::export(p = fig, #the graph to export
+               file = "graph 1.png") #the name and type of file (can be .png, .jpeg, etc.)
+To save the graphic as an html file, you’ll need the htmlwidgets package.
+
+From there, you can use the saveWidget function to output an html file.
+
+htmlwidgets::saveWidget(
+                widget = fig, #the plotly object
+                file = "figure.html", #the path & file name
+                selfcontained = TRUE #creates a single html file
+                )
+
+
+
+
+
 
 
