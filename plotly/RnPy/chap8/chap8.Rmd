@@ -1,5 +1,5 @@
 ---
-title : Plotly 사용과 배포
+title : VIII. Plotly 사용과 배포
 output: 
   officedown::rdocx_document:
     plots:
@@ -425,6 +425,29 @@ htmlwidgets::saveWidget(widget = fig, 'fig.html')
 
 ```
 
+-   python
+
+python에서 `plotly` 시각화를 정적 이미지로 다운로드 받기 위해서는 `Kaleido` 라이브러리나  orca 라이브러리를 설치하여야 한다. `plotly`에서는 `Kaleido` 라이브러리를 권장한다. 이 라이브러리는 python의 `plotly` 객체를 저장하기 위해 꼭 필요하지만 직접 임포트를 하지 않아도 되고 `plolty` 라이브러리의 `write_image()`을 사용할 때 내부적으로 사용된다. 
+
+```{python}
+> pip install Kaleido
+
+```
+
+`plotly` 객체를 저장하기 위해 `write_image()`을 사용한다. `write_image()`에서 저장이 가능한 파일 포맷은 래스터 이미지 파일인 png, jpg, webp와 벡터 이미지 파일인 svg, pdf 등 이다. 이들 파일 포맷의 결정은 `write_image()`의 저장 파일명을 설정할 떄 파일 확장자에 따라 결정된다. 
+
+```{python}
+fig.write_image("fig.png")
+
+```
+
+만약 HTML 파일 포맷으로 저장해야 한다면 `write_html()`을 사용한다. 
+
+```{python}
+fig.write_html("fig.html")
+
+```
+
 ## On-line 배포
 
 `plolty`와 같은 동적 시각화는 사실 보고서에 넣는 것 보다는 온라인 웹페이지를 통해서 배포할때 그 효과가 극대화된다. 앞서 오프라인 배포에서도 HTML 파일로 저장이 가능한데 이 HTML 파일은 `plotly`의 동적 기능을 위한 자바 스크립트(plotly.js)를 포함하기 때문에 HTML 파일의 크기가 3~4MB를 넘는다. 따라서 이렇게 큰 사이즈의 HTML을 웹 서버에 올려서 서비스하는 것은 가능하지만 블로그에 포스팅 할 경우 파일 사이즈가 커서 업로드가 불가능한 경우가 있다. 이런 경우는 `plotly`에서 제공하는 차트 스튜디오(chart stuido)를 사용하여 포스팅할 수 있다. 
@@ -441,7 +464,10 @@ htmlwidgets::saveWidget(widget = fig, 'fig.html')
 
 ![](api_setting.png)
 
-이 키 값을 R-Studio와 Jupyter notebook에서 다음과 같이 세팅해준다. 
+
+### 환경 설정과 업로드
+
+이 키 값을 R-Studio와 Jupyter notebook에서 다음과 같이 세팅하고 `plotly` 시각화 객체를 업로드할 수 있다. 
 
 -   R
 
@@ -497,11 +523,15 @@ chart_studio.tools.set_credentials_file(username='your_plotly_username', api_key
 
 ```
 
+이제 차트 스튜디오를 사용할 환경설정이 완료되었다면 업로드할 `plotly` 시각화를 생성하고 완셩되면 `chart_studio.plotly` 라이브러리를 임포트하고 `plot()`이나 `iplot()`을 사용하여 `plotly` 시각화 객체를 차트 스튜디오에 업로드할 수 있다. 다음의 코드를 실행시키면 업로드된 결과가 웹브라우저를 통해 자동으로 실행되고 실행 결과로 해당 URL이 나타난다. `iplot()`을 사용하면 업로드된 결과가 웹브라우저를 통해 실행되고 jupyter notebook에도 동일한 결과가 나타난다. 
 
+```{python}
+import chart_studio.plotly as py
+py.plot(fig, filename = '업로드할 파일 이름', auto_open=True)
 
+```
 
-
-
+### 블로그에 임베딩
 
 앞과 같이 R과 python에서 만든 그래프가 차트 스튜디오에 올라가면 이 시각화를 임베딩하기 위한 주소를 추출해야 한다. 주소의 추출은 업로딩된 그래프의 바로 아래 버튼을 클릭하면 다음과 같이 나타난다. 
 

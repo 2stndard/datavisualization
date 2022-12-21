@@ -1,5 +1,5 @@
 ---
-title : 시각화 컨트롤
+title : VII. 시각화 컨트롤
 output: 
   officedown::rdocx_document:
     plots:
@@ -220,17 +220,16 @@ margins_P = dict(t = 50, b = 25, l = 25, r = 25)
 
 ```
 
--   R
+`plotly` 시각화는 동적 시각화로써 웹을 통해 배포될때 가장 효과가 크다. 웹을 사용한다는 것은 웹에서 제공하는 많은 기능을 사용할 수 있다는 장점이 있다. `plotly` 시각화를 만들때 설명했던 것처럼 호버를 사용한 사용자 반응형 기능이나 다음 장에서 설명할 범례나 마우스를 사용한 사용자 반응형 기능을 기본적으로 제공하지만 버튼, 드롭다운 버튼, 슬라이더의 세가지 컨트롤을 추가적으로 제공한다. 이 기능을 사용하면 시각화 내에서 데이터를 필터링 하거나 원하는 데이터만 추출하는 등 아주 기초적인 대시보드의 역할을 할 수 있다.
 
-```{r eval = TRUE}
+`plotly`의 컨트롤 사용을 알아보기 위해 2010년부터 2022년까지의 전국 17개 시도별 대학 신입생 충원율 자료를 사용하겠다.
+
+
+```{r}
 df_충원율_botton <- read_excel('D:/R/git/datavisualization/plotly/RnPy/chap6/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx', 
-                     ## 'data' 시트의 데이터를 불러오는데,
                      sheet = 'Sheet1',
-                     ## 앞의 10행을 제외하고
                      skip = 7, 
-                     ## 첫번째 행은 열 이름을 설정
                      col_names = FALSE, 
-                     ## 열의 타입을 설정, 처음 8개는 문자형으로 다음 56개는 수치형으로 설정
                      col_types = c(rep('text', 2), rep('numeric', 12)))
 
 df_충원율_botton <- df_충원율_botton |> dplyr::select(1, 2, 5)
@@ -242,8 +241,6 @@ df_충원율_botton <- df_충원율_botton |> pivot_wider(names_from = '연도',
 df_충원율_botton <- as.data.frame(df_충원율_botton)
 
 ```
-
--   python
 
 ```{python}
 import pandas as pd
@@ -259,8 +256,32 @@ df_충원율_control = df_충원율_control.pivot(index = '지역', columns = '�
 
 ```
 
+# 컨트롤 메쏘드(Control Method)와 'updatemenus' 속성
+
+`plotly`에서 제공하는 버튼, 드롭다운 버튼, 슬라이더에는 각각 다음의 네가지 메쏘드를 가진다. 
+-   "update"
+
+데이터 속성과 레이아웃 속성이 모두 갱신되는 메쏘드
+
+-   "restyle"
+
+데이터 속성만 갱신되는 메쏘드
+
+-   "relayout"
+
+레이아웃 속성만 갱신되는 메쏘드
+
+-   "animate"
+
+애니메이션의 시작과 중단을 설정하는 메쏘드
+
+위의 메쏘드들은 'updatemenus' 속성의 하위 속성인 에서 해당 버튼의 메쏘드를 설정한다. 
+
+
 
 # 버튼 컨트롤
+
+
 
 -   R
 
@@ -273,7 +294,7 @@ fig <- df_충원율_botton |>
 
 fig <- fig %>% layout(
   title = "연도별 충원율",
-  xaxis = list(domain = c(0.1, 1)),
+  xaxis = list(domain = c(0.1, 1), categoryorder = "total descending"),
   yaxis = list(title = "충원율(%)"),
   updatemenus = list(
     list(
@@ -446,7 +467,6 @@ fig.show()
 
 ```
 
-
 # 슬라이더 컨트롤
 
 -   R
@@ -573,7 +593,3 @@ fig.update_layout(title = dict(text = "연도별 충원율", x = 0.5),
 fig.show()
 
 ```
-
-
-
-
