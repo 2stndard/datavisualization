@@ -224,6 +224,7 @@ margins_P = dict(t = 50, b = 25, l = 25, r = 25)
 
 `plotly`의 컨트롤 사용을 알아보기 위해 2010년부터 2022년까지의 전국 17개 시도별 대학 신입생 충원율 자료를 사용하겠다.
 
+-   R
 
 ```{r eval = TRUE}
 df_충원율_botton <- read_excel('D:/R/git/datavisualization/plotly/RnPy/chap6/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx', 
@@ -241,6 +242,8 @@ df_충원율_botton <- df_충원율_botton |> pivot_wider(names_from = '연도',
 df_충원율_botton <- as.data.frame(df_충원율_botton)
 
 ```
+
+-   python
 
 ```{python}
 import pandas as pd
@@ -286,11 +289,9 @@ df_충원율_control = df_충원율_control.pivot(index = '지역', columns = '�
 
 버튼 컨트롤은 'layout' 속성의 'updatemenus' 속성을 통해서 설정이 가능한데 다음은 버튼에서 주로 사용하는 하위 속성이다. 이 'updatemenus' 속성에는 여러개의 버튼 컨트롤을 정의할 수 있기 때문에 'updatemenus'는 각각의 버튼 설정들의 리스트로 구성하여야 한다.  
 
-다음은 'updatemenus'의 주요 속성들이다. 
-
 ![](updatemenus_attr.png)
 
-## restyle 버튼
+### restyle 버튼
 
 restyle 버튼은 해당 버튼을 클릭함으로써 data 속성이 갱신되는 버튼을 말한다. 앞 서 설명한 바와 같이 'updatemenus'의 속성으로는 각각의 버튼들의 속성들이 정의된 딕셔너리(R은 리스트)의 리스트로 설정해야 한다. 
 
@@ -308,15 +309,16 @@ R에서 버튼을 추가하기 위해서는 `layout()`에서 설정하는데 'up
 fig <- df_충원율_botton |>
   plot_ly() |>
   add_trace(type = 'bar', x = ~지역, 
-            y = ~`2022`, text = ~paste0(sprintf('%.1f', df_충원율_botton$`2022`), '%'), 
-            textposition = 'outside')
+            y = ~`2022`, text = ~paste0(round(`2022`, 1), '%'), 
+            textposition = 'outside'
+            )
 
 fig <- fig |> add_annotations(x = -0.1, y = 0.85, text = '<b>연도</b>', 
                               xanchor = 'center', yanchor = 'middle', 
                               yref='paper', xref='paper', showarrow=FALSE )
 
 fig <- fig %>% layout(
-  title = "2022년 지역별 충원율",
+  title = "연도별 충원율",
   xaxis = list(domain = c(0.1, 1), categoryorder = "total descending"),
   yaxis = list(title = "충원율(%)"),
   updatemenus = list(
@@ -324,27 +326,38 @@ fig <- fig %>% layout(
       type = "buttons",
       y = 0.8,
       buttons = list(
-        list(method = "restyle",
+        list(method = "restyle",label = '2018년',
              args = list(list(y = list(df_충원율_botton$`2018`), 
-##           args = list("y", list(df_충원율_botton$`2018`)),
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2018`), '%')))),
-             label = "2018년"),
+                              text = list(paste0(round(df_충원율_botton$`2018`, 1), '%')))
+             )
+        )
+      )
+    )
+  ),
+  margin = margins_R
+)
+                         
+                         
+                         
+                         
+##           args = list("y", list(df_충원율_botton$`2010`)),
+             label = "2014년")),
         list(method = "restyle",
-             args = list(list(y = list(df_충원율_botton$`2019`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2019`), '%')))),
-             label = "2019년"),
+             args = list(list(y = list(df_충원율_botton$`2019`)), 
+##           args = list("y", list(df_충원율_botton$`2010`)),
+             label = "2016년")),
         list(method = "restyle",
-             args = list(list(y = list(df_충원율_botton$`2020`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2020`), '%')))),
-             label = "2020년"),
+             args = list(list(y = list(df_충원율_botton$`2020`)), 
+##           args = list("y", list(df_충원율_botton$`2010`)),
+             label = "2018년")),
         list(method = "restyle",
-             args = list(list(y = list(df_충원율_botton$`2021`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2021`), '%')))),
-             label = "2021년"),
+             args = list(list(y = list(df_충원율_botton$`2021`)), 
+##           args = list("y", list(df_충원율_botton$`2010`)),
+             label = "2020년")),
         list(method = "restyle",
-             args = list(list(y = list(df_충원율_botton$`2022`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2022`), '%')))),
-             label = "2022년")))
+             args = list(list(y = list(df_충원율_botton$`2022`)), 
+##           args = list("y", list(df_충원율_botton$`2010`)),
+             label = "2022년"))))
   ),
   margin = margins_R)
 
@@ -400,7 +413,7 @@ fig.show()
 
 ```
 
-## relayout 버튼
+### relayout 버튼
 
 relayout 버튼은 해당 버튼을 클릭함으로써 layout 속성이 갱신되는 버튼을 말한다. relayout 버튼은 restyle 버튼과 대부분의 생성 방법은 동일한데, 버튼은 갱신되는 속성값이 'layout'의 하위 속성이어야 하고 'button'의 'type'이 "relayout"으로 설정되어야 한다. 
 
@@ -412,15 +425,15 @@ relayout 버튼은 해당 버튼을 클릭함으로써 layout 속성이 갱신�
 fig <- df_충원율_botton |>
   plot_ly() |>
   add_trace(type = 'bar', x = ~지역, 
-            y = ~`2022`, text = ~paste0(sprintf('%.1f', df_충원율_botton$`2022`), '%'), 
-            textposition = 'outside')
+            y = ~`2022`
+            )
 
 fig <- fig |> add_annotations(x = -0.1, y = 0.85, text = '<b>연도</b>', 
                               xanchor = 'center', yanchor = 'middle', 
                               yref='paper', xref='paper', showarrow=FALSE )
 
 fig <- fig %>% layout(
-  title = "2022년 지역별 충원율",
+  title = "연도별 충원율",
   xaxis = list(domain = c(0.1, 1), categoryorder = "total descending"),
   yaxis = list(title = "충원율(%)"),
   updatemenus = list(
@@ -429,19 +442,25 @@ fig <- fig %>% layout(
       y = 0.8,
       buttons = list(
         list(method = "relayout",
-             args = list(list(title.text='2018년 지역별 충원율')),
+             args = list(list(title.text='2010년 충원율')),
+             label = "2010년"),
+        list(method = "relayout",
+             args = list(list(title.text='2012년 충원율')),
+             label = "2012년"),
+        list(method = "relayout",
+             args = list(list(title.text='2014년 충원율')),
+             label = "2014년"),
+        list(method = "relayout",
+             args = list(list(title.text='2016년 충원율')),
+             label = "2016년"),
+        list(method = "relayout",
+             args = list(list(title.text='2018년 충원율')),
              label = "2018년"),
         list(method = "relayout",
-             args = list(list(title.text='2019년 지역별 충원율')),
-             label = "2019년"),
-        list(method = "relayout",
-             args = list(list(title.text='2020년 지역별 충원율')),
+             args = list(list(title.text='2020년 충원율')),
              label = "2020년"),
         list(method = "relayout",
-             args = list(list(title.text='2021년 지역별 충원율')),
-             label = "2021년"),
-        list(method = "relayout",
-             args = list(list(title.text='2022년 지역별 충원율')),
+             args = list(list(title.text='2022년 충원율')),
              label = "2022년")))
   ),
   margin = margins_R)
@@ -450,11 +469,8 @@ fig
 
 ```
 
-## update 버튼
+### update 버튼
 
-update 버튼은 해당 버튼을 클릭함으로써 data와 layout 속성이 모두 갱신되는 버튼을 말한다. update 버튼은 restyle이나 relayout 버튼과 대부분의 생성 방법은 동일한데, restyle에 해당하는 'args' 속성값과 relayout에 해당하는 'args'속성을 각각 리스트로 설정하여야 한다. 
-
-다음은 앞 선 restyle 버튼과 relayout을 그대로 재활용하여 연도별 bar 트레이스와 그래프 제목을 바꾸는 R과 python의 코드이다. 
 
 -   R
 
@@ -462,51 +478,42 @@ update 버튼은 해당 버튼을 클릭함으로써 data와 layout 속성이 �
 fig <- df_충원율_botton |>
   plot_ly() |>
   add_trace(type = 'bar', x = ~지역, 
-            y = ~`2022`, text = ~paste0(sprintf('%.1f', df_충원율_botton$`2022`), '%'), 
-            textposition = 'outside')
+            y = ~`2022`
+            )
 
 fig <- fig |> add_annotations(x = -0.1, y = 0.85, text = '<b>연도</b>', 
                               xanchor = 'center', yanchor = 'middle', 
                               yref='paper', xref='paper', showarrow=FALSE )
 
 fig <- fig %>% layout(
-  title = '2022년 지역별 충원율',
+  title = "연도별 충원율",
   xaxis = list(domain = c(0.1, 1), categoryorder = "total descending"),
   yaxis = list(title = "충원율(%)"),
-    updatemenus = list(
+  updatemenus = list(
     list(
       type = "buttons",
       y = 0.8,
       buttons = list(
         list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2018`), 
-##           args = list("y", list(df_충원율_botton$`2018`)),
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2018`), '%'))),
-                    list(title.text='2018년 지역별 충원율')),
+             args = list(list(y = list(df_충원율_botton$`2010`)), list(title.text='2010년 충원율')),
+             label = "2010년"),
+        list(method = "update",
+             args = list(list(y = list(df_충원율_botton$`2012`)), list(title.text='2012년 충원율')),
+             label = "2012년"),
+        list(method = "update",
+             args = list(list(y = list(df_충원율_botton$`2014`)), list(title.text='2014년 충원율')),
+             label = "2014년"),
+        list(method = "update",
+             args = list(list(y = list(df_충원율_botton$`2016`)), list(title.text='2016년 충원율')),
+             label = "2016년"),
+        list(method = "update",
+             args = list(list(y = list(df_충원율_botton$`2018`)), list(title.text='2018년 충원율')),
              label = "2018년"),
         list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2019`), 
-##           args = list("y", list(df_충원율_botton$`2018`)),
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2019`), '%'))),
-                    list(title.text='2019년지역별 충원율')),
-             label = "2019년"),
-        list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2020`), 
-##           args = list("y", list(df_충원율_botton$`2018`)),
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2020`), '%'))),
-                    list(title.text='2020년 지역별 충원율')),
+             args = list(list(y = list(df_충원율_botton$`2020`)), list(title.text='2020년 충원율')),
              label = "2020년"),
         list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2021`), 
-##           args = list("y", list(df_충원율_botton$`2018`)),
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2021`), '%'))),
-                    list(title.text='2021년 지역별 충원율')),
-             label = "2021년"),
-        list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2022`), 
-##           args = list("y", list(df_충원율_botton$`2018`)),
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2022`), '%'))),
-                    list(title.text='2022년 지역별 충원율')),
+             args = list(list(y = list(df_충원율_botton$`2022`)), list(title.text='2022년 충원율')),
              label = "2022년")))
   ),
   margin = margins_R)
@@ -515,13 +522,10 @@ fig
 
 ```
 
+
+
+
 # 드롭다운 컨트롤
-
-드롭다운 컨트롤은 버튼 컨트롤과 마찬가지로 `plotly`로 만들어진 객체의 data 속성이나 layout 속성의 속성값을 변경하여 `plotly` 시각화에 변경을 가하는 컨트롤을 말한다. 다만 버튼 컨트롤은 각각의 기능이 구현된 버튼을 표시하고 이를 클릭하여 실행하는 반면 드롭다운 컨트롤은 드롭다운 메뉴에서 해당 기능을 선택하면 시각화가 업데이트 되는 컨트롤이다. 드롭다운 컨트롤도 버튼 컨트롤과 마찬가지로 어떤 속성을 갱신하느냐에 따라 'update', 'restle', 'relayout', 'animate'의 네가지 메쏘드 중에 하나를 설정하여야 한다.   
-
-드롭다운 컨트롤은 앞 선 버튼 컨트롤에서 사용했던 'updatemenus' 속성을 공유한다. 따라서 버튼 컨트롤과 속성의 종류나 설정방법은 동일하다. 
-
-다음은 버튼 컨트롤의 'update' 메쏘드로 만들었던 버튼들을 드롭다운 컨트롤로 생성하는 R과 python 코드이다. 
 
 -   R
 
@@ -529,55 +533,45 @@ fig
 fig <- df_충원율_botton |>
   plot_ly() |>
   add_trace(type = 'bar', x = ~지역, 
-            y = ~`2022`, text = ~paste0(sprintf('%.1f', df_충원율_botton$`2022`), '%'), 
-            textposition = 'outside')
-
-fig <- fig |> add_annotations(x = -0.1, y = 0.85, text = '<b>연도</b>', 
-                              xanchor = 'center', yanchor = 'middle', 
-                              yref='paper', xref='paper', showarrow=FALSE )
+            y = ~`2022`
+            )
 
 fig <- fig %>% layout(
-  title = '2022년 지역별 충원율',
-  xaxis = list(domain = c(0.1, 1), categoryorder = "total descending"),
+  title = "연도별 충원율",
+  xaxis = list(domain = c(0.1, 1)),
   yaxis = list(title = "충원율(%)"),
-    updatemenus = list(
+  updatemenus = list(
     list(
-      type = 'dropdown',
+#      type = "buttons",
       y = 0.8,
       buttons = list(
-        list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2018`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2018`), '%'))),
-                    list(title.text='2018년 지역별 충원율')),
+        list(method = "restyle",
+             args = list("y", list(df_충원율_botton$`2010`)),
+             label = "2010년"),
+        list(method = "restyle",
+             args = list("y", list(df_충원율_botton$`2012`)),
+             label = "2012년"),
+        list(method = "restyle",
+             args = list("y", list(df_충원율_botton$`2014`)),
+             label = "2014년"),
+        list(method = "restyle",
+             args = list("y", list(df_충원율_botton$`2016`)),
+             label = "2016년"),
+        list(method = "restyle",
+             args = list("y", list(df_충원율_botton$`2018`)),
              label = "2018년"),
-        list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2019`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2019`), '%'))),
-                    list(title.text='2019년지역별 충원율')),
-             label = "2019년"),
-        list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2020`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2020`), '%'))),
-                    list(title.text='2020년 지역별 충원율')),
+        list(method = "restyle",
+             args = list("y", list(df_충원율_botton$`2020`)),
              label = "2020년"),
-        list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2021`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2021`), '%'))),
-                    list(title.text='2021년 지역별 충원율')),
-             label = "2021년"),
-        list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2022`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2022`), '%'))),
-                    list(title.text='2022년 지역별 충원율')),
+        list(method = "restyle",
+             args = list("y", list(df_충원율_botton$`2022`)),
              label = "2022년")))
-  ),
+  ), 
   margin = margins_R)
 
 fig
 
 ```
-
--   python
 
 ```{python}
 fig = go.Figure()
@@ -625,56 +619,56 @@ fig.show()
 
 # 슬라이더 컨트롤
 
-슬라이더 컨트롤은 슬라이더 바의 형태로 표시된 컨트롤에서 마우스 클릭이나 마우스 드래그로 데이터를 선택함으로서 `plotly` 시각화의 갱신을 할 수 있는 컨트롤을 말한다. 이 컨트롤은 앞서 버튼들과는 달리 'sliders' 속성을 사용하는데 'updatemenus' 속성과 상당 부분 유사하다.  슬라이더 컨트롤도 버튼 컨트롤과 마찬가지로 로 어떤 속성을 갱신하느냐에 따라 'update', 'restle', 'relayout', 'animate'의 네가지 메쏘드 중에 하나를 설정하여야 한다.   
-
-다음은 'sliders'의 주요 속성들이다. 
-
-![](sliders_attr.png)
-'sliders' 속성을 설정할 때 주의해야 하는 것은 'updatemenus'와 마찬가지로 슬라이더 컨트롤도 두개 이상을 만들 수 있기 때문에 'sliders' 속성은 하위속성들을 리스트로 묶어 설정해야 한다는 것이다. 또 'args'의 설정도 'updatemenus'와 같이 리스트로 구성해야 하고 속성값도 리스트로 구성해야 한다.
-
-다음은 앞에서 드롭다운 버튼으로 만들었던 기능을 슬라이더로 구현한 R과 python 코드이다. 앞서의 코드들과는 다소 다르게 'sliders'의 'steps' 속성을 따로 리스트로 할당하고 'layout' 설정에서 할당된 변수명을 사용하였다. 
-
 -   R
 
 ```{r eval = TRUE}
 fig <- df_충원율_botton |>
   plot_ly() |>
   add_trace(type = 'bar', x = ~지역, 
-            y = ~`2022`, text = ~paste0(sprintf('%.1f', df_충원율_botton$`2022`), '%'), 
-            textposition = 'outside')
+            y = ~`2022`
+            )
 
 steps <- list(
-        list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2018`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2018`), '%'))),
-                    list(title.text='2018년 지역별 충원율')),
-             label = "2018년", value = "1"),
-        list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2019`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2019`), '%'))),
-                    list(title.text='2019년지역별 충원율')),
-             label = "2019년", value = "2"),
-        list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2020`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2020`), '%'))),
-                    list(title.text='2020년 지역별 충원율')),
-             label = "2020년", value = "3"),
-        list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2021`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2021`), '%'))),
-                    list(title.text='2021년 지역별 충원율')),
-             label = "2021년", value = "4"),
-        list(method = "update",
-             args = list(list(y = list(df_충원율_botton$`2022`), 
-                              text = list(paste0(sprintf('%.1f', df_충원율_botton$`2022`), '%'))),
-                    list(title.text='2022년 지역별 충원율')),
-             label = "2022년", value = "5")
-        )
+  list(args = list("y", list(df_충원율_botton$`2010`)), 
+       label = "2010", 
+       method = "restyle", 
+       value = "1"
+  ),
+  list(args = list("y", list(df_충원율_botton$`2012`)), 
+       label = "2012", 
+       method = "restyle", 
+       value = "2"
+  ),
+  list(args = list("y", list(df_충원율_botton$`2014`)), 
+       label = "2014", 
+       method = "restyle", 
+       value = "3"
+  ),
+  list(args = list("y", list(df_충원율_botton$`2016`)), 
+       label = "2016", 
+       method = "restyle", 
+       value = "4"
+  ),
+  list(args = list("y", list(df_충원율_botton$`2018`)), 
+       label = "2018", 
+       method = "restyle", 
+       value = "5"
+  ),
+  list(args = list("y", list(df_충원율_botton$`2020`)), 
+       label = "2020", 
+       method = "restyle", 
+       value = "6"
+  ),
+  list(args = list("y", list(df_충원율_botton$`2022`)), 
+       label = "2022", 
+       method = "restyle", 
+       value = "7"
+  )
+)
+
 
 fig <- fig %>% layout(
-  title = '2022년 지역별 충원율',
-  xaxis = list(domain = c(0.1, 1), categoryorder = "total descending"),
-  yaxis = list(title = "충원율(%)"),
+  title = "연도별 충원율",
   sliders = list(
     list(
       active = 6, 
