@@ -15,7 +15,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6.5, dpi = 300)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6.5, dpi = 300, eval = FALSE)
 library(showtext)
 showtext_auto()
 library(tidyverse)
@@ -26,13 +26,46 @@ library(reticulate)
 ```
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
-df_covid19 <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-data.csv",
+##  R code
+## 데이터 전처리를 위한 패키지 설치 및 로딩
+if(!require(readr)) {
+  install.packages('readr')
+  library(readr)
+}
+
+if(!require(lubridate)) {
+  install.packages('lubridate')
+  library(lubridate)
+}
+
+if(!require(tidyverse)) {
+  install.packages('tidyverse')
+  library(tidyverse)
+}
+
+## 1. covid19 원본 데이터 셋 로딩
+## covid19 데이터 로딩(파일을 다운로드 받은 경우)
+# df_covid19 <- read_csv(file = "데이터저장경로/owid-covid-data.csv",
+#                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
+#                                              )
+#                             )
+## covid19 데이터 로딩(온라인에서 바로 로딩할 경우)
+# df_covid19 <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-data.csv",
+#                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
+#                                              )
+#                             )
+
+df_covid19 <- read_csv(file = "D:/R/git/datavisualization/plotly/RnPy/owid-covid-data_221203.csv",
                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
                                              )
                             )
+## 2. 전체 데이터셋 중 최근 100일간의 데이터를 필터링한 df_covid19_100 생성
 df_covid19_100 <- df_covid19 |> 
+  ## 한국 데이터와 각 대륙별 데이터만을 필터링
   filter(iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM', 'OWID_AFR')) |>
+  ## 읽은 데이터의 마지막 데이터에서 100일전 데이터까지 필터링
   filter(date >= max(date) - 100) |>
+  ## 국가명을 한글로 변환
   mutate(location = case_when(
     location == 'South Korea' ~ '한국', 
     location == 'Asia' ~ '아시아', 
@@ -41,16 +74,25 @@ df_covid19_100 <- df_covid19 |>
     location == 'North America' ~ '북미', 
     location == 'South America' ~ '남미', 
     location == 'Africa' ~ '아프리카')) |>
+  ## 국가 이름의 순서를 설정 
   mutate(location = fct_relevel(location, '한국', '아시아', '유럽', '북미', '남미', '아프리카', '오세아니아')) |>
+  ## 날짜로 정렬
   arrange(date)
 
+
+## 3. df_covid19_100을 한국과 각 대륙별열로 배치한 넓은 형태의 데이터프레임으로 변환
 df_covid19_100_wide <- df_covid19_100 |>
+  ## 날짜, 국가명, 확진자와, 백신접종완료자 데이터만 선택
   select(date, location, new_cases, people_fully_vaccinated_per_hundred) |>
+  ## 열 이름을 적절히 변경
   rename('date' = 'date', '확진자' = 'new_cases', '백신접종완료자' = 'people_fully_vaccinated_per_hundred') |>
+  ## 넓은 형태의 데이터로 변환
   pivot_wider(id_cols = date, names_from = location, 
               values_from = c('확진자', '백신접종완료자')) |>
+  ## 날짜로 정렬
   arrange(date)
 
+## 4. covid19 데이터를 국가별로 요약한 df_covid19_stat 생성
 df_covid19_stat <- df_covid19 |> 
   group_by(iso_code, continent, location) |>
   summarise(인구수 = max(population, na.rm = T), 
@@ -59,19 +101,18 @@ df_covid19_stat <- df_covid19 |>
             전체사망자수 = sum(new_deaths, na.rm = T), 
             십만명당중환자실 = last(icu_patients_per_million),
             재생산지수 = last(reproduction_rate),
-            봉쇄지수 = max(stringency_index, na.rm = T), 
+            봉쇄지수 = max(stringency_index), 
             전체검사자수 = max(total_tests, na.rm = T), 
             신규검사자수 = sum(new_tests, na.rm = T),
             전체백신접종자수 = max(total_vaccinations, na.rm = T),
             백신접종자완료자수 = max(people_fully_vaccinated, na.rm = T),
             부스터접종자수 = max(total_boosters, na.rm = T),
-            인구백명당백신접종완료율 = max(people_fully_vaccinated_per_hundred, na.rm = T),
+            인구백명당백신접종완료률 = max(people_fully_vaccinated_per_hundred, na.rm = T),
             인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
             ) |> 
     ungroup() |>
     mutate(십만명당사망자수 = round(전체사망자수 / 인구수 *100000, 5),
            백신접종완료율 = 백신접종자완료자수 / 인구수)
-
 margins_R <- list(t = 50, b = 25, l = 25, r = 25)
 
 
@@ -308,7 +349,7 @@ fig.show()
 
 ```
 
-![그림 III - 1P. python의 기본 산점도](scatter_p1.png)
+![실행결과 III-1. python의 기본 산점도](./python/png/3-1.png)
 
 앞의 코드를 `plotly.express`로 구현하면 다음과 같다.[^3] `plotly.express`에서 제공하는 스캐터 트레이스를 그리는 함수는 `scatter()`로 이 함수로 설정하는 모든 속성값은 매개변수로 사용된다. 따라서 'data'속성에서 하위 속성이 존재하는 속성들도 딕셔너리를 사용하는 방법이 아닌 매개변수와 같이'='을 사용해 바로 설정하는데 각각의 속성에 따른 매개변수 이름을 확인해야하고 더러는 지원하지 않는 속성도 있다.
 
@@ -353,7 +394,7 @@ fig.show()
 
 [^4]: <https://www.reneshbedre.com/blog/correlation-analysis-r.html>
 
-![그림 III - 1 상관관계와 상관계수](C:/R/git/datavisualization/fig/5-1.png)
+![그림 III-1 상관관계와 상관계수](C:/R/git/datavisualization/fig/5-1.png)
 
 `plotly`에서 추세선의 추가는 python에서는 매우 간단하게 추가할 수 있는 방법을 제공하지만 R에서는 직접적으로 추세선을 그리는 기능을 제공하지 않는다.
 
@@ -398,6 +439,8 @@ df_취업률_500 |>
   add_trace(data = df_loess_trend, mode = 'lines', x = ~X, y = ~Y, name = 'loess', color = I('skyblue'), dashline = 'dash')
 ```
 
+![실행결과 III-2. R의 추세 산점도](./R/png/3-2.png)
+
 하지만 추세선은 이렇게 전체적인 흐름을 보기위해서도 그리지만, 많은 경우 세부 그룹별로 추세선을 그리는 경우도 많다. `plotly`의 R 패키지에서 자체적으로 추세선을 지원하지 않기 때문에 세부 그룹별로 추세선을 그릴때는 `ggplot2`로 그린후 `plotly`로 변환하는 것이 훨씬 효율적이다.
 
 ```{r eval = FALSE}
@@ -420,6 +463,8 @@ p <- df_취업률_500 |>
 
 ggplotly(p)
 ```
+
+![실행결과 III-3. ggplot2에서 변환한 추세 산점도](./R/png/3-3.png)
 
 -   python
 
@@ -471,7 +516,7 @@ fig.add_trace(go.Scatter(
 fig.show()
 ```
 
-![그림 III - 2P. python의 추세 산점도](loess_p1.png)
+![실행결과 III-4. python의 추세 산점도](./python/png/3-4.png)
 
 이렇게 각각의 회귀 모델을 만들어 추세선을 만들어 주는 것이 정상적 방법이지만 좀 복잡하다. 하지만 `plotly.express`에서 제공하는 `scatter()`는 'trendline'의 매개변수를 지정해 줌으로써 간단히 추세선을 만들수 있다. 'trendline' 매개변수의 값은 'ols', 'lowess', 'rolling', 'expanding', 'ewm' 중에 하나가 사용된다. 'ols'는 'Ordinary Least Squares regression line'의 준말로 최소자승법을 사용한 회귀선으로 일반적으로 말하는 선형회귀선을 말한다. 국소 선형회귀선인 'lowess', 이동 평균선인 'rolling', 확장 평균선인 'expanding', 지수 가중 평균인 'ewm'을 설정할 수 있다.
 
@@ -488,7 +533,7 @@ fig.show()
 
 ```
 
-![그림 III - 3P. plotly.express를 사용한 python의 추세 산점도](loess_p2.png)
+![실행결과 III-5. plotly.express를 사용한 python의 추세 산점도](./python/png/3-5.png)
 
 ## 버블 차트(Bubble Chart)
 
@@ -525,7 +570,7 @@ fig.add_trace(go.Scatter(
 
 ```
 
-![그림 III - 4P. python의 버블 차트](bubble_p1.png)
+![실행결과 III-6. python의 버블 차트](./python/png/3-6.png)
 
 # 히스토그램(histogram)
 
@@ -588,7 +633,7 @@ fig.show()
 
 ```
 
-![그림 III - 5P. python의 히스토그램](histogram_p1.png)
+![실행결과 III-7. R의 히스토그램](./R/png/3-7.png)
 
 ## 오버레이 히스토그램
 
@@ -677,7 +722,7 @@ fig.show()
 
 ```
 
-![그림 III - 6P. python의 오버레이 히스토그램](histogram_p2.png)
+![실행결과 III-8. python의 오버레이 히스토그램](./python/png/3-8.png)
 
 ## 누적 히스토그램
 
@@ -715,7 +760,7 @@ fig.show()
 
 ```
 
-![그림 III - 7P. python의 누적 산점도](histogram_p3.png)
+![실행결과 III-9. R의 누적 산점도](./R/png/3-9.png)
 
 ## 히스토그램 함수의 사용
 
@@ -845,7 +890,7 @@ fig.update_layout(title = dict(text = '취업률 Histogram', x = 0.5))
 
 ```
 
-![그림 III - 8P. histfunc에 따른 python의 히스토그램](histogram_p4.png)
+![실행결과 III-10. histfunc에 따른 python의 히스토그램](./python/png/3-10.png)
 
 # 박스(Box) 플롯
 
@@ -855,7 +900,7 @@ fig.update_layout(title = dict(text = '취업률 Histogram', x = 0.5))
 
 박스 플롯으로 표현되는 상자의 중심은 중앙값이다. 중앙값은 가로선으로 표현되며 그 주위를 상자가 둘러싸고 있다. 상자의 상단과 하단은 관측값들의 25%와 75%를 나타낸다. 상자의 상단과 하단 범위를 벗어나면 사분위 범위의 1.5배에 해당하는 '수염(whisker)'으로 표현된다. 수염 밖에 존재하는 값은 점으로 표기하며 이상치로 간주된다.
 
-![](boxplot.png)
+![그림 III-3. 박스 플롯의 구성](boxplot.png)
 
 `plolty`에서 박스 플롯을 생성하기 위해서는 박스 트레이스를 사용한다. 박스 트레이스를 만들기 위해서 R에서는 `add_trace(type = 'box')`를 사용하거나 `add_boxplot()`을 사용하고 python에서는 `plotly.graph_objects.Box()`를 사용하거나 `plotly.express.box()`를 사용한다.
 
@@ -884,7 +929,7 @@ fig.update_layout(title = dict(text = '대학 계열별 취업률 분포', x = 0
 
 ```
 
-![그림 III - 9P. python의 박스 플롯 ](boxplot_p1.png)
+![실행결과 III-11. R의 박스 플롯 ](./R/png/3-11.png)
 
 ## 평균, 표준편차가 포함된 박스 플롯
 
@@ -915,7 +960,7 @@ fig.update_layout(title = dict(text = '대학 계열별 취업률 분포', x = 0
 fig.show()    
 ```
 
-![그림 III - 10P. 평균, 표준편차가 포함된 python의 박스 플롯](boxplot_p2.png)
+![실행결과 III-12. 평균, 표준편차가 포함된 python의 박스 플롯](./python/png/3-12.png)
 
 ## 그룹 박스 플롯
 
@@ -998,7 +1043,7 @@ fig.update_layout(boxmode = 'group',
                  )
 ```
 
-![그림 III - 11P. python의 그룹 박스 플롯](boxplot_p3.png)
+![실행결과 III-13. R의 그룹 박스 플롯](./R/png/3-13.png)
 
 ## 지터(jitter) 박스 플롯
 
@@ -1177,7 +1222,7 @@ fig.update_layout(title = dict(text = '한국 및 대륙별 일별 확진자 분
 
 ```
 
-![그림 III - 12P. python의 지터 박스 플롯](boxplot_p4.png)
+![실행결과 III-14. python의 지터 박스 플롯](./python/png/3-14.png)
 
 # 바이올린(Violin) 플롯
 
@@ -1212,7 +1257,7 @@ fig.update_layout(title = dict(text = '한국 및 대륙별 일별 확진자 분
 fig.show()
 ```
 
-![그림 III - 13P. python의 바이올린 플롯](violin_p1.png)
+![그림 III-15. R의 바이올린 플롯](./R/png/3-15.png)
 
 ## 박스 플롯과 평균선이 포함된 바이올린 플롯
 
@@ -1246,7 +1291,7 @@ fig.add_trace(go.Violin(
 fig.update_layout(title = dict(text = '한국 및 대륙별 일별 확진자 분포', x = 0.5))
 ```
 
-![그림 III - 14P. 박스 플롯과 평균선이 포함된 바이올린 플롯](violin_p2.png)
+![실행결과 III-16. python의 박스 플롯과 평균선이 포함된 바이올린 플롯](./python/png/3-16.png)
 
 ## 분리된 바이올린 플롯
 
@@ -1342,4 +1387,4 @@ fig.update_layout(title = dict(text = '대학 계열별 취업률 분포', x = 0
                  colorway = ('#08519C', '#6BAED6'))
 ```
 
-![그림 III - 15P. python의 분리된 바이올린 플롯](violin_p3.png)
+![실행결과 III-17. R의 분리된 바이올린 플롯](./R/png/3-17.png)

@@ -15,7 +15,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6.5, dpi = 130)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6.5, dpi = 130, eval = FALSE)
 library(showtext)
 showtext_auto()
 library(tidyverse)
@@ -193,6 +193,8 @@ df_취업률_500 = df_취업률_500.rename(columns = {'졸업자_계':'졸업자
 
 수직, 수평 막대 그래프는 이산형 데이터 각각의 변량에 각각 하나씩의 막대가 표시되는, 우리가 흔히 아는 형태의 막대 그래프이다. 다만 그 막대의 표시 방향에 따라 수직 막대 그래프와 수평 막대 그래프로 나눌 수 있다. 보통 시각화에 사용하는 보고서는 세로 사이즈보다 가로 사이즈가 작은 경우가 많고, 스크롤이 가능한 웹화면이라고 해도 세로 방향 스크롤은 익숙하지만 가로방향 스크롤은 익숙하지 않다. 따라서 막대로 표현해야 할 변량이 많다면 수직막대그래프로 표현할 수 있는 범위에 한계가 있을 수 밖에 없다. 그래서 막대의 폭이 너무 작아지게 되고 X축에 표시되는 축 라벨이 겹치게 되는 현상이 발생할 수 밖에 없다. 따라서 표현해야 할 막대가 많을 경우에는 수평 막대 그래프를 사용하여 아래쪽으로 길게 만들면 막대의 폭도 적절히 설정가능하고 축 라벨도 정상적으로 표현할 수 있다.
 
+![그림 IV-1. 수평 막대 그래프와 수직 막대 그래프](fig4-1.png)
+
 ```{r echo = FALSE}
 p1 <- plot_ly(
   x = c("giraffes", "orangutans", "monkeys"),
@@ -223,6 +225,8 @@ subplot(p1, p2, nrows = 1, margin = 0.1, heights = 1) |>
 ```
 
 스택 막대 그래프와 그룹 막대 그래프는 X축의 이산형 변수에 매핑된 변량들을 다시 또 다른 변수로 구분해서 막대를 그려야할 때 사용하는 막대 그래프이다. 스택 막대 그래프는 하나의 막대를 또 다른 변수의 변량으로 구분하여 쌓아 올리는 형태로 사용하는 방법이다. 스택 막대 그래프는 하나의 변량에 대한 세부 변수의 구성 비율을 살펴보기 쉽다는 장점이 있다. 따라서 이 방법은 비교를 위한 시각화라기 보다는 구성을 위한 시각화로 볼 수 있다. 반면 그룹 막대 그래프는 X축의 하나의 변량에 해당하는 또 다른 변수의 변량 만큼의 막대를 묶어 그려주는 방법이다. 따라서 이 방법은 X축의 주 변량을 구성하는 세부 변량의 크기들을 서로 비교할 수 있고 주 변량의 세부 변량들끼리도 비교할 수 있다는 장점이 있지만 구성을 비교하기 어렵다는 단점도 있다.
+
+![그림 IV-2. 스택 막대 그래프와 그룹 막대 그래프](fig4-2.png)
 
 ```{r echo = FALSE}
 library(patchwork)
@@ -312,7 +316,7 @@ fig.update_layout(title = dict(text = '계열별 취업률 평균', x = 0.5),
 fig.show()
 ```
 
-![](D:/R/git/datavisualization/plotly/RnPy/chap4/bar_ver_p.png)
+![실행결과 IV-1. R의 수직 막대 그래프](./fig/png/4-1.png)
 
 ## 정렬 막대 그래프
 
@@ -416,7 +420,7 @@ fig.show()
 
 ```
 
-![](D:/R/git/datavisualization/plotly/RnPy/chap4/bar_order_p.png)
+![실행결과 IV-2. python의 정렬 막대 그래프](./fig/png/4-2.png)
 
 ## 수평 막대 그래프
 
@@ -541,7 +545,7 @@ fig.show()
 
 ```
 
-![](bar_ver1_p.png)
+![실행결과 IV-3. R의 정렬 막대 그래프](./fig/png/4-3.png)
 
 ## 그룹 막대 그래프
 
@@ -654,7 +658,7 @@ fig.show()
 
 ```
 
-![](bar_group_p.png)
+![실행결과 IV-4. python의 정렬 막대 그래프](./fig/png/4-4.png)
 
 ## 이중 축 막대 그래프
 
@@ -783,7 +787,7 @@ fig.update_layout(title = dict(text = '완전 백신 접종률 상위 top 10 국
 fig.show()
 ```
 
-![](bar_dualaxis_p.png)
+![실행결과 IV-5. R의 이중 축 막대 그래프](./fig/png/4-5.png)
 
 백신 접종 완료율과 인구 10만명당 사망자수를 동시에 표기해보니 포르투갈, 칠레, 스페인, 아르헨티나는 높은 백신 접종률에도 불구하고 10만명당 200명 이상의 사망자가 나왔다. 하지만 쿠바, 우리나라, 캄보디아, 호주등의 국가는 높은 접종률을 보이면서 10만명당 사망자수도 낮게 나타난다.
 
@@ -920,7 +924,7 @@ fig.update_layout(title = dict(text = '대륙별 완전 백신 접종률 상위 
 
 ```
 
-![](bar_dualaxis2_p.png)
+![실행결과 IV-6. python의 이중 축 막대 그래프 2](./fig/png/4-6.png)
 
 # 롤리팝 그래프
 
@@ -1016,7 +1020,7 @@ fig.update_layout(
 
 ```
 
-![](lolipop_p1.png)
+![실행결과 IV-7. R의 롤리팝 그래프](./fig/png/4-7.png)
 
 # 레이더 차트
 
@@ -1032,7 +1036,7 @@ scatterpolar 트레이스에서 중요하게 사용되는 속성이 'theta'와 '
 
 `plotly`에서 scatterploar 트레이스를 사용할 때는 지금까지 사용했던 X, Y축의 데카르트 좌표계가 아닌 극좌표계(polar)를 사용하기 때문에 'layout'을 설정할 때 축 설정과 관련한 속성들이 다소 차이가 있다. 극좌표계는 'layout' 속성의 'polar' 속성으로 설정한다. 'polar' 좌표도 'angularaxis'와 'radialaxis'의 두 개의 축으로 구성된다. 다음의 그림은 극좌표계의 주요 구성을 보이고 있다. 
 
-![](polar_fig.png)
+![그림 IV-3. 레이더 차트의 구조](polar_fig.png)
 
 이들을 설정하는 'polar' 속성도 크게 'angularaxis'와  'radialaxis'의 두 가지 하위 속성으로  설정이 가능하다. 다음은 극좌표계에서 사용되는 좌표계 설정을 위한 주요 'layout'속성들이다. 
 
@@ -1099,6 +1103,8 @@ fig.update_layout(polar = dict(angularaxis =
                   margin = margins_P
          )
 ```
+
+![실행결과 IV-8. python의 레이더 차트](./fig/png/4-8.png)
 
 # 덤델 차트
 
@@ -1168,8 +1174,7 @@ fig.show()
 
 ```
 
-대륙별 10만명당 사망자수 차이 시각화를 보면 남미의 경우 최소 사망자수 국가와 최대 사망자수 국가의 차이가 약 620명으로 가장 크게 나타난다. 반면 아시아 국가의 경우 최대와 최소의 차이가 약 165명정도로 가장 작게 나타나고 있음을 알 수 있다.
-
+![실행결과 IV-9. R의 덤벨 그래프](./fig/png/4-9.png)
 
 # 비율 막대 그래프
 
@@ -1364,6 +1369,8 @@ fig.update_layout(barmode = 'stack',
 
 ```
 
+![실행결과 IV-10. python의 비율 막대 그래프](./fig/png/4-10.png)
+
 # 파이 차트
 
 파이 차트는 원 그래프라고도 말하는 차트이다. 파이 차트는 비율 막대 그래프와 같이 데이터 전체에 대한 각 변량의 비율만큼의 슬라이스 모양으로 백분율을 표시한 차트이다. 각 부분의 중심 각도를 비율로 변환해서 슬라이스를 만들어 데이터의 구성을 표현하는데, 전체적인 비율을 쉽게 파악할 수 있다는 장점이 있다. 일부 연구 에 따르면 사람으 인식은 면적보다는 길이에 더 민감하기 때문에 파이 차트에서의 각 부분들에 대한 크기 비교는 막대 차트의 크기 비교에 비해 어렵다고 전해진다. 특히 파이 차트에 표시되는 변량이 많은 경우와 변량의 크기가 유사한 경우에는 특히 파이 차트가 적절치 않다. 하지만 일부 변량에 데이터가 집중되는 경우에는 막대 그래프보다 원형 파이 차트로 구성하는게 효과적일수 있다.
@@ -1437,6 +1444,8 @@ fig.add_trace(go.Pie(
 fig.update_layout(colorway = ("#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAED6", "#9ECAE1", "#C6DBEF"))
 
 ```
+
+![실행결과 IV-11. R의 파이 그래프](./fig/png/4-11.png)
 
 ## 파이 차트의 라벨 표시
 
@@ -1616,6 +1625,8 @@ fig.update_layout(height = 800,
 
 ```
 
+![실행결과 IV-12. python의 파이 차트의 라벨 표시](./fig/png/4-12.png)
+
 ## 도넛 차트
 
 도넛 차트는 도넛 형태로 생긴 파이 차트의 변형 차트이다. 파이 차트에 중앙 홀을 만듦으로 만들 수 있는 차트이다. 중앙 홀은 pie 트레이스의 'hole' 속성을 사용해 간단히 만들 수 있다. 'hole'은 0부터 1까지의 수치를 가지는데 파이 차트의 반지름을 1로한 상대적 비율을 설정한다. 하지만 중요한 것은 이 중간 공간을 어떻게 이용할지이다. 보통 이 중앙 홀에 해당 파이 차트를 대표하는 간단한 문구를 넣어주면 효율적으로 사용이 가능하다. 이 문구는 비율 막대 그래프에서 사용했던 annotation으로 넣어줄 수 있다.
@@ -1688,6 +1699,8 @@ fig.add_annotation(x = 0.5, y = 0.5, text = '<b>졸업생수</b>',
 fig.update_layout(colorway = ("#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAED6", "#9ECAE1", "#C6DBEF"))
 
 ```
+
+![실행결과 IV-13. R의 도넛 차트](./fig/png/4-13.png)
 
 ## 파이 차트의 강조
 
@@ -1764,6 +1777,8 @@ fig.update_layout(title = dict(text = '대학 계열별 졸업생 분포', x = 0
 fig.update_layout(colorway = ("#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAED6", "#9ECAE1", "#C6DBEF"))
 ```
 
+![실행결과 IV-14. python의 파이 차트의 강조](./fig/png/4-14.png)
+
 # 선버스트 차트
 
 선버스트(sunburst)의 사전적 의미는 '햇살'이다. 햇살처럼 퍼저나가는 데이터를 표현하기 위해 사용되는 형태의 시각화이다. `plotly`에서 지원하는 sunburst 트레이스는 루트(root)에서 잎(leaf)까지 원의 방사형 방향의 바깥쪽으로 퍼져나가면서 계층화된 데이터를 시각화한다. 따라서 sunburst 트레이스를 그리기 위해서는 계층화된 데이터가 필요하다. sunburst 트레이스의 각 섹터는 'labels'와 'parents'의 속성에서 설정하는데 'labels'은 선버스트 trace에서 표시되는 모든 섹터의 표시 라벨의배열(python은 리스트)를 설정한다. 'parents'는 'labels'와 길이가 같은 배열(리스트)로 설정하여 모든 'labels'와 1:1로 매칭되는데, 각 'labels'의 부모 섹터를  가리키는 'labels' 값을 설정한다. 만약 'parents'에 설정된 부모 섹터가 ''이면 가장 안쪽의 노드인 루트 노드가 된다. 'values'는 해당 섹터에 표시될 값을 설정한다. 'values' 값에 따라 섹터의 크기도 결정된다. 다음은 sunburst 트레이스에서 사용하는 주요 속성이다. 
@@ -1772,7 +1787,7 @@ fig.update_layout(colorway = ("#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAE
 
 다음은 대학의 졸업자 구성을 대계열, 중계열의 계층적으로 표현한 선버스트 차트를 만드는 R과 python 코드이다. 다음의 그림은 선버스트 차트에 필요한 'labels', 'parents', 'values'의 구조를 도식한 것이다. 
 
-![](선버스트구조.png)
+![그림 IV-4. 선버스트 차트의 구조](선버스트구조.png)
 
 앞의 그림에서 보면 'lables'에는 총 43개의 원소(전체 1개, 대계열 7개, 중계열 35개)가 필요하다.  이들의 리스트를 만들어서 'labels'에 설정하였다. 다음으로 'parents'에 'labels'의 각각의 원소에 해당하는 부모노드를 설정하는데 'labels'의 첫 번째 원소인 '전체'는 루트노드이기 때문에 'parents'의 첫 번째 원소를 ''로 설정한다. 이후 대계열에 속하는 'labels'는 루트노드인 '전체'로 설정하고 다음부터 나오는 중계열은 해당 중계열이 속하는 대계열 이름을 설정하였다. 마지막으로 각각의 값을 설정하기 위해 합계값을 구한다. 루트 노드에 설정할 전체 합계 값, 각각의 대계열에 설정할 합계값, 중계열의 합계값들을 구해 이들 배열(리스트)를 연결하여 전체 배열(리스트)를 만들어 준다. 
 
@@ -1854,8 +1869,11 @@ fig.update_layout(sunburstcolorway = ("#08306B", "#08519C", "#2171B5", "#4292C6"
 
 ```
 
+![실행결과 IV-15. R의 선버스트 차트](./fig/png/4-15.png)
 
 sunburst 트레이스에서 추가적으로 알아두어야 할 속성이 'branchvalues'와 'insidetextorientation'이다. 'branchvalues'는 'values'로 설정된 아이템의 합계 산출 방법을 설정한다. 'total'로 설정하면 'values'의 아이템이 모든 하위 항목의 값으로 간주된다. 예를 들어 부모 섹터의 'values'가 50, 2개의 자식 섹터의 'values'가 각각 20라면 부모 섹터의 40%씩을 차지하게 된다. 반면 'remainer'는 부모 섹터와 자식 섹터에 해당하는 'values'를 모두 더해서 비율을 산출하게 된다. 앞의 예처럼 부모 섹터가 50, 2개의 자식 섹터가 각각 20이라면 20/(50+20+20)이므로 22%가 산출된다.
+
+-   R
 
 ```{r echo = FALSE}
 df_sunburst <- df_취업률_500 |> group_by(대계열, 중계열) |>
@@ -1884,6 +1902,9 @@ df_sunburst |> plot_ly() |>
   layout(sunburstcolorway = RColorBrewer::brewer.pal(9, 'Blues')[seq(from = 9, to = 3, by = -1)])
   
 ```
+
+-   python
+
 ```{python echo = FALSE, eval = FALSE}
 df_sunburst = df_취업률_500.groupby(['대계열', '중계열']).sum()['졸업자수'].reset_index()
 
@@ -1915,8 +1936,12 @@ fig.update_layout(sunburstcolorway = ("#08306B", "#08519C", "#2171B5", "#4292C6"
 
 ```
 
+![실행결과 IV-16. python 선버스트 차트의 branchvalue별 결과](./fig/png/4-16.png)
+
 
 `insidetextorientation`은 선버스트 trace에 표시되는 내부 정보 문자열이 표시되는 각도를 설정한다. `insidetextorientation`는 'radial'과 'horizontal'의 두 가지 방법이 사용되는데 'radial'은 섹터의 각도에 따라 문자가 회전하고 'horizontal'은 섹터의 각도와 관계없이 수평으로 표기된다.
+
+-   R
 
 ```{r echo = FALSE}
 df_sunburst <- df_취업률_500 |> group_by(대계열, 중계열) |>
@@ -1945,6 +1970,8 @@ df_sunburst |> plot_ly() |>
   layout(sunburstcolorway = RColorBrewer::brewer.pal(9, 'Blues')[seq(from = 9, to = 3, by = -1)])
   
 ```
+
+-   python
 
 ```{python eval = FALSE, echo = FALSE}
 df_sunburst = df_취업률_500.groupby(['대계열', '중계열']).sum()['졸업자수'].reset_index()
@@ -1977,9 +2004,11 @@ fig.update_layout(sunburstcolorway = ("#08306B", "#08519C", "#2171B5", "#4292C6"
 
 ```
 
+![실행결과 IV-17. R 선버스트 차트의 insidetextorientation 결과](./fig/png/4-17.png)
+
 다른 트레이스와는 달리 sunburst 트레이스는 마우스 클릭에 따른 추가적인 사용자 반응 작용이 있다. 선버스트 차트에서 특정 섹터를 클릭하면 해당 부분 섹터가 확대되어 표시됨으로써 세부 데이터를 확인하기 쉬워진다.
 
-![아시아 섹터를 클릭한 선버스트 차트의 반응 결과](D:/R/git/datavisualization/plotly/chap6/sunburst.png)
+![실행결과 IV-18. 아시아 섹터를 클릭한 python 선버스트 차트의 반응 결과](./fig/png/4-18.png)
 
 # 트리맵
 
@@ -2018,10 +2047,6 @@ plot_ly() |>
   layout(colorway = RColorBrewer::brewer.pal(9, 'Blues')[seq(from = 9, to = 3, by = -1)])
 ```
 
-트리맵도 선버스트와 같이 마우스 클릭으로 세부 섹터를 확대하여 사용할 수 있다.
-
-![아시아 섹터를 클릭한 트리맵 차트의 반응 결과](D:/R/git/datavisualization/plotly/chap6/treemap.png)
-
 -   python
 
 python에서 treemap 트레이스를 만들기 위해서는 `add_trace()`에 `plotly.graph_objects.Treemap()`을 사용하거나 `plotly.express.treemap()`을 사용한다. 
@@ -2048,187 +2073,10 @@ fig.add_trace(go.Treemap(
 fig.update_layout(colorway = ("#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAED6", "#9ECAE1", "#C6DBEF"))
 ```
 
+![실행결과 IV-18. 아시아 섹터를 클릭한 R 트리맵 차트의 반응 결과](./fig/png/4-19.png)
+
+트리맵도 선버스트와 같이 마우스 클릭으로 세부 섹터를 확대하여 사용할 수 있다.
+
+![실행결과 IV-19. 아시아 섹터를 클릭한 트리맵 차트의 반응 결과](./fig/png/4-20.png)
 
 
-# 벤 다이어그램
-
-벤다이어그램은 아마도 중학교 시절 한번식은 그려본 차트일 것이다. 사실 이 차트는 지금까지 줄기차게 설명했던 데이터의 시각화와는 좀 다른 형태의 시각화이다. 우선 데이터의 양에 직접적인 관계가 없고 데이터의 성질에 관계가 있다는 점에서 정량적 시각화가 아닌 정성적 시각화이다. 각 데이터의 크기를 비교하는 것이 아닌 데이터간의 관계를 표현한다는 점도 다른 시각화와 매우 다르다. 하지만 데이터의 전반적 구조를 표현하거나 데이터 분석을 통해 도출된 인사이트를 전달하는 과정에서 효과적으로 사용될 수 있는 시각화이다.
-
-R의 많은 사용자들은 데이터와 직접적 관계가 없는 벤다이어그램을 R에서 그린다는게 어색할 것이다. 보통 이렇게 데이터와 직접적 관계가 없는 시각화는 파워포인트와 같은 프리젠테이션 전용 툴이나 일러스트레이터와 같은 전문 그래픽 툴을 사용하는 것이 일반적이다. 하지만 R 마크다운을 사용하여 R에서 직접적으로 문서를 만들거나 그래픽 툴에 익숙하지 않은 데이터 분석가들을 위해 R에서 벤다이어그램을 그릴 수 있도는 패키지가 제공되고 있다.
-
-아쉽게도 `plotly`나 `ggplot2`에서는 벤다이어그램을 지원하지 않는다. 하지만 R에서 벤다이어그램을 만들 수 있도록 `ggplot2`의 확장 패키지로 `ggVennDiagram` 패키지가 지원된다.[^1] 이 패키지에서 제공하는 `ggVennDiagram()`을 이용해서 벤다이어그램을 만들 수 있다.
-
-[^1]: 이 패키지외에 `VennDiagram` 패키지도 있지만 `VennDiagram` 패키지에서는 한글을 지원하지 못한다는 결정적 단점이 있다.
-
-벤다이어그램을 그리기 위해서는 먼저 `ggVennDiagram`패키지를 설치한다.
-
-```{r}
-## ggVennDiagram 설치
-if(!require(ggVennDiagram)) {
-  install.packages('ggVennDiagram')
-  library(ggVennDiagram)
-}
-```
-
-`ggVennDiagram` 패키지에서 제공하는 `ggVennDiagram()`의 사용법은 다음과 같다.
-
-::: {custom-style="comment"}
-ggVennDiagram(x, category.names = names(x), show_intersect = FALSE, set_color = "black", set_size = NA, label = c("both", "count", "percent", "none"), label_alpha = 0.5, label_geom = c("label", "text"), label_color = "black", label_size = NA, label_percent_digit = 0, label_txtWidth = 40, edge_lty = "solid", edge_size = 1, ...)\
-- x : 벤다이어그램에 사용 할 벡터 리스트\
-- category.names : 각각의 원에 해당하는 카테고리의 이름 설정\
-- show_intersect : 인터랙티브 플롯(plotly)으로 생성할지 여부를 결정하는 논리값\
-- set_color : 벤다이어그램 안의 텍스트 라벨 색 설정\
-- set_size : 벤다이어그램 안의 텍스트 라벨 크기 설정\
-- label : 텍스트 라벨의 표시 형태 설정, "both", "count", "percent", "none" 중에 하나 설정\
-- label_alpha : 벤다이어그램 안의 텍스트 라벨 투명도 설정\
-- label_geom : 벤다이어그램 안의 텍스트 기하요소 설정, "label", "text" 중에 하나 설정\
-- label_color : 벤다이어그램 안의 텍스트 색 설정\
-- label_size : 벤다이어그램 안의 라벨 크기 설정\
-- label_percent_digit : 라벨 타입이 'percent'일 경우 소수점 아래 몇자리까지 출력할지 설정\
-- label_txtWidth : 벤다이어그램 교차부분의 텍스트 너비 설정\
-- edge_lty : 벤다이어그램 가장자리 라인 타입 설정\
-- edge_size : 벤다이어그램 가장자리 라인 굵기 설정
-:::
-
-벤다이어그램은 보통 3개의 원으로 표현되는 것이 효율적이다. 그 이상의 원으로 표현은 가능하겠지만 오히려 데이터의 특징을 전반적으로 확인하는데 방해되는 경우도 많다.
-
-벤다이어그램을 그리기 위해서는 먼저 벤다이어그램에 사용할 데이터 벡터를 생성해야 한다. 여기서는 공학계열의 학과들을 과정구분별로 필터링해서 세개의 벡터를 생성하고 이에 대한 벤다이어그램을 그리도록 한다.
-
-```{r}
-## 전문대학과정의 공학계열 학과명을 벡터로 저장
-vec_전문대학과명 <- df_취업률 |> 
-  filter(대계열 == '공학계열', 과정구분 == '전문대학과정') |>
-  select(학과명) |> 
-  ## 하나의 열만 선택하더라도 여전히 데이터프레임이기 때문에 pull()로 벡터화
-  pull()
-
-## 대학과정의 공학계열 학과명을 벡터로 저장
-vec_대학학과명 <- df_취업률 |> 
-  filter(대계열 == '공학계열', 과정구분 == '대학과정') |>
-  select(학과명) |> 
-  pull()
-
-## 대학원과정의 공학계열 학과명을 벡터로 저장
-vec_대학원학과명 <- df_취업률 |> 
-  filter(대계열 == '공학계열', 과정구분 == '대학원과정') |>
-  select(학과명) |> 
-  pull()
-
-## 벤다이어그램의 제목 설정과 데이터를 연결한 리스트 생성
-list_venn_diagram <- list(전문대학 = vec_전문대학과명, 대학 = vec_대학학과명, 대학원 = vec_대학원학과명)
-```
-
-```{r fig.cap='기본 벤다이어그램'}
-## 벤다이어그램 생성
-ggVennDiagram(list_venn_diagram)
-```
-
-# 업셋 그래프
-
-중복이 허용되면서 변량이 많지 않은 데이터를 시각화하는 방법으로 많이 활용되는 것이 벤다이어그램이다. 벤다이어그램은 10장에서 설명하겠지만 원으로 변량을 표현해 중복에 대한 표현이 가능한 장점이 있다. 하지만 원(변량)이 3개를 넘어가면 매우 혼란스러워진다. 이 벤다이어그램의 단점을 극복하기 위해 2014년에 제안된 시각화 방법이 업셋 그래프이다.[^2]
-
-[^2]: [Alexander Lex](https://vdl.sci.utah.edu/team/lex/), [Nils Gehlenborg](http://www.gehlenborg.com/), [Hendrik Strobelt](http://hendrik.strobelt.com/), Romain Vuillemot, [Hanspeter Pfister](http://vcg.seas.harvard.edu/people/hanspeter-pfister)\
-    [**UpSet: Visualization of Intersecting Sets**](https://sci.utah.edu/~vdl/papers/2014_infovis_upset.pdf)\
-    IEEE Transactions on Visualization and Computer Graphics (InfoVis), 20(12): 1983--1992, [doi:10.1109/TVCG.2014.2346248](http://dx.doi.org/10.1109/TVCG.2014.2346248), 2014.
-
-업셋 그래프는 그래프의 아래쪽에 해당 데이터를 구성하는 세트의 조합이 표현되고 위쪽에는 해당 세트의 조합에 대한 데이터 값을 표현하는 막대 그래프가 표현된다. 이렇게 구성함으로써 단일 세트만 가능했던 막대 그래프에 변량의 세트에 대한 표현이 가능해져서 벤다이어그램에서 해석이 어려웠던 다양한 데이터의 조합에 대한 시각화에 매우 효과적이다.
-
-업셋 그래프는 3개 이상 30개 미만의 집합 데이터에 가장 적합하다 . 4세트 미만의 경우 익숙한 벤 다이어그램이 친숙하다. 또 업셋 그래프는 집합 데이터의 분포를 분석하는 데 적합하기때문에 교차하는 집합의 조합의 빈도확인에 매우 효과적이다.[^3]
-
-[^3]: <https://upset.app/>
-
-그럼 이제 업셋 그래프를 만들어 보겠다. df_취업통계 데이터는 각 학과를 7개의 학제(전문대학(2년제), 전문대학(3년제), 대학교, 산업대학 등)로 구분되어 있다. 따라서 같은 학과명을 가지더라도 서로 학제가 달라 최대 7개의 행이 있을 수 있다. 그래서 동일한 학과명이 여러 학제에 걸쳐 존재하는 경우가 많은데 이 분포를 알아내기 위해 업셋 그래프를 만든다.
-
-이 업셋 그래프를 만들기 위해 사용하는 데이터는 이 df_취업통계 데이터로 각각의 학과명이 속한 학제를 리스트로 만든 열이 필요하다. 이 열을 기준으로 빈도를 표현한 막대 그래프를 그릴 것이다. 이를 위해 다음과 같이 데이터를 전처리 한다.
-
-```{r}
-## df_취업통계에서
-df_과정구분_upset <- df_취업률 |>
-  ## 학과명으로 그룹화
-  group_by(학과명) |>
-  ## 학제를 리스트로 만든 학과리스트 열을 생성(각각의 그룹의 행에 학과리스트 열은 모두 같은 값을 가지기 때문에 맨 아래에서 중복을 제거)
-  mutate(학제리스트 = list(unique(sort(학제)))) |>
-  ## 필요한 열만 선택
-  select(3:6, 8, 학제리스트, 11) |>
-  ## 중복을 제거
-  unique()
-```
-
-전처리가 끝났으면 본격적으로 업셋 그래프를 만든다. 이를 위해 먼저 `ggupset` 패키지를 설치해야한다.
-
-```{r}
-## ggupset 패키지 설치
-if(!require(ggupset)) {
-  install.packages('ggupset')
-  library(ggupset)
-}
-
-```
-
-업셋 그래프를 그리는 코드는 다음과 같다. 먼저 학과명의 조합 리스트로 구성된 학과명을 X축으로 매핑한 geom_bar 레이어를 생성한다. 이후 X축의 스케일를 업셋 스케일로 바꾸어주면 업셋의 기본 그래프가 생성된다. 축의 스케일을 업셋 스케일로 바꾸려면 `scale_x_upset()`을 사용한다.
-
-::: {custom-style="comment"}
-scale_x\_upset(order_by = c("freq", "degree"), n_sets = Inf, n_intersections = Inf, sets = NULL, intersections = NULL, reverse = FALSE, ytrans = "identity", ..., position = "bottom")\
-- order_by : X축의 순서 설정을 어떻게 할지 설정\
-- n_sets : 전체 셋의 최대값 설정\
-- n_intersections : 표시될 교차 셋의 최대값 설정\
-- sets : 표시하고 싶은 셋의 이름 벡터 설정\
-- intersections : 표시될 교차 셋의 이름 벡터 설정\
-- reverse : 교차값의 역순으로 설정할 논리값 설정\
-- ytrans : Y축의 변환 설정\
-- ... : 이산형 스케일과 관련한 추가 매개변수\
-- position : X축을 아래에 위치할 것인지 위에 위치할 것인지 설정
-:::
-
-빈도수를 표현하는 `geom_bar()`의 X축 스케일을 `scale_x_upset()`으로 설정하여 업셋 그래프를 그리는 코드는 다음과 같다.
-
-```{r fig.cap='기본 업셋 그래프'}
-library(ggupset)
-
-df_과정구분_upset |> ggplot() +
-  ## X축을 학제리스트로 매핑한 geom_bar 레이어 생성
-  geom_bar(aes(x=학제리스트)) +
-  ## X축 스케일을 업셋 스케일로 설정
-  scale_x_upset()
-
-```
-
-7개의 학제에 대한 조합이 표현되다보니 조합의 수가 너무 많아 보인다. 이 중 빈도가 많은 10개의 조합만 표시하도록하는 코드는 다음과 같다.
-
-```{r fig.cap='기본 업셋 그래프'}
-ggplot(df_과정구분_upset, aes(x=학제리스트)) +
-  geom_bar() +
-  ## n_intersection을 10으로 설정해서 X축 변량을 10개로 한정
-  scale_x_upset(n_intersections = 10)
-
-
-```
-
-앞의 그래프를 보면 대학교에만 존재하는 학과가 가장 많고 다음은 일반대학원이다. 세번째로 많은 분포는 대학교와 일반대학원에 같이 존재하는 학과가 있다는 것을 알 수 있다.
-
-앞의 업셋 그래프의 조합 매트릭스의 조합이 많은 순으로 정렬 순서를 바꾸면 다음과 같이 바꿀 수 있다.
-
-```{r fig.cap='조합순으로 정렬된 업셋 그래프'}
-df_과정구분_upset |>
-  ggplot() +
-  geom_bar(aes(x=학제리스트), fill = "dodgerblue") +
-  geom_text(aes(x=학제리스트, label = ..count..), stat = 'count', vjust = -1, size = 3, color = "darkblue") +
-  ## order_by를 'degree'로 설정하여 매트릭스 조합을 정렬 기준으로 맞추고 내림차순으로 설정하기 위해 reverse를 설정
-  scale_x_upset(n_intersections = 10,  
-                order_by="degree", 
-                reverse = TRUE) +
-  ylab("학과수") + xlab("학제 조합")
-
-```
-
-업셋 그래프에 사용되는 상위 그래프는 막대 그래프외에 모든 그래프를 사용할 수 있다. 다만 X축의 조합 매트릭스를 설정함으로써 데이터를 잘 설명할 수 있는지 고려하여 설정하는 것이 좋다. 다음은 앞의 빈도수의 막대 그래프를 취업률에 대한 바이올린 그래프로 바꾼 코드이다.
-
-```{r fig.cap='바이올린 업셋 그래프'}
-df_과정구분_upset |> 
-  ggplot() +
-  ## 상부 그래프의 레이어를 geom_violin 레이어로 생성
-  geom_violin(aes(x=학제리스트, y = 취업률_계), fill = "darkblue") +
-  scale_x_upset(n_intersections = 10,  order_by="degree", reverse = TRUE) +
-  ylab("취업률") + xlab("학제 조합")
-
-```

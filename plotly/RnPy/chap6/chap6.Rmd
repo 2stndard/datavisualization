@@ -228,13 +228,20 @@ margins_P = dict(t = 50, b = 25, l = 25, r = 25)
 
 # 인디케이터(indicator)
 
-인디케이터의 사전적 의미는 '가리키는 것'이다. 특정한 지시, 징후, 징표를 가리키는 것이라는 의미가 적절할 것이다. `plotly`에서 인디케이터의 의미는 'value' 속성으로 지정된 단일 값을 시각화하는 것이다. `plotly`에서는 인디케이터를 시각화하기 위해 indicator 트레이스를 제공한다. indicator 트레이스는 인디케이터로 표현할 수치를 수치, 델타, 게이지의 세 가지 방법을 사용하여 시각화하는 것이다. 이 세가지 방법은 'mode' 속성을 통해 설정이 가능한데, 다음은 indicator 트레이스에서 사용하는 주요 속성이다.
+인디케이터의 사전적 의미는 '가리키는 것'이다. 특정한 지시, 징후, 징표를 가리키는 것이라는 의미가 적절할 것이다. `plotly`에서 인디케이터의 의미는 'value' 속성으로 지정된 단일 값을 시각화하는 것이다. 인디케이터의 속성은 다음의 네 가지 속성이 첫번째 레벨의 속성이다.
+
+-   value: 시각화 할 값
+-   mode: 인디케이터의 종류
+-   align: 수치와 델터 인디케이터의 정렬(left, center, right)
+-   domain: 인디케이터의 위치 범위
+
+`plotly`에서는 인디케이터를 시각화하기 위해 indicator 트레이스를 제공한다. indicator 트레이스는 인디케이터로 표현할 수치를 수치, 델타, 게이지의 세 가지 방법을 사용하여 시각화하는 것이다. 이 세가지 방법은 'mode' 속성을 통해 설정이 가능한데, 다음은 indicator 트레이스에서 사용하는 주요 속성이다.
 
 ![](indicator_attr.png)
 
 ## 수치(number) 인디케이터
 
-수치 인디케이터는 단일 수치값을 시각화하는 방법이다. 이 수치 인디케이터는 indicator 트레이스 속성 중에 'number' 속성에 의해 설정이 가능하다. 를 구성하는 각각의 구성 요소는 다음과 같다.
+수치 인디케이터는 단일 수치값을 시각화하는 방법이다. 이 수치 인디케이터는 indicator 트레이스 속성 중에 'number' 속성에 의해 설정이 가능하다. 다음은 수치 인디케이터의 설정에 사용하는 'number'의 주요 속성이다.
 
 ![](indicator_number_attr.png)
 
@@ -244,7 +251,7 @@ margins_P = dict(t = 50, b = 25, l = 25, r = 25)
 
 -   R
 
-R에서 indicator 트레이스를 만들기 위해서는 `add_trace(type = 'indicator', ...)`를 사용한다. 수치 인디케이터는 'mode' 속성을 'number'로 설정하고 'number' 속성을 설정하여 만들 수 있다.
+R에서 수치 인디케이터를 만들기 위해서는 indicator 트레이스를 만드는데, `add_trace(type = 'indicator', ...)`를 사용한다. 수치 인디케이터는 'mode' 속성을 "number"로 설정하고 'number' 속성을 설정하여 만들 수 있다.
 
 ```{r echo=FALSE, eval = TRUE}
 ## 5개국 데이터로 전처리
@@ -254,7 +261,7 @@ total_deaths_5_nations_by_day <- df_covid19 |>
 
 ```
 
-```{r eval = TRUE}
+```{r}
 number_KOR <- total_deaths_5_nations_by_day |>
   filter(date == max(date), iso_code == 'KOR') |>
   select(total_deaths_per_million) |> pull()
@@ -318,7 +325,7 @@ fig1 |>
 
 -   python
 
-python에서 indicator 트레이스를 만들기 위해서는 `add_trace()`에 `plotly.graph_objects.Indicator()`를 사용한다. 수치 인디케이터는 'number' 속성을 설정하여 만들 수 있다.
+python에서 수치 인디케이터를 만들기 위해서는 indicator 트레이스를 사용하고, `add_trace()`에 `plotly.graph_objects.Indicator()`를 사용한다. 수치 인디케이터는 'mode' 속성을 "number"로 설정하고 'number' 속성을 설정하여 만들 수 있다.
 
 ```{python}
 from datetime import datetime, timedelta
@@ -393,15 +400,26 @@ fig.show()
 
 ```
 
+![실행결과 VI-1. 수치 인디케이터가 포함된 R의 선 그래프](./fig/png/6-1.png)
+
 ## 델타(delta) 인디케이터
 
-델타 인디케이터는
+델타 인디케이터는 일반적으로 수치 인디케이터와 병행하여 사용하여 수치 인디케이터에 표현된 값이 비교 기준값과의 차이를 기호와 증감값을 사용하여 보여주는 인디케이터를 말한다. 델타 인디케이터에는 수치 인디케이터에 비해 다음과 같은 몇 가지 요소들이 필요하다.
+
+-   reference : 값의 증감을 비교할 기준 값
+-   relative : 값의 증감이 절대적인지, 상대적인지를 결정
+-   increasing : 값이 증가할 경우 표시할 속성
+-   decreasing : 값이 감소할 경우 표시할 속성
+
+다음은 델타 인디케이터의 설정에 사용하는 'delta'의 주요 속성이다.
 
 ![](indicator_delta_attr.png)
 
 -   R
 
-```{r eval = TRUE}
+R에서 델타 인디케이터를 만들기 위해서는 indicator 트레이스를 사용하는데, `add_trace(type = 'indicator', ...)`를 사용한다. 수치 인디케이터는 'mode' 속성을 "delta"로 설정하고 'delta' 속성을 설정하여 만들 수 있다.
+
+```{r}
 number1_KOR <- total_deaths_5_nations_by_day |>
   filter(date == max(date)-1, iso_code == 'KOR') |>
   select(total_deaths_per_million) |> pull()
@@ -475,6 +493,8 @@ fig1 |>
 
 -   python
 
+python에서 델타 인디케이터를 만들기 위해서는 indicator 트레이스를 사용하고, `add_trace()`에 `plotly.graph_objects.Indicator()`를 사용한다. 델타 인디케이터는 'mode' 속성을 "delta"로 설정하고 'delta' 속성을 설정하여 만들 수 있다.
+
 ```{python}
 number1_KOR = total_deaths_5_nations_by_day.loc[(total_deaths_5_nations_by_day['date']==total_deaths_5_nations_by_day['date'].max()- timedelta(days = 1)) & (total_deaths_5_nations_by_day['iso_code']=='KOR')]
 number1_KOR = number1_KOR.loc[:,'total_deaths_per_million'].values[0]
@@ -548,17 +568,21 @@ fig.show()
 
 ```
 
+![실행결과 VI-2. 델타 인디케이터가 표시된 python 선 그래프](./fig/png/6-2.png)
+
 ## 게이지(gauge) 인디케이터
 
 게이지 인디케이터는 둥근 반원의 형태의 틀에 둥글게 그려지는 막대의 각도에 의해 최소값과 최대값 사이에서의 현재의 지수를 표현할 때 사용하는 시각화이다. 이 시각화를 구성하는데에는 주 표현값인 'value' 값 이외에 'steps', 'threshold', 'delta'의 속성을 사용한다. 게이지 인디케이터는 indicator 트레이스에 'mode' 속성에 "gauge"를 포함하여 만들 수 있다. "gauge"만을 사용하거나, "number+gauge"를 사용하여 수치와 함꼐 게이지를 사용하거나, "number+gauge+delta"를 사용하여 수치, 게이지, 증감 기호를 모두 사용할 수도 있다.
 
-다음은 indicator 트레이스 중 'gauge'와 관련된 주요 속성이다.
+다음은 게이지 인디케이터의 설정에 사용하는 'gauge'의 주요 속성이다.
 
 ![](indicator_gauge_attr.png)
 
 -   R
 
-```{r eval = TRUE}
+R에서 게이지 인디케이터를 만들기 위해서는 indicator 트레이스를 사용하는데, `add_trace(type = 'indicator', ...)`를 사용한다. 수치 인디케이터는 'mode' 속성을 "gauge"로 설정하고 'gauge' 속성을 설정하여 만들 수 있다.
+
+```{r}
 max_deaths_per_million_by_day <- total_deaths_5_nations_by_day |> group_by(location) |>
   summarise(최대사망자 = max(new_deaths_per_million, na.rm = TRUE))
 
@@ -648,6 +672,8 @@ fig_gauge |> layout(grid=list(rows=3, columns=3),
 ```
 
 -   python
+
+python에서 게이지 인디케이터를 만들기 위해서는 indicator 트레이스를 사용하고, `add_trace()`에 `plotly.graph_objects.Indicator()`를 사용한다. 게이지 인디케이터는 'mode' 속성을 "gauge"로 설정하고 'gauge' 속성을 설정하여 만들 수 있다.
 
 ```{python}
 deaths_per_million_in_lateast = total_deaths_5_nations_by_day[total_deaths_5_nations_by_day['new_deaths_per_million'].isna() == False]
@@ -739,11 +765,19 @@ fig.show()
 
 ```
 
-### bullet
+![실행결과 VI-3. R의 게이지 인디테이터](./fig/png/6-3.png)
+
+## 불릿(bullet) 인디케이터
+
+불릿 인디케이터는 막대 그래프를 변형하여 특정 값의 현재 상태를 표시하는 시각화의 방법이다. 온도계나 진행률의 표시에 사용되는 방식을 차용하여 만드는 불릿 인디케이터는 둥글게 표시되는 게이지 인디케이터의 대용으로 대시보드에서 많이 사용된다. 불릿 인디케이터는 단계를 나타내는 질적 단계(step)와 양적 막대(value), 임계치의 표시의 세 가지 요소로 구성한다. 단계는 일반적으로 배열의 형태로 단계 값들을 지정하여 정의하고, 막대는 표시할 수치의 현재 값을 나타내고, 임계값은 수치의 목표치나 한계치에 대한 목표 지점을 표시함으로서 나타낸다.
+
+불릿 인디케이터는 indicator 트레이스를 사용하여 만들수 있고 게이지 인디케이터의 속성 중 'shape'를 "bullet"으로 설정함으로써 만들 수 있다. 또 게이지 인디케이터의 속성들을 공유한다.
 
 -   R
 
-```{r eval = TRUE}
+R에서 불릿 인디케이터를 만들기 위해서는 indicator 트레이스를 사용하는데, `add_trace(type = 'indicator', ...)`를 사용한다. 불릿 인디케이터는 'mode' 속성을 "gauge"로, 'gauge'의 'shape' 속성을 "bullet"으로 설정하고 'gauge' 속성을 설정하여 만들 수 있다.
+
+```{r}
 fig_gauge <- df_gauge |> plot_ly() |>
   add_trace(type = 'indicator', mode = "gauge+number", title = pull(df_gauge[3, 1]),
             domain = list(x = c(0.3,0.8), y = c(0.82, 0.9)),
@@ -839,6 +873,8 @@ fig_gauge |> layout(margin = margins_R,
 
 -   python
 
+python에서 불릿 인디케이터를 만들기 위해서는 indicator 트레이스를 사용하고, `add_trace()`에 `plotly.graph_objects.Indicator()`를 사용한다. 불릿 인디케이터는 'mode' 속성을 "gauge"로, 'gauge'의 'shape' 속성을 "bullet"로 설정하고 'gauge' 속성을 설정하여 만들 수 있다.
+
 ```{python}
 fig = go.Figure()
 fig.add_trace(go.Indicator(
@@ -932,13 +968,157 @@ fig.update_layout(grid=dict(rows=3, columns=3),
 fig.show()
 ```
 
-# 지도
+![실행결과 VI-4. python의 불릿 인디케이터](./fig/png/6-4.png)
 
-## choropleth
+# 지도의 시각화
+
+지도의 시각화는 `plotly`에서 쉽게 할수 있는 매우 강력한 시각화 방법이다. 사실 지도의 시각화는 엑셀이나 파워포인트, 포토샾이나 일러스트 같은 대중적으로 많이 사용되는 툴에서도 가능하겠지만 매우 번거로운 작업임에 틀림없다. 또 단순한 지도의 시각화라면 다소의 시간과 많은 정신적 스트레스를 감소하고라도 할 수 있겠지만 만약 200개가 넘는 시군구 지역별 시각화를 해야한다면 이는 단순히 시간과 정신적 스트레스과 바꿀수 있는 작업이 아닐 것이다. 이때는 전문가를 찾아 의뢰하는 것이 해결책이겠지만 항상 전문가들은 바쁘기때문에 시간이 많이 소요되고 비싸다. `plolty`는 지도의 시각화에 생각보다 많은 기능이 지원된다.
+
+지도를 시각화하기 위해서는 먼저 몇가지 알아야하는 개념이 있다.
+
+## 지도 시각화의 기초 개념
+
+### 지형 데이터
+
+지형 데이터는 지도를 표현하기 위한 지형의 경계선에 대한 폴리곤 정보를 가지고 있는 데이터를 말한다. 지형 데이터는 다음의 두 가지 형태의 데이터 파일로 제공된다.
+
+-   shape 파일
+
+Shape 파일은 대부분의 GIS(Geographical Information System)에서 사용되는 지형 벡터 데이터 파일 포맷이다. 확장자를 'shp'로 설정하는데 선, 점, 다각형(Polygon)으로 지형을 벡터의 형태로 표현하는 텍스트 파일이다. 하지만 Shape 파일은 보통'\*.shp', '\*.shx', '\*.dbf', '\*.kml', '\*.prj' 등의 파일이 한 세트처럼 제공되는 것이 일반적이다. 그렇다고 이 네개의 파일을 모두 쓰는 것은 아니고 사용하는 응용에 따라 선택하여 사용할 수 있다.
+
+-   geojson 파일
+
+GeoJSON은 위치정보를 갖는 점을 기반으로 체계적으로 지형을 표현하기 위해 설계된 개방형 공개 표준 형식이다. 지형 정보를 자바스그립트 오브젝트 노테이션(JAVA Script Object Notation, JSON)을 활용하여 사용하는 파일 포맷으로 OpenLayers, Leaflet, MapServer, Geoforge 소프트웨어, GeoServer, GeoDjango, GDAL, Safe Software FME 등 많은 매핑 및 GIS 소프트웨어 패키지에서 지원하고있다[^1]
+
+[^1]: <https://ko.wikipedia.org/wiki/GeoJSON>
+
+geojson 파일의 확장자는 '\*.json'으로 붙는다. geojson 파일은 앞서 설명한 Shape 파일에서부터 변환하여 생성할 수 있다.
+
+geojson 파일은 Shape 파일에 비해 파일 사이즈가 작고 처리속도도 Shape 파일보다 매우 빠르다는 장점이 있다.
+
+### 지도 투영법
+
+지구는 3차원의 구형태이지만 우리가 보는 지도는 2차원의 평면이다. 따라서 3차원을 2차원에 표현해야 하기 때문에 이 표현의 방법이 여러가지인데 이를 투영법(Projection)이라고 한다. `plotly`에서는 이 투영법에 따라 지도가 화면에 표현되는 평태가 달라진다. `plolty`에서 지원하는 투영법은 정각도법(equirectangular), 원통도법(mercator), 정사도법(orthographic) 등 총 22개의 투영법을 지원한다.
+
+### 좌표계의 종류
+
+일반적으로 지도의 좌표라고 하면 북위, 남위와 같이 적도를 기준으로 북쪽으로 얼마나 많이 떨어졌는지, 남쪽으로 얼마나 많이 떨어졌는지를 표시하는 위도(latitude)와 동경, 서경과 같이 영국 그리니치 천문대를 기준으로 동쪽으로의 위치, 서쪽으로의 위치를 표시하는 경도(longitude)를 생각한다. 이를 좌표계라고 하는데 이 좌표계도 몇 가지 종류가 있다. 이 좌표계가 어떻게 설정되어 있는가에 따라 같은 위도와 경도의 위치도 달라질 수 있다.
+
+-   WGS84(EPSG:4326): 미국에서 군사용으로 GPS 시스템를 이용하면서 만든 좌표계(경도와 위도)
+
+-   Bessel 1841(EPSG:4004): 3차원 원형 지구를 2차원으로 투영한 결과에 대한 좌표계로 우리나라에서 많이 사용되는 좌표계
+
+-   GRS80 UTM-K(EPSG:5179): 한반도 전체를 하나의 좌표계로, 전국을경도 127.5를 기준으로 설계한 지도로 네이버에서 사용
+
+-   GRS80 중부원점(EPSG:5181): 과거 지리원 좌표계를 타원체로 수정한 좌표계. Kakao, 공공데이터포탈에서 사용
+
+-   Web mercator projection(Pseudo-Mercator, EPSG:3857) : WGS84 타원체의 장반경을 반지름으로 하는 좌표계로 구글, 빙, 야후 등 에서 사용
+
+-   Albers projection(EPSG:9822) : 미국 지질 조사국에서 사용하는 좌표계
+
+## 지도의 데이터 표현
+
+`plotly`는 지도를 그리기 위해 사용하는 패키지가 아니다. 즉 `plotly`에서의 지도의 사용은 지역적 데이터를 표현하기 지도를 사용하여 시각화하기 위해 사용하는 것이다. 그렇다면 데이터를 어떻게 지도위에 표현할 것인가가 가장 중요하다. 지도위에 데이터를 표현하는 방법은 지역의 색을 사용하여 각각의 지역의 특성을 시각화하는 단계 구분도(Choropleth Map)과 지도의 특정 위치에 점을 표기하는 방법(Scatter Map)이 많이 사용된다.
+
+### 지도 트레이스
+
+`plotly`에서 지도를 그리기 위해서는 앞서 설명한 두 가지 데이터 타입(shape, geojson) 중 geojson 타입을 기본적으로 사용한다. 이 geojson 데이터를 사용하여 지도에 데이터를 표현하는 방법에 따라 다음과 같이 다섯 가지 트레이스를 제공한다.
+
+-   scatter geo 트레이스 : geojson 지형 정보 위에 위도와 경도로 표현된 scatter 트레이스의 점이나 선을 표시하는 트레이스
+
+-   choropleth 트레이스 : geojson 지형 정보의 지형 다각형(polygon)에 'z'로 매핑되는 내부 색을 통해 데이터를 표현하는 트레이스
+
+-   scattermapbox 트레이스 : mapbox.com에서 제공하는 맵위에 위도와 경도로 표현된 scatter 트레이스의 점이나 선을 표시하는 트레이스
+
+-   choroplethmapbox 트레이스 : mapbox.com에서 제공하는 맵위에 지형 다각형(polygon)에 'z'로 매핑되는 내부 색을 통해 데이터를 표현하는 트레이스
+
+-   densitymapbox 트레이스 : 색상을 사용하여 위도, 경도 좌표와 'z'에 매핑된 값에 따른 밀도 커널 데이터를 표현하는 트레이스
+
+### 단계 구분도(Choropleth Map)
+
+지역적으로 구분된 데이터를 지도에 표시하는 방법으로 가장 많이 사용되는 것은 색으로 지도의 지형에 데이터를 표시하는 방법이다. 각각의 다각형(Polygon)으로 구성되어 있는 지역의 내부 색을 데이터에 따라 다르게 함으로서 지역간 데이터의 차이를 시각화 하는 방법이다. 결국 색이 칠해진 다각형을 배치함으로 데이터를 표현하는 것이다.
+
+단계 구분도를 그리기 위해 전국의 대학 충원률 데이터를 사용하도록 하겠다.[^2] 앞서 다른 `plotly`의 트레이스는 대부분 R과 python의 용법이 유사했지만 지도의 시각화에는 다소 차이가 있기 때문에 따로 설명하도록 한다.
+
+[^2]: 해당 파일은 교육통계 홈페이지([https://kess.kedi.re.kr)에서](https://kess.kedi.re.kr)에서){.uri} 다운로드 받을 수 있으며 필자의 블로그에서도 다운받을 수 있다.
+
+단계 구분도를 그리기 위해 중요한 것은 지형 데이터에서 지역을 표현하는 키와 표현할 데이터에서 지역을 표현하는 키를 맞추어야 한다는 것이다. 전국 대학 충원률 데이터에서는 지역이 한글로 표현되어 있고 지형 데이터에서는 각각의 지형 데이터에서 사용하는 형태의 키로 저장되어 있기 때문에 지형 데이터의 키와 맞추기 위해 충원률 데이터의 지역을 지형 데이터의 키로 변환하는 과정을 거쳤다.
 
 -   R
 
-```{r eval = TRUE}
+R에서 단계 구분도를 그리기 위해서는 choropleth 트레이스를 사용하는데 `add_trace(type = 'choropleth', ...)`를 사용한다. R에서 단계 구분도를 그리기 위한 지형 데이터를 가져오는 방법은 여러가지가 있지만 여기서는 `raster` 패키지의 `getData()`를 통해 제공되는 한국의 지형 데이터를 사용하였다. `getData()`는 특정 국가의 지형 데이터를 가져오는 함수인데 'level'에 따라 지도의 지형 레벨을 결정할 수 있는데 한국 지형 데이터의 경우 'level = 1'이면 시도 단위의 지형 데이터를 의미한다. 이 데이터를 `sf` 데이터 타입으로 가져왔는데 `sf` 데이터 타입은 R의 `sf` 패키지에서 제공하는 데이터 타입으로 'simple feature'의 준말이다.
+
+`sf` 데이터 타입은 지형 데이터를 R에서 기본적으로 사용되는 data.frame이나 tibble 형태로 저장하는 데이터 타입으로 R에서 다루기가 쉽게 사용되는 데이터 타입으로 R을 종합적으로 관장하는 R consortium에서 관리하는 데이터 타입이다. 따라서 R에서 가장 쉽게 지형 데이터를 관리하고 처리할 수 있는 데이터 타입이기 때문에 `plolty`에서도 `sf` 데이터 타입을 지원할 수 있도록 `add_sf()`를 제공한다. `sf` 데이터 타입으로 정의된 지형 데이터는 다른 트레이스에서 사용했던 `add_trace()`대신 `add_sf()`를 사용하여 지형 데이터를 만들어주는데 코드는 다음과 같다.[^3]
+
+[^3]: add_trace(type = 'choropleth', ...)을 사용하여 만들수도 있겠으나 지도의 크기가 작게 표현되어 R에서는 add_sf()를 쓰는 것이 효과적이다.
+
+
+```{r echo = FALSE}
+library(raster)
+library(sf)
+
+####  충원율 데이터
+df_충원율 <- read_excel('D:/R/git/datavisualization/plotly/RnPy/chap6/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx', 
+                     ## 'data' 시트의 데이터를 불러오는데,
+                     sheet = 'Sheet1',
+                     ## 앞의 10행을 제외하고
+                     skip = 7, 
+                     ## 첫번째 행은 열 이름을 설정
+                     col_names = FALSE, 
+                     ## 열의 타입을 설정, 처음 8개는 문자형으로 다음 56개는 수치형으로 설정
+                     col_types = c(rep('text', 2), rep('numeric', 12)))
+
+df_충원율 <- df_충원율 |> dplyr::select(1, 2, 3, 4, 5)
+
+## df_입학자의 열이름을 적절한 이름으로 설정
+colnames(df_충원율) <- c('연도', '지역', '정원내모집인원', '정원내입학생수', '신입생충원율')
+
+
+df_충원율 <- df_충원율 |> filter(연도 == '2022', 지역 != '전국') |> 
+  mutate(id = case_when(
+    지역 == '강원' ~ 'KR.KW', 
+    지역 == '경기' ~ 'KR.KG',
+    지역 == '경남' ~ 'KR.KN',
+    지역 == '경북' ~ 'KR.KB',
+    지역 == '광주' ~ 'KR.KJ',
+    지역 == '대구' ~ 'KR.TG',
+    지역 == '대전' ~ 'KR.TJ',
+    지역 == '부산' ~ 'KR.PU',
+    지역 == '서울' ~ 'KR.SO',
+    지역 == '세종' ~ 'KR.SJ',
+    지역 == '울산' ~ 'KR.UL',
+    지역 == '인천' ~ 'KR.IN',
+    지역 == '전남' ~ 'KR.CN',
+    지역 == '전북' ~ 'KR.CB',
+    지역 == '제주' ~ 'KR.CJ',
+    지역 == '충남' ~ 'KR.GN',
+    지역 == '충북' ~ 'KR.GB'
+  ))
+
+# Get the map data in sf format
+map_data <- getData("GADM", country = "KOR", level = 1, type = "sf")
+st_crs(map_data) <- st_crs(map_data)
+
+province <- map_data$HASC_1
+
+plot_dat <- left_join(map_data, df_충원율, by = c("HASC_1" = "id")) %>%
+  st_as_sf()
+
+plot_ly(plot_dat) %>%
+  add_sf(type = "scatter", 
+         split = ~지역,
+         color = ~신입생충원율,
+         showlegend = F,       # don't show a legend for each region
+         colors = "Blues",
+         text = ~paste0(지역, "\n", round(신입생충원율, 2), '%'),
+         hoveron = "fills",
+         hoverinfo = "text") %>%
+  layout(title = '22년 전국 대학 신입생 충원율', 
+         margin = margins_R) 
+
+```
+
+```{r echo = FALSE}
 library(raster)
 library(sf)
 
@@ -949,7 +1129,7 @@ st_crs(map_data) <- st_crs(map_data)
 province <- map_data$HASC_1
 
 ####  충원율 데이터
-df_충원율 <- read_excel('D:/R/git/datavisualization/plotly/RnPy/chap6/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx', 
+df_충원율 <- read_excel('데이터저장경로/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx', 
                      ## 'data' 시트의 데이터를 불러오는데,
                      sheet = 'Sheet1',
                      ## 앞의 10행을 제외하고
@@ -1004,8 +1184,21 @@ plot_ly(plot_dat) %>%
 
 ```
 
+![실행결과 VI-5. R의 add_sf()로 구현한 단계 구분도](./fig/png/6-5.png)
+
+`add_sf()`를 사용할 때 알아두어야 할 속성은 'split' 속성이다. 이 속성은 `plotly`의 choropleth 속성에 나와있지 않은 속성인데 단계 구분도에서 단계를 구분하는 열로 사용하는 속성이다. 또 하나 주의해야 할 것은 `add_sf()`로 사용할 때는 'type'속성을 "choropleth"가 아닌 "scatter"로 설정해야 한다는 것이다. 결국 `add_sf()`는 `sf` 데이터 타입을 지역으로 잘라내고(split) 이들을 scatter 트레이스 형태로 뿌려주는 형태로 단계 구분도가 만들어진다. 그렇기 때문에 사용하는 data 속성과 layout 속성도 scatter 트레이스의 속성들을 사용한다. 
 
 -   python
+
+python에서는 지금까지 해왔던 대로 choropleth 트레이스를 추가해 주는 방식으로 사용한다. python에서 choropleth 트레이스를 추가하지 위해서는 `add_trace()`에 `plotly.graph_objects.Choropleth()`를 사용하여 추가한다.
+
+다음은 choropleth 트레이스에서 사용되는 주요 속성들이다.
+
+![](choropleth_attr.png)
+
+
+
+`plotly`에서는 미국 지도를 바로 지원하지만 한국 지도를 지원하지 않는다. 따라서 제일 먼저 한국 지형을 geoJSON으로 불러 읽어들이고 이를 'geojson'으로 설정한다. 두 번째로 이 'geojson' 데이터에서 대학 충원율 데이터와 연결할 키를 'featureidkey'로 설정한다. 세 번쨰로 'featureidkey'와 연결될 대학 충원율 데이터의 키를 'locations'에 설정하고 색상으로 표시할 대학 충원율 데이터를 'z'에 설정한다. 
 
 ```{python}
 import json
@@ -1058,6 +1251,8 @@ fig.update_layout(
 
 ```
 
+![실행결과 VI-6. python의 단계구분도](./fig/png/6-6.png)
+
 ## scatter
 
 -   R
@@ -1072,7 +1267,7 @@ plot_dat_seoul <- plot_dat |> filter(GID_1 == 'KOR.16_1')
 
 plot_mapbox(plot_dat_seoul) |>
   add_sf() |>
-  add_markers(data = df_univ, 
+  add_trace(data = df_univ, type = 'scatter', mode = 'markers+text', 
               x = ~lon, y = ~lat, 
               marker = list(color = 'white'),
               text = ~학교명) |>
@@ -1112,3 +1307,5 @@ fig.update_layout(
 fig.show()
 
 ```
+
+![실행결과 VI-7. 맵박스를 사용한 R의 scatter 지도](./fig/png/6-7.png)

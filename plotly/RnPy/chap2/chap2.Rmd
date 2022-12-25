@@ -15,7 +15,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6.5, dpi = 130)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6.5, dpi = 130, eval = FALSE)
 library(showtext)
 showtext_auto()
 library(tidyverse)
@@ -159,6 +159,7 @@ df_covid19_stat <- df_covid19 |>
     mutate(십만명당사망자수 = round(전체사망자수 / 인구수 *100000, 5),
            백신접종완료율 = 백신접종자완료자수 / 인구수)
 
+margins_R <- list(t = 50, b = 25, l = 25, r = 25)
 
 ```
 
@@ -209,7 +210,7 @@ df_covid19_stat <- df_covid19 |>
     mutate(십만명당사망자수 = round(전체사망자수 / 인구수 *100000, 5),
            백신접종완료율 = 백신접종자완료자수 / 인구수)
 
-margins <- list(t = 50, b = 25, l = 25, r = 25)
+margins_R <- list(t = 50, b = 25, l = 25, r = 25)
 
 ```
 
@@ -420,7 +421,7 @@ go.Figure()
 
 ```
 
-![그림 II-1p. python의 Figure()를 사용한 초기화](init_P.png)
+![실행결과 II-1. python의 Figure()를 사용한 초기화](./python/png/2-1.png)
 
 ## 'data' 속성
 
@@ -480,7 +481,7 @@ go.Figure(
 
 ```
 
-![그림 II-2p. python의 Figure()를 사용한 data 속성 설정](data_p.png)
+![실행결과 II-2. R의 Figure()를 사용한 data 속성 설정](./R/png/2-2.png)
 
 앞 코드의 `plotly` 'data' 속성의 속성 트리 구조는 다음의 그림과 같다. 
 
@@ -555,7 +556,7 @@ fig = go.Figure(
 fig.show()
 ```
 
-![그림 II-3p. python의 layout 속성설정](D:/R/git/datavisualization/plotly/chap2/layout_p.png)
+![실행결과 II-3. python의 layout 속성설정](./python/png/2-3.png)
 
 ## 'frame' 속성
 
@@ -663,7 +664,7 @@ fig.add_trace({
 
 ```
 
-![그림 II-4p. python의 트레이스 생성](4_P.png)
+![실행결과 II-4. R의 트레이스 생성](./R/png/2-4.png)
 
 두 번째 방법은 `add_trace()`의 매개변수로 `plotly.graph_objects`에서 제공하는 각각의 트레이스 함수를 사용하는 것이다. `plotly.graph_objects`에서 제공하는 각각의 트레이스 함수는 약 90여개이다. 이들을 다 외울 수는 없으니 plotly 홈페이지에서 확인하여 사용하여야 한다. 하지만 이 트레이스 함수를 사용하는 것도 두 가지 방법이 있다. 
 
@@ -762,7 +763,7 @@ fig.show()
 
 ```
 
-![그림 II-5p. python의 x, y 속성 설정](xy_p.png)
+![실행결과 II-5. python의 x, y 속성 설정](./python/png/2-5.png)
 
 ### name
 
@@ -822,7 +823,8 @@ fig.update_layout(colorway = ("#EFF3FF", "#C6DBEF", "#9ECAE1", "#6BAED6", "#4292
 fig.show()
 
 ```
-![그림 II-5p. python의 name 속성 설정](D:/R/git/datavisualization/plotly/chap2/name_p.png)
+
+![실행결과 II-6. R의 name 속성 설정](./R/png/2-6.png)
 
 ### 데이터 값의 표시
 
@@ -870,7 +872,7 @@ fig.show()
 
 ```
 
-![그림 II-6p. python의 text 속성 설정](D:/R/git/datavisualization/plotly/chap2/text_p.png)
+![실행결과 II-7. python의 text 속성 설정](./python/png/2-7.png)
 
 #### textposition
 
@@ -926,7 +928,7 @@ p1 <- df_covid19_100 |>
   plot_ly(x = ~location, y = ~new_cases, text = ~new_cases, 
           textposition = 'inside', 
           textfont = list(color = 'white', size = 5.5), color = I('#1f77b4')) |> 
-  layout(margin = margins)
+  layout(margin = margins_R)
 
 p2 <- df_covid19_100 |>
   group_by(location) |>
@@ -934,7 +936,7 @@ p2 <- df_covid19_100 |>
   plot_ly(x = ~location, y = ~new_cases, text = ~new_cases, 
           textposition = 'outside', 
           textfont = list(color = 'black', size = 6), color = I('#1f77b4')) |> 
-  layout(margin = margins)
+  layout(margin = margins_R)
 
 p3 <- df_covid19_100 |>
   group_by(location) |>
@@ -942,7 +944,7 @@ p3 <- df_covid19_100 |>
   plot_ly(x = ~location, y = ~new_cases, text = ~new_cases, 
           textposition = 'auto', 
           textfont = list(size = 5.5), marker = list(color = '#1f77b4')) |> 
-  layout(margin = margins)
+  layout(margin = margins_R)
 
 p4 <- df_covid19_100 |>
   group_by(location) |>
@@ -953,7 +955,7 @@ p4 <- df_covid19_100 |>
   layout(title = list(text = '지역별 코로나19 확진자수'),
          xaxis = list(title = '지역', tickfont = list(size = 7)),
          yaxis = list(title = '확진자수'), 
-         margin = margins)
+         margin = margins_R)
 
 subplot(
   p1 |> layout(annotations = list(x = 0.5 , y = 1.20, text = "textposition = 'inside'", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
@@ -1087,7 +1089,7 @@ fig.update_layout(showlegend = False)
 fig.show()
 ```
 
-![그림 II-7p. python의 textposition 속성 설정](D:/R/git/datavisualization/plotly/chap2/textposition_p.png)
+![실행결과 II-8. R의 textposition 속성 설정](./R/png/2-8.png)
 
 #### texttemplate
 
@@ -1137,7 +1139,7 @@ fig.show()
 
 ```
 
-![그림 II-8p. python의 texttemplate 속성 설정](texttemplate_p.png)
+![실행결과 II-9. python의 texttemplate 속성 설정](./python/png/2-9.png)
 
 ### 호버
 
@@ -1160,8 +1162,6 @@ df_취업률_500 |>
 
 ```
 
-![R의 hoverinfo 속성 설정](D:/R/git/datavisualization/plotly/chap2/hoverinfo_R.png)
-
 -   python
 
 다음은 'hoverinfo' 속성을 'y'로 설정하여 호버값에 Y축 값만 표시되도록 설정한 코드이다. 
@@ -1181,7 +1181,7 @@ fig.show()
 
 ```
 
-![그림 II-9p. python의 hoverinfo 속성 설정](D:/R/git/datavisualization/plotly/chap2/hoverinfo.png)
+![실행결과 II-10. R의 hoverinfo 속성 설정](./R/png/2-10.png)
 
 #### hovertext
 
@@ -1201,8 +1201,6 @@ df_취업률_500 |>
 
 ```
 
-![R의 hovertext 속성 설정](D:/R/git/datavisualization/plotly/chap2/hovertext_R.png)
-
 -   python
 
 python에서도 'hovertext' 속성에 속성값을 설정할 때 모든 호버에 동일한 문자열을 설정하려면 단일 문자열을 설정한다. 하지만 호버가 표시되는 데이터에 따라 해당 데이터에 대한 추가적 정보를 표시 하기 위해서는 '+'를 사용하여 변수들이 포함된 문자열을 만들어주어야 한다. 다음은 호버에 기본적으로 표시되는 졸업자수와 취업자수 외에 해당 학과의 중계열, 소계열 정보를 추가적으로 표시해주는 코드이다. 
@@ -1221,7 +1219,7 @@ fig.add_trace({
 fig.show()
 ```
 
-![그림 II-10p. python의 hovertext 속성 설정](D:/R/git/datavisualization/plotly/chap2/hovertext.png)
+![실행결과 II-11. python의 hovertext 속성 설정](./python/png/2-11.png)
 
 #### hovertemplate
 
@@ -1244,7 +1242,7 @@ df_취업률_500 |>
 
 ```
 
-![R의 hovertemplate 속성 설정](D:/R/git/datavisualization/plotly/chap2/hovertemplate_R.png)
+
 
 -   python
 
@@ -1267,7 +1265,7 @@ fig.show()
 
 ```
 
-![그림 II-11p. python의 hovertemplate 속성 설정](D:/R/git/datavisualization/plotly/chap2/hovertemplate.png)
+![실행결과 II-12. R의 hovertemplate 속성 설정](./R/png/2-12.png)
 
 ### opacity
 
@@ -1302,7 +1300,7 @@ subplot(
   p1 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "alpha = 0.3", showarrow = F, xref='paper', yref='paper', xanchor = 'center')),
   p2 |> layout(annotations = list(x = 0.5 , y = 1.05, text = "opacity = 0.3", showarrow = F, xref='paper', yref='paper', xanchor = 'center')), titleY = T, margin = 0.05
 ) |> hide_legend() |>
-  layout(margin = margins)
+  layout(margin = margins_R)
 ```
 
 -   python
@@ -1324,7 +1322,7 @@ fig.show()
 
 ```
 
-![그림 II-12p. python의 opacity 속성 설정](D:/R/git/datavisualization/plotly/chap2/opacity_python.png)
+![실행결과 II-13. python의 opacity 속성 설정](./python/png/2-13.png)
 
 ### showlegend
 
@@ -1393,7 +1391,7 @@ for 대계열, group in df_취업률_500.groupby('대계열'):
 fig.show()
 ```
 
-![그림 II-13p. python의 showlegend 속성 설정](D:/R/git/datavisualization/plotly/chap2/showlegend_p.png)
+![실행결과 II-14. R의 showlegend 속성 설정](./R/png/2-14.png)
 
 ## layout
 
@@ -1425,8 +1423,6 @@ python에서는 `plotly.graph_objects.Figure()`에서 'layout' 속성으로 구�
 
 'title'에서 사용하는 주요 속성은 다음과 같다.
 
-
-
 앞선 'title'의 속성 중 제목의 폰트 설정과 관련된 하위 속성은 'font', 'family', 'size'의 세 가지 속성만을 제공한다. 하지만 플롯 제목은 색상이나 굵기, 기울여쓰기 등 다양한 문자 속성의 설정이 필요하다. `plotly`에서는 제목과 같은 문자열을 꾸미기 위해 HTML 텍스트 태그를 지원한다. 하지만 전체 HTML 태그 중 다음의 5가지 HTML 텍스트 태그만을 지원한다.
 
 | HTML tab           | 설명            |
@@ -1457,14 +1453,6 @@ R_layout_scatter <- df_취업률_500 |>
          )
 
 R_layout_scatter
-```
-
-다음의 코드는 HTML inline 속성을 사용하여 제목 문자열 스타일을 설정한 R코드이다. '졸업자 대비 취업률'이라는 문자열의 '졸업자'의 크기를 15, 컬러를 'red', 볼드체로, '취업자'의 크기를 15, 컬러를 'blue', 볼드체로, '대비'는 크기 10으로 설정하였다.   
-
-```{r fig.cap='R의 HTML inline title 속성 설정'}
-R_layout_scatter |> 
-  layout(title = list(text = "<span style = 'font-size:15pt'><span style = 'color:red;font-weight:bold;'> 졸업자</span><span style = 'font-size:10pt'> 대비</span> <span style = 'color:blue;font-weight:bold;'>취업자</span></span>", 
-                      x = 0.5, xanchor = 'center', yanchor = 'top'))
 ```
 
 -   python
@@ -1499,7 +1487,6 @@ go.Figure(
 
 ```
 
-![그림 II-14p. python의 Figure()를 사용한 title 설정](layout_title_p1.png)
 
 `update_layout()`을 사용하는 방법은 다음과 같다. `update_layout()`를 사용할 때 주의해야 하는 것은 'layout'에 바로 아래 하위 속성들은 딕셔너리로 설정하지 않고 `=`을 사용하여 할당하고 이들 하위 속성의 하위 속성이 존재할 때는 다시 딕셔너리로 구성하여야 한다. 또 딕셔너리를 구성하는 방법도 `{}`을 사용하거나 `dict()`를 사용하는 두 가지 방법이 있다. 다음은 `update_layout()`에서 `dict()`를 사용하여 딕셔너리를 구성하는 python 코드이다.  
 
@@ -1520,7 +1507,20 @@ fig_scatter.update_layout(title = dict(text = "<b>졸업자 대비 취업자수<
 
 ```
 
-![그림 II-15p. python의 update_layout()을 사용한 title 속성 설정](layout_title_p2.png)
+![실행결과 II-15. python의 Figure()를 사용한 title 설정](./python/png/2-15.png)
+
+
+다음의 코드는 HTML inline 속성을 사용하여 제목 문자열 스타일을 설정한 R과 python코드이다. '졸업자 대비 취업률'이라는 문자열의 '졸업자'의 크기를 15, 컬러를 'red', 볼드체로, '취업자'의 크기를 15, 컬러를 'blue', 볼드체로, '대비'는 크기 10으로 설정하였다.   
+
+-   R
+
+```{r fig.cap='R의 HTML inline title 속성 설정'}
+R_layout_scatter |> 
+  layout(title = list(text = "<span style = 'font-size:15pt'><span style = 'color:red;font-weight:bold;'> 졸업자</span><span style = 'font-size:10pt'> 대비</span> <span style = 'color:blue;font-weight:bold;'>취업자</span></span>", 
+                      x = 0.5, xanchor = 'center', yanchor = 'top'))
+```
+
+-   python
 
 python도 '<span>'을 사용하는 HTML inline 속성을 사용하여 CSS의 스타일의 세부 설정이 가능하다. 다음의 python 코드는 앞의 코드와 동일하나 `add_trace()`에 속성 설정을 `go.Scatter()`를 사용하고 제목 문자열을 CSS inline으로 설정한 코드이다.
 
@@ -1533,13 +1533,11 @@ fig_scatter_temp.update_layout(title = {'text' : "<span style = 'font-size:15pt'
                            
 ```
 
-![그림 II-16p. python의 HTML inline title 속성 설정](layout_title_p3.png)
+![실행결과 II-16. R의 HTML inline title 속성 설정](./R/png/2-16.png)
 
 #### 색 설정 
 
 'layout'에서 플롯의 배경색이나 플롯에서 사용되는 전반적인 색 스케일을 설정하는 주요 속성은 다음과 같다.
-
-
 
 `plotly`에서 사용하는 색의 설정은 색 이름 설정, 16진수로 설정된 RGB값 설정, `rgb()` 함수를 사용한 RGB값의 설정 세 가지 방법이 주로 사용된다. 이외에도 색조, 채도, 명도(lightness)를 사용하는 `hsl()`을 사용하는 방법, 색조, 채도, 명도(value)를 사용하는 `hsv()`를 사용하는 방법도 있다. `plotly`에서 사용이 가능한 색 이름은 W3.org에서 제공하는 CSS 색 이름을 사용한다.[^5]
 
@@ -1564,13 +1562,11 @@ R_layout_scatter
 fig_scatter.update_layout(paper_bgcolor = 'lightgray', plot_bgcolor = 'lightgray')
 ```
 
-![그림 II-17p. python의 color 속성 설정](layout_color_p1.png)
+![실행결과 II-17. python의 color 속성 설정](./python/png/2-17.png)
 
 #### 축 설정 
 
 `plotly`에서 축은 트레이스에 따라 다른 이름으로 불린다. X, Y축을 사용하는 2차원의 데카르트 좌표계에서는 'axis', 3차원 trace에서는 'scene', 극 좌표계에서는 'polar', 삼각축 좌표계(ternary)에서는 'ternary', 지형(Geo) 좌표계에서는 'geo', Mapbox 좌표계에서는 'mapbox', 색 좌표계에서는 'coloraxis'로 사용된다. 이 중 2차원 데카르트 좌표계에서 사용되는 'xaxis'와 'yaxis'의 주요 속성은 다음과 같다. 
-
-
 
 ##### 축 제목, 원점 선, 그리드의 설정
 
@@ -1616,7 +1612,7 @@ fig_scatter.update_layout(
  
 ```
 
-![그림 II-18p. python의 axis title, zeroline, grid 속성 설정](layout_axis_p1.png)
+![실행결과 II-18. R의 axis title, zeroline, grid 속성 설정](./R/png/2-18.png)
 
 ##### 눈금 라벨, 눈금 간격 설정
 
@@ -1651,7 +1647,7 @@ fig_scatter_temp.update_layout(
 )
 ```
 
-![그림 II-19p. python의 눈금라벨, 눈금 간격 속성 설정](layout_axis_p2.png)
+![실행결과 II-19. python의 눈금라벨, 눈금 간격 속성 설정](./R/png/2-19.png)
 
 ##### 축 범위 설정
 
@@ -1687,7 +1683,7 @@ fig_scatter_temp.update_layout(
 
 ```
 
-![그림 II-20p. python의 축 범위 속성 설정](layout_axis_p3.png)
+![실행결과 II-20. R의 축 범위 속성 설정](./R/png/2-20.png)
 
 #### 범례 설정 
 
@@ -1696,8 +1692,6 @@ fig_scatter_temp.update_layout(
 'showlegend'는 범례를 표시하거나 삭제하는 속성인데 `add_trace()`에서도 설정이 가능하다. `add_trace()`에서 설정하면 해당 트레이스만 범례에서 삭제하고 `layout()`에서 설정하면 전체 범례를 삭제하게 된다.
 
 'legend'는 범례의 하위 속성의 컨테이너 속성이다. 'legend'로 설정이 가능한 주요 속성은 다음과 같다.
-
-
 
 다음의 코로나 19의 확진자 수를 넓은 형태의 데이터프레임에서 선형 차트로 그리는 R과 python 코드이다. 각각의 대륙을 `add_trace()`로 추가하여 총 4개의 트레이스를 추가하였고 이중 아시아 트레이스에는 'showlegend'를 FALSE로 설정하여 아시아 트레이스의 범례를 제거하였다. 또 'layout'에서 범례의 방향을 가로방향, 범례의 테두리 색을 회색, 테두리 두께를 2, x와 y의 위치를 0.95, xanchor를 'right'로 설정했다.  
 
@@ -1852,7 +1846,7 @@ fig_line.update_layout(
 
 ```
 
-![그림 II-21p. python의 범례 설정](layout_legend_p1.png)
+![실행결과 II-21. python의 범례 설정](./python/png/2-21.png)
 
 #### 여백 설정
 
@@ -1894,7 +1888,7 @@ fig_line.update_layout(
 
 ```
 
-![그림 II-22p. python의 여백 설정](layout_margin_p1.png)
+![실행결과 II-22. R의 여백 설정](./R/png/2-22.png)
 
 #### 플롯 크기 설정
 
@@ -1916,7 +1910,7 @@ R_layout_scatter |>
 fig_scatter_temp.update_layout(width = 450, height = 700)
 ```
 
-![그림 II-23p. python의 플롯 크기 속성 설정](layout_size_p1.png)
+![실행결과 II-23. python의 플롯 크기 속성 설정](./python/png/2-23.png)
 
 #### 폰트 설정 
 
@@ -1950,7 +1944,7 @@ fig_line.update_layout(font = dict(family = "나눔고딕", color = 'MidnightBlu
 
 ```
 
-![그림 II-24p. python의 폰트 설정](layout_font_p.png)
+![실행결과 II-24. R의 폰트 설정](./R/png/2-24.png)
 
 
 # 서브 플롯
@@ -2041,7 +2035,7 @@ subplots <- subplot(p1, p2, p3, p4, p5, p6, p7, nrows = 3) |>
   layout(## 전체 제목 설정
          title = '최근 100일간 코로나19 확진자수',
           ## 전체 여백 설정
-         margin = margins
+         margin = margins_R
          )
 
 subplots
@@ -2111,10 +2105,12 @@ subplot(p1_blue, p2_blue, p3_blue, p4_blue, p5_blue, p6_blue, p7_blue, nrows = 3
   layout(## 전체 제목 설정
          title = '최근 100일간 코로나19 확진자수',
           ## 전체 여백 설정
-         margin = margins
+         margin = margins_R
          )
 
 ```
+
+![실행결과 II-25. R의 서브플롯 설정](./R/png/2-25.png)
 
 앞의 `subplot()`에서의 주의깊게 보아야하는 것은 제목의 설정이다. 앞의 코드에서 각각의 서브 플롯을 만들때 'layout'의 'title' 속성을 사용하여 제목을 설정하였다. 하지만 결과 서브 플롯에서는 세부 서브 플롯들의 제목들이 반영되지 않는다. 앞서 설명했듯이 'title'과 같이 전체 플롯과 서브 플롯에 공통적으로 적용되는 속성들은 전체 플롯에 우선되기 때문에 이 코드에서는 결국 전체 플롯의 제목이 '한국'에서 '아시아'로, '아시아'에서 '유럽'으로 바뀌어 최종적으로 마지막 'layout'의 'title'인 '최근 100일간 코로나19 확진자수'로 설정된다. 만약 마지막 'layout'에서 'title' 속성이 설정되지 않는다면 마지막 'title' 속성인 '아프리카'로 제목이 설정된다. 만약 서브 플롯의 제목을 설정하기 위해서는 `add_annotation()`을 사용하여 주석(annotation)을 제목처럼 붙여주어야 한다.  
 
@@ -2144,7 +2140,7 @@ df_covid19_100 |>
   ## 생성된 subplot의 layout 설정
   layout(showlegend = TRUE, 
          title = '최근 100일간 코로나19 확진자수',
-         margin = margins)
+         margin = margins_R)
 ```
 
 ```{r echo = FALSE, fig.cap='R의 group_by()를 사용한 서브 플롯 생성'}
@@ -2172,10 +2168,12 @@ subplots_blue <- df_covid19_100 |>
   ## 생성된 subplot의 layout 설정
   layout(showlegend = TRUE, 
          title = '최근 100일간 코로나19 확진자수',
-         margin = margins)
+         margin = margins_R)
 
 subplots_blue
 ```
+
+![실행결과 II-26. R의 서브플롯 제목 설정](./R/png/2-26.png)
 
 -   python
 
@@ -2342,7 +2340,7 @@ fig_subplot.update_layout(title=dict(text = "최근 100일간 코로나19 확진
 
 ```
 
-![그림 II-25p. python의 서브 플롯 생성](subplot_p1.png)
+![실행결과 II-27. python의 서브 플롯 생성](./python/png/2-27.png)
 
 ## 서브 플롯 범례 설정
 
@@ -2371,7 +2369,7 @@ fig_subplot.update_layout(showlegend = False)
 
 ```
 
-![그림 II-26p. python의 서브 플롯 범례 설정](subplot_p2.png)
+![실행결과 II-28. R의 서브 플롯 범례 설정](./R/png/2-28.png)
 
 ## 서브 플롯 위치 배치와 편집
 
@@ -2401,7 +2399,7 @@ subplot(
          ## 전체 제목 설정
          title = '최근 100일간 코로나19 확진자수',
          ## 전체 여백 설정
-         margin = margins)
+         margin = margins_R)
 
 ```
 
@@ -2419,9 +2417,11 @@ subplot(
          ## 전체 제목 설정
          title = '최근 100일간 코로나19 확진자수',
          ## 전체 여백 설정
-         margin = margins)
+         margin = margins_R)
 
 ```
+
+![실행결과 II-29. R의 서브 플롯의 크기와 배치 설정](./R/png/2-29.png)
 
 앞의 서브 플롯을 보면 한국 플롯이 크게 표현되어 강조되는 효과를 내기는 했지만 같은 행, 같은 열에 있는 플롯들은 한쪽으로 길게 표시되어 보기에 어색해 보인다. 이를 해결하기 위해서는 `subplot()`을 중첩해서 해결할 수 있다. `subplot()`을 중첩하여 사용한다는 것은 `subplot()`으로 완성된 서브 플롯을 다시 `subplot()`으로 배열한다는 것이다.
 
@@ -2443,7 +2443,7 @@ subplot(
          ## 전체 제목 설정
          title = '최근 100일간 코로나19 확진자수',
          ## 전체 여백 설정
-         margin = margins)
+         margin = margins_R)
 
 ```
 
@@ -2463,9 +2463,11 @@ subplot(
          ## 전체 제목 설정
          title = '최근 100일간 코로나19 확진자수',
          ## 전체 여백 설정
-         margin = margins)
+         margin = margins_R)
 
 ```
+
+![실행결과 II-30. R의 서브 플롯의 크기와 배치 설정](./R/png/2-30.png)
 
 -   python
 
@@ -2544,7 +2546,7 @@ fig_subplot.update_layout(title=dict(text = "최근 100일간 코로나19 확진
 
 ```
 
-![그림 II-27p. python의 서브 플롯의 크기와 배치 설정](subplot_p3.png)
+![실행결과 II-31. python의 서브 플롯의 크기와 배치 설정](./python/png/2-31.png)
 
 두 번쨰 방법은 'specs'를 사용하는 방법이다. 'specs'는 서브 플롯 별로 옵션을 설정하는 매개변수로써 'rows'와 'cols'로 만들어지는 2차원 서브 플롯 그리드에 일치하는 list로 구성된다. 'specs'로 해당 서브 플롯 그리드 셀의 길이('rowspan')와 너비('colspan')을 설정한다. 셀의 길이와 너비는 셀 단위의 크기를 설정하는데 예를 들어 특정 서브 플롯이 2칸의 행, 3칸의 열 크기를 사용한다면 'colspan'이 3로, 'rowspan'이 2으로 설정된 딕셔너리로 해당 셀을 설정해야 한다. 만약 셀을 비워야 한다면 'None' 키워드를 사용한다. 다음은 한국의 서브 플롯을 상단 2행, 3열의 크기로 설정하고 나머지 서브 플롯을 배치하는 python 코드이다. 여기서 'colspan'과 'rowspan'이 모두 1로 설정된다면 설정을 생략하고 `{}`만 설정해도 가능하다. 
 
@@ -2622,7 +2624,7 @@ fig_subplot.update_layout(title=dict(text = "최근 100일간 코로나19 확진
 
 ```
 
-![그림 II-28p. plotly의 spec을 사용한 서브 플롯의 크기와 배치 설정](subplot_p4.png)
+![그림 II-32. python의 spec을 사용한 서브 플롯의 크기와 배치 설정](./python/png/2-32.png)
 
 ## 축 공유
 
@@ -2644,7 +2646,7 @@ subplot(
   ) |> 
   layout(showlegend = TRUE, 
          title = '최근 100일간 코로나19 확진자수',
-         margin = margins)
+         margin = margins_R)
 ```
 
 ```{r echo = FALSE, fig.cap='R의 축 공유가 설정된 서브 플롯'}
@@ -2659,7 +2661,7 @@ subplot(
   ) |> 
   layout(showlegend = TRUE, 
          title = '최근 100일간 코로나19 확진자수',
-         margin = margins, 
+         margin = margins_R, 
           ## shareX, shareY를 TRUE로 설정하여 축 공유
          shareX = TRUE, shareY = TRUE)
 ```
@@ -2738,6 +2740,6 @@ fig_subplot.update_layout(title=dict(text = "최근 100일간 코로나19 확진
                             x = 0.5))
 ```
 
-![그림 II-29p. python의 축 공유가 설정된 서브 플롯](subplot_p5.png)
+![실행결과 II-33. python의 축 공유가 설정된 서브 플롯](./python/png/2-33.png)
 
 

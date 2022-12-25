@@ -107,12 +107,12 @@ df_covid19_stat <- df_covid19 |>
             전체백신접종자수 = max(total_vaccinations, na.rm = T),
             백신접종자완료자수 = max(people_fully_vaccinated, na.rm = T),
             부스터접종자수 = max(total_boosters, na.rm = T),
-            인구백명당백신접종완료률 = max(people_fully_vaccinated_per_hundred, na.rm = T),
+            인구백명당백신접종완료율 = max(people_fully_vaccinated_per_hundred, na.rm = T),
             인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
             ) |> 
     ungroup() |>
     mutate(십만명당사망자수 = round(전체사망자수 / 인구수 *100000, 5),
-           백신접종완료률 = 백신접종자완료자수 / 인구수)
+           백신접종완료율 = 백신접종자완료자수 / 인구수)
 
 
 ```
@@ -342,6 +342,8 @@ fig.show()
 ```
 
 
+![실행결과 V-1. R의 선그래프](./fig/png/5-1.png)
+
 ## 주석을 사용하는 선 그래프
 
 이 시각화를 보면 5개 국가의 사망수의 흐름이 잘 표현되어 있다. 하지만 하나 아쉬운 점은 범례를 사용하여 각 선에 해당하는 국가를 나타내고 있는데 선에 따른 국가를 확인하기 위해서는 범례와 데이터 선을 번갈아 찾아야 한다는 불편함이 따른다. 그래서 선 그래프를 사용하는 많은 경우에서 범례를 사용하기 보다는 선 옆에 바로 범례를 표현하는 방법을 사용한다. 또 다른 시각화에도 많이 사용되지만 선 그래프에서는 시간의 흐름을 표시하는 경우가 많기 때문에 시간의 흐름에 따라 발생되는 다양한 이벤트를 표시하는 경우도 많다. 예를 들어 우리나라의 코로나 19 확진자수는 설이나 추석 등의 장기 연휴가 끝나면 급증하는 경향을 보인다. 또 특정한 정책이 시행되는 날의 이후 시계열적 데이터의 강한 변동이 보이는 경우도 많다. 따라서 이러한 달력상의, 사회상의 이벤트를 표시하는 경우가 많다.
@@ -507,7 +509,7 @@ fig.update_layout(title = dict(text = '코로나 19 사망자수 추세', x = 0.
 fig.show()
 ```
 
-![](fig5-2.png)
+![실행결과 V-2. python의 주석을 사용한 선 그래프](./fig/png/5-2.png)
 
 ## rangeslider를 사용한 선 그래프
 
@@ -607,7 +609,7 @@ fig.update_layout(title = dict(text = '코로나 19 사망자수 추세', x = 0.
 fig.show()
 ```
 
-
+![실행결과 V-3. rangeslider를 사용한 R 선 그래프](./fig/png/5-3.png)
 
 ## rangeselector를 사용한 선 그래프
 
@@ -748,6 +750,9 @@ fig.update_layout(title = dict(text = '코로나 19 사망자수 추세', x = 0.
 fig.show()
 
 ```
+
+
+![실행결과 V-4. rangeselector를 사용한 python 선 그래프](./fig/png/5-4.png)
 
 ## 호버모드를 사용한 선 그래프
 
@@ -893,7 +898,7 @@ fig.update_layout(title = dict(text = '코로나 19 사망자수 추세', x = 0.
 fig.show()
 ```
 
-![실행결과 5-5. 호버모드 설정의 결과](hovermode.png)
+![실행결과 V-5. R의 호버모드 설정의 결과](./fig/png/5-5.png)
 
 ## 스파이크 라인을 사용한 선 그래프
 
@@ -993,7 +998,7 @@ fig.update_layout(title = dict(text = '코로나 19 사망자수 추세', x = 0.
 fig.show()
 ```
 
-![실행결과 5-6. spikeline 실행결과](spikeline.png)
+![실행결과 5-6. python의 spikeline 실행결과](./fig/png/5-6.png)
 
 ## 시간 축의 설정
 
@@ -1101,11 +1106,13 @@ fig.show()
 
 ```
 
+![실행결과 V-7. X축의 간걱이 3개월로 설정된 R의 선 그래프](./fig/png/5-7.png)
+
 ### Zoom In/Out에 반응하는 눈금의 설정
 
 `plolty`에서는 사용자의 마우스 드래그나 rangeslider, rangeselector, `plotly` 우측 상단의 modebar를 사용하면 시각화 그래프의 Zoom in이나 Zoom out을 할 수 있다. 이 때 문제는 각각의 축에 표시된 라벨이 변동하지 않기 때문에 너무 좁은 구간을 선택하면 라벨이 전혀 나타나지 않아 데이터를 읽기 어려운 상황이 된다는 것이다.
 
-![](zoomin.png)
+![그림 V-1. Zoom in시의 눈금 문제](zoomin.png)
 
 `plotly`는 이렇게 Zoom in/out의 레벨에 따라 동적으로 눈금이 설정이 가능한데, 이 기능은 'tickformatstops' 속성을 사용한다. 'tickformatstops'는 Zoom in/out의 수준에 따라 눈금 리벨의 서식을 설정하는 속성으로 rangeselector와 같이 'tickformatstops'의 세부 속성의 리스트로 구성된 딕셔너리(R의 경우 list)로 설정할 수 있다.
 
@@ -1176,8 +1183,6 @@ total_deaths_5_nations_by_day |>
          hovermode="x")
 ```
 
-
-![실행결과 5-8. Zooom in 후 결과](zoomin_1.png)
 
 -   python
 
@@ -1254,6 +1259,8 @@ fig.update_layout(title = dict(text = '코로나 19 사망자수 추세', x = 0.
 fig.show()
 
 ```
+
+![실행결과 V-8. Zoom in 후 R의 눈금 설정 결과](./fig/png/5-8.png)
 
 # 캔들 스틱 차트
 
@@ -1361,6 +1368,8 @@ fig.show()
 ```
 
 
+![실행결과 V-9. python의 삼성전자 캔들스틱 그래프](./fig/png/5-9.png)
+
 ## 캔들 스틱 색 변경
 
 앞에서 그린 캔들스틱은 우리가 흔히 보는 주가 그래프와 조금 다른 점이 있다. 캔들스틱의 색인데 우리나라에서는 파란색과 붉은색으로 표시되는 반면, `plotly`에서는 초록색과 붉은색으로 표시된다. 미국과 캐나다에서는 초록색과 붉은색을 사용한다. 이를 파란색과 붉은색으로 바꾸기 위해서는 'increasing'과 'decreasing' 속성의 하위 속성을 사용하여 변경할 수 있다. 'increasing'은 전날 종가에 비해 다음날 종가가 높은 경우의 막대를 설정하는 속성이고 'decreasing'은 전날 종가에 비해 다음날 종가가 낮은 경우 막대를 설정하는 속성이다. 
@@ -1408,6 +1417,8 @@ fig.show()
 
 ```
 
+
+![실행결과 V-10. 캔들 색을 변경한 R의 캔들스틱 그래프](./fig/png/5-10.png)
 
 ## 거래량 그래프 추가
 
@@ -1484,6 +1495,8 @@ fig.update_layout(title = dict(text = "삼성전자 Candlestick Chart", x = 0.5)
 fig.show()
 ```
 
+
+![실행결과 V-11. 거래량 그래프가 추가된 python의 캔들스틱 그래프](./fig/png/5-11.png)
 
 ## 주말이 제거된 선 그래프
 
@@ -1591,6 +1604,7 @@ fig.update_layout(xaxis = dict(rangeslider = dict(visible = False),
 fig.show()
 ```
 
+![실행결과 V-12. 주말이 제거된 R의 캔들스틱 그래프](./fig/png/5-12.png)
 
 코로나19 데이터에 대해 1주일 이상의 장기 데이터를 한번이라도 본 경험이 있다면 일요일과 월요일에 확진자 수가 급감했다가 화요일에 다시 급증하는 특성을 쉽게 확인할 수 있을 것이다. 토요일과 일요일에 검사 건수가 적어지는 주말 효과에 의해 확진자가 감소했다가 월요일부터 다시 검사 건수가 늘어나기 때문에 이 검사 결과가 나오는 화요일부터 확진자가 증가한다. 이를 시계열 데이터의 계절성이라고 한다.  이 계절성이 시계열 데이터의 중요한 특성으로 데이터의 분석에 중요한 요인중에 하나지만, 가끔은 데이터 분석시에 제거해야하는 대상이기도 하다. 
 
@@ -1679,6 +1693,8 @@ fig.update_layout(title = dict(text = '우리나라의 코로나19 확진자수 
 
 fig.show()
 ```
+
+![실행결과 V-13. 주말이 제거된 python의 코로나 확진자 선 그래프](./fig/png/5-13.png)
 
 ## 이동평균 그리기
 
@@ -1956,6 +1972,8 @@ fig.show()
 ```
 
 
+![실행결과 V-14. 이동평균이 표현되 R의 캔들스틱 그래프](./fig/png/5-14.png)
+
 # 폭포수(Waterfall) 차트
 
 폭포수 차트는 특정 데이터의 변수에 따른 증감을 시각화한 것으로 해당 데이터가 어떻게 변화되었는지를 살펴볼 수 있는 차트이다. 폭포수 차트는 막대 그래프로 표현되는 것이 일반적인데 캔들스틱 차트처럼 상승과 하락을 색상으로 구분해주기 때문에 데이터의 증감을 이해하기 쉽다. 이 폭포수 차트는 주로 재정 분석에서 많이 사용되는데  예를 들어 당기순 이익을 구성하는 매출, 매출원가 등의 항목들의 전년 대비 증감, 매달의 매출이 전년에 대비하여 어떻게 증감했는지 등을 파악하는데 효율적인 차트이다. 
@@ -2027,6 +2045,8 @@ fig.show()
 
 ```
 
+![실행결과 V-15. python의 폭포수 차트](./fig/png/5-15.png)
+
 # 퍼널(깔때기) 차트
 
 퍼널(funnel) 차트의 퍼널은 우리말로 '깔대기'를 의미한다. 퍼널 차트는 차트가 깔대기처럼 생겼다는데 유래된 의미로 영업 및 마케팅 부서에서 자주 사용되는데 여러 단계별로 값이나 지표가 변화하는 것을 한 눈에 표현하기 위한 목적으로 사용한다. 이 차트는 수평 막대 그래프와 유사하게 생겼지만 막대 그래프는 중심선에서 한쪽 방향으로 데이터를 표현하는 반면 퍼널 차트는 중심선을 중심으로 대칭된 막대를 그리는 것이 다르다.  흔히 인구 연령별 인구수를 표현 그래프에서 많이 보았을 것이다. 
@@ -2097,6 +2117,8 @@ fig.update_layout(title = dict(text = '유지취업자 Funnel Chart', x = 0.5),
                   
 fig.show()
 ```
+
+![실행결과 V-16. R의 퍼널 차트](./fig/png/5-16.png)
 
 ### 누적(stack) 퍼널 차트
 
@@ -2267,6 +2289,8 @@ fig.update_layout(title = dict(text = '유지취업자 Funnel Chart', x = 0.5),
 fig.show()
 ```
 
+![실행결과 V-17. python의 누적(stack) 퍼널 차트](./fig/png/5-17.png)
+
 ### 퍼널 영역(funnelarea) 차트
 
 퍼널 차트의 또 하나의 표현 방식은 퍼널 면적(funnel area) 차트이다. 퍼널 면적 차트가 완전한 피라미드 형태의 차트이다. 앞선 퍼널 차트에서 각각의 막대 사이의 공간을 없애고 삼각형 형태로 표현되며 면적으로 데이터 값을 표현한다. `plotly`에서 퍼널 영역 차트를 만들기 위해서는 funnelarea 트레이스를 사용한다. 다만 funnel 트레이스와 다른 것은 funnel 트레이스에서는 'x', 'y'를 사용하여 X축과 Y축을 매핑하여 사용하지만 funnelarea 트레이스는 'text'와 'values'를 사용하여 값과 표시되는 라벨을 설정한다. 
@@ -2359,6 +2383,8 @@ fig.update_layout(title = dict(text = '최근 100일간 대륙별 확진자수 F
 
 fig.show()
 ```
+
+![실행결과 V-18. R의 퍼널 영역 차트](./fig/png/5-18.png)
 
 # 산키 다이어그램
 
@@ -2511,8 +2537,6 @@ python에서 sankey 트레이스를 만들기 위해서는 `add_trace(plotly.gra
 
 ```{python eval = FALSE}
 fig = go.Figure()
-
-##  sankey 트레이스 생성
 fig.add_trace(go.Sankey(
     orientation = "h",
     node = dict(
@@ -2526,6 +2550,9 @@ fig.add_trace(go.Sankey(
       value =  df_sankey['학생수'])
 ))
 
+fig.update_layout(title = dict(text = '대학과정별 졸업자의 졸업 후 진로', x = 0.5))
 fig.show()
+
 ```
 
+![실행결과 V-19. python의 산키 다이어그램](./fig/png/5-19.png)

@@ -404,8 +404,9 @@ R-Studio를 사용하는 사용자라면 보통 우측 하단 'Viewer' 패널에
 
 [^1]: plotly는 export()보다는 orca()를 사용하라고 권고하고 있으나
     orca()는 한글 변환에 문제가 있어 여기서는 export()를 위주로
-    설명한다. 또 WebGL이나 svg 파일 포맷으로 저장할 때는 매개변수로 `RSelenium::rsDriver()` 설정이 필요하다.
-    
+    설명한다. 또 WebGL이나 svg 파일 포맷으로 저장할 때는 매개변수로
+    `RSelenium::rsDriver()` 설정이 필요하다.
+
 ```{r}
 fig <- df_취업률_500 |> 
   ## X축은 졸업자수, Y축은 취업자수로 매핑한 plotly 객체 생성
@@ -417,8 +418,8 @@ export(fig, file = 'fig.png')
 
 ```
 
-
-만약 HTML 파일로 저장하기 위해서는 `htmlwidgets` 패키지를 설치하고 `savewidget()`을 다음과 같이 사용할 수 있다. 
+만약 HTML 파일로 저장하기 위해서는 `htmlwidgets` 패키지를 설치하고
+`savewidget()`을 다음과 같이 사용할 수 있다.
 
 ```{r}
 htmlwidgets::saveWidget(widget = fig, 'fig.html')
@@ -427,21 +428,33 @@ htmlwidgets::saveWidget(widget = fig, 'fig.html')
 
 -   python
 
-python에서 `plotly` 시각화를 정적 이미지로 다운로드 받기 위해서는 `Kaleido` 라이브러리나  orca 라이브러리를 설치하여야 한다. `plotly`에서는 `Kaleido` 라이브러리를 권장한다. 이 라이브러리는 python의 `plotly` 객체를 저장하기 위해 꼭 필요하지만 직접 임포트를 하지 않아도 되고 `plolty` 라이브러리의 `write_image()`을 사용할 때 내부적으로 사용된다. 
+python에서 `plotly` 시각화를 정적 이미지로 다운로드 받기 위해서는
+`Kaleido` 라이브러리나 orca 라이브러리를 설치하여야 한다. `plotly`에서는
+`Kaleido` 라이브러리를 설치를 권장한다.[^2] 이 라이브러리는 python의
+`plotly` 객체를 저장하기 위해 꼭 필요하지만 직접 임포트를 하지 않아도
+되고 `plolty` 라이브러리의 `write_image()`을 사용할 때 내부적으로
+사용된다.
+
+[^2]: 윈도우 10에서는 kaleido 라이브러리와 plolty 라이브러리가 충돌하여
+    write_image()가 hang이 걸리는 경우가 있다. 이 경우 kaleido
+    라이브러리를 삭제하고 실행하면 정상 작동한다.
 
 ```{python}
 > pip install Kaleido
 
 ```
 
-`plotly` 객체를 저장하기 위해 `write_image()`을 사용한다. `write_image()`에서 저장이 가능한 파일 포맷은 래스터 이미지 파일인 png, jpg, webp와 벡터 이미지 파일인 svg, pdf 등 이다. 이들 파일 포맷의 결정은 `write_image()`의 저장 파일명을 설정할 떄 파일 확장자에 따라 결정된다. 
+`plotly` 객체를 저장하기 위해 `write_image()`을 사용한다.
+`write_image()`에서 저장이 가능한 파일 포맷은 래스터 이미지 파일인 png,
+jpg, webp와 벡터 이미지 파일인 svg, pdf 등 이다. 이들 파일 포맷의 결정은
+`write_image()`의 저장 파일명을 설정할 떄 파일 확장자에 따라 결정된다.
 
 ```{python}
 fig.write_image("fig.png")
 
 ```
 
-만약 HTML 파일 포맷으로 저장해야 한다면 `write_html()`을 사용한다. 
+만약 HTML 파일 포맷으로 저장해야 한다면 `write_html()`을 사용한다.
 
 ```{python}
 fig.write_html("fig.html")
@@ -450,28 +463,46 @@ fig.write_html("fig.html")
 
 ## On-line 배포
 
-`plolty`와 같은 동적 시각화는 사실 보고서에 넣는 것 보다는 온라인 웹페이지를 통해서 배포할때 그 효과가 극대화된다. 앞서 오프라인 배포에서도 HTML 파일로 저장이 가능한데 이 HTML 파일은 `plotly`의 동적 기능을 위한 자바 스크립트(plotly.js)를 포함하기 때문에 HTML 파일의 크기가 3~4MB를 넘는다. 따라서 이렇게 큰 사이즈의 HTML을 웹 서버에 올려서 서비스하는 것은 가능하지만 블로그에 포스팅 할 경우 파일 사이즈가 커서 업로드가 불가능한 경우가 있다. 이런 경우는 `plotly`에서 제공하는 차트 스튜디오(chart stuido)를 사용하여 포스팅할 수 있다. 
+`plolty`와 같은 동적 시각화는 사실 보고서에 넣는 것 보다는 온라인
+웹페이지를 통해서 배포할때 그 효과가 극대화된다. 앞서 오프라인
+배포에서도 HTML 파일로 저장이 가능한데 이 HTML 파일은 `plotly`의 동적
+기능을 위한 자바 스크립트(plotly.js)를 포함하기 때문에 HTML 파일의
+크기가 3\~4MB를 넘는다. 따라서 이렇게 큰 사이즈의 HTML을 웹 서버에
+올려서 서비스하는 것은 가능하지만 블로그에 포스팅 할 경우 파일 사이즈가
+커서 업로드가 불가능한 경우가 있다. 이런 경우는 `plotly`에서 제공하는
+차트 스튜디오(chart stuido)를 사용하여 포스팅할 수 있다.
 
-차트 스튜디오는 자신이 생성한 `plotly` 객체를 업로드하고 이 파일을 블로그에 임베딩하는 기능을 제공한다. 또한 `plotly` 객체의 배포외에도 웹 브라우저에서 차트를 쉽게 생성하거나 편집할 수 있는 편집기 기능도 제공한다. 차트 스튜디오는 무료 계정으로 사용이 가능한데 무료 계정은 자신이 생성한 `plotly` 시각화 결과를 누구나 볼 수 있는 퍼블릭 모드로만 사용할 수 있고 유료 계정의 경우  자신의 `plotly` 시각화 결과를 다른 사람에게 공개하지 않는 프라이빗 모드를 사용할 수 있다. 
+차트 스튜디오는 자신이 생성한 `plotly` 객체를 업로드하고 이 파일을
+블로그에 임베딩하는 기능을 제공한다. 또한 `plotly` 객체의 배포외에도 웹
+브라우저에서 차트를 쉽게 생성하거나 편집할 수 있는 편집기 기능도
+제공한다. 차트 스튜디오는 무료 계정으로 사용이 가능한데 무료 계정은
+자신이 생성한 `plotly` 시각화 결과를 누구나 볼 수 있는 퍼블릭 모드로만
+사용할 수 있고 유료 계정의 경우 자신의 `plotly` 시각화 결과를 다른
+사람에게 공개하지 않는 프라이빗 모드를 사용할 수 있다.
 
 ![](chart_studio.png)
 
-차트 스튜디오를 사용하기 위해서는 먼저 차트 스튜디오에 가입을 해야한다. 
+차트 스튜디오를 사용하기 위해서는 먼저 차트 스튜디오에 가입을 해야한다.
 
 ![](signup.png)
 
-가입을 신청하면 사용자 인증을 위한 이메일이 발송되는데 이 이메일에 인증해주면 가입이 완료된다. 이 후 로그인하면 먼저 R-Studio과 Jupyter Notebook에서 업로드를 하기 위한 토큰을 받아야 한다. 로그인 후 'Setting' 메뉴의 'API Keys' 메뉴를 선택하고 패스워드를 입력하면 다음과 같은 키를 키 값이 나오는데 이 키 값을 잘 기록해 두어야 한다. 
+가입을 신청하면 사용자 인증을 위한 이메일이 발송되는데 이 이메일에
+인증해주면 가입이 완료된다. 이 후 로그인하면 먼저 R-Studio과 Jupyter
+Notebook에서 업로드를 하기 위한 토큰을 받아야 한다. 로그인 후 'Setting'
+메뉴의 'API Keys' 메뉴를 선택하고 패스워드를 입력하면 다음과 같은 키를
+키 값이 나오는데 이 키 값을 잘 기록해 두어야 한다.
 
 ![](api_setting.png)
 
-
 ### 환경 설정과 업로드
 
-이 키 값을 R-Studio와 Jupyter notebook에서 다음과 같이 세팅하고 `plotly` 시각화 객체를 업로드할 수 있다. 
+이 키 값을 R-Studio와 Jupyter notebook에서 다음과 같이 세팅하고 `plotly`
+시각화 객체를 업로드할 수 있다.
 
 -   R
 
-R에서 다음과 같이 환경변수를 설정해주면 해당 R 세션내에서는 차트 스튜디오를 사용할 수 있다. 
+R에서 다음과 같이 환경변수를 설정해주면 해당 R 세션내에서는 차트
+스튜디오를 사용할 수 있다.
 
 ```{r}
 Sys.setenv("plotly_username"="your_plotly_username")
@@ -479,9 +510,11 @@ Sys.setenv("plotly_api_key"="your_api_key")
 
 ```
 
-만약 R 세션이 열릴때 자동적으로 환경변수를 설정하기 위해서는 '.Rprofile' 파일에 환경변수를 넣어준다. 
+만약 R 세션이 열릴때 자동적으로 환경변수를 설정하기 위해서는 '.Rprofile'
+파일에 환경변수를 넣어준다.
 
-환경변수가 설정된 후에는 `plotly` 시각화를 만들고 `api_create()`를 사용하여 차트 스튜디오에 올려준다. 
+환경변수가 설정된 후에는 `plotly` 시각화를 만들고 `api_create()`를
+사용하여 차트 스튜디오에 올려준다.
 
 ```{r}
 fig <- df_취업률_500 |> 
@@ -498,14 +531,16 @@ api_create(fig, filename = "업로드할 파일 이름")
 
 -   python
 
-python에서 차트 스튜디오에 접속하기 위해서는 먼저 `pip`를 사용하여 `chart_studio` 라이브러리를 설치하여야 한다. 
+python에서 차트 스튜디오에 접속하기 위해서는 먼저 `pip`를 사용하여
+`chart_studio` 라이브러리를 설치하여야 한다.
 
 ```{python}
 > pip install chart_studio
 
 ```
 
-라이브러리가 설치 되었다면 `chart_studio.tools.set_credentials_file()`을 사용하여 차트 스튜디오의 ID와 API Key를 다음과 같이 설정한다. 
+라이브러리가 설치 되었다면 `chart_studio.tools.set_credentials_file()`을
+사용하여 차트 스튜디오의 ID와 API Key를 다음과 같이 설정한다.
 
 ```{python}
 import chart_studio
@@ -513,7 +548,8 @@ chart_studio.tools.set_credentials_file(username='your_plotly_username', api_key
 
 ```
 
-이 과정을 python  실행시 자동으로 설정하려면 python 홈 디렉터리에 '.plotly/.credentials' 파일을 다음과 같이 만들어야 한다. 
+이 과정을 python 실행시 자동으로 설정하려면 python 홈 디렉터리에
+'.plotly/.credentials' 파일을 다음과 같이 만들어야 한다.
 
 ```{python}
 {
@@ -523,7 +559,13 @@ chart_studio.tools.set_credentials_file(username='your_plotly_username', api_key
 
 ```
 
-이제 차트 스튜디오를 사용할 환경설정이 완료되었다면 업로드할 `plotly` 시각화를 생성하고 완셩되면 `chart_studio.plotly` 라이브러리를 임포트하고 `plot()`이나 `iplot()`을 사용하여 `plotly` 시각화 객체를 차트 스튜디오에 업로드할 수 있다. 다음의 코드를 실행시키면 업로드된 결과가 웹브라우저를 통해 자동으로 실행되고 실행 결과로 해당 URL이 나타난다. `iplot()`을 사용하면 업로드된 결과가 웹브라우저를 통해 실행되고 jupyter notebook에도 동일한 결과가 나타난다. 
+이제 차트 스튜디오를 사용할 환경설정이 완료되었다면 업로드할 `plotly`
+시각화를 생성하고 완셩되면 `chart_studio.plotly` 라이브러리를 임포트하고
+`plot()`이나 `iplot()`을 사용하여 `plotly` 시각화 객체를 차트 스튜디오에
+업로드할 수 있다. 다음의 코드를 실행시키면 업로드된 결과가 웹브라우저를
+통해 자동으로 실행되고 실행 결과로 해당 URL이 나타난다. `iplot()`을
+사용하면 업로드된 결과가 웹브라우저를 통해 실행되고 jupyter notebook에도
+동일한 결과가 나타난다.
 
 ```{python}
 import chart_studio.plotly as py
@@ -533,20 +575,27 @@ py.plot(fig, filename = '업로드할 파일 이름', auto_open=True)
 
 ### 블로그에 임베딩
 
-앞과 같이 R과 python에서 만든 그래프가 차트 스튜디오에 올라가면 이 시각화를 임베딩하기 위한 주소를 추출해야 한다. 주소의 추출은 업로딩된 그래프의 바로 아래 버튼을 클릭하면 다음과 같이 나타난다. 
+앞과 같이 R과 python에서 만든 그래프가 차트 스튜디오에 올라가면 이
+시각화를 임베딩하기 위한 주소를 추출해야 한다. 주소의 추출은 업로딩된
+그래프의 바로 아래 버튼을 클릭하면 다음과 같이 나타난다.
 
-여기에 나타난 임베딩 태그를 복사하여 포스팅에 붙여넣으면 해당 위치에 `plotly` 시각화가 나타난다. 
+여기에 나타난 임베딩 태그를 복사하여 포스팅에 붙여넣으면 해당 위치에
+`plotly` 시각화가 나타난다.
 
 ![](embedded_tag.png)
 
-
 # 정적 시각화(ggplot, matplotlib)의 plotly 변환
 
-기존의 데이터 분석에서 시각화를 위해 많이 사용하는 패키지가 R은 `ggplot2`일 것이고 python 사용자는 `matplotlib`이나 `seaborn`을 사용한다. `plotly`는 이들 정적 시각화를 인터랙티브 데이터 시각화로 변환하는 기능도 제공하기 때문에 기존의 시각화도 재활용할 수 있다.
+기존의 데이터 분석에서 시각화를 위해 많이 사용하는 패키지가 R은
+`ggplot2`일 것이고 python 사용자는 `matplotlib`이나 `seaborn`을
+사용한다. `plotly`는 이들 정적 시각화를 인터랙티브 데이터 시각화로
+변환하는 기능도 제공하기 때문에 기존의 시각화도 재활용할 수 있다.
 
 -   R
 
-R의 경우는 `plotly` 패키지에서 제공하는 `ggplotly()`를 사용하면 간단히 변환된다. `ggplot2`로 생성된 객체를 `ggplotly()`에 매개변수로 전달해 주면 `plotly` 객체로 변환된다.
+R의 경우는 `plotly` 패키지에서 제공하는 `ggplotly()`를 사용하면 간단히
+변환된다. `ggplot2`로 생성된 객체를 `ggplotly()`에 매개변수로 전달해
+주면 `plotly` 객체로 변환된다.
 
 ```{r eval = FALSE}
 ggplotly <- df_covid19_100 |> 
@@ -577,7 +626,9 @@ ggplotly(ggplotly)
 
 -   python
 
-python의 경우는 `plotly.tools` 패키지의 `mpl_to_plotly()`를 사용하여 `matplotlib`과 `seaborn` 패키지로 생성된 정적 시각화를 `plotly`의 동적 시각화로 변환할 수 있다.
+python의 경우는 `plotly.tools` 패키지의 `mpl_to_plotly()`를 사용하여
+`matplotlib`과 `seaborn` 패키지로 생성된 정적 시각화를 `plotly`의 동적
+시각화로 변환할 수 있다.
 
 ```{python eval = FALSE}
 import seaborn as sns
@@ -593,5 +644,5 @@ plotly_fig.show()
 
 ```
 
-![그림 II-30p. plotly의 seaborn 객체의 전환](D:/R/git/datavisualization/plotly/chap2/tls.mpl_to_plotly.png)
-
+![그림 II-30p. plotly의 seaborn 객체의
+전환](D:/R/git/datavisualization/plotly/chap2/tls.mpl_to_plotly.png)
