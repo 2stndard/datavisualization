@@ -1034,23 +1034,75 @@ geojson 파일은 Shape 파일에 비해 파일 사이즈가 작고 처리속도
 
 -   densitymapbox 트레이스 : 색상을 사용하여 위도, 경도 좌표와 'z'에 매핑된 값에 따른 밀도 커널 데이터를 표현하는 트레이스
 
-### 단계 구분도(Choropleth Map)
+`plotly`에서 지원하는 지도 관련 트레이스는 다섯가지가 있고 사용자가 표시하기 원하는 지도의 형태에 따라 선택하여 사용하는 것이 원칙이나 R에서는 지도를 위한 R에 최적화된 몇 가지 추가적 함수를 제공한다. 따라서 R과 python을 따로 설명하도록 하는데, 단계 구분도(choropleth)와 맵박스 산점도(scattermapbox)를 그리는 방법을 설명한다. 
 
-지역적으로 구분된 데이터를 지도에 표시하는 방법으로 가장 많이 사용되는 것은 색으로 지도의 지형에 데이터를 표시하는 방법이다. 각각의 다각형(Polygon)으로 구성되어 있는 지역의 내부 색을 데이터에 따라 다르게 함으로서 지역간 데이터의 차이를 시각화 하는 방법이다. 결국 색이 칠해진 다각형을 배치함으로 데이터를 표현하는 것이다.
+단계 구분도는 지역적으로 구분된 데이터를 지도에 표시하는 방법으로 가장 많이 사용되는 것은 색으로 지도의 지형에 데이터를 표시하는 방법이다. 각각의 다각형(Polygon)으로 구성되어 있는 지역의 내부 색을 데이터에 따라 다르게 함으로서 지역간 데이터의 차이를 시각화 하는 방법이다. 결국 색이 칠해진 다각형을 배치함으로 데이터를 표현하는 것이다.
 
-단계 구분도를 그리기 위해 전국의 대학 충원률 데이터를 사용하도록 하겠다.[^2] 앞서 다른 `plotly`의 트레이스는 대부분 R과 python의 용법이 유사했지만 지도의 시각화에는 다소 차이가 있기 때문에 따로 설명하도록 한다.
+맵박스 산점도는 mapbox.com에서 제공하는 지도를 기반으로 해서 위도와 경도상의 위치에 특정 데이터를 점이나 선, 텍스트를 표시해주는 지도이다. mapbox.com의 지도를 사용하기 위해서는 먼저 mapbox.com에 가입하고 mapbox.com의 지도를 가져오기 위한 API key를 받아야 한다. 
+
+위의 두 가지 지도를 그리기 위해 두 가지 추가적인 데이터를 사용한다. 첫 번째 데이터는 전국의 대학 충원률 데이터이다.[^2] 두 번째 데이터는 서울의 일부 대학의 위도, 경도 데이터이다.[^3] 
 
 [^2]: 해당 파일은 교육통계 홈페이지([https://kess.kedi.re.kr)에서](https://kess.kedi.re.kr)에서){.uri} 다운로드 받을 수 있으며 필자의 블로그에서도 다운받을 수 있다.
 
-단계 구분도를 그리기 위해 중요한 것은 지형 데이터에서 지역을 표현하는 키와 표현할 데이터에서 지역을 표현하는 키를 맞추어야 한다는 것이다. 전국 대학 충원률 데이터에서는 지역이 한글로 표현되어 있고 지형 데이터에서는 각각의 지형 데이터에서 사용하는 형태의 키로 저장되어 있기 때문에 지형 데이터의 키와 맞추기 위해 충원률 데이터의 지역을 지형 데이터의 키로 변환하는 과정을 거쳤다.
+[^3]: 해당 파일은 필자의 블로그에서도 다운받을 수 있다.
 
--   R
+### R
 
-R에서 단계 구분도를 그리기 위해서는 choropleth 트레이스를 사용하는데 `add_trace(type = 'choropleth', ...)`를 사용한다. R에서 단계 구분도를 그리기 위한 지형 데이터를 가져오는 방법은 여러가지가 있지만 여기서는 `raster` 패키지의 `getData()`를 통해 제공되는 한국의 지형 데이터를 사용하였다. `getData()`는 특정 국가의 지형 데이터를 가져오는 함수인데 'level'에 따라 지도의 지형 레벨을 결정할 수 있는데 한국 지형 데이터의 경우 'level = 1'이면 시도 단위의 지형 데이터를 의미한다. 이 데이터를 `sf` 데이터 타입으로 가져왔는데 `sf` 데이터 타입은 R의 `sf` 패키지에서 제공하는 데이터 타입으로 'simple feature'의 준말이다.
+R에서 지도를 그리기 위해서는 하나 알아두어야 하는 것이 `sf` 클래스 데이터이다. 는데 `sf` 클래스는 R의 `sf` 패키지에서 제공하는 클래스 데이터 타입으로 'simple feature'의 준말이다. `sf` 클래스는 지형 데이터를 R에서 기본적으로 사용되는 data.frame이나 tibble 형태로 저장하여 R에서 다루기가 쉽게 사용되는 클래스로 R을 종합적으로 관장하는 R consortium에서 관리하는 데이터 타입이다. 따라서 R에서 가장 쉽게 지형 데이터를 관리하고 처리할 수 있는 데이터 타입이기 때문에 `plolty`에서도 `sf` 데이터 타입을 지원하도록 설계되어 있다. 
 
-`sf` 데이터 타입은 지형 데이터를 R에서 기본적으로 사용되는 data.frame이나 tibble 형태로 저장하는 데이터 타입으로 R에서 다루기가 쉽게 사용되는 데이터 타입으로 R을 종합적으로 관장하는 R consortium에서 관리하는 데이터 타입이다. 따라서 R에서 가장 쉽게 지형 데이터를 관리하고 처리할 수 있는 데이터 타입이기 때문에 `plolty`에서도 `sf` 데이터 타입을 지원할 수 있도록 `add_sf()`를 제공한다. `sf` 데이터 타입으로 정의된 지형 데이터는 다른 트레이스에서 사용했던 `add_trace()`대신 `add_sf()`를 사용하여 지형 데이터를 만들어주는데 코드는 다음과 같다.[^3]
+따라서 `plotly`의 지도 전용 트레이스를 사용하기 보다는 `sf` 클래스를 활용한 R 전용 함수를 사용하는 방법이 지도의 품질상 더 효과적이다. `sf` 클래스는 `plot_ly()`, `plot_geo()`와 `plot_mapbox()`로 사용이 가능하다. 
+
+`plot_ly()`는 지금까지 `plotly` 객체를 초기화하는데 사용했던 바로 그 함수이다. `plot_ly()`에 바인딩되는 데이터프레임이 `sf` 클래스면 `plot_ly()`는 지형 데이터를 처리하도록 동작한다. `plot_ly()`에서 사용하는 주요 매개변수는 다음과 같다. 
+
+:::{.comment}
+plot_ly(data = data.frame(), ..., type = NULL, name, color, colors = NULL, alpha = NULL, stroke, strokes = NULL,  alpha_stroke = 1, size, sizes = c(10, 100), span, spans = c(1, 20), symbol, symbols = NULL, linetype, linetypes = NULL, split, frame, width = NULL, height = NULL,  source = "A")
+  
+-   data : 시각화에 사용될 지형 데이터(sf 타입)
+-   color : 내부에 채워지는 색상 매핑으로 사용될 데이터
+-   colors : color에 사용될 색상 팔레트
+-   alpha : 투명도를 설정하는 색상의 알파 채널값
+-   stroke : 컬러와 유사하지만 색이 채워진 폴리곤에서의 외곽선 색
+-   split : 다중 트레이스로 구분될 값 설정
+
+:::
+
+`plot_geo()`는 R의 `plotly`에서 지도 객체의 초기화를 위해 사용하는 함수로 `plot_ly()` 대신 사용할 수 있는 함수이다. `plot_geo()`는 `plotly`의 주로 shape 파일이나 geoJSON으로 지도를 그리고 데이터를 사용하여 지도를 그리는데 지도 트레이스 중 scattermap 트레이스로 지도를 그린다. `plot_geo()`의 매개변수는 'offline' 매개변수를 제외하고는 `plot_ly()`의 매개변수와 같다
+
+:::{.comment}
+plot_geo(data = data.frame(), ..., type = NULL, name, color, colors = NULL, alpha = NULL, stroke, strokes = NULL,  alpha_stroke = 1, size, sizes = c(10, 100), span, spans = c(1, 20), symbol, symbols = NULL, linetype, linetypes = NULL, split, frame, width = NULL, height = NULL,  source = "A", offline = FALSE)
+  
+-   offline : 인터넷 연결 여부에 관계없이 지도를 볼 수 있도록 지형 데이터를 포함시킬지를 결정
+
+:::
+
+`plot_mapbox()`는 mapbox.com의 지도를 사용하여 지도 그리는 함수로 앞에서 언급했듯이 mapbox.com의 API key가 필요하다.  `plot_mapbox()`는 지도 트레이스 중 scattermapbox 트레이스로 지도를 그린다. 사용법은 `plot_ly()`와 동일하다.
+
+다음은 `ggplot2`의 `geom_sf()`와 `plot_ly()`, `plot_geo()`, `plot_mapbox()`로 그린 우리나라의 지도이다. 
+
+```{r}
+map_data <- getData("GADM", country = "KOR", level = 1, type = "sf")
+st_crs(map_data) <- st_crs(map_data)
+
+subplot(nrows = 2,
+  ggplot(map_data) + geom_sf(),
+  plot_ly(map_data, color = I('skyBlue')),
+  plot_geo(map_data, color = I('skyBlue')),
+  plot_mapbox(map_data, color = I('skyBlue')), margin = 0.05
+) %>% hide_legend()
+
+```
+
+-   단계 구분도(Choropleth Map)
+
+R에서 `plot_geo()`로 단계 구분도를 그리기 위해 중요한 것은 지형 데이터에서 지역을 표현하는 키와 표현할 데이터에서 지역을 표현하는 키를 맞추어야 한다는 것이다. 전국 대학 충원률 데이터에서는 지역이 한글로 표현되어 있고 지형 데이터에서는 각각의 지형 데이터에서 사용하는 형태의 키로 저장되어 있기 때문에 지형 데이터의 키와 맞추기 위해 충원률 데이터의 지역을 지형 데이터의 키로 변환하는 과정을 거쳤다.
+
+R에서 단계 구분도를 그리기 위해서는 choropleth 트레이스를 사용하는데 `add_trace(type = 'choropleth', ...)`를 사용한다. R에서 단계 구분도를 그리기 위한 지형 데이터를 가져오는 방법은 여러가지가 있지만 여기서는 `raster` 패키지의 `getData()`를 통해 제공되는 한국의 지형 데이터를 사용하였다. `getData()`는 특정 국가의 지형 데이터를 가져오는 함수인데 'level'에 따라 지도의 지형 레벨을 결정할 수 있는데 한국 지형 데이터의 경우 'level = 1'이면 시도 단위의 지형 데이터를 의미한다. 이 데이터를 `sf` 데이터 타입으로 가져왔다.
+
+할 수 있도록 `add_sf()`를 제공한다. `sf` 데이터 타입으로 정의된 지형 데이터는 다른 트레이스에서 사용했던 `add_trace()`대신 `add_sf()`를 사용하여 지형 데이터를 만들어주는데 코드는 다음과 같다.[^3]
 
 [^3]: add_trace(type = 'choropleth', ...)을 사용하여 만들수도 있겠으나 지도의 크기가 작게 표현되어 R에서는 add_sf()를 쓰는 것이 효과적이다.
+
+
 
 
 ```{r echo = FALSE}
@@ -1104,8 +1156,7 @@ province <- map_data$HASC_1
 plot_dat <- left_join(map_data, df_충원율, by = c("HASC_1" = "id")) %>%
   st_as_sf()
 
-plot_ly(plot_dat) %>%
-  add_sf(type = "scatter", 
+plot_ly(plot_dat, type = "scatter", 
          split = ~지역,
          color = ~신입생충원율,
          showlegend = F,       # don't show a legend for each region
