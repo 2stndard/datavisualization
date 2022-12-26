@@ -1034,50 +1034,170 @@ geojson 파일은 Shape 파일에 비해 파일 사이즈가 작고 처리속도
 
 -   densitymapbox 트레이스 : 색상을 사용하여 위도, 경도 좌표와 'z'에 매핑된 값에 따른 밀도 커널 데이터를 표현하는 트레이스
 
-`plotly`에서 지원하는 지도 관련 트레이스는 다섯가지가 있고 사용자가 표시하기 원하는 지도의 형태에 따라 선택하여 사용하는 것이 원칙이나 R에서는 지도를 위한 R에 최적화된 몇 가지 추가적 함수를 제공한다. 따라서 R과 python을 따로 설명하도록 하는데, 단계 구분도(choropleth)와 맵박스 산점도(scattermapbox)를 그리는 방법을 설명한다. 
+`plotly`에서 지원하는 지도 관련 트레이스는 다섯가지가 있고 사용자가 표시하기 원하는 지도의 형태에 따라 선택하여 사용하는 것이 원칙이나 R에서는 지도를 위한 R에 최적화된 몇 가지 추가적 함수를 제공한다. 따라서 R과 python을 따로 설명하도록 하는데, 단계 구분도(choropleth)와 맵박스 산점도(scattermapbox)를 그리는 방법을 설명한다.
 
 단계 구분도는 지역적으로 구분된 데이터를 지도에 표시하는 방법으로 가장 많이 사용되는 것은 색으로 지도의 지형에 데이터를 표시하는 방법이다. 각각의 다각형(Polygon)으로 구성되어 있는 지역의 내부 색을 데이터에 따라 다르게 함으로서 지역간 데이터의 차이를 시각화 하는 방법이다. 결국 색이 칠해진 다각형을 배치함으로 데이터를 표현하는 것이다.
 
-맵박스 산점도는 mapbox.com에서 제공하는 지도를 기반으로 해서 위도와 경도상의 위치에 특정 데이터를 점이나 선, 텍스트를 표시해주는 지도이다. mapbox.com의 지도를 사용하기 위해서는 먼저 mapbox.com에 가입하고 mapbox.com의 지도를 가져오기 위한 API key를 받아야 한다. 
+맵박스 산점도는 mapbox.com에서 제공하는 지도를 기반으로 해서 위도와 경도상의 위치에 특정 데이터를 점이나 선, 텍스트를 표시해주는 지도이다. mapbox.com의 지도를 사용하기 위해서는 먼저 mapbox.com에 가입하고 mapbox.com의 지도를 가져오기 위한 액세스 토큰를 받아야 한다.
 
-위의 두 가지 지도를 그리기 위해 두 가지 추가적인 데이터를 사용한다. 첫 번째 데이터는 전국의 대학 충원률 데이터이다.[^2] 두 번째 데이터는 서울의 일부 대학의 위도, 경도 데이터이다.[^3] 
+![](mapbox.png)
+
+위의 두 가지 지도를 그리기 위해 두 가지 추가적인 데이터를 사용한다. 첫 번째 데이터는 전국의 대학 충원률 데이터이다.[^2] 두 번째 데이터는 서울의 일부 대학의 위도, 경도 데이터이다.[^3]
 
 [^2]: 해당 파일은 교육통계 홈페이지([https://kess.kedi.re.kr)에서](https://kess.kedi.re.kr)에서){.uri} 다운로드 받을 수 있으며 필자의 블로그에서도 다운받을 수 있다.
 
 [^3]: 해당 파일은 필자의 블로그에서도 다운받을 수 있다.
 
+`plotly`의 지도 관련 트레이스의 레이아웃을 설정하는데 사용하는 속성은 'geo' 속성이다. 다음은 'geo'의 주요 속성이다. 
+
+![](geo_attr.png)
+
+### python
+
+python에서는 지도를 그리는 것은 지금까지 `plotly`를 그리는 방식과 같이 초기화된 `plotly` 객체에 지도를 위한 트레이스를 추가하는 방식으로 그릴 수 있다. `plotly`의 다섯 가지 지도 트레이스 중 choropleth 트레이스와 mapboxscatter 트레이스를 만드는 방법을 알아보겠다.
+
+-   단계 구분도(choropleth)
+
+python에서 choropleth 트레이스를 추가하지 위해서는 `add_trace()`에 `plotly.graph_objects.Choropleth()`를 사용하여 추가한다.
+
+다음은 choropleth 트레이스에서 사용되는 주요 속성들이다.
+
+![](choropleth_attr.png)
+
+`plotly`에서는 미국 지도를 바로 지원하지만 한국 지도를 지원하지 않는다. 따라서 제일 먼저 한국 지형을 geoJSON으로 불러 읽어들이고 이를 'geojson'으로 설정한다. 우리나라의 geoJSON 파일은 인터넷에서 쉽게 구할 수 있다. 파일을 다운 받을때는 시도 단위의 데이터인지 시군구 단위의 데이터인지를 잘 구분하여 다운해야 한다.[^4] geoJSON 파일의 데이터를 읽어오기 위해서 json 라이브러리를 임포트하고 `json.load()`를 사용하여 geoJSON 데이터를 불러온다. 
+
+[^4]: 우리나라 시도 단위의 geoJSON 파일은 필자의 블로그(2stndard.tistory.com)에서 다운 받을 수 있다.
+
+다음으로 전국 대학 신입생 충원율 데이터를 불러오고 이 데이터 중 필요한 데이터 5개를 필터링하고 열 이름을 적절히 설정한다. 
+
+불러들여온 전국 대학 신입생 충원율 데이터에는 지역을 표현하는데 한글 시도명을 사용한다. 반면 geoJSON 데이터에서는 properties의 CTPRVN_CD 속성으로 정의되는데 시도를 수치로 표현하고 있다. 그래서 이를 매칭시키기 위한 함수를 정의 하였고 이 함수를 사용하여 대학 신입생 충원율 데이터에 매핑된 수치 열을 만들어 주었다. 
+
+choropleth 트레이스를 만들기 위한 데이터 전처리가 끝났으면 `plotly`를 초기화하고 `plotly.graph_objects.Choropleth()`를 사용한다. 앞에서 불러들어온 geoJSON 데이터를 'geojson' 속성에 설정하고 충원율 데이터와 매칭할 키인 "properties.CTPRVN_CD"를 'featureidkey'에 설정한다. 이번에는 'featureidkey'에 매칭될 충원율 데이터의 열을 'locations'에 설정하고 색상으로 표현해 줄 데이터인 충원율 열을 'z' 속성으로 설정한다. 전체적 색상 스케일 속성인 'colorscale'을 푸른색 팔레트("blues")로 설정하고 지형의 경계선, 컬러바, 표현 텍스트, 호버를 설정하였다. 
+
+
+```{python}
+import json
+
+def cat(row):
+    key = row['지역']
+    value = {'강원' : '42','경기' : '41','경남' : '48','경북' : '47','광주' : '29','대구' : '27','대전' : '30','부산' : '26','서울' : '11','세종' : '36','울산' : '31','인천' : '28','전남' : '46','전북' : '45','제주' : '50','충남' : '44','충북' : '43'}.get(key)
+    return value
+
+geometry = json.load(open('D:/R/git/datavisualization/plotly/RnPy/chap6/TL_SCCO_CTPRVN.json', encoding='utf-8'))
+
+df_충원율 = pd.read_excel("D:/R/git/datavisualization/plotly/RnPy/chap6/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx", 
+                           sheet_name = 'Sheet1', skiprows=(6), header = 0)
+                           
+df_충원율 = df_충원율.iloc[:, 0:5]
+df_충원율.columns = ('연도', '지역', '정원내모집인원', '정원내입학생수', '신입생충원율')
+df_충원율['지역코드']= df_충원율.apply(cat, axis=1)
+df_충원율 = df_충원율[(df_충원율['지역'] != '전국')&(df_충원율['연도'] == 2022)]
+
+fig = go.Figure()
+
+fig.add_trace(go.Choropleth(
+  geojson=geometry, 
+  featureidkey='properties.CTPRVN_CD', 
+  locations = df_충원율['지역코드'], 
+  z = df_충원율['신입생충원율'], 
+  colorscale="Blues", 
+#  text = df_충원율['신입생충원율'],
+  marker=dict(line=dict(width=1), opacity = 0.5),
+  colorbar = dict(y = 0.5, yanchor = 'middle'),
+  text = df_충원율['지역'] + '\n' + round(df_충원율['신입생충원율'], 2).astype(str) + '%',
+#  hoveron = "fills",
+  hoverinfo = "text"
+))
+
+fig.update_layout(
+  title = dict(text = '한국지도', x = 0.5),
+  geo=dict(
+    showframe = True,
+    fitbounds = "locations",
+    visible = False,
+    center=dict(lon=126.98, lat=37.56)
+  ),
+  autosize=False,
+  margin = dict(t = 50, b = 25, l = 25, r = 25,
+    pad=4,
+    autoexpand=True
+  ))
+
+```
+
+![실행결과 VI-5. python의 단계구분도](./fig/png/6-6.png)
+
+-   스캐터 맵박스 지도(Scatter Mapbox)
+
+python에서 scattermapbox 트레이스를 추가하지 위해서는 `add_trace()`에 `plotly.graph_objects.Scattermapbox()`를 사용하여 추가한다.
+
+다음은 Scattermapbox 트레이스에서 사용되는 주요 속성들이다.
+
+![](choropleth_attr.png)
+
+
+
+```{python}
+mapbox_access_token = open(".mapbox_token").read()
+
+fig = go.Figure(go.Scattermapbox(
+        lat=df_univ['lat'],
+        lon=df_univ['lon'],
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            size=9
+        ),
+        text=df_univ['학교명'],
+    ))
+
+fig.update_layout(
+    autosize=True,
+    hovermode='closest',
+    mapbox=dict(
+        accesstoken= mapbox_access_token,
+        bearing=0,
+        center=dict(lon=126.98, lat=37.56),
+        pitch=0,
+        zoom=10
+    ),
+)
+
+fig.show()
+
+```
+
+![실행결과 VI-7. 맵박스를 사용한 R의 scatter 지도](./fig/png/6-7.png)
+
 ### R
 
-R에서 지도를 그리기 위해서는 하나 알아두어야 하는 것이 `sf` 클래스 데이터이다. 는데 `sf` 클래스는 R의 `sf` 패키지에서 제공하는 클래스 데이터 타입으로 'simple feature'의 준말이다. `sf` 클래스는 지형 데이터를 R에서 기본적으로 사용되는 data.frame이나 tibble 형태로 저장하여 R에서 다루기가 쉽게 사용되는 클래스로 R을 종합적으로 관장하는 R consortium에서 관리하는 데이터 타입이다. 따라서 R에서 가장 쉽게 지형 데이터를 관리하고 처리할 수 있는 데이터 타입이기 때문에 `plolty`에서도 `sf` 데이터 타입을 지원하도록 설계되어 있다. 
+R에서 지도를 그리기 위해서는 하나 알아두어야 하는 것이 `sf` 클래스 데이터이다. 는데 `sf` 클래스는 R의 `sf` 패키지에서 제공하는 클래스 데이터 타입으로 'simple feature'의 준말이다. `sf` 클래스는 지형 데이터를 R에서 기본적으로 사용되는 data.frame이나 tibble 형태로 저장하여 R에서 다루기가 쉽게 사용되는 클래스로 R을 종합적으로 관장하는 R consortium에서 관리하는 데이터 타입이다. 그 때문에 R에서 가장 쉽게 지형 데이터를 관리하고 처리할 수 있는 데이터 타입이기 때문에 `plolty`에서도 `sf` 데이터 타입을 지원하도록 설계되어 있다.
 
-따라서 `plotly`의 지도 전용 트레이스를 사용하기 보다는 `sf` 클래스를 활용한 R 전용 함수를 사용하는 방법이 지도의 품질상 더 효과적이다. `sf` 클래스는 `plot_ly()`, `plot_geo()`와 `plot_mapbox()`로 사용이 가능하다. 
+그래서 R에서는 `plotly`의 지도 전용 트레이스를 사용하기 보다는 `sf` 클래스를 활용한 R 전용 함수를 사용하는 방법이 지도의 품질상 더 효과적이다. `sf` 클래스는 `plot_ly()`, `plot_geo()`와 `plot_mapbox()`로 사용이 가능하다.
 
-`plot_ly()`는 지금까지 `plotly` 객체를 초기화하는데 사용했던 바로 그 함수이다. `plot_ly()`에 바인딩되는 데이터프레임이 `sf` 클래스면 `plot_ly()`는 지형 데이터를 처리하도록 동작한다. `plot_ly()`에서 사용하는 주요 매개변수는 다음과 같다. 
+`plot_ly()`는 지금까지 `plotly` 객체를 초기화하는데 사용했던 바로 그 함수이다. `plot_ly()`에 바인딩되는 데이터프레임이 `sf` 클래스면 `plot_ly()`는 지형 데이터를 처리하도록 동작한다. `plot_ly()`에서 사용하는 주요 매개변수는 다음과 같다.
 
-:::{.comment}
-plot_ly(data = data.frame(), ..., type = NULL, name, color, colors = NULL, alpha = NULL, stroke, strokes = NULL,  alpha_stroke = 1, size, sizes = c(10, 100), span, spans = c(1, 20), symbol, symbols = NULL, linetype, linetypes = NULL, split, frame, width = NULL, height = NULL,  source = "A")
-  
+::: comment
+plot_ly(data = data.frame(), ..., type = NULL, name, color, colors = NULL, alpha = NULL, stroke, strokes = NULL, alpha_stroke = 1, size, sizes = c(10, 100), span, spans = c(1, 20), symbol, symbols = NULL, linetype, linetypes = NULL, split, frame, width = NULL, height = NULL, source = "A")
+
 -   data : 시각화에 사용될 지형 데이터(sf 타입)
 -   color : 내부에 채워지는 색상 매핑으로 사용될 데이터
 -   colors : color에 사용될 색상 팔레트
 -   alpha : 투명도를 설정하는 색상의 알파 채널값
 -   stroke : 컬러와 유사하지만 색이 채워진 폴리곤에서의 외곽선 색
 -   split : 다중 트레이스로 구분될 값 설정
-
 :::
 
 `plot_geo()`는 R의 `plotly`에서 지도 객체의 초기화를 위해 사용하는 함수로 `plot_ly()` 대신 사용할 수 있는 함수이다. `plot_geo()`는 `plotly`의 주로 shape 파일이나 geoJSON으로 지도를 그리고 데이터를 사용하여 지도를 그리는데 지도 트레이스 중 scattermap 트레이스로 지도를 그린다. `plot_geo()`의 매개변수는 'offline' 매개변수를 제외하고는 `plot_ly()`의 매개변수와 같다
 
-:::{.comment}
-plot_geo(data = data.frame(), ..., type = NULL, name, color, colors = NULL, alpha = NULL, stroke, strokes = NULL,  alpha_stroke = 1, size, sizes = c(10, 100), span, spans = c(1, 20), symbol, symbols = NULL, linetype, linetypes = NULL, split, frame, width = NULL, height = NULL,  source = "A", offline = FALSE)
-  
--   offline : 인터넷 연결 여부에 관계없이 지도를 볼 수 있도록 지형 데이터를 포함시킬지를 결정
+::: comment
+plot_geo(data = data.frame(), ..., type = NULL, name, color, colors = NULL, alpha = NULL, stroke, strokes = NULL, alpha_stroke = 1, size, sizes = c(10, 100), span, spans = c(1, 20), symbol, symbols = NULL, linetype, linetypes = NULL, split, frame, width = NULL, height = NULL, source = "A", offline = FALSE)
 
+-   offline : 인터넷 연결 여부에 관계없이 지도를 볼 수 있도록 지형 데이터를 포함시킬지를 결정
 :::
 
-`plot_mapbox()`는 mapbox.com의 지도를 사용하여 지도 그리는 함수로 앞에서 언급했듯이 mapbox.com의 API key가 필요하다.  `plot_mapbox()`는 지도 트레이스 중 scattermapbox 트레이스로 지도를 그린다. 사용법은 `plot_ly()`와 동일하다.
+`plot_mapbox()`는 mapbox.com의 지도를 사용하여 지도 그리는 함수로 앞에서 언급했듯이 mapbox.com의 API key가 필요하다. `plot_mapbox()`는 지도 트레이스 중 scattermapbox 트레이스로 지도를 그린다. 사용법은 `plot_ly()`와 동일하다.
 
-다음은 `ggplot2`의 `geom_sf()`와 `plot_ly()`, `plot_geo()`, `plot_mapbox()`로 그린 우리나라의 지도이다. 
+다음은 `ggplot2`의 `geom_sf()`와 `plot_ly()`, `plot_geo()`, `plot_mapbox()`로 그린 우리나라의 지도이다.
 
 ```{r}
 map_data <- getData("GADM", country = "KOR", level = 1, type = "sf")
@@ -1094,16 +1214,17 @@ subplot(nrows = 2,
 
 -   단계 구분도(Choropleth Map)
 
-R에서 `plot_geo()`로 단계 구분도를 그리기 위해 중요한 것은 지형 데이터에서 지역을 표현하는 키와 표현할 데이터에서 지역을 표현하는 키를 맞추어야 한다는 것이다. 전국 대학 충원률 데이터에서는 지역이 한글로 표현되어 있고 지형 데이터에서는 각각의 지형 데이터에서 사용하는 형태의 키로 저장되어 있기 때문에 지형 데이터의 키와 맞추기 위해 충원률 데이터의 지역을 지형 데이터의 키로 변환하는 과정을 거쳤다.
+처음으로 우리나라의 지도 데이터를 가져온다. R에서 단계 구분도를 그리기 위한 지형 데이터를 가져오는 방법은 여러가지가 있지만 여기서는 `raster` 패키지의 `getData()`를 통해 제공되는 한국의 지형 데이터를 사용하였다. `getData()`는 특정 국가의 지형 데이터를 가져오는 함수인데 'level'에 따라 지도의 지형 레벨을 결정할 수 있는데 한국 지형 데이터의 경우 'level = 1'이면 시도 단위의 지형 데이터를 의미한다. 이 데이터를 `sf` 데이터 타입으로 가져왔다.
 
-R에서 단계 구분도를 그리기 위해서는 choropleth 트레이스를 사용하는데 `add_trace(type = 'choropleth', ...)`를 사용한다. R에서 단계 구분도를 그리기 위한 지형 데이터를 가져오는 방법은 여러가지가 있지만 여기서는 `raster` 패키지의 `getData()`를 통해 제공되는 한국의 지형 데이터를 사용하였다. `getData()`는 특정 국가의 지형 데이터를 가져오는 함수인데 'level'에 따라 지도의 지형 레벨을 결정할 수 있는데 한국 지형 데이터의 경우 'level = 1'이면 시도 단위의 지형 데이터를 의미한다. 이 데이터를 `sf` 데이터 타입으로 가져왔다.
+다음으로 지도에 표시할 데이터인 전국의 대학 신입생 충원율 데이터를 가져온다. 이 데이터 중 사용할 5개의 열만을 선택해서 데이터를 저장하고 열 이름을 설정한다.
 
-할 수 있도록 `add_sf()`를 제공한다. `sf` 데이터 타입으로 정의된 지형 데이터는 다른 트레이스에서 사용했던 `add_trace()`대신 `add_sf()`를 사용하여 지형 데이터를 만들어주는데 코드는 다음과 같다.[^3]
+R에서 단계 구분도를 그리기 위해 중요한 것은 지형 데이터와 표시할 데이터를 가진 데이터프레임을 조인하여 하나의 객체로 만들어야 한다는 것이다. 이를 위해서 지역을 표현하는 지형 데이터의 키와 표현할 데이터의 지역 키를 일치하도록 전처리 해야한다는 것이다. 전국 대학 충원률 데이터에서는 지역이 한글로 표현되어 있고 지형 데이터에서는 영문 키로 저장되어 있기 때문에 지형 데이터의 키와 맞추기 위해 충원률 데이터의 지역을 지형 데이터의 영문 키로 변환하는 과정을 거쳤다.
 
-[^3]: add_trace(type = 'choropleth', ...)을 사용하여 만들수도 있겠으나 지도의 크기가 작게 표현되어 R에서는 add_sf()를 쓰는 것이 효과적이다.
+이제 충원율이 포함된 `sf` 클래스 데이터프레임을 사용하여 단계 구분도를 그린다. 단계 구분도를 그리기 위해서 `plot_ly()`, `plot_geo()`, `plot_mapbox()` 중에 `plot_ly()`를 사용하였다.
 
+그리고 전체 플롯의 제목과 여백을 설정하기 위해 `layout()`을 사용하였다.
 
-
+다음은 한국지도에 전국의 대학 신입생 충원율을 색상으로 표시하는 단계구분도를 만드는 R 코드이다.
 
 ```{r echo = FALSE}
 library(raster)
@@ -1237,76 +1358,13 @@ plot_ly(plot_dat) %>%
 
 ![실행결과 VI-5. R의 add_sf()로 구현한 단계 구분도](./fig/png/6-5.png)
 
-`add_sf()`를 사용할 때 알아두어야 할 속성은 'split' 속성이다. 이 속성은 `plotly`의 choropleth 속성에 나와있지 않은 속성인데 단계 구분도에서 단계를 구분하는 열로 사용하는 속성이다. 또 하나 주의해야 할 것은 `add_sf()`로 사용할 때는 'type'속성을 "choropleth"가 아닌 "scatter"로 설정해야 한다는 것이다. 결국 `add_sf()`는 `sf` 데이터 타입을 지역으로 잘라내고(split) 이들을 scatter 트레이스 형태로 뿌려주는 형태로 단계 구분도가 만들어진다. 그렇기 때문에 사용하는 data 속성과 layout 속성도 scatter 트레이스의 속성들을 사용한다. 
+-   스캐터 맵(Scatter Map)
 
--   python
+스캐터 맵은 지도 위에 위도, 경도로 표현된 데이터를 표시하여 그 상대적 위치를 시각화하는 지도이다. 우리가 네이버나 카카오에서 특정 장소를 찾을 때 쓰는 지도가 바로 스캐터 맵이다. R에서 스캐터 맵을 구현하는 것은 앞에서 설명한 `sf` 클래스의 지형 데이터나 맵박스로 그린 지도 위에 위도와 경도 축에 표현되는 scatter 트레이스를 그리는 방법으로 구현할 수 있다.
 
-python에서는 지금까지 해왔던 대로 choropleth 트레이스를 추가해 주는 방식으로 사용한다. python에서 choropleth 트레이스를 추가하지 위해서는 `add_trace()`에 `plotly.graph_objects.Choropleth()`를 사용하여 추가한다.
+다음은 서울의 주요 대학의 위도와 경도 데이터를 읽어들이고, `raster`패키지에서 우리나라 지도를 시군구 레벨('level = 2')로 불러들였다. 이 지형 데이터에서 서울 지역 데이터만 필터링하고 `plot_mapbox()`에 바인딩하고 `add_sf()`를 사용하여 서울의 외곽선 만을 그렸다.
 
-다음은 choropleth 트레이스에서 사용되는 주요 속성들이다.
-
-![](choropleth_attr.png)
-
-
-
-`plotly`에서는 미국 지도를 바로 지원하지만 한국 지도를 지원하지 않는다. 따라서 제일 먼저 한국 지형을 geoJSON으로 불러 읽어들이고 이를 'geojson'으로 설정한다. 두 번째로 이 'geojson' 데이터에서 대학 충원율 데이터와 연결할 키를 'featureidkey'로 설정한다. 세 번쨰로 'featureidkey'와 연결될 대학 충원율 데이터의 키를 'locations'에 설정하고 색상으로 표시할 대학 충원율 데이터를 'z'에 설정한다. 
-
-```{python}
-import json
-
-def cat(row):
-    key = row['지역']
-    value = {'강원' : '42','경기' : '41','경남' : '48','경북' : '47','광주' : '29','대구' : '27','대전' : '30','부산' : '26','서울' : '11','세종' : '36','울산' : '31','인천' : '28','전남' : '46','전북' : '45','제주' : '50','충남' : '44','충북' : '43'}.get(key)
-    return value
-
-geometry = json.load(open('D:/R/git/datavisualization/plotly/RnPy/chap6/TL_SCCO_CTPRVN.json', encoding='utf-8'))
-
-df_충원율 = pd.read_excel("D:/R/git/datavisualization/plotly/RnPy/chap6/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx", 
-                           sheet_name = 'Sheet1',
-                           skiprows=(6), 
-                           header = 0)
-df_충원율 = df_충원율.iloc[:, 0:5]
-df_충원율.columns = ('연도', '지역', '정원내모집인원', '정원내입학생수', '신입생충원율')
-df_충원율['지역코드']= df_충원율.apply(cat, axis=1)
-df_충원율 = df_충원율[(df_충원율['지역'] != '전국')&(df_충원율['연도'] == 2022)]
-
-fig = go.Figure()
-
-fig.add_trace(go.Choropleth(
-  geojson=geometry, 
-  featureidkey='properties.CTPRVN_CD', 
-  locations = df_충원율['지역코드'], 
-  z = df_충원율['신입생충원율'], 
-  colorscale="Blues", 
-#  text = df_충원율['신입생충원율'],
-  marker=dict(line=dict(width=1), opacity = 0.5),
-  colorbar = dict(y = 0.5, yanchor = 'middle'),
-  text = df_충원율['지역'] + '\n' + round(df_충원율['신입생충원율'], 2).astype(str) + '%',
-#  hoveron = "fills",
-  hoverinfo = "text"
-))
-
-fig.update_layout(
-  title = dict(text = '한국지도', x = 0.5),
-  geo=dict(
-    showframe = True,
-    fitbounds = "locations",
-    visible = False,
-    center=dict(lon=126.98, lat=37.56)
-  ),
-  autosize=False,
-  margin = dict(t = 50, b = 25, l = 25, r = 25,
-    pad=4,
-    autoexpand=True
-  ))
-
-```
-
-![실행결과 VI-6. python의 단계구분도](./fig/png/6-6.png)
-
-## scatter
-
--   R
+이 지도위에 scatter 트레이스로 마커와 텍스트로 각 대학의 위치를 표시하였다.
 
 ```{r}
 df_univ <- read_excel("D:/R/git/datavisualization/plotly/RnPy/chap6/university.xlsx", 
@@ -1317,46 +1375,14 @@ map_data_lev2 <- getData("GADM", country = "KOR", level = 2, type = "sf")
 plot_dat_seoul <- plot_dat |> filter(GID_1 == 'KOR.16_1')
 
 plot_mapbox(plot_dat_seoul) |>
-  add_sf() |>
-  add_trace(data = df_univ, type = 'scatter', mode = 'markers+text', 
-              x = ~lon, y = ~lat, 
-              marker = list(color = 'white'),
-              text = ~학교명) |>
+  add_sf(alpha = 0) |>
+  add_trace(data = df_univ, type = 'scattermapbox', mode = 'markers+text', 
+            x = ~lon, y = ~lat, 
+            marker = list(color = 'blue', symbol = 'college', size = 10, allowoverlap = T),
+            text = ~학교명, textposition = 'top center', 
+            textfont = list(color = 'blue')) |>
   layout(title = '서울지역 주요 대학', 
         margin = margins_R, 
         showlegend = FALSE)
 
 ```
-
--   python
-
-```{python}
-mapbox_access_token = open(".mapbox_token").read()
-
-fig = go.Figure(go.Scattermapbox(
-        lat=df_univ['lat'],
-        lon=df_univ['lon'],
-        mode='markers',
-        marker=go.scattermapbox.Marker(
-            size=9
-        ),
-        text=df_univ['학교명'],
-    ))
-
-fig.update_layout(
-    autosize=True,
-    hovermode='closest',
-    mapbox=dict(
-        accesstoken= mapbox_access_token,
-        bearing=0,
-        center=dict(lon=126.98, lat=37.56),
-        pitch=0,
-        zoom=10
-    ),
-)
-
-fig.show()
-
-```
-
-![실행결과 VI-7. 맵박스를 사용한 R의 scatter 지도](./fig/png/6-7.png)
