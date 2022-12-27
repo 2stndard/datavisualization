@@ -409,11 +409,13 @@ fig.show()
 
 ## relayout 버튼
 
-relayout 버튼은 해당 버튼을 클릭함으로써 layout 속성이 갱신되는 버튼을 말한다. relayout 버튼은 restyle 버튼과 대부분의 생성 방법은 동일한데, 버튼은 갱신되는 속성값이 'layout'의 하위 속성이어야 하고 'button'의 'type'이 "relayout"으로 설정되어야 한다.
+relayout 버튼은 해당 버튼을 클릭함으로써 layout 속성이 갱신되는 버튼을 말한다. relayout 버튼은 restyle 버튼과 대부분의 생성 방법은 동일한데, 버튼은 갱신되는 속성값이 'layout'의 하위 속성이어야 하고 'button'들의 'method'가 "relayout"으로 설정되어야 한다.
 
 다음은 앞 선 restyle 버튼을 그대로 재활용하여 그래프 제목을 바꾸는 R과 python의 코드이다. 그래프의 제목에 해당하는 속성은 'title'의 'text'이기 때문에 이 속성은 'title.text'로 표현하였다.
 
 -   R
+
+R에서 relayout 버튼을 만들기 위해서는 앞서 restyle 버튼과 동일한 방법을 사용한다. 다만 'method' 속성을 "relayout"으로 설정하고 'args'에 'layout' 관련 속성들을 갱신하도록 설정해야 한다. 
 
 ```{r eval = TRUE}
 fig <- df_충원율_botton |>
@@ -459,6 +461,8 @@ fig
 ```
 
 -   python[^1]
+
+python에서 relayout 버튼을 만들기 위해서는 앞서 restyle 버튼과 동일한 방법을 사용한다. 다만 'method' 속성을 "relayout"으로 설정하고 'args'에 'layout' 관련 속성들을 갱신하도록 설정해야 한다. 
 
 [^1]: python에서도 그래프의 제목에 해당하는 속성은 'title'의 'text'이기 때문에 이 속성은 'title.text'로 표현하였는데 이렇게 표현할 때는 `{}`를 사용하여 딕셔너리를 구성하면 가능하지만 `dict()`를 사용하면 오류가 나는데 plotly의 오류로 보인다.
 
@@ -514,6 +518,9 @@ update 버튼은 해당 버튼을 클릭함으로써 data와 layout 속성이 �
 다음은 앞 선 restyle 버튼과 relayout을 그대로 재활용하여 연도별 bar 트레이스와 그래프 제목을 바꾸는 R과 python의 코드이다.
 
 -   R
+
+R에서 update 버튼을 만들기 위해서는 앞서 restyle 버튼과 동일한 방법을 사용한다. 다만 'method' 속성을 "update"로 설정하고 'args'에 'data'에 관련한 속성으로 구성된 리스트와 'layout' 관련 속성들로 구성된 리스트로 구성하여야 한다. 
+
 
 ```{r eval = TRUE}
 fig <- df_충원율_botton |>
@@ -574,6 +581,9 @@ fig
 ```
 
 -   python
+
+python에서 update 버튼을 만들기 위해서는 앞서 restyle 버튼과 동일한 방법을 사용한다. 다만 'method' 속성을 "update"로 설정하고 'args'에 'data'에 관련한 속성으로 구성된 딕셔너리의 리스트와 'layout' 관련 속성들로 구성된 딕셔너리의 리스트로 구성하여야 한다. 
+
 
 ```{python}
 fig = go.Figure()
@@ -640,6 +650,9 @@ fig.show()
 
 -   R
 
+R에서 드롭다운 버튼을 만들기 위해서는 앞서 버튼과 동일한 방법을 사용한다. 다만 'type' 속성을 "dropdown"으로 설정여야 한다. 
+
+
 ```{r eval = TRUE}
 fig <- df_충원율_botton |>
   plot_ly() |>
@@ -694,6 +707,8 @@ fig
 ```
 
 -   python
+
+python에서 드롭다운 버튼을 만들기 위해서는 앞서 버튼과 동일한 방법을 사용한다. 다만 'type' 속성을 "dropdown"으로 설정여야 한다. 
 
 ```{python}
 fig = go.Figure()
@@ -766,6 +781,9 @@ fig.show()
 
 -   R
 
+R에서 슬라이더를 만들기 위해서는 앞서 버튼과 비슷하게 생각할 수도 있는데, 앞서 각 버튼으로 구현했던 기능들을 'steps' 속성으로 사용한다. 이 'steps' 속성을 'sliders' 속성에 설정하는데 슬라이더가 여러개 들어갈 수도 있으니 리스트의 리스트로 설정하여야 한다. 
+
+
 ```{r eval = TRUE}
 fig <- df_충원율_botton |>
   plot_ly() |>
@@ -818,6 +836,9 @@ fig
 ```
 
 -   python
+
+python에서 슬라이더를 만들기 위해서는 앞서 버튼과 비슷하게 생각할 수도 있는데, 앞서 각 버튼으로 구현했던 기능들을 'steps' 속성으로 사용한다. 이 'steps' 속성을 'sliders' 속성에 설정하는데 슬라이더가 여러개 들어갈 수도 있으니 딕셔너리의 딕셔너리의 리스트로 설정하여야 한다. 또 'steps'에서도 딕셔너리의 리스트를 사용하기 때문에 어디가 딕셔너리이고 어디가 리스트인지, 딕셔너리의 딕셔너리를 어떻게 구성하는지를 잘 살펴야 한다. 
+
 
 ```{python}
 fig = go.Figure()
