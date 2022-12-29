@@ -1875,6 +1875,34 @@ sunburst 트레이스에서 추가적으로 알아두어야 할 속성이 'branc
 
 -   R
 
+```{r}
+df_sunburst <- df_취업률_500 |> group_by(대계열, 중계열) |>
+  summarise(졸업자수 = sum(졸업자수))
+
+all_sum <- sum(df_sunburst$졸업자수)
+계열_sum <- df_sunburst |> group_by(대계열) |>
+  summarise(sum = sum(졸업자수)) |>
+  select(sum) |> pull()
+
+df_sunburst |> plot_ly() |>
+  add_trace(type = 'sunburst', 
+            labels = c('전체', unique(df_sunburst$대계열), df_sunburst$중계열), 
+            parents = c('', rep('전체', 7), df_sunburst$대계열), 
+            values = c(all_sum, 계열_sum, df_sunburst$졸업자수), 
+  branchvalues = 'total', maxdepth = 3, domain = list(x = c(0, 0.45))) |>
+  add_trace(type = 'sunburst', 
+            labels = c('전체', unique(df_sunburst$대계열), df_sunburst$중계열), 
+            parents = c('', rep('전체', 7), df_sunburst$대계열), 
+            values = c(all_sum, 계열_sum, df_sunburst$졸업자수), 
+  branchvalues = 'reminder', maxdepth = 3, domain = list(x = c(0.55, 1))) |>
+  add_annotations(x = 0.25, y = 1, text = "branchvalues = 'total'", 
+                  showarrow = F, xanchor = 'center')  |>
+  add_annotations(x = 0.75, y = 1, text = "branchvalues = 'reminder'", 
+                  showarrow = F, xanchor = 'center')
+  
+```
+
+
 ```{r echo = FALSE}
 df_sunburst <- df_취업률_500 |> group_by(대계열, 중계열) |>
   summarise(졸업자수 = sum(졸업자수))
@@ -1904,6 +1932,35 @@ df_sunburst |> plot_ly() |>
 ```
 
 -   python
+
+```{python eval = FALSE}
+df_sunburst = df_취업률_500.groupby(['대계열', '중계열']).sum()['졸업자수'].reset_index()
+
+all_sum = df_취업률_500.sum()['졸업자수']
+계열_sum = df_취업률_500.groupby('대계열').sum().reset_index()['졸업자수'].values.tolist()
+
+fig = go.Figure()
+fig.add_trace(go.Sunburst(
+    labels = ['전체'] + df_sunburst['대계열'].unique().tolist() + df_sunburst['중계열'].tolist(), 
+    parents = [''] + ['전체'] * 7 + df_sunburst['대계열'].tolist(), 
+    values = [all_sum] + 계열_sum + df_sunburst['졸업자수'].values.tolist(), 
+    branchvalues = 'total', domain = dict(x = (0, 0.45))
+))
+fig.add_trace(go.Sunburst(
+    labels = ['전체'] + df_sunburst['대계열'].unique().tolist() + df_sunburst['중계열'].tolist(), 
+    parents = [''] + ['전체'] * 7 + df_sunburst['대계열'].tolist(), 
+    values = [all_sum] + 계열_sum + df_sunburst['졸업자수'].values.tolist(), 
+    branchvalues = 'remainder', domain = dict(x = (0.55, 1))
+))
+fig.add_annotation(x = 0.25, y = 1.1, text = "branchvalues = 'total'", 
+                  showarrow = False, xanchor = 'center', 
+                  font = dict(size = 15) 
+)
+fig.add_annotation(x = 0.75, y = 1.1, text = "branchvalues = 'remainder'", 
+                  showarrow = False, xanchor = 'center', 
+                  font = dict(size = 15) 
+)
+```
 
 ```{python echo = FALSE, eval = FALSE}
 df_sunburst = df_취업률_500.groupby(['대계열', '중계열']).sum()['졸업자수'].reset_index()
@@ -1943,6 +2000,33 @@ fig.update_layout(sunburstcolorway = ("#08306B", "#08519C", "#2171B5", "#4292C6"
 
 -   R
 
+```{r}
+df_sunburst <- df_취업률_500 |> group_by(대계열, 중계열) |>
+  summarise(졸업자수 = sum(졸업자수))
+
+all_sum <- sum(df_sunburst$졸업자수)
+계열_sum <- df_sunburst |> group_by(대계열) |>
+  summarise(sum = sum(졸업자수)) |>
+  select(sum) |> pull()
+
+df_sunburst |> plot_ly() |>
+  add_trace(type = 'sunburst', 
+            labels = c('전체', unique(df_sunburst$대계열), df_sunburst$중계열), 
+            parents = c('', rep('전체', 7), df_sunburst$대계열), 
+            values = c(all_sum, 계열_sum, df_sunburst$졸업자수), 
+  branchvalues = 'total', insidetextorientation = 'radial', maxdepth = 3, domain = list(x = c(0, 0.45))) |>
+  add_trace(type = 'sunburst', 
+            labels = c('전체', unique(df_sunburst$대계열), df_sunburst$중계열), 
+            parents = c('', rep('전체', 7), df_sunburst$대계열), 
+            values = c(all_sum, 계열_sum, df_sunburst$졸업자수), 
+  branchvalues = 'total', insidetextorientation = 'horizontal',maxdepth = 3, domain = list(x = c(0.55, 1))) |>
+  add_annotations(x = 0.25, y = 1, text = "insidetextorientation = 'radial'", 
+                  showarrow = F, xanchor = 'center')  |>
+  add_annotations(x = 0.75, y = 1, text = "insidetextorientation = 'horizontal'", 
+                  showarrow = F, xanchor = 'center')
+  
+```
+
 ```{r echo = FALSE}
 df_sunburst <- df_취업률_500 |> group_by(대계열, 중계열) |>
   summarise(졸업자수 = sum(졸업자수))
@@ -1972,6 +2056,36 @@ df_sunburst |> plot_ly() |>
 ```
 
 -   python
+
+```{python eval = FALSE}
+df_sunburst = df_취업률_500.groupby(['대계열', '중계열']).sum()['졸업자수'].reset_index()
+
+all_sum = df_취업률_500.sum()['졸업자수']
+계열_sum = df_취업률_500.groupby('대계열').sum().reset_index()['졸업자수'].values.tolist()
+
+fig = go.Figure()
+fig.add_trace(go.Sunburst(
+    labels = ['전체'] + df_sunburst['대계열'].unique().tolist() + df_sunburst['중계열'].tolist(), 
+    parents = [''] + ['전체'] * 7 + df_sunburst['대계열'].tolist(), 
+    values = [all_sum] + 계열_sum + df_sunburst['졸업자수'].values.tolist(), 
+    branchvalues = 'total', insidetextorientation = 'radial', domain = dict(x = (0, 0.45))
+))
+fig.add_trace(go.Sunburst(
+    labels = ['전체'] + df_sunburst['대계열'].unique().tolist() + df_sunburst['중계열'].tolist(), 
+    parents = [''] + ['전체'] * 7 + df_sunburst['대계열'].tolist(), 
+    values = [all_sum] + 계열_sum + df_sunburst['졸업자수'].values.tolist(), 
+    branchvalues = 'total', insidetextorientation = 'horizontal', domain = dict(x = (0.55, 1))
+))
+fig.add_annotation(x = 0.25, y = 1.1, text = "nsidetextorientation = 'radial'", 
+                  showarrow = False, xanchor = 'center', 
+                  font = dict(size = 15) 
+)
+fig.add_annotation(x = 0.75, y = 1.1, text = "insidetextorientation = 'horizontal'", 
+                  showarrow = False, xanchor = 'center', 
+                  font = dict(size = 15) 
+)
+
+```
 
 ```{python eval = FALSE, echo = FALSE}
 df_sunburst = df_취업률_500.groupby(['대계열', '중계열']).sum()['졸업자수'].reset_index()
