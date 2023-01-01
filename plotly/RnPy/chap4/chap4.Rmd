@@ -1,5 +1,5 @@
 ---
-title : 비교(Compare)와 구성(Composition)의 시각화
+title : IV. 비교(Compare)와 구성(Composition)의 시각화
 output: 
   officedown::rdocx_document:
     plots:
@@ -18,10 +18,8 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6.5, dpi = 130, eval = FALSE)
 library(showtext)
 showtext_auto()
-library(tidyverse)
-library(readxl)
-library(patchwork)
-library(plotly)
+
+pacman::p_load("tidyverse", "readxl", "readr", "lubridate", 'plotly')
 
 ```
 
@@ -54,31 +52,16 @@ df_covid19_100_wide <- df_covid19_100 |>
 df_covid19_stat <- df_covid19 |> 
   group_by(iso_code, continent, location) |>
   summarise(인구수 = max(population, na.rm = T), 
-            인당GDP = max(gdp_per_capita, na.rm = T),
-            전체확진자수 = sum(new_cases, na.rm = T),
             전체사망자수 = sum(new_deaths, na.rm = T), 
-            십만명당중환자실 = last(icu_patients_per_million),
-            재생산지수 = last(reproduction_rate),
-            봉쇄지수 = max(stringency_index, na.rm = T), 
-            전체검사자수 = max(total_tests, na.rm = T), 
-            신규검사자수 = sum(new_tests, na.rm = T),
-            전체백신접종자수 = max(total_vaccinations, na.rm = T),
             백신접종자완료자수 = max(people_fully_vaccinated, na.rm = T),
-            부스터접종자수 = max(total_boosters, na.rm = T),
             인구백명당백신접종완료율 = max(people_fully_vaccinated_per_hundred, na.rm = T),
-            인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)
-            ) |> 
+            인구백명당부스터접종자수 = max(total_boosters_per_hundred, na.rm = T)) |> 
     ungroup() |>
     mutate(십만명당사망자수 = round(전체사망자수 / 인구수 *100000, 5),
            백신접종완료율 = 백신접종자완료자수 / 인구수)
 
 margins_R <- list(t = 50, b = 25, l = 25, r = 25)
 
-
-```
-
-```{r echo = FALSE, message = FALSE, warning = FALSE}
-## R 코드
 
 df_취업률 <- read_excel('d:/R/data/2020년 학과별 고등교육기관 취업통계.xlsx', 
                      ## '학과별' 시트의 데이터를 불러오는데,
@@ -175,6 +158,9 @@ df_취업률_500 = df_취업률_500.iloc[range(0, len(df_취업률_500.index) , 
 
 df_취업률_500 = df_취업률_500.rename(columns = {'졸업자_계':'졸업자수', '취업률_계':'취업률', '취업자_합계_계':'취업자수'})
 
+## 여백 설정을 위한 변수 설정
+margins_P = {'t' : 50, 'b' : 25, 'l' : 25, 'r' : 25}
+
 ```
 
 비교와 구성의 시각화는 데이터를 구성하는 특정 변수의 변량에 따라 데이터 값들간의 순서를 비교하거나 데이터의 구성 비율에 대한 시각화이다. 이 종류의 시각화는 다른 시각화와 다른 두가지 특징이 있다.
@@ -266,7 +252,7 @@ fig1 + fig2
 
 막대 그래프에서 트레이스는 막대로 표현하고자 하는 하나의 이산형 변수를 표현한다. 수평 막대 그래프나 수직 막대 그래프는 단일 이산형 변수에 따른 연속형 변수의 표현에 사용되기 때문에 하나의 bar 트레이스로 표현이 가능하다. 하지만 스택 막대 그래프나 그룹 막대 그래프는 이산형 변수를 추가하기 때문에 bar 트레이스를 추가하여야 한다.
 
-`plotly`에서 막대 그래프를 그리기 위해서는 bar 트레이스를 사용한다. R에서는 `add_bars()`나 `add_trace(type = 'bars')`를 사용하고 python에서는 `plotly.graph_objects.Bar()`나 `plotly.express.bar()`를 사용한다. 스택 막대 그래프나 그룹 막대 그래프의 경우는 추가적인 bar 트레이스를 `add_trace()`로 추가한 후 'layout' 속성의 'barmode'를 'stack'이나 'group'을 설정하여 스택 막대 그래프나 그룹 막대 그래프를 그릴 수 있다.
+plotly에서 막대 그래프를 그리기 위해서는 bar 트레이스를 사용한다. R에서는 `add_bars()`나 `add_trace(type = 'bars')`를 사용하고 python에서는 `plotly.graph_objects.Bar()`나 `plotly.express.bar()`를 사용한다. 스택 막대 그래프나 그룹 막대 그래프의 경우는 추가적인 bar 트레이스를 `add_trace()`로 추가한 후 'layout' 속성의 'barmode'를 'stack'이나 'group'을 설정하여 스택 막대 그래프나 그룹 막대 그래프를 그릴 수 있다.
 
 다음은 bar 트레이스에서 사용하는 주요 속성이다.
 
@@ -278,20 +264,24 @@ fig1 + fig2
 
 ### 수직 막대 그래프
 
-다음의 코드는 대학의 계열별 취업률의 평균에 대한 수직 막대 그래프를 그리는 R과 python의 코드이다. 대학의 계열은 총 7개의 이산형 변수이고 취업률은 0에서부터 100까지의 연속형 변수이다. 따라서 X축에는 대학의 계열을 매핑시키고 Y축에 취업률을 매핑시키는 bar 트레이스로 그릴 수 있다. 여기에 데이터를 표시하기 위해 'text' 속성과 'textposition' 속성을 설정하였다. 또 Y축에 매핑되는 데이터는 백분률 데이터이기 때문에 'ticksuffix' 속성을 사용하여 눈금 라벨의 접미어를 '%'로 설정하였다.
+다음의 코드는 대학의 계열별 취업률의 평균에 대한 수직 막대 그래프를 그리는 R과 python의 코드이다. 대학의 계열은 총 7개의 이산형 변수이고 취업률은 0에서부터 100까지의 연속형 변수이다. 따라서 X축에는 대학의 계열을 매핑시키고 Y축에 취업률을 매핑시키는 bar 트레이스로 그릴 수 있다. 여기에 데이터를 표시하기 위해 'text' 속성과 'textposition' 속성을 설정하였고 소수점 한 자리만 표현하기 위해 'texttemplate'를 설정하였다. 또 Y축에 매핑되는 데이터는 백분률 데이터이기 때문에 'ticksuffix' 속성을 사용하여 눈금 라벨의 접미어를 "%"로 설정하였다.
 
 -   R
 
 R에서 bar 트레이스를 만들기 위해서는 `add_trace(type = 'bar')`를 사용하거나 `add_bars()`를 사용한다. 
 
 ```{r}
-margins_R = list(t = 50, b = 25, l = 25, r = 25)
-
 df_취업률 |> group_by(대계열) |>
-  summarise(취업률 = round(mean(취업률_계), 1)) |> plot_ly() |>
-  add_trace(type = 'bar', x = ~대계열, y = ~취업률, 
-            text = ~취업률, textposition = 'inside') |>
+  summarise(취업률 = mean(취업률_계)) |> 
+  plot_ly() |>
+  ## bar 트레이스 추가
+  add_trace(type = 'bar', x = ~대계열, y = ~취업률,
+            ## text와 textposition 설정
+            text = ~취업률, textposition = 'inside', 
+            ## textemplate 설정
+            texttemplate = '%{y:.1f}') |>
   layout(title = '계열별 취업률 평균', 
+         ## 눈금 접미어 설정
          yaxis = list(ticksuffix = '%'),
          margin = margins_R)
 
@@ -303,16 +293,20 @@ python에서 bar 트레이스를 만들기 위해서는 `add_trace()`에 `plotly
 
 ```{python eval = FALSE}
 df_취업률_대계열평균 = df_취업률.groupby('대계열').agg(취업률 = ('취업률_계', 'mean'))
+
 fig = go.Figure()
 
+## bar 트레이스 추가
 fig.add_trace(go.Bar(
-    x = df_취업률_대계열평균.index,
-    y = df_취업률_대계열평균['취업률'], 
-    text = round(df_취업률_대계열평균['취업률'], 1), 
-    textposition = 'inside'
-))
+    x = df_취업률_대계열평균.index, y = df_취업률_대계열평균['취업률'], 
+    ## text 설정
+    text = df_취업률_대계열평균['취업률'], 
+    ## textposition, textemplate 설정
+    textposition = 'inside', texttemplate = '%{y:.1f}'))
+
 fig.update_layout(title = dict(text = '계열별 취업률 평균', x = 0.5), 
                  yaxis = dict(ticksuffix = '%'))
+
 fig.show()
 ```
 
@@ -320,15 +314,16 @@ fig.show()
 
 ## 정렬 막대 그래프
 
-비교를 위해 사용하는 막대 그래프는 특정한 이산형 변수에 의한 비교 데이터를 정렬한 후에 가장 높은 순서부터 혹은 가장 낮은 순서부터 그릴 때 가장 효과가 큰 시각화가 된다. 앞의 취업률 막대그래프와 같이 비교에 사용되는 변수의 변량이 많지 않은 경우는 따로 정렬을 하지 않아도 데이터의 크기를 비교하기 쉽지만 사용되는 변수의 변량이 많은 경우는 데이터 크기를 비교하기 어렵다. 이럴 경우에는 막대의 순서를 데이터의 크기별로 정렬해 주는 것이 데이터를 비교하는데 효과적이다. 이렇게 막대의 순서를 정렬해주기 위해서는 데이터 자체의 순서를 정렬한 후 막대 그래프를 그리는 방법도 있고 `plotly`에서 제공하는 막대 정렬 속성을 사용하는 방법이 있다.
+비교를 위해 사용하는 막대 그래프는 특정한 이산형 변수에 의한 비교 데이터를 정렬한 후에 가장 높은 순서부터 혹은 가장 낮은 순서부터 그릴 때 가장 효과가 큰 시각화가 된다. 앞의 취업률 막대그래프와 같이 비교에 사용되는 변수의 변량이 많지 않은 경우는 따로 정렬을 하지 않아도 데이터의 크기를 비교하기 쉽지만 사용되는 변수의 변량이 많은 경우는 데이터 크기를 비교하기 어렵다. 이럴 경우에는 막대의 순서를 데이터의 크기별로 정렬해 주는 것이 데이터를 비교하는데 효과적이다. 이렇게 막대의 순서를 정렬해주기 위해서는 데이터 자체의 순서를 정렬한 후 막대 그래프를 그리는 방법도 있고 plotly에서 제공하는 막대 정렬 속성을 사용하는 방법이 있다.
 
-`plolty`의 bar 트레이스에서 막대의 순서를 정렬하기 위해서는 'categoryorder'를 사용할 수 있다. 'categoryorder'에는 여러가지 속성값이 있는데 'total ascending'과 'total descending'는 전체 데이터의 오름차순과 내림차순으로 정렬, 'category ascending'과 'category descending'은 변량의 이름으로 정렬, 'array'는 사용자가 원하는 정렬 순서를 'categoryarray' 속성을 사용해서 지정해줄 수 있다.
+`plolty`의 bar 트레이스에서 막대의 순서를 정렬하기 위해서는 'categoryorder'를 사용할 수 있다. 'categoryorder'에는 여러가지 속성값이 있는데 "total ascending"과 "total descending"는 전체 데이터의 오름차순과 내림차순으로 정렬, "category ascending"과 "category descending"은 변량의 이름으로 정렬, "array"는 사용자가 원하는 정렬 순서를 'categoryarray' 속성을 사용해서 지정해줄 수 있다.
 
-코로나19 데이터 셋에서 인구 100명당 완전 백신 접종자의 수가 가장 많은 10개의 국가를 시각화하기 위해서는 먼저 인구 100명당 완전 백신 접종자를 내림차순으로 정렬하고 이중 상위 10개국에 대해 막대 그래프를 그리는 R과 python 코드는 다음과 같다. 여기서 인구수가 너무 적은 국가는 백신접종률에 의미가 떨어지기 때문에 인구수가 천만명 이상의 국가를 대상으로 하였고, 'texttemplate'를 사용하여 표시되는 데이터에'%'를 붙여주었고 정렬을 위해 'categoryorder'를 'total desceding'으로 설정하여 정렬하였다.
+코로나19 데이터 셋에서 인구 100명당 완전 백신 접종자의 수가 가장 많은 10개의 국가를 시각화하기 위해서는 먼저 인구 100명당 완전 백신 접종자를 내림차순으로 정렬하고 이중 상위 10개국에 대해 막대 그래프를 그리는 R과 python 코드는 다음과 같다. 여기서 인구수가 너무 적은 국가는 백신접종률에 의미가 떨어지기 때문에 인구수가 천만명 이상의 국가를 대상으로 하였고, 'texttemplate'를 사용하여 표시되는 데이터에 "%"를 붙여주었고 정렬을 위해 'categoryorder'를 "total desceding"으로 설정하여 정렬하였다.
 
 -   R
 
 ```{r eval=FALSE, fig.cap='데이터가 정렬된 막대그래프'}
+## 인구수가 백만명 이상의 국가중에 인구백명당접종완료율 top 10 필터링
 vaccine_top10 <- df_covid19_stat |>
   filter(인구수 > 10000000) |>
   top_n(10, 인구백명당백신접종완료율)
@@ -336,15 +331,13 @@ vaccine_top10 <- df_covid19_stat |>
 vaccine_top10 |> 
   plot_ly() |>
   add_trace(type = 'bar', 
-            x = ~location, 
-            y = ~인구백명당백신접종완료율,
+            x = ~location, y = ~인구백명당백신접종완료율,
             color = ~continent, text = ~인구백명당백신접종완료율, 
             textposition = 'outside', texttemplate = '%{text}%', 
             textfont = list(color = 'black')) |>
   layout(title = '완전 백신 접종률 상위 top 10 국가', 
          xaxis = list(title = '국가명', categoryorder = 'total descending'), 
-         yaxis = list(title = '백신접종완료율', 
-                      ticksuffix = '%'), 
+         yaxis = list(title = '백신접종완료율', ticksuffix = '%'), 
          margin = margins_R)
 
 ```
@@ -375,8 +368,8 @@ vaccine_top10 |>
 python에서는 앞서 scatter 트레이스에서와 마찬가지로 색상을 지정하는 'color' 속성에 배열이나 리스트를 설정할 수 없다. 따라서 `for` 루프를 사용하여 각각의 대륙별로 색상을 지정한 bar 트레이스를 추가하는 형태로 코딩해야 한다.
 
 ```{python eval = FALSE}
-vaccine_top10 = df_covid19_stat.loc[df_covid19_stat['인구수'] > 10000000].sort_values(by=['인구백명당백신접종완료율'], ascending=False).head(10)
-margins_P = dict(t = 50, b = 25, l = 25, r = 25)
+## 인구수가 백만명 이상의 국가중에 인구백명당접종완료율 top 10 필터링
+vaccine_top10 = df_covid19_stat.loc[df_covid19_stat['인구수'] > 10000000].sort_values(by=['인구백명당백신접종완료율'], ascending=False).head(10).reset_index()
 
 fig = go.Figure()
 
@@ -385,12 +378,11 @@ for continent, group in vaccine_top10.groupby('continent'):
         x = group['location'], y = group['인구백명당백신접종완료율'], 
         name = continent,
         text = group['인구백명당백신접종완료율'], textposition = 'outside', texttemplate = '%{text}%', 
-        textfont = dict(color = 'black')
-    ))
+        textfont = dict(color = 'black')))
+        
 fig.update_layout(title = dict(text = '완전 백신 접종률 상위 top 10 국가', x = 0.5), 
          xaxis = dict(title = '국가명', categoryorder = 'total descending'), 
-         yaxis = dict(title = '백신접종완료율', 
-                      ticksuffix = '%'), 
+         yaxis = dict(title = '백신접종완료율', ticksuffix = '%'), 
          margin = margins_P)
 
 fig.show()
@@ -428,13 +420,14 @@ fig.show()
 
 이를 위해서는 먼저 데이터를 전처리해야 한다. 각 대륙별로 그룹화하여 이 그룹별로 top 5를 산출해준다. 이 시각화는 앞선 시각화와는 몇 가지 차이가 있는데 가장 큰 차이는 수평 막대 그래프라는 점이다. 각 대륙별 top 5를 산출하면 6 대륙의 5개 국가이기 때문에 30개 국가가 산출되게 된다. 하지만 앞서와 같이 인구수가 너무 작은 국가를 제외하다보니 오세아니아 대륙은 1개 국가만이 필터링되어 총 26개국이 나오게 된다. 이렇게 많은 막대를 표현하기에는 좌우 폭은 너무 좁다. 따라서 앞서 설명한 바와 같이 표현되는 변량의 수가 많은 막대 그래프는 수평 막대 그래프로 표현하는 것이 효과적이다.
 
-`plolty`에서 수평 막대 그래프를 그리기 위해서는 bar 트레이스 속성의 'orientation'을 'v'로 설정해야 한다. 또 이산형 변수를 Y축에 매핑시키고 연속형 변수를 X축에 매핑시켜 일반적인 막대 그래프의 매핑과 반대로 설정해야 한다.
+`plolty`에서 수평 막대 그래프를 그리기 위해서는 bar 트레이스 속성의 'orientation'을 "v"로 설정해야 한다. 또 이산형 변수를 Y축에 매핑시키고 연속형 변수를 X축에 매핑시켜 일반적인 막대 그래프의 매핑과 반대로 설정해야 한다.
 
-또 하나의 차이는 각 대륙별로 그룹화하기 위해 하나의 추가적 열을 생성하였다. `plotly`에서는 두 개의 열에 대한 정렬을 사용할 수 없기 때문에 시각화할 순서를 미리 정해주는 순차 번호가 기록되는 열이다. 이 번호를 사용하여 국가를 정렬함으로써 대륙별 백신 접종률의 상위 top 5 국가들에 대한 시각화가 완성된다. 이 순차 번호 열을 Y축에 매핑했기 때문에 Y축에 표시되는 문자열을 설정하기 위해 'ticktext'와 'tickvals' 속성을 설정하였다. 또 X축에 여유를 주기 위해 'layout'의 'xaxis'를 0부터 105까지로 설정하였고, Y축에 눈금 라벨을 설정하기 위해 'tickvals'와 'ticktext'를 설정하였다.
+또 하나의 차이는 각 대륙별로 그룹화하기 위해 하나의 추가적 열을 생성하였다. plotly에서는 두 개의 열에 대한 정렬을 사용할 수 없기 때문에 시각화할 순서를 미리 정해주는 순차 번호가 기록되는 열이다. 이 번호를 사용하여 국가를 정렬함으로써 대륙별 백신 접종률의 상위 top 5 국가들에 대한 시각화가 완성된다. 이 순차 번호 열을 Y축에 매핑했기 때문에 Y축에 표시되는 문자열을 설정하기 위해 'ticktext'와 'tickvals' 속성을 설정하였다. 또 X축에 여유를 주기 위해 'layout'의 'xaxis'를 0부터 105까지로 설정하였고, Y축에 눈금 라벨을 설정하기 위해 'tickvals'와 'ticktext'를 설정하였다.
 
 -   R
 
 ```{r eval = FALSE}
+## 대륙별 백신접종완료율 top 5 필터링
 vaccine_top5_by_continent <- df_covid19_stat |>
   filter(인구수 > 10000000, !is.na(continent)) |>
   group_by(continent) |>
@@ -448,7 +441,8 @@ vaccine_top5_by_continent |>
   add_trace(type = 'bar', 
             y = ~seq, x = ~인구백명당백신접종완료율,
             color = ~continent, 
-            text = ~인구백명당백신접종완료율, textposition = 'outside', texttemplate = '%{text}%', 
+            text = ~인구백명당백신접종완료율, textposition = 'outside', 
+            texttemplate = '%{text}%', 
             textfont = list(color = 'black'), 
             orientation = 'v'
             ) |>
@@ -456,10 +450,8 @@ vaccine_top5_by_continent |>
          xaxis = list(title = '백신접종완료율', 
                       ticksuffix = '%', range = c(0, 105)), 
          yaxis = list(title = '', autorange = 'reversed', 
-                      tickvals = ~seq,
-                      ticktext = ~location), 
-         margin = margins_R, 
-         size = list(height = 900)
+                      tickvals = ~seq, ticktext = ~location), 
+         margin = margins_R, size = list(height = 900)
 )
 ```
 
@@ -496,31 +488,29 @@ vaccine_top5_by_continent |>
 -   python
 
 ```{python eval = FALSE}
+## 대륙별 백신접종완료율 top 5 필터링
 vaccine_top5_by_continent = df_covid19_stat.loc[df_covid19_stat['인구수'] > 10000000].sort_values(by=['continent', '인구백명당백신접종완료율'], ascending=False).groupby('continent').head(5).reset_index()
 
 fig = go.Figure()
-colors = {'South America':"#EFF3FF", 'Oceania':'#C6DBEF', 'North America':'#9ECAE1', 'Europe':'#6BAED6', 'Asia':'#3182BD', 'Africa':'#08519C'}
 
 for continent, group in vaccine_top5_by_continent.groupby('continent'):
     fig.add_trace(go.Bar(
         y = group['location'], x = group['인구백명당백신접종완료율'], 
         name = continent,
         text = group['인구백명당백신접종완료율'], textposition = 'outside', texttemplate = '%{text}%', 
-        textfont = dict(color = 'black'), orientation = 'h'
-    ))
+        textfont = dict(color = 'black'), orientation = 'h'))
     
 fig.update_layout(title = dict(text = '대륙별 완전 백신 접종률 상위 top 5 국가', x = 0.5),
          xaxis = dict(title = '백신접종완료율', 
                       ticksuffix = '%', range = (0, 105)), 
          yaxis = dict(title = '', autorange = 'reversed'), 
-         margin = dict(t = 50, b = 25, l = 25, r = 25), 
-                 height = 800)
+         margin = margins_P, height = 800)
    
 fig.show()
 
 ```
 
-```{python eval = FALSE}
+```{python eval = FALSE, echo = FALSE}
 vaccine_top5_by_continent = df_covid19_stat.loc[df_covid19_stat['인구수'] > 10000000].sort_values(by=['continent', '인구백명당백신접종완료율'], ascending=False).groupby('continent').head(5).reset_index()
 
 fig = go.Figure()
@@ -551,24 +541,26 @@ fig.show()
 
 앞에서 그린 수평 막대 그래프는 대륙별로 그룹화되어 있긴 하지만 전체 데이터를 하나의 데이터프레임으로 만들고 표시될 순서를 열로 만들어 마치 그룹 막대 그래프처럼 보이게 만든 단순 수평 막대 그래프이다. 하지만 그룹 막대 그래프는 일반적으로 긴 형태의 데이터보다는 넓은 형태의 데이터에 적합한 시각화이다. 각각의 열로 표현된 bar 트레이스를 여러개 추가함으로써 그룹 막대 그래프를 그린다.
 
-다음은 대학의 계열에 따른 과정별 그룹 막대 그래프를 그리는 R과 python 코드이다. 우선 그룹 막대 그래프를 그리기 위해서 먼저 긴 형태의 취업률 데이터프레임 중 시각화에 필요한 데이터만으로 그룹화하고 그룹별로 평균값을 산출한다.이 데이터를 다시 넓은 형태로 만들어서 '전문대학과정', '대학과정', '대학원과정'의 세 개의 열을 가지는 넓은 데이터프레임을 만든다. 이 넓은 데이터프레임의 각 열을 Y축으로 매핑하는 세 개의 bar 트레이스를 하나의 `plotly` 객체에 추가해주고 'layout' 속성의 'barmode'를 'group'으로 설정해서 그룹 막대 그래프를 만든다. 추가적으로 'bargroupgap'을 0.2로 설정해주었는데 막대 그룹내의 막대간의 간격을 설정해주었다. 만약 'bargroupgap'이 설정되지 않는다면 막대 그룹 내의 막대들은 서로 붙어서 표현된다. 
+다음은 대학의 계열에 따른 과정별 그룹 막대 그래프를 그리는 R과 python 코드이다. 우선 그룹 막대 그래프를 그리기 위해서 먼저 긴 형태의 취업률 데이터프레임 중 시각화에 필요한 데이터만으로 그룹화하고 그룹별로 평균값을 산출한다.이 데이터를 다시 넓은 형태로 만들어서 '전문대학과정', '대학과정', '대학원과정'의 세 개의 열을 가지는 넓은 데이터프레임을 만든다. 이 넓은 데이터프레임의 각 열을 Y축으로 매핑하는 세 개의 bar 트레이스를 하나의 plotly 객체에 추가해주고 'layout' 속성의 'barmode'를 "group"으로 설정해서 그룹 막대 그래프를 만든다. 추가적으로 'bargroupgap'을 0.2로 설정해주었는데 막대 그룹내의 막대간의 간격을 설정해주었다. 만약 'bargroupgap'이 설정되지 않는다면 막대 그룹 내의 막대들은 서로 붙어서 표현된다. 
 
 -   R
 
 ```{r eval = FALSE}
+## 계열별 취업률을 넓은 데이터 형태로 전처리
 취업률_by_계열 <- df_취업률 |>
   group_by(과정구분, 대계열) |>
   summarise(취업률 = mean(취업률_계)) |>
   pivot_wider(names_from = 과정구분, values_from = 취업률) 
   
-fig <- 취업률_by_계열 |> plot_ly()
-fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~ 전문대학과정, name = '전문대학과정')
-fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~ 대학과정, name = '대학과정')
-fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~대학원과정, name = '대학원과정')
-fig |> layout(barmode = 'group', bargroupgap = 0.2,
-              title = '계열별 교육과정별 취업률 평균',
-         margin = margins_R
-  )
+취업률_by_계열 |> plot_ly() |> 
+  ## 과정별로 bar 트레이스 추가
+  add_trace(type = 'bar', x = ~대계열, y = ~ 전문대학과정, name = '전문대학과정') |> 
+  add_trace(type = 'bar', x = ~대계열, y = ~ 대학과정, name = '대학과정') |>
+  add_trace(type = 'bar', x = ~대계열, y = ~대학원과정, name = '대학원과정') |>
+  ## barmode, bargroupgap 설정
+  layout(barmode = 'group', bargroupgap = 0.2,
+         title = '계열별 교육과정별 취업률 평균',
+         margin = margins_R)
 
 ```
 
@@ -578,16 +570,16 @@ fig |> layout(barmode = 'group', bargroupgap = 0.2,
   summarise(취업률 = mean(취업률_계)) |>
   pivot_wider(names_from = 과정구분, values_from = 취업률) 
   
-fig <- 취업률_by_계열 |> plot_ly()
-fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~ 전문대학과정, name = '전문대학과정', 
-                        marker = list(color =  RColorBrewer::brewer.pal(9, 'Blues')[9]))
-fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~ 대학과정, name = '대학과정', 
-                        marker = list(color =  RColorBrewer::brewer.pal(9, 'Blues')[7]))
-fig <- fig |> add_trace(type = 'bar', x = ~대계열, y = ~대학원과정, name = '대학원과정', 
-                        marker = list(color =  RColorBrewer::brewer.pal(9, 'Blues')[5]))
-fig |> layout(barmode = 'group', bargroupgap = 0.2,
-              title = '계열별 교육과정별 취업률 평균',
-         margin = list(r = 100, t = 80)
+취업률_by_계열 |> plot_ly() |> 
+  add_trace(type = 'bar', x = ~대계열, y = ~ 전문대학과정, name = '전문대학과정', 
+                        marker = list(color =  RColorBrewer::brewer.pal(9, 'Blues')[9])) |> 
+  add_trace(type = 'bar', x = ~대계열, y = ~ 대학과정, name = '대학과정', 
+                        marker = list(color =  RColorBrewer::brewer.pal(9, 'Blues')[7])) |> 
+  add_trace(type = 'bar', x = ~대계열, y = ~대학원과정, name = '대학원과정', 
+                        marker = list(color =  RColorBrewer::brewer.pal(9, 'Blues')[5])) |> 
+  layout(barmode = 'group', bargroupgap = 0.2,
+         title = '계열별 교육과정별 취업률 평균',
+         margin = margins_R
   )
 
 ```
@@ -595,11 +587,13 @@ fig |> layout(barmode = 'group', bargroupgap = 0.2,
 -   python
 
 ```{python eval = FALSE}
+## 계열별 취업률을 넓은 데이터 형태로 전처리
 취업률_by_계열 = df_취업률.groupby(['과정구분', '대계열']).agg(취업률 = ('취업률_계', 'mean')).reset_index().pivot(index = '대계열', columns='과정구분', values='취업률')
 취업률_by_계열
 
 fig = go.Figure()
 
+## 과정별로 bar 트레이스 추가
 fig.add_trace(go.Bar(
     x = 취업률_by_계열.index, 
     y = 취업률_by_계열['전문대학과정'], 
@@ -615,10 +609,10 @@ fig.add_trace(go.Bar(
     y = 취업률_by_계열['대학원과정'], 
     name = '대학원과정'))
 
+## barmode, bargroupgap 설정
 fig.update_layout(barmode = 'group', bargroupgap = 0.2,
               title = '계열별 교육과정별 취업률 평균',
-                  title_x = 0.5,
-         margin = margins_P)
+              title_x = 0.5, margin = margins_P)
 
 fig.show()
 
@@ -662,21 +656,24 @@ fig.show()
 
 ## 이중 축 막대 그래프
 
-시각화를 하다보면 하나의 그래프에 여러 개의 데이터를 표현해야하는 경우가 많다. 서로 다른 데이터를 표현하는데 서로 동일한 트레이스를 사용할 수도 있고 다른 트레이스를 병합하여 혼용할 수도 있다. 우리가  흔하게 만나는 경우가 막대 그래프와 선그래프를 혼용하는 경우이다. 이렇게 하나 이상의 데이터를 표현하는 경우에는 보통 X, Y축 중 한 축의 스케일은 공유하지만 나머지 한 축은 각각의 데이터에 대한 스케일을 가질 수 있다. 따라서 추가적인 축의 설정이 필요하다. `plotly`에서 기본적으로 설정되는 X축은 'xaxis', Y축은 'yaxis'로 'layout' 속성에서 설정이 가능하다. 여기에 추가적으로 설정하는 축은 뒤에 숫자를 붙여 설정할 수 있다. X축을 추가적으로 설정하려면 'xaxis2', Y축을 추가적으로 설정하려면 'yaxis2'로 설정하고 'layout'에서 세부 속성을 설정한다. 이렇게 설정된 추가 축은 해당 축을 사용하는 trace에 'xaxis'나 'yaxis' 속성에 'layout'에 설정한 추가 축의 이름을 설정하여 서로 참조하도록 매칭한다. ` plotly`에서는 트레이스에서 'xaxis'와 'yaxis'에 'x2', 'y2'로 설정하면 'layout'의 'xaxis2', 'yaxis2'에 매칭되도록 설계되어 있다. 추가적인 축이 표현되는데에는 'overlaying'과 'side'의 두 가지 속성의 설정이 필요하다. 'overlaying'은 기존 디폴트 축과 겹쳐져서 두 번쨰 축이 표시되고 'side'는 표현되는 곳을 지정하도록 하는 방법이다. 
+시각화를 하다보면 하나의 그래프에 여러 개의 데이터를 표현해야하는 경우가 많다. 서로 다른 데이터를 표현하는데 서로 동일한 트레이스를 사용할 수도 있고 다른 트레이스를 병합하여 혼용할 수도 있다. 우리가  흔하게 만나는 경우가 막대 그래프와 선그래프를 혼용하는 경우이다. 이렇게 하나 이상의 데이터를 표현하는 경우에는 보통 X, Y축 중 한 축의 스케일은 공유하지만 나머지 한 축은 각각의 데이터에 대한 스케일을 가질 수 있다. 따라서 추가적인 축의 설정이 필요하다. plotly에서 기본적으로 설정되는 X축은 'xaxis', Y축은 'yaxis'로 'layout' 속성에서 설정이 가능하다. 여기에 추가적으로 설정하는 축은 뒤에 숫자를 붙여 설정할 수 있다. X축을 추가적으로 설정하려면 'xaxis2', Y축을 추가적으로 설정하려면 'yaxis2'로 설정하고 'layout'에서 세부 속성을 설정한다. 이렇게 설정된 추가 축은 해당 축을 사용하는 trace에 'xaxis'나 'yaxis' 속성에 'layout'에 설정한 추가 축의 이름을 설정하여 서로 참조하도록 매칭한다. ` plotly`에서는 트레이스에서 'xaxis'와 'yaxis'에 "x2", "y2"로 설정하면 'layout'의 'xaxis2', 'yaxis2'에 매칭되도록 설계되어 있다. 추가적인 축이 표현되는데에는 'overlaying'과 'side'의 두 가지 속성의 설정이 필요하다. 'overlaying'은 기존 디폴트 축과 겹쳐져서 두 번쨰 축이 표시되고 'side'는 표현되는 곳을 지정하도록 하는 방법이다. 
 
-이중 축의 사례를 살펴보기 위해 앞에서 그렸던 완전 백신 접종률 상위 10 국가 막대 그래프에 인구 10만명당 사망자수를 점으로 표시하는 scatter 트레이스를 추가해보도록 하겠다. 백신 접종률의 Y축 스케일은 0%부터 100%까지의 스케일을 가지지만 해당 국가의 인구 10만명당 사망자수는 0.3부터 281까지의 스케일을 가지기 때문에 추가적인 Y축이 필요하게 된다. 따라서 인구 10만명당 사망자수를 표시하는 `add_trace()`의 'yaxis' 속성에 'y2'를 설정하여 추가적인 축을 사용하는 trace로 설정하다. 두번째 Y축의 설정을 위해 'layout' 속성의 'y2'에 해당하는 축에 대한 'yaxis2' 속성을 설정한다. 그리고 `overlaying` 속성에 'y'를 설정하여 Y축에 오버레이되는 축이라는 점을 설정하였고 `side`를 'right'로 설정하여 `yaxis2`가 오른쪽에 표시되도록 설정하였다. 두번째 Y축의 설정으로 인해 범례와의 간격이 좁아졌다. 그래서 범례를 조금 오른쪽으로 옯겨주었다. 
+이중 축의 사례를 살펴보기 위해 앞에서 그렸던 완전 백신 접종률 상위 10 국가 막대 그래프에 인구 10만명당 사망자수를 점으로 표시하는 scatter 트레이스를 추가해보도록 하겠다. 백신 접종률의 Y축 스케일은 0%부터 100%까지의 스케일을 가지지만 해당 국가의 인구 10만명당 사망자수는 0.3부터 281까지의 스케일을 가지기 때문에 추가적인 Y축이 필요하게 된다. 따라서 인구 10만명당 사망자수를 표시하는 `add_trace()`의 'yaxis' 속성에 "y2"를 설정하여 추가적인 축을 사용하는 trace로 설정하다. 두번째 Y축의 설정을 위해 'layout' 속성의 'y2'에 해당하는 축에 대한 'yaxis2' 속성을 설정한다. 그리고 'overlaying' 속성에 "y"를 설정하여 Y축에 오버레이되는 축이라는 점을 설정하였고 'side'를 "right"로 설정하여 'yaxis2'가 오른쪽에 표시되도록 설정하였다. 두번째 Y축의 설정으로 인해 범례와의 간격이 좁아졌다. 그래서 범례를 조금 오른쪽으로 옯겨주었다. 
 
 -   R
 
 ```{r eval = FALSE}
 vaccine_top10 |> 
   plot_ly() |>
+  ## bar 트레이스 추가
   add_trace(type = 'bar',
             x = ~location, y = ~인구백명당백신접종완료율,
             color = ~continent, text = ~인구백명당백신접종완료율, 
             textposition = 'outside', texttemplate = '%{text}%',
             textfont = list(color = 'black')) |>
+  ## markers+text 모드인 scatter 트레이스 생성
   add_trace(type = 'scatter', mode = 'markers+text', 
+            ## yaxis를 "y2"로 설정
             name = '10만명당 사망자수', yaxis = "y2",
             x = ~location, 
             y = ~십만명당사망자수, text = ~round(십만명당사망자수, 1), 
@@ -685,12 +682,12 @@ vaccine_top10 |>
   layout(title = '완전 백신 접종률 상위 top 10 국가', 
          xaxis = list(title = '국가명', categoryorder = 'total descending'), 
          yaxis = list(title = '백신접종완료율', 
-                      ticksuffix = '%'), 
+                      ticksuffix = '%'),
+         ## y2 축의 설정
          yaxis2 = list(title = '인구10만명당 사망자수', 
                        side = "right", overlaying = "y",
                        range = c(0, 300), ticksuffix = '명'),
-         margin = list(r = 100, t = 50), 
-         legend = list(x = 1.1))
+         margin = margins_R,  legend = list(x = 1.1))
 
 ```
 
@@ -703,7 +700,7 @@ vaccine_top10 |>
             text = ~인구백명당백신접종완료율, textposition = 'outside', texttemplate = '%{text}%',
             textfont = list(color = 'black')) |>
   add_trace(type = 'scatter', mode = 'markers+text', 
-            name = '사망자수', yaxis = "y2", color = I('black'), 
+            name = '인구10만명당 사망자수', yaxis = "y2", color = I('black'), 
             x = ~location, 
             y = ~십만명당사망자수, text = ~round(십만명당사망자수, 1), 
             textposition = 'top'
@@ -723,28 +720,30 @@ vaccine_top10 |>
 -   python
 
 ```{python eval = FALSE}
-vaccine_top10 = df_covid19_stat.loc[df_covid19_stat['인구수'] > 10000000].sort_values(by=['인구백명당백신접종완료율'], ascending=False).head(10).reset_index()
-    
 fig = go.Figure()
 
+## bar 트레이스 추가, 색상 설정을 위해 continent로 그룹화하고 for 루프 실행
 for 대륙, group in vaccine_top10.groupby('continent'):
     fig.add_trace(go.Bar(
         x = group['location'], y = group['인구백명당백신접종완료율'], 
         name = 대륙,
         text = group['인구백명당백신접종완료율'], textposition = 'outside', texttemplate = '%{text}%', 
-        textfont = dict(color = 'black')
-    ))
+        textfont = dict(color = 'black')))
 
+## markers+text 모드인 scatter 트레이스 생성
 fig.add_trace(go.Scatter(mode = 'markers+text', 
+            ## yaxis를 "y2"로 설정
             name = '10만명당 사망자수', yaxis = "y2",
             x = vaccine_top10['location'], 
-            y = vaccine_top10['십만명당사망자수'], text = round(vaccine_top10['십만명당사망자수'], 1), 
-            textposition = 'top center')
-             )
+            y = vaccine_top10['십만명당사망자수'], 
+            text = round(vaccine_top10['십만명당사망자수'], 1), 
+            textposition = 'top center'))
+             
 fig.update_layout(title = dict(text = '완전 백신 접종률 상위 top 10 국가와 십만명당 사망자수', x = 0.5), 
          xaxis = dict(title = '국가명', categoryorder = 'total descending'), 
          yaxis = dict(title = '백신접종완료율', 
                       ticksuffix = '%'), 
+         ## y2 축의 설정
          yaxis2 = dict(title = '인구10만명당 사망자수', 
                        side = "right", overlaying = "y",
                        range = (0, 300), ticksuffix = '명'),
@@ -755,8 +754,6 @@ fig.show()
 ```
 
 ```{python eval = FALSE, echo = FALSE}
-vaccine_top10 = df_covid19_stat.loc[df_covid19_stat['인구수'] > 10000000].sort_values(by=['인구백명당백신접종완료율'], ascending=False).head(10).reset_index()
-    
 fig = go.Figure()
 
 for 대륙, group in vaccine_top10.groupby('continent'):
@@ -798,36 +795,34 @@ fig.show()
 ```{r eval = FALSE}
 vaccine_top5_by_continent |> 
   plot_ly() |>
+  ## bar 트레이스 추가
   add_trace(type = 'bar', 
-            y = ~seq, x = ~인구백명당백신접종완료율,
-            color = ~continent, 
-            text = ~인구백명당백신접종완료율, textposition = 'outside', texttemplate = '%{text}%', 
-            textfont = list(color = 'black'), 
-            orientation = 'v'
+            y = ~seq, x = ~인구백명당백신접종완료율, color = ~continent, 
+            text = ~인구백명당백신접종완료율, textposition = 'outside', 
+            texttemplate = '%{text}%', 
+            textfont = list(color = 'black'), orientation = 'v'
             ) |>
+  ## markers+text 모드인 scatter 트레이스 생성
   add_trace(type = 'scatter', mode = 'markers+text', 
+            ## xaxis를 "x2"로 설정
             name = '사망자수', xaxis = "x2",
             y = ~seq, x = ~십만명당사망자수, color = I('black'),
             text = ~round(십만명당사망자수, 1), 
-            textposition = 'middle right'
-            )|>
+            textposition = 'middle right')|>
   layout(barmode = 'group', 
          title = list(text = '대륙별 완전 백신 접종률 상위 top 5 국가', 
                       y = 0.97, yref = 'container'), 
          xaxis = list(title = '백신접종완료율', range = c(0, 105), 
                       ticksuffix = '%'), 
          yaxis = list(title = '', autorange = 'reversed', 
-                      tickvals = ~seq,
-                      ticktext = ~location), 
+                      tickvals = ~seq, ticktext = ~location), 
+         ## xaxis2 축의 설정
          xaxis2 = list(title = list(text = '인구10만명당 사망자수', 
                                     standoff = 1), 
-                       side = "top",
-                       overlaying = "x",
-                       range = c(0, 700), 
-                      ticksuffix = '명'),
+                       side = "top", overlaying = "x",
+                       range = c(0, 700), ticksuffix = '명'),
          margin = list(r = 100, t = 80), 
-         size = list(height = 900)
-         )
+         size = list(height = 900))
 ```
 
 ```{r echo = FALSE, fig.height = 7}
@@ -868,6 +863,8 @@ vaccine_top5_by_continent |>
 
 ```{python eval = FALSE}
 fig = go.Figure()
+
+## bar 트레이스 추가, 색상 설정을 위해 continent로 그룹화하고 for 루프 실행
 for continent, group in vaccine_top5_by_continent.groupby('continent'):
     fig.add_trace(go.Bar(
         y = group['location'], x = group['인구백명당백신접종완료율'], 
@@ -875,23 +872,25 @@ for continent, group in vaccine_top5_by_continent.groupby('continent'):
         text = group['인구백명당백신접종완료율'], textposition = 'outside', texttemplate = '%{text}%', 
         textfont = dict(color = 'black'), orientation = 'h'
     ))
+    
+## markers+text 모드인 scatter 트레이스 생성
 fig.add_trace(go.Scatter(mode = 'markers+text', 
+    ## xaxis를 "x2"로 설정
     xaxis = "x2",
     name = '사망자수',
     x = vaccine_top5_by_continent['십만명당사망자수'], 
     y = vaccine_top5_by_continent['location'], text = round(vaccine_top5_by_continent['십만명당사망자수'], 1), 
-    textposition = 'middle right')
-    )
+    textposition = 'middle right'))
     
 fig.update_layout(title = dict(text = '대륙별 완전 백신 접종률 상위 top 5 국가', x = 0.5),
          xaxis = dict(title = '백신접종완료율', 
                       ticksuffix = '%', range = (0, 105)),
+         ## xaxis2 축의 설정
          xaxis2 = dict(title = dict(text = '인구10만명당 사망자수', standoff = 1), 
                        side = "top", overlaying = "x",
                        range = (0, 700), ticksuffix = '명'),
          yaxis = dict(title = '', autorange = 'reversed'), 
-         margin = dict(r = 100, t = 80), 
-                 height = 800)
+         margin = dict(r = 100, t = 80), height = 800)
 
 ```
 
@@ -932,25 +931,27 @@ fig.update_layout(title = dict(text = '대륙별 완전 백신 접종률 상위 
 
 롤리팝 그래프는 막대사탕의 상품명에서 유래된 그래프이다. 막대 그래프와 유사하지만 그 표현을 막대가 아닌 막대 사탕처럼 점과 직선을 사용하여 표현한다는데에서 유래했다. 점으로 표시된 데이터 점으로부터 축까지를 선으로 이어 데이터를 표현하는 방식의 그래프이다.
 
-`plotly`에서는 이 롤리팝 그래프를 트레이스로 제공하지는 않는다. 따라서 롤리팝 그래프를 그리기 위해서는 scatter 트레이스의 'markers'와 scatter 트레이스의 선이 아닌 도형으로서의 선을 축까지 그려줌으로서 만들 수 있다. 점을 그리는 scatter 트레이스는 R과 python이 유사한 방법을 사용하지만 선 도형을 넣는 것은 다소 차이가 있다. 다음은 앞서 아시아 지역 국가들의 십만명당 사망자수가 표현된 대륙별 백신접종율을 롤리팝 그래프로 그린 R과 python 코드이다. 
+plotly에서는 이 롤리팝 그래프를 트레이스로 제공하지는 않는다. 따라서 롤리팝 그래프를 그리기 위해서는 scatter 트레이스의 'markers'와 scatter 트레이스의 선이 아닌 도형으로서의 선을 축까지 그려줌으로서 만들 수 있다. 점을 그리는 scatter 트레이스는 R과 python이 유사한 방법을 사용하지만 선 도형을 넣는 것은 다소 차이가 있다. 다음은 앞서 아시아 지역 국가들의 십만명당 사망자수가 표현된 대륙별 백신접종율을 롤리팝 그래프로 그린 R과 python 코드이다. 
 
 -   R
 
-R에서 도형으로서의 선은 `add_segments()`를 사용하거나 `add_annotations()`의 type 속성을 'line'으로 설정하여 그릴 수 있다. 롤리팝 그래프를 그리기 위해서 먼저 데이터를 전처리하였다. 아시아 지억 데이터로 필터링하였고 인구수도 5백만명 이상의 국가로 한정하였다. 이 후 `plotly` 객체를 초기화하였는데 모든 트레이스에서 공통적으로 사용하는 X축 매핑을 `plot_ly()`에 넣어주어 추가되는 트레이스에 중복적으로 설정되는 현상을 방지하였다. 다음으로 `add_segments()`로 수직선을 만들어주는데 'xend'는 X축에 매핑되는 값고 동일하게 하였고 Y축에 매핑되는 값은 선의 시작점인 'y'를 국가별 인구 백명당접종완료율로, 선의 끝점인 'yend'는 0로 Y축까지 선이 그어지도록 설정하였다. 여기에 scatter 트레이스로 접종완료율과 십만명당 사망자수를 점으로 표시하였다. 마지막으로 'layout'을 설정하는데 'title', 'yaxis', 'xaxis', 'yaxis2', 'margin', 'legend' 속성을 설정하였다. 
+R에서 도형으로서의 선은 `add_segments()`를 사용하거나 `add_annotations()`의 type 속성을 "line"으로 설정하여 그릴 수 있다. 롤리팝 그래프를 그리기 위해서 먼저 데이터를 전처리하였다. 아시아 지억 데이터로 필터링하였고 인구수도 5백만명 이상의 국가로 한정하였다. 이 후 plotly 객체를 초기화하였는데 모든 트레이스에서 공통적으로 사용하는 X축 매핑을 `plot_ly()`에 넣어주어 추가되는 트레이스에 중복적으로 설정되는 현상을 방지하였다. 다음으로 `add_segments()`로 수직선을 만들어주는데 'xend'는 X축에 매핑되는 값고 동일하게 하였고 Y축에 매핑되는 값은 선의 시작점인 'y'를 국가별 인구 백명당접종완료율로, 선의 끝점인 'yend'는 0로 Y축까지 선이 그어지도록 설정하였다. 여기에 scatter 트레이스로 접종완료율과 십만명당 사망자수를 점으로 표시하였다. 마지막으로 'layout'을 설정하는데 'title', 'yaxis', 'xaxis', 'yaxis2', 'margin', 'legend' 속성을 설정하였다. 
 
 
 ```{r}
+## 롤리팝 그래프를 위한 데이터 전처리
 df_lolipop <- df_covid19_stat |>
   filter(인구수 > 5000000, continent == 'Asia') |>
   arrange(desc(인구백명당백신접종완료율))
 
 df_lolipop |> 
   plot_ly(x = ~reorder(location, desc(인구백명당백신접종완료율))) |>
+  ## 세그먼트 레이어 추가 
   add_segments(xend = ~reorder(location, desc(인구백명당백신접종완료율)),
                y = ~인구백명당백신접종완료율, 
                yend = 0, color = I('gray'), 
-               showlegend = FALSE
-               ) |>
+               showlegend = FALSE) |>
+  ## markers 모드인 scatter 트레이스 추가
   add_trace(type = 'scatter', mode = 'markers', name = '접종완료율',
             y = ~인구백명당백신접종완료율, color = I('darkblue')) |>
   add_trace(type = 'scatter', mode = 'markers', 
@@ -958,22 +959,22 @@ df_lolipop |>
             name = '사망자수', yaxis = "y2",
             y = ~십만명당사망자수, color = I('black'),
             text = ~round(십만명당사망자수, 1), 
-            textposition = 'right'
-            )|>
+            textposition = 'right')|>
   layout(barmode = 'group', 
          title = list(text = '아시아 국가의 백신접종율', 
                       y = 0.97, yref = 'container'), 
          yaxis = list(title = '백신접종완료율', range = c(0, 105), 
                       ticksuffix = '%'), 
          xaxis = list(title = ''),
+         ## 두 번째 Y축의 설정
          yaxis2 = list(title = list(text = '인구10만명당 사망자수', 
                                     standoff = 10), 
                        side = "right", overlaying = "y",
                        range = c(0, 200), ticksuffix = '명'),
-         margin = list(t = 50, b = 25, l = 25, r = 70), 
+         margin = margins_R, 
          legend = list(orientation = 'h', y = -0.5, x = 0.5, 
                        yref = 'container', xanchor = 'center'),
-          showlegend = T)
+         showlegend = T)
 ```
 
 -   python
@@ -981,42 +982,42 @@ df_lolipop |>
 python에서 선 도형을 그리기 위해서는 `add_shape()`의 'type'을 'line'으로 설정하고 X축의 시작점을 'x0', 끝점을 'x1', Y축의 시작점을 'y0', 끝점을 'y1'을 설정하여 그렸고 선의 속성을 설정하기 위해 'line' 속성의 하위 속성을 설정하였다. 다만 'x0', 'x1', 'y0', 'y1'는 벡터형 변수를 설정할 수 없기 때문에 `for` 루프를 사용하여 각각의 국가별로 선을 그려주었다. 이후 접종율과 사망자수를 표시하는 scatter 트레이스를 추가해주었고 'layout' 속성으로 'title', 'xaxis', 'yaxis', 'yaxis2', 'margin', 'legend', 'showlegend'를 설정해주었다. 
 
 ```{python eval = FALSE}
+## 롤리팝 그래프를 위한 데이터 전처리
 df_lolipop = df_covid19_stat.reset_index()
 
 df_lolipop = df_lolipop.loc[(df_lolipop['인구수'] > 5000000) & (df_lolipop['continent'] == 'Asia') & (df_lolipop['인구백명당백신접종완료율'].isna() == False)].sort_values(by = '인구백명당백신접종완료율', ascending=False)
 
 fig = go.Figure()
 
+## 라인 세그컨트 레이어를 추가
 for index, row in df_lolipop.iterrows():
-    fig.add_shape(type="line", xref="x", yref="y",
+    fig.add_shape(type='line', xref='x', yref='y',
         x0=row['location'], y0=0, x1=row['location'], y1=row['인구백명당백신접종완료율'],
-        line=dict(color="RoyalBlue",width=3)
-    )
+        line=dict(color='RoyalBlue',width=3))
 
+## markers 모드인 scatter 트레이스 추가
 fig.add_trace(go.Scatter(
     mode = 'markers', name = '접종완료율',
     x = df_lolipop['location'], y = df_lolipop['인구백명당백신접종완료율'], 
-    marker = dict(color = 'darkblue', symbol = 0, size = 8) 
-))
+    marker = dict(color = 'darkblue', symbol = 0, size = 8) ))
 
 fig.add_trace(go.Scatter(
     mode = 'markers', name = '사망자수',
     x = df_lolipop['location'], y = df_lolipop['십만명당사망자수'], yaxis = "y2",
-    marker = dict(color = 'black', symbol = 100, size = 8) 
-))
+    marker = dict(color = 'black', symbol = 100, size = 8) ))
 
 fig.update_layout(
          title = dict(text = '아시아 국가의 백신접종율', x = 0.5), 
          xaxis = dict(title = ''),
          yaxis = dict(title = '백신접종완료율', range = (0, 105), 
                       ticksuffix = '%'), 
+         ## 두 번째 Y축의 설정
          yaxis2 = dict(title = dict(text = '인구10만명당 사망자수', 
                                     standoff = 10), 
                        side = "right", overlaying = "y",
                        range = (0, 200), ticksuffix = '명'),
-         margin = dict(t = 50, b = 25, l = 25, r = 70), 
-         legend = dict(orientation = 'h', y = -0.5, x = 0.5, xanchor = 'center'),
-         showlegend = True)
+         margin = margins_P, showlegend = True,
+         legend = dict(orientation = 'h', y = -0.5, x = 0.5, xanchor = 'center'))
 
 ```
 
@@ -1026,15 +1027,15 @@ fig.update_layout(
 
 레이다 차트(Radar Chart)는 특정 객체나 이벤트를 여러 평가 항목에 따라 평가를 한 결과를 시각화할 때 주로 사용된다. 평가 항목 수에 따른 다각형을 중심으로부터 측정 단위에 따라 일정 간격으로 척도를 재는 칸을 나누어 평가 항목 간 결과를 한눈에 볼 수 있도록 해주는 차트이다. 원점을 중심으로 둥글게 펼쳐진 각각의 데이터 축에 표현되다보니 마치 레이더망과 같이 생겨 붙여진 이름이다.  여러 측정 항목을 함께 겹쳐 놓아 비교하기에도 편리하고 항목 간 비율뿐만 아니라 균형과 경향을 직관적으로 알 수 있어 편리하다.
 
-`plotly`에서 레이다 차트를 그리는 타입이 레이다(radar) 트레이스가 아닌 scatterpolar 트레이스라는 이름의 트레이스를 사용한다. scatterploar 트레이스는 단지 레이더 차트를 그리기 위해 사용되는 트레이스가 아니고 축을 X, Y축이 아닌 각도(angular)와 반지름(radial)를 사용하는 극 좌표계(Ploar)를 사용하는 scatter 트레이스를 말한다. 따라서 'mode'를 'markers'나 'text'로 사용하는 scatterpolar 트레이스를 사용할 수도 있다.
+plotly에서 레이다 차트를 그리는 타입이 레이다(radar) 트레이스가 아닌 scatterpolar 트레이스라는 이름의 트레이스를 사용한다. scatterploar 트레이스는 단지 레이더 차트를 그리기 위해 사용되는 트레이스가 아니고 축을 X, Y축이 아닌 각도(angular)와 반지름(radial)를 사용하는 극 좌표계(Ploar)를 사용하는 scatter 트레이스를 말한다. 따라서 'mode'를 'markers'나 'text'로 사용하는 scatterpolar 트레이스를 사용할 수도 있다.
 
-scatterpolar 트레이스에서 중요하게 사용되는 속성이 'theta'와 'r', 'fill'이다. 'theta'는 각도로 표현되는 축을 설정하는 속성으로 레이더 차트에서 평가 항목으로 설정해야하는 변수나 벡터를 설정한다. 'r'은 반지름으로 표현되는 축을 설정하는 속성으로 레이터 차트에서 평가 항목의 측정값을 설정한다. 'fill'은 단색으로 채울 영역을 설정하는 속성이다. 이 속성은 'none', 'toself', 'tonext'의 세가지 값을 가지는데 'toself'는 trace의 시작점과 끝점을 연결해 닫힌 모양으로 만들고 해당 트레이스 설정된 색을 채우고 트레이스가 여러 개일 경우 트레이스가 겹치는 곳의 색은 양 트레이스의 색이 겹쳐 표현된다. 'tonext'도 시작점과 끝점을 연결해 닫힌 모양으로 만들고 내부를 채우는데 완전히 겹쳐지는 트레이스의 색을 설정된 색을 사용한다는 것이 차이이다. 'none'은 내부를 채우지 않는다.
+scatterpolar 트레이스에서 중요하게 사용되는 속성이 'theta'와 'r', 'fill'이다. 'theta'는 각도로 표현되는 축을 설정하는 속성으로 레이더 차트에서 평가 항목으로 설정해야하는 변수나 벡터를 설정한다. 'r'은 반지름으로 표현되는 축을 설정하는 속성으로 레이터 차트에서 평가 항목의 측정값을 설정한다. 'fill'은 단색으로 채울 영역을 설정하는 속성이다. 이 속성은 "none", "toself", "tonext"의 세가지 값을 가지는데 "toself"는 trace의 시작점과 끝점을 연결해 닫힌 모양으로 만들고 해당 트레이스 설정된 색을 채우고 트레이스가 여러 개일 경우 트레이스가 겹치는 곳의 색은 양 트레이스의 색이 겹쳐 표현된다. "tonext"도 시작점과 끝점을 연결해 닫힌 모양으로 만들고 내부를 채우는데 완전히 겹쳐지는 트레이스의 색을 설정된 색을 사용한다는 것이 차이이다. "none"은 내부를 채우지 않는다.
 
 다음은 scatterploar 트레이스에서 사용되는 주요 속성들이다. 
 
 ![](scatterpolar_trace.png)
 
-`plotly`에서 scatterploar 트레이스를 사용할 때는 지금까지 사용했던 X, Y축의 데카르트 좌표계가 아닌 극좌표계(polar)를 사용하기 때문에 'layout'을 설정할 때 축 설정과 관련한 속성들이 다소 차이가 있다. 극좌표계는 'layout' 속성의 'polar' 속성으로 설정한다. 'polar' 좌표도 'angularaxis'와 'radialaxis'의 두 개의 축으로 구성된다. 다음의 그림은 극좌표계의 주요 구성을 보이고 있다. 
+plotly에서 scatterploar 트레이스를 사용할 때는 지금까지 사용했던 X, Y축의 데카르트 좌표계가 아닌 극좌표계(polar)를 사용하기 때문에 'layout'을 설정할 때 축 설정과 관련한 속성들이 다소 차이가 있다. 극좌표계는 'layout' 속성의 'polar' 속성으로 설정한다. 'polar' 좌표도 'angularaxis'와 'radialaxis'의 두 개의 축으로 구성된다. 다음의 그림은 극좌표계의 주요 구성을 보이고 있다. 
 
 ![그림 IV-3. 레이더 차트의 구조](polar_fig.png)
 
@@ -1049,30 +1050,27 @@ scatterpolar 트레이스에서 중요하게 사용되는 속성이 'theta'와 '
 R에서 scatterpolar 트레이스를 만들기 위해서는 `add_trace(type = 'scatterpolar', ...)`를 사용한다. 
 
 ```{r}
+## 레이더 차트를 위한 데이터 전처리
 df_radar_veccine <- df_covid19_stat |> 
   filter(iso_code %in% c('OWID_AFR', 'OWID_ASI', 'OWID_EUR', 'OWID_NAM', 'OWID_OCE', 'OWID_SAM')) |>
   select(continent, location, 인구백명당백신접종완료율)
 
 df_radar_veccine |>
   plot_ly() |>
+  ## scatterpolar 트레이스 추가
   add_trace(type = 'scatterpolar',  
-            theta = ~location, 
-            r = ~인구백명당백신접종완료율,
-            fill = 'toself'
-            ) |>
-  layout(polar = list(angularaxis = 
-                        list(ticktext = c('아프리카', '아시아', '유럽', '북미', '오세아니아', '남미'), 
-                             tickvals = c('Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America'), 
-                             linewidth = 2, linecolor = 'black', gridcolor = 'gray'
-                             ), 
-                      radialaxis = 
-                        list(linewidth = 2, linecolor = 'dodgerblue', gridcolor = 'skyblue', 
-                             nticks = 5, ticksuffix = '%', 
-                             title = '백신 접종률')
-                      ),
+            theta = ~location, r = ~인구백명당백신접종완료율, fill = 'toself') |>
+  ## polar 속성 설정
+  layout(polar = list(
+    ##  angularaxis 속성 설정
+    angularaxis = list(ticktext = c('아프리카', '아시아', '유럽', '북미', '오세아니아', '남미'), 
+                       tickvals = c('Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America'), 
+                       linewidth = 2, linecolor = 'black', gridcolor = 'gray'),
+    ##  radialaxis 속성 설정
+    radialaxis = list(linewidth = 2, linecolor = 'dodgerblue', gridcolor = 'skyblue',
+                      nticks = 5, ticksuffix = '%', title = '백신 접종률')),
          title = list(text = '대륙별 백신 접종률', x = 0.5), 
-         margin = margins_R
-         )
+         margin = margins_R)
 ```
 
 -   python
@@ -1080,28 +1078,32 @@ df_radar_veccine |>
 python에서 scatterpolar 트레이스를 만들기 위해서는 `add_trace()`에 `plotly.graph_objects.Scatterploar()`를 사용하거나 `plotly.express.scatter_ploar()`를 사용한다.  
 
 ```{python eval = FALSE}
+## 레이더 차트를 위한 데이터 전처리
 df_radar_veccine = df_covid19_stat.copy().reset_index()
 df_radar_veccine = df_radar_veccine[(df_radar_veccine['iso_code'].isin(['OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM', 'OWID_AFR']))]
 
 fig = go.Figure()
 
+## scatterpolar 트레이스 추가
 fig.add_trace(go.Scatterpolar(
     theta = df_radar_veccine['location'], 
     r = df_radar_veccine['인구백명당백신접종완료율'], 
     fill = 'toself'
 ))
 
-fig.update_layout(polar = dict(angularaxis =
-                               dict(ticktext = ('아프리카', '아시아', '유럽', '북미', '오세아니아', '남미'),
-                                    tickvals = ('Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America'),
-                                    linewidth = 2, linecolor = 'black', gridcolor = 'gray'
-                                    ), 
-                               radialaxis = dict(linewidth = 2, linecolor = 'dodgerblue', gridcolor = 'skyblue',
-                                                 nticks = 5, ticksuffix = '%', title = '백신 접종률')
-                               ),
-                  title = dict(text = '대륙별 백신 접종률', x = 0.5),
-                  margin = margins_P
-         )
+## polar 속성 설정
+fig.update_layout(polar = 
+    ##  angularaxis 속성 설정
+    dict(angularaxis = 
+            dict(ticktext = ('아프리카', '아시아', '유럽', '북미', '오세아니아', '남미'),
+                tickvals = ('Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America'),
+                 linewidth = 2, linecolor = 'black', gridcolor = 'gray'), 
+    ##  radialaxis 속성 설정
+         radialaxis = 
+             dict(linewidth = 2, linecolor = 'dodgerblue', gridcolor = 'skyblue',
+                  nticks = 5, ticksuffix = '%', title = '백신 접종률')),
+    title = dict(text = '대륙별 백신 접종률', x = 0.5),
+    margin = margins_P)
 ```
 
 ![실행결과 IV-8. python의 레이더 차트](./fig/png/4-8.png)
@@ -1110,26 +1112,30 @@ fig.update_layout(polar = dict(angularaxis =
 
 덤벨(Dumbbell) 그래프는 동일한 변수의 두개의 값을 비교하기 위해 사용하는 차트이다. 일반적으로 양쪽 끝을 둥글게 만들고 그 사이를 선으로 연결하여 생긴 형태가 운동할때 쓰는 아령과 같이 생겨서 붙여진 이름이다.  롤리팝 그래프와 유사하게 보이지만 롤리팝 그래프는 막대 그래프의 변형으로 시작점을 모두 기준선에 맞추어 시작하지만 덤벨 차트는 시작점이 일정하지 않기 때문에 보통 두 개의 데이터를 비교하고 어떤 변량에서 차이가 더 큰지를 비교할 때 많이 사용한다. 
 
-`plotly`는 덤벨 그래프를 위한 트레이스를 제공하지 않기 떄문에 롤리팝 그래프와 같이 scatter 트레이스의 'markers' 타입으로 각 변량에 따른 두 개의 데이터를 표시하고 이 사이를 선 도형으로 이어서 그린다. 
+plotly는 덤벨 그래프를 위한 트레이스를 제공하지 않기 떄문에 롤리팝 그래프와 같이 scatter 트레이스의 "markers" 타입으로 각 변량에 따른 두 개의 데이터를 표시하고 이 사이를 선 도형으로 이어서 그린다. 
 
 다음은 대륙별 인구수가 백만 이상의 국가 중에 십만명당 사망자수가 가장 작은 나라와 가장 큰 나라의 차이를 덤벨 차트로 시각화하는 R과 python 코드이다. 데이터 전처리 단계에서는 먼저 전체 데이터를 각 대륙별로 인구수가 천만명이 넘는 국가를 필터링하고 그룹화하여 최대값과 최소값을 구한 데이터프레임을 만들었다. 이 데이터를 설명한 바와 같이 최대값을 표시하는 scatter 트레이스와 최소값을 표시하는 scatter 트레이스를 만들었고 이 사이를 선으로 잇는 선 도형을 만들었다.  
 
 -   R
 
 ```{r}
+##  덤벨 차트를 위한 데이터 전처리
 df_covid19_stat |>
   filter(!is.na(continent), 인구수 > 10000000) |>
   group_by(continent) |>
   summarise(min = min(십만명당사망자수), max = max(십만명당사망자수)) |>
   plot_ly() |>
+  ## 덤벨 차트용 세그먼트 추가
   add_segments( 
             x = ~min, xend = ~max, y = ~continent, yend = ~continent,
             showlegend = FALSE, 
             color = I('gray')) |>
+  ## 최소값 트레이스 추가
   add_trace(type = 'scatter', mode = 'markers+text', 
             x = ~min, y = ~continent, name = '최소', 
             text = ~round(min, 1), textposition = 'bottom center', 
             color = I('#1f77b4')) |>
+  ## 최대값 트레이스 추가
   add_trace(type = 'scatter', mode = 'markers+text', 
             x = ~max, y = ~continent, name = '최대',  
             text = ~round(max, 1), textposition = 'bottom center', 
@@ -1137,39 +1143,43 @@ df_covid19_stat |>
   layout(title = '대륙별 10만명당 사망자수 차이', 
          xaxis = list(title = '10만명당 사망자수'), 
          yaxis = list(title = '', autorange = 'reversed'), 
-         margin = margins_R
-         )
+         margin = margins_R)
 ```
 
 -   python
 
 ```{python eval = FALSE}
+##  덤벨 차트를 위한 데이터 전처리
 df_dumbbell = df_covid19_stat.copy().reset_index()
 df_dumbbell = df_dumbbell.loc[(df_dumbbell['continent'].isna() == False) & (df_dumbbell['인구수'] > 10000000)].groupby('continent')['십만명당사망자수'].agg([('min', 'min'), ('max', 'max')]).reset_index()
 
 fig = go.Figure()
+
+## 최소값 트레이스 추가
 fig.add_trace(go.Scatter(
     mode = 'markers+text', name = '최소',
     x = df_dumbbell['min'], y = df_dumbbell['continent'],
     text = round(df_dumbbell['min'], 1), textposition = 'bottom center', 
-    marker = dict(size = 8, color = 'skyblue')
-))
+    marker = dict(size = 8, color = 'skyblue')))
+
+## 최대값 트레이스 추가
 fig.add_trace(go.Scatter(
     mode = 'markers+text', name = '최대',
     x = df_dumbbell['max'], y = df_dumbbell['continent'], 
     text = round(df_dumbbell['max'], 1), textposition = 'bottom center', 
-    marker = dict(size = 8, color = 'darkblue', symbol = 'circle-open')
-))
+    marker = dict(size = 8, color = 'darkblue', symbol = 'circle-open')))
+
+## 덤벨 차트용 세그먼트 추가
 for index, row in df_dumbbell.iterrows():
     fig.add_shape(type="line", xref="x", yref="y",
         x0=row['min'], y0=row['continent'], x1=row['max'], y1=row['continent'],
-        line=dict(color="gray",width=3)
-    )
+        line=dict(color="gray",width=3))
+    
 fig.update_layout(title = dict(text = '대륙별 10만명당 사망자수 차이', x = 0.5), 
          xaxis = dict(title = '10만명당 사망자수'), 
          yaxis = dict(title = '', autorange = 'reversed'), 
-         margin = margins_P
-         )
+         margin = margins_P)
+         
 fig.show()
 
 ```
@@ -1178,21 +1188,22 @@ fig.show()
 
 # 비율 막대 그래프
 
-앞 장에서 `plotly`가 지원하는 bar 트레이스는 수평, 수직 막대 그래프, 그룹 막대 그래프, 스택 막대 그래프의 네 가지 유형을 살펴보았다. 하지만 막대 그래프를 사용하여  변량 간의 데이터를 비교하는 것이 아닌 각 변량을 구성하고 있는 구성 성분의 비율을 살펴보기 위해서는 스택 막대 그래프를 백분률로 표시하면 그 구성 비율이 쉽게 표현된다. 이를 비율 막대 그래프라고 하는데 막대 길이가 모두 100으로 같게 그리고 막대를 구성하는 변량은 전체 대비 비율로 표현하는 막대 그래프이다. 따라서 전체 데이터 값의 비교가 불가능하고 단지 그 세부 분류의 비율만을 확인할 수 있다.
+앞 장에서 plotly가 지원하는 bar 트레이스는 수평, 수직 막대 그래프, 그룹 막대 그래프, 스택 막대 그래프의 네 가지 유형을 살펴보았다. 하지만 막대 그래프를 사용하여  변량 간의 데이터를 비교하는 것이 아닌 각 변량을 구성하고 있는 구성 성분의 비율을 살펴보기 위해서는 스택 막대 그래프를 백분률로 표시하면 그 구성 비율이 쉽게 표현된다. 이를 비율 막대 그래프라고 하는데 막대 길이가 모두 100으로 같게 그리고 막대를 구성하는 변량은 전체 대비 비율로 표현하는 막대 그래프이다. 따라서 전체 데이터 값의 비교가 불가능하고 단지 그 세부 분류의 비율만을 확인할 수 있다.
 
 비율 막대 그래프를 그리기 위해서는 먼저 표현하고자 하는 변수의 각 변량 데이터를 백분률로 전처리한 후 이 비율을 bar 트레이스의 스택 막대 그래프로 그려준다. 
 
 
-다음은 전세계 국가들의 소득별로 그룹화한 통계를 사용하여 '전체 확진자', '전체 사망자', '백신접종완료자수'를 비율 막대로 표시하는 R과 python 코드이다. 먼저 데이터 중에 소득별 데이터만 필터링하고 행은 '전체확진자수', '전체 사망자수', '백신접종자완료자수'로, 열은 'High income', 'Low income', 'Lower middle income', 'Upper middle income'을 가지도록 변환하였다. 이 후 각 열의 합계값을 가지는 'sum' 열을 만들고 각각의 열을 'sum' 열로 나누어 행 전체의 비율로 각각의 열을 계산하였다. 이 비율로 비율 막대 그래프를 그리는데 수평 막대 그래프를 그리고 'barmode'를 'stack'으로 설정하여 누적형 스택 막대그래프로 설정하였다. 이렇게 그려진 비율 막대 그래프에 각 비율 텍스트를 넣어주는데 `plotly`에서는 이 비율을 넣어주는 기능을 제공하지 않기 때문에 'annotation'을 추가하여 각각의 비율을 표기해 주었다. 마지막으로 'layout' 속성의 'tickformat'을 사용하여 X축의 스케일을 백분률로 바꾸어 주었다.   
+다음은 전세계 국가들의 소득별로 그룹화한 통계를 사용하여 '전체 확진자', '전체 사망자', '백신접종완료자수'를 비율 막대로 표시하는 R과 python 코드이다. 먼저 데이터 중에 소득별 데이터만 필터링하고 행은 '전체확진자수', '전체 사망자수', '백신접종자완료자수'로, 열은 'High income', 'Low income', 'Lower middle income', 'Upper middle income'을 가지도록 변환하였다. 이 후 각 열의 합계값을 가지는 'sum' 열을 만들고 각각의 열을 'sum' 열로 나누어 행 전체의 비율로 각각의 열을 계산하였다. 이 비율로 비율 막대 그래프를 그리는데 수평 막대 그래프를 그리고 'barmode'를 "stack"으로 설정하여 누적형 스택 막대그래프로 설정하였다. 이렇게 그려진 비율 막대 그래프에 각 비율 텍스트를 넣어주는데 plotly에서는 이 비율을 넣어주는 기능을 제공하지 않기 때문에 'annotation'을 추가하여 각각의 비율을 표기해 주었다. 마지막으로 'layout' 속성의 'tickformat'을 사용하여 X축의 스케일을 백분률로 바꾸어 주었다.   
 
 -   R
 
-R에서 비율 스택 막대 그래프를 그릴떄는 설명한대로 막대의 구성으로 이루어지는 bar 트레이스들을 추가함으로써 그릴 수 있다. 여기서는 각각의 Y 변수에 따라 그 구성비(High income, Low income, Lower middle income, Upper middle income)에 해당하는 4개의 bar 트레이스를 추가하였다. 여기에 'barmode'를 'stack'으로 설정해서 각각 스택 막대 그래프로 만들었고 각각의 비율 텍스트를 표기하기 위해 `add_annotations()`를 사용하였다. 텍스트의 X 위치를 결정할 때 각각의 변량의 중간의 위치하도록 하는데 두 번째, 세 번쨰, 네 번째 텍스트는 앞에 표시된 변량의 누적량만큼을 더해서 X 위치를 결정하였다. 여기에 'layout' 속성의 'xaxis', 'yaxis', 'legend', 'margin'을 설정하였다. 이 중 'legend'는 가로형태로 표현하기 위해 'orientation'을 'h'로 설정하였다. 
+R에서 비율 스택 막대 그래프를 그릴떄는 설명한대로 막대의 구성으로 이루어지는 bar 트레이스들을 추가함으로써 그릴 수 있다. 여기서는 각각의 Y 변수에 따라 그 구성비(High income, Low income, Lower middle income, Upper middle income)에 해당하는 4개의 bar 트레이스를 추가하였다. 여기에 'barmode'를 "stack"으로 설정해서 각각 스택 막대 그래프로 만들었고 각각의 비율 텍스트를 표기하기 위해 `add_annotations()`를 사용하였다. 텍스트의 X 위치를 결정할 때 각각의 변량의 중간의 위치하도록 하는데 두 번째, 세 번쨰, 네 번째 텍스트는 앞에 표시된 변량의 누적량만큼을 더해서 X 위치를 결정하였다. 여기에 'layout' 속성의 'xaxis', 'yaxis', 'legend', 'margin'을 설정하였다. 이 중 'legend'는 가로형태로 표현하기 위해 'orientation'을 "h"로 설정하였다. 
 
 ```{r eval=FALSE}
+##  비율 막대 그래프를 위한 데이터 전처리
 df_covid19_stat |>
   filter(iso_code %in% c('OWID_HIC', 'OWID_LIC', 'OWID_LMC', 'OWID_UMC')) |>
-  select(3, 6, 7, 14) |>
+  select(3, 5, 6, 7) |>
   pivot_longer(cols = c(2, 3, 4)) |>
   pivot_wider(names_from = location) |>
   group_by(name) |>
@@ -1202,37 +1213,45 @@ df_covid19_stat |>
          `Lower middle income` = `Lower middle income` / sum, 
          `Upper middle income` = `Upper middle income` / sum) |>
   plot_ly() |>
+  ##  'High income'을 위한 bar 트레이스 추가
   add_trace(type = 'bar', x = ~`High income`, y = ~name, 
             name = 'High income', orientation = 'h',
-          marker = list(line = list(color = 'white', 
-                                    width = 2))) |>
+            marker = list(line = list(color = 'white', width = 2))) |>
+  ##  'Upper middle income'을 위한 bar 트레이스 추가
   add_trace(type = 'bar', x = ~`Upper middle income`, y = ~name, 
             name = 'Upper middle income', orientation = 'h',
-          marker = list(line = list(color = 'white', 
-                                    width = 2))) |>
+            marker = list(line = list(color = 'white', width = 2))) |>
+  ##  'Lower middle income'을 위한 bar 트레이스 추가
   add_trace(type = 'bar', x = ~`Lower middle income`, y = ~name, 
             name = 'Lower middle income', orientation = 'h',
-          marker = list(line = list(color = 'white', 
-                                    width = 2))) |>
+            marker = list(line = list(color = 'white', width = 2))) |>
+  ##  'Low income'을 위한 bar 트레이스 추가
   add_trace(type = 'bar', x = ~`Low income`, y = ~name, 
             name = 'Low income', orientation = 'h',
-          marker = list(line = list(color = 'white', 
-                                    width = 2))) |>
+            marker = list(line = list(color = 'white', width = 2))) |>
+  ##  'High income' 값 표시를 위한 주석 레이어 추가
   add_annotations(xref = 'x', yref = 'y',
                   x = ~`High income` / 2, y = ~name,
                   text = ~paste(round(`High income`*100, 1), '%'),
                   font = list(color = 'white'),
                   showarrow = FALSE) |>
+  ##  'High income' 값 표시를 위한 주석 레이어 추가
   add_annotations(xref = 'x', yref = 'y',
                   x = ~`High income` + `Upper middle income` / 2, y = ~name,
                   text = ~paste(round(`Upper middle income`*100, 1), '%'),
                   font = list(color = 'white'),
                   showarrow = FALSE) |>
+  ##  'High income' 값 표시를 위한 주석 레이어 추가
   add_annotations(xref = 'x', yref = 'y',
                   x = ~`High income` + `Upper middle income` + `Lower middle income` / 2, 
                   y = ~name,
                   text = ~paste(round(`Lower middle income`*100, 1), '%'),
                   font = list(color = 'white'),
+                  showarrow = FALSE) |>
+  add_annotations(xref = 'x', yref = 'y',
+                  x = ~`High income` + `Upper middle income` + `Lower middle income` + `Low income` / 2, y = ~name,
+                  text = ~paste(round(`Lower middle income`*100, 1), '%'),
+                  font = list(color = 'white'), 
                   showarrow = FALSE) |>
   layout(barmode = 'stack', 
          title = '국가 소득급간별 코로나19 현황',
@@ -1246,7 +1265,7 @@ df_covid19_stat |>
 ```{r echo=FALSE}
 df_covid19_stat |>
   filter(iso_code %in% c('OWID_HIC', 'OWID_LIC', 'OWID_LMC', 'OWID_UMC')) |>
-  select(3, 6, 7, 14) |>
+  select(3, 5, 6, 7) |>
   pivot_longer(cols = c(2, 3, 4)) |>
   pivot_wider(names_from = location) |>
   group_by(name) |>
@@ -1280,6 +1299,11 @@ df_covid19_stat |>
                   text = ~paste(round(`Lower middle income`*100, 1), '%'),
                   font = list(color = 'white'), 
                   showarrow = FALSE) |>
+  add_annotations(xref = 'x', yref = 'y',
+                  x = ~`High income` + `Upper middle income` + `Lower middle income` + `Low income` / 2, y = ~name,
+                  text = ~paste(round(`Lower middle income`*100, 1), '%'),
+                  font = list(color = 'white'), 
+                  showarrow = FALSE) |>
   layout(barmode = 'stack', 
          title = '국가 소득급간별 코로나19 현황',
          xaxis = list(title = '', tickformat = '.0%'), 
@@ -1291,9 +1315,10 @@ df_covid19_stat |>
 
 -   python
 
-python에서 비율 스택 막대 그래프를 그릴떄도 설명한대로 막대의 구성으로 이루어지는 bar 트레이스들을 추가함으로써 그릴 수 있다. 여기서도 각각의 Y 변수에 따라 그 구성비(High income, Low income, Lower middle income, Upper middle income)에 해당하는 4개의 bar 트레이스를 추가하였다. 여기에 'barmode'를 'stack'으로 설정하였고, 각각의 비율 텍스트를 표기하기 위해 `add_annotation()`를 사용하였다. `add_annotation()`의 속성중 표시될 텍스트를 지정하는 'text' 속성은 R과는 달리 단일 문자열만 설정이 가능해 `for` 루프를 사용하여 각각의 행의 'annotation'을 추가하는 방법을 사용하였다. 텍스트의 X 위치를 결정할 때 각각의 변량의 중간의 위치하도록 하는데 두 번째, 세 번쨰, 네 번째 텍스트는 앞에 표시된 변량의 누적량만큼을 더해서 X 위치를 결정하였다. 여기에 'layout' 속성의 'xaxis', 'yaxis', 'legend', 'margin'을 설정하였다. 이 중 'legend'는 가로형태로 표현하기 위해 'orientation'을 'h'로 설정하였다. 
+python에서 비율 스택 막대 그래프를 그릴떄도 설명한대로 막대의 구성으로 이루어지는 bar 트레이스들을 추가함으로써 그릴 수 있다. 여기서도 각각의 Y 변수에 따라 그 구성비(High income, Low income, Lower middle income, Upper middle income)에 해당하는 4개의 bar 트레이스를 추가하였다. 여기에 'barmode'를 "stack"으로 설정하였고, 각각의 비율 텍스트를 표기하기 위해 `add_annotation()`를 사용하였다. `add_annotation()`의 속성중 표시될 텍스트를 지정하는 'text' 속성은 R과는 달리 단일 문자열만 설정이 가능해 `for` 루프를 사용하여 각각의 행의 'annotation'을 추가하는 방법을 사용하였다. 텍스트의 X 위치를 결정할 때 각각의 변량의 중간의 위치하도록 하는데 두 번째, 세 번쨰, 네 번째 텍스트는 앞에 표시된 변량의 누적량만큼을 더해서 X 위치를 결정하였다. 여기에 'layout' 속성의 'xaxis', 'yaxis', 'legend', 'margin'을 설정하였다. 이 중 'legend'는 가로형태로 표현하기 위해 'orientation'을 "h"로 설정하였다. 
 
 ```{python eval = FALSE}
+##  비율 막대 그래프를 위한 데이터 전처리
 df_covid19_stat_tmp = df_covid19_stat.loc[df_covid19_stat['iso_code'].isin(['OWID_HIC', 'OWID_LIC', 'OWID_LMC', 'OWID_UMC']), ['location', '전체확진자수', '전체사망자수', '백신접종자완료자수']].transpose().copy()
 df_covid19_stat_tmp = df_covid19_stat_tmp.rename(columns=df_covid19_stat_tmp.iloc[0]).drop(df_covid19_stat_tmp.index[0])
 
@@ -1305,60 +1330,55 @@ df_covid19_stat_tmp['Upper middle income'] = df_covid19_stat_tmp['Upper middle i
 
 fig = go.Figure()
 
+##  'High income'을 위한 bar 트레이스 추가
 fig.add_trace(go.Bar(
     x = df_covid19_stat_tmp['High income'], 
     y = df_covid19_stat_tmp.index, orientation = 'h', name = 'High income', 
-    marker = dict(line = dict(color = 'white', width = 2))
-))
+    marker = dict(line = dict(color = 'white', width = 2))))
 
+##  'Upper middle income'을 위한 bar 트레이스 추가
 fig.add_trace(go.Bar(
     x = df_covid19_stat_tmp['Upper middle income'], 
     y = df_covid19_stat_tmp.index, orientation = 'h', name = 'Upper middle income', 
-    marker = dict(line = dict(color = 'white', width = 2))
-))
+    marker = dict(line = dict(color = 'white', width = 2))))
 
+##  'Lower middle income'을 위한 bar 트레이스 추가
 fig.add_trace(go.Bar(
     x = df_covid19_stat_tmp['Lower middle income'], 
     y = df_covid19_stat_tmp.index, orientation = 'h', name = 'Lower middle income', 
-    marker = dict(line = dict(color = 'white', width = 2))
-))
+    marker = dict(line = dict(color = 'white', width = 2))))
 
+##  'Low income'을 위한 bar 트레이스 추가
 fig.add_trace(go.Bar(
     x = df_covid19_stat_tmp['Low income'], 
     y = df_covid19_stat_tmp.index, orientation = 'h', name = 'Low income', 
-    marker = dict(line = dict(color = 'white', width = 2))
-))
+    marker = dict(line = dict(color = 'white', width = 2))))
 
 for index, row in df_covid19_stat_tmp.iterrows():
+    ##  'High income' 값 표시를 위한 주석 레이어 추가
     fig.add_annotation(
         xref = 'x', yref = 'y',
         x = row['High income'] / 2, y = index, 
         text = str(round(row['High income'] * 100, 1)) + '%',  
-        showarrow = False, 
-        font = dict(color = 'white')
-    )
+        showarrow = False, font = dict(color = 'white'))
+    ##  'Upper middle income' 값 표시를 위한 주석 레이어 추가
     fig.add_annotation(
         xref = 'x', yref = 'y',
         x = (row['Upper middle income'] / 2) + row['High income'], y = index, 
         text = str(round(row['Upper middle income'] * 100, 1)) + '%',  
-        showarrow = False, 
-        font = dict(color = 'white')
-    )
+        showarrow = False, font = dict(color = 'white'))
+    ##  'Lower middle income' 값 표시를 위한 주석 레이어 추가
     fig.add_annotation(
         xref = 'x', yref = 'y',
         x = (row['Lower middle income'] / 2) + row['High income'] + row['Upper middle income'], y = index, 
         text = str(round(row['Lower middle income'] * 100, 1)) + '%',  
-        showarrow = False, 
-        font = dict(color = 'white')
-    )
+        showarrow = False, font = dict(color = 'white'))
+    ##  'Low income' 값 표시를 위한 주석 레이어 추가
     fig.add_annotation(
         xref = 'x', yref = 'y',
         x = (row['Low income'] / 2) + row['High income'] + row['Upper middle income'] + row['Lower middle income'], y = index, 
         text = str(round(row['Low income'] * 100, 1)) + '%',  
-        showarrow = False, 
-        font = dict(color = 'white')
-    )
-
+        showarrow = False, font = dict(color = 'white'))
 
 fig.update_layout(barmode = 'stack', 
          title = '국가 소득급간별 코로나19 현황',
@@ -1375,11 +1395,11 @@ fig.update_layout(barmode = 'stack',
 
 파이 차트는 원 그래프라고도 말하는 차트이다. 파이 차트는 비율 막대 그래프와 같이 데이터 전체에 대한 각 변량의 비율만큼의 슬라이스 모양으로 백분율을 표시한 차트이다. 각 부분의 중심 각도를 비율로 변환해서 슬라이스를 만들어 데이터의 구성을 표현하는데, 전체적인 비율을 쉽게 파악할 수 있다는 장점이 있다. 일부 연구 에 따르면 사람으 인식은 면적보다는 길이에 더 민감하기 때문에 파이 차트에서의 각 부분들에 대한 크기 비교는 막대 차트의 크기 비교에 비해 어렵다고 전해진다. 특히 파이 차트에 표시되는 변량이 많은 경우와 변량의 크기가 유사한 경우에는 특히 파이 차트가 적절치 않다. 하지만 일부 변량에 데이터가 집중되는 경우에는 막대 그래프보다 원형 파이 차트로 구성하는게 효과적일수 있다.
 
-`plotly`에서는 파이 차트를 만들기 위해 pie 트레이스를 제공한다. pie 트레이스는 X, Y축으로 구성되는 데카르트 좌표계를 사용하지 않기 때문에 'x', 'y' 속성이 사용되지 않는다. 대신 'values'와 'labels' 속성을 사용하여 데이터를 표현한다. 'values' 속성에 설정된 수치 배열에 따라 원을 각각의 슬라이스로 구분하게 되고 'labels'에 설정된 베열이 각각의 트레이스 이름으로 설정된다. 또 원 그래프에 표시되는 데이터 값은 기본적으로 백분률 값이 표시된다. 다음은 pie 트레이스에서 사용되는 주요 속성이다. 
+plotly에서는 파이 차트를 만들기 위해 pie 트레이스를 제공한다. pie 트레이스는 X, Y축으로 구성되는 데카르트 좌표계를 사용하지 않기 때문에 'x', 'y' 속성이 사용되지 않는다. 대신 'values'와 'labels' 속성을 사용하여 데이터를 표현한다. 'values' 속성에 설정된 수치 배열에 따라 원을 각각의 슬라이스로 구분하게 되고 'labels'에 설정된 베열이 각각의 트레이스 이름으로 설정된다. 또 원 그래프에 표시되는 데이터 값은 기본적으로 백분률 값이 표시된다. 다음은 pie 트레이스에서 사용되는 주요 속성이다. 
 
 ![](pie속성.png)
 
-`plotly`의 pie 트레이스는 기본적으로 시계 반대방향으로 'values'의 순서대로 표시된다. 만약 시계 방향으로 표시하기를 원한다면 'direction'을 'clockwise'로 설정해준다. 정렬을 할지 여부는 'sort' 속성으로 사용하는데 파이 차트에서는 가급적 정렬된 상태로 사용하는 것이 효과적이다. 
+plotly의 pie 트레이스는 기본적으로 시계 반대방향으로 'values'의 순서대로 표시된다. 만약 시계 방향으로 표시하기를 원한다면 'direction'을 'clockwise'로 설정해준다. 정렬을 할지 여부는 'sort' 속성으로 사용하는데 파이 차트에서는 가급적 정렬된 상태로 사용하는 것이 효과적이다. 
 
 다음은 대학의 졸업자들이 각 계열별로 어떻게 구성되는지를 표시하는 파이 차트를 만드는 R과 python 코드이다. 파이 차트를 위해 먼저 전체 졸업자수를 계열별로 합산한 데이터를 만들어주었고 'values'를 졸업자수로, 'labels'를 대계열 이름으로 설정하였다. 
 
@@ -1419,12 +1439,10 @@ df_pie = df_취업률_500.groupby('대계열').sum('졸업자수').reset_index()
 
 fig = go.Figure()
 
+## value와 labels를 매핑한 파이 trace 추가
 fig.add_trace(go.Pie(
-    values = df_pie['졸업자수'],
-    labels = df_pie['대계열'],
-    direction = 'clockwise',
-    sort = True
-))
+    values = df_pie['졸업자수'], labels = df_pie['대계열'],
+    direction = 'clockwise',  sort = True))
 
 ```
 
@@ -1458,16 +1476,15 @@ p_pie <- df_취업률_500 |> group_by(대계열) |>
   summarise(졸업자수 = sum(졸업자수)) |> 
   plot_ly()
 
-
 p_pie |>
-  ## value와 labels를 매핑한 파이 trace 추가
+  ## value를 매핑한 파이 trace 추가
   add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, direction = 'clockwise', 
             textinfo = 'value') |> 
   layout(title = list(text = '대학 계열별 취업률 분포'), 
          margin = margins_R)
 
 p_pie |>
-  ## value와 labels를 매핑한 파이 trace 추가
+  ## value와 percent를 매핑한 파이 trace 추가
   add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, direction = 'clockwise', 
             textinfo = 'value + percent') |> 
   layout(title = list(text = '대학 계열별 취업률 분포'), 
@@ -1481,7 +1498,7 @@ p_pie |>
          margin = margins_R)
 
 p_pie |>
-  ## value와 labels를 매핑한 파이 trace 추가
+  ## value와 percent를 매핑한 파이 trace 추가
   add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, direction = 'clockwise', 
             textinfo = 'label+percent') |> 
   layout(title = list(text = '대학 계열별 취업률 분포'), 
@@ -1534,44 +1551,44 @@ fig |>
 -   python
 
 ```{python eval = FALSE}
+#####################################
 fig = go.Figure()
 
+## value를 매핑한 파이 trace 추가
 fig.add_trace(go.Pie(
-    values = df_pie['졸업자수'],
-    labels = df_pie['대계열'],
-    direction = 'clockwise', 
-    textinfo = 'value'
-))
+    values = df_pie['졸업자수'], labels = df_pie['대계열'],
+    direction = 'clockwise', textinfo = 'value'))
+    
 fig.update_layout(title = dict(text = '대학 계열별 졸업생 분포', x = 0.5))
 
+#####################################
 fig = go.Figure()
 
+## value와 percent를 매핑한 파이 trace 추가
 fig.add_trace(go.Pie(
-    values = df_pie['졸업자수'],
-    labels = df_pie['대계열'],
-    direction = 'clockwise',
-    textinfo = 'value + percent'
-))
+    values = df_pie['졸업자수'], labels = df_pie['대계열'],
+    direction = 'clockwise', textinfo = 'value + percent'))
+    
 fig.update_layout(title = dict(text = '대학 계열별 졸업생 분포', x = 0.5))
 
+#####################################
 fig = go.Figure()
 
+## value와 label를 매핑한 파이 trace 추가
 fig.add_trace(go.Pie(
-    values = df_pie['졸업자수'],
-    labels = df_pie['대계열'],
-    direction = 'clockwise',
-    textinfo = 'label+value'
-))
+    values = df_pie['졸업자수'], labels = df_pie['대계열'],
+    direction = 'clockwise', textinfo = 'label+value'))
+    
 fig.update_layout(title = dict(text = '대학 계열별 졸업생 분포', x = 0.5))
 
+#####################################
 fig = go.Figure()
 
+## label과 percent를 매핑한 파이 trace 추가
 fig.add_trace(go.Pie(
-    values = df_pie['졸업자수'],
-    labels = df_pie['대계열'],
-    direction = 'clockwise',
-    textinfo = 'label+percent'
-))
+    values = df_pie['졸업자수'], labels = df_pie['대계열'],
+    direction = 'clockwise', textinfo = 'label+percent'))
+    
 fig.update_layout(title = dict(text = '대학 계열별 졸업생 분포', x = 0.5))
 
 fig.show()
@@ -1637,8 +1654,8 @@ fig.update_layout(height = 800,
 
 ```{r eval = FALSE}
 p_pie |>
-  ## value와 labels를 매핑한 파이 trace 추가
   add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, direction = 'clockwise', 
+  ## hole을 사용한 도넛 차트
             textinfo = 'value', hole = 0.3) |> 
   add_annotations(x = 0.5, y = 0.5, text = '<b>졸업생수</b>', 
                   showarrow = FALSE, xanchor = 'center', 
@@ -1667,18 +1684,16 @@ p_pie |>
 fig = go.Figure()
 
 fig.add_trace(go.Pie(
-    values = df_pie['졸업자수'],
-    labels = df_pie['대계열'],
-    direction = 'clockwise',
-    sort = True,
-    hole = 0.3
-))
+    values = df_pie['졸업자수'], labels = df_pie['대계열'],
+    direction = 'clockwise', sort = True,
+    ## hole을 사용한 도넛 차트
+    hole = 0.3))
+    
 fig.add_annotation(x = 0.5, y = 0.5, text = '<b>졸업생수</b>', 
                   showarrow = False, xanchor = 'center', 
-                  font = dict(size = 20) 
-)
-fig.update_layout(title = dict(text = '대학 계열별 졸업생 분포', x = 0.5))
+                  font = dict(size = 20))
 
+fig.update_layout(title = dict(text = '대학 계열별 졸업생 분포', x = 0.5))
 
 ```
 
@@ -1712,9 +1727,9 @@ fig.update_layout(colorway = ("#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAE
 
 ```{r eval = FALSE}
 p_pie |>
-  ## value와 labels를 매핑한 파이 trace 추가
   add_trace(type = 'pie', values = ~졸업자수, labels = ~대계열, direction = 'clockwise', 
             textinfo = 'value', hole = 0.3, 
+            ## 파이 차트 강조 설정
             pull = c(0, 0.2, 0, 0, 0, 0, 0)) |> 
   add_annotations(x = 0.5, y = 0.5, text = '<b>졸업생수</b>', 
                   showarrow = FALSE, xanchor = 'center', 
@@ -1743,17 +1758,15 @@ p_pie |>
 fig = go.Figure()
 
 fig.add_trace(go.Pie(
-    values = df_pie['졸업자수'],
-    labels = df_pie['대계열'],
-    direction = 'clockwise',
-    sort = True,
-    hole = 0.3, 
-    pull = (0, 0.2, 0, 0, 0, 0, 0)
-))
+    values = df_pie['졸업자수'], labels = df_pie['대계열'],
+    direction = 'clockwise', sort = True, hole = 0.3, 
+    ## 파이 차트 강조 설정
+    pull = (0, 0.2, 0, 0, 0, 0, 0)))
+
 fig.add_annotation(x = 0.5, y = 0.5, text = '<b>졸업생수</b>', 
                   showarrow = False, xanchor = 'center', 
-                  font = dict(size = 20) 
-)
+                  font = dict(size = 20))
+                  
 fig.update_layout(title = dict(text = '대학 계열별 졸업생 분포', x = 0.5))
 
 ```
@@ -1781,7 +1794,7 @@ fig.update_layout(colorway = ("#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAE
 
 # 선버스트 차트
 
-선버스트(sunburst)의 사전적 의미는 '햇살'이다. 햇살처럼 퍼저나가는 데이터를 표현하기 위해 사용되는 형태의 시각화이다. `plotly`에서 지원하는 sunburst 트레이스는 루트(root)에서 잎(leaf)까지 원의 방사형 방향의 바깥쪽으로 퍼져나가면서 계층화된 데이터를 시각화한다. 따라서 sunburst 트레이스를 그리기 위해서는 계층화된 데이터가 필요하다. sunburst 트레이스의 각 섹터는 'labels'와 'parents'의 속성에서 설정하는데 'labels'은 선버스트 trace에서 표시되는 모든 섹터의 표시 라벨의배열(python은 리스트)를 설정한다. 'parents'는 'labels'와 길이가 같은 배열(리스트)로 설정하여 모든 'labels'와 1:1로 매칭되는데, 각 'labels'의 부모 섹터를  가리키는 'labels' 값을 설정한다. 만약 'parents'에 설정된 부모 섹터가 ''이면 가장 안쪽의 노드인 루트 노드가 된다. 'values'는 해당 섹터에 표시될 값을 설정한다. 'values' 값에 따라 섹터의 크기도 결정된다. 다음은 sunburst 트레이스에서 사용하는 주요 속성이다. 
+선버스트(sunburst)의 사전적 의미는 '햇살'이다. 햇살처럼 퍼저나가는 데이터를 표현하기 위해 사용되는 형태의 시각화이다. plotly에서 지원하는 sunburst 트레이스는 루트(root)에서 잎(leaf)까지 원의 방사형 방향의 바깥쪽으로 퍼져나가면서 계층화된 데이터를 시각화한다. 따라서 sunburst 트레이스를 그리기 위해서는 계층화된 데이터가 필요하다. sunburst 트레이스의 각 섹터는 'labels'와 'parents'의 속성에서 설정하는데 'labels'은 선버스트 trace에서 표시되는 모든 섹터의 표시 라벨의배열(python은 리스트)를 설정한다. 'parents'는 'labels'와 길이가 같은 배열(리스트)로 설정하여 모든 'labels'와 1:1로 매칭되는데, 각 'labels'의 부모 섹터를  가리키는 'labels' 값을 설정한다. 만약 'parents'에 설정된 부모 섹터가 ''이면 가장 안쪽의 노드인 루트 노드가 된다. 'values'는 해당 섹터에 표시될 값을 설정한다. 'values' 값에 따라 섹터의 크기도 결정된다. 다음은 sunburst 트레이스에서 사용하는 주요 속성이다. 
 
 ![](sunburst속성.png)
 
@@ -1796,6 +1809,7 @@ fig.update_layout(colorway = ("#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAE
 R에서 sunburst 트레이스를 만들기 위해서는 `add_trace(type = 'sunburst', ...)`를 사용한다.
 
 ```{r eval = FALSE}
+## 선버스트 차트를 위한 데이터 전처리
 df_sunburst <- df_취업률_500 |> group_by(대계열, 중계열) |>
   summarise(졸업자수 = sum(졸업자수))
 
@@ -1806,8 +1820,11 @@ all_sum <- sum(df_sunburst$졸업자수)
 
 df_sunburst |> plot_ly() |>
   add_trace(type = 'sunburst', 
+            ## sunburst 트레이스의 labels 설정
             labels = c('전체', unique(df_sunburst$대계열), df_sunburst$중계열), 
+            ## sunburst 트레이스의 parents 설정
             parents = c('', rep('전체', 7), df_sunburst$대계열), 
+            ## sunburst 트레이스의 values 설정
             values = c(all_sum, 계열_sum, df_sunburst$졸업자수), 
   branchvalues = 'total')
   
@@ -1837,18 +1854,22 @@ df_sunburst |> plot_ly() |>
 python에서 sunburst 트레이스를 만들기 위해서는 `add_trace()`에 `plotly.graph_objects.Sunburst()`를 사용하거나 `plotly.express.sunburst()`를 사용한다. 
 
 ```{python eval = FALSE}
+## 선버스트 차트를 위한 데이터 전처리
 df_sunburst = df_취업률_500.groupby(['대계열', '중계열']).sum()['졸업자수'].reset_index()
 
 all_sum = df_취업률_500.sum()['졸업자수']
 계열_sum = df_취업률_500.groupby('대계열').sum().reset_index()['졸업자수'].values.tolist()
 
 fig = go.Figure()
+
 fig.add_trace(go.Sunburst(
+    ## sunburst 트레이스의 labels 설정
     labels = ['전체'] + df_sunburst['대계열'].unique().tolist() + df_sunburst['중계열'].tolist(), 
+    ## sunburst 트레이스의 parents 설정
     parents = [''] + ['전체'] * 7 + df_sunburst['대계열'].tolist(), 
+    ## sunburst 트레이스의 values 설정
     values = [all_sum] + 계열_sum + df_sunburst['졸업자수'].values.tolist(), 
-    branchvalues = 'total'
-))
+    branchvalues = 'total'))
 
 ```
 
@@ -1876,14 +1897,6 @@ sunburst 트레이스에서 추가적으로 알아두어야 할 속성이 'branc
 -   R
 
 ```{r echo = FALSE}
-df_sunburst <- df_취업률_500 |> group_by(대계열, 중계열) |>
-  summarise(졸업자수 = sum(졸업자수))
-
-all_sum <- sum(df_sunburst$졸업자수)
-계열_sum <- df_sunburst |> group_by(대계열) |>
-  summarise(sum = sum(졸업자수)) |>
-  select(sum) |> pull()
-
 df_sunburst |> plot_ly() |>
   add_trace(type = 'sunburst', 
             labels = c('전체', unique(df_sunburst$대계열), df_sunburst$중계열), 
@@ -1916,22 +1929,22 @@ fig.add_trace(go.Sunburst(
     labels = ['전체'] + df_sunburst['대계열'].unique().tolist() + df_sunburst['중계열'].tolist(), 
     parents = [''] + ['전체'] * 7 + df_sunburst['대계열'].tolist(), 
     values = [all_sum] + 계열_sum + df_sunburst['졸업자수'].values.tolist(), 
-    branchvalues = 'total', domain = dict(x = (0, 0.45))
-))
+    branchvalues = 'total', domain = dict(x = (0, 0.45))))
+    
 fig.add_trace(go.Sunburst(
     labels = ['전체'] + df_sunburst['대계열'].unique().tolist() + df_sunburst['중계열'].tolist(), 
     parents = [''] + ['전체'] * 7 + df_sunburst['대계열'].tolist(), 
     values = [all_sum] + 계열_sum + df_sunburst['졸업자수'].values.tolist(), 
-    branchvalues = 'remainder', domain = dict(x = (0.55, 1))
-))
+    branchvalues = 'remainder', domain = dict(x = (0.55, 1))))
+    
 fig.add_annotation(x = 0.25, y = 1.1, text = "branchvalues = 'total'", 
                   showarrow = False, xanchor = 'center', 
-                  font = dict(size = 15) 
-)
+                  font = dict(size = 15))
+                  
 fig.add_annotation(x = 0.75, y = 1.1, text = "branchvalues = 'remainder'", 
                   showarrow = False, xanchor = 'center', 
-                  font = dict(size = 15) 
-)
+                  font = dict(size = 15))
+                  
 fig.update_layout(sunburstcolorway = ("#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAED6", "#9ECAE1", "#C6DBEF"))
 
 ```
@@ -1939,7 +1952,7 @@ fig.update_layout(sunburstcolorway = ("#08306B", "#08519C", "#2171B5", "#4292C6"
 ![실행결과 IV-16. python 선버스트 차트의 branchvalue별 결과](./fig/png/4-16.png)
 
 
-`insidetextorientation`은 선버스트 trace에 표시되는 내부 정보 문자열이 표시되는 각도를 설정한다. `insidetextorientation`는 'radial'과 'horizontal'의 두 가지 방법이 사용되는데 'radial'은 섹터의 각도에 따라 문자가 회전하고 'horizontal'은 섹터의 각도와 관계없이 수평으로 표기된다.
+`insidetextorientation`은 선버스트 trace에 표시되는 내부 정보 문자열이 표시되는 각도를 설정한다. `insidetextorientation`는 "radial"과 "horizontal"의 두 가지 방법이 사용되는데 "radial"은 섹터의 각도에 따라 문자가 회전하고 "horizontal"은 섹터의 각도와 관계없이 수평으로 표기된다.
 
 -   R
 
@@ -2029,11 +2042,13 @@ R에서 treemap 트레이스를 만들기 위해서는 `add_trace(type = 'treema
 ```{r eval = FALSE}
 plot_ly() |>
   add_trace(type = 'treemap',  
+            ## treemap 트레이스의 labels 설정
             labels = c('전체', unique(df_sunburst$대계열), df_sunburst$중계열), 
+            ## treemap 트레이스의 parents 설정
             parents = c('', rep('전체', 7), df_sunburst$대계열), 
+            ## treemap 트레이스의 values 설정
             values = c(all_sum, 계열_sum, df_sunburst$졸업자수),
-            textinfo = 'label+value+percent parent+percent entry'
-            )
+            textinfo = 'label+value+percent parent+percent entry')
 ```
 
 ```{r echo = FALSE}
@@ -2054,11 +2069,13 @@ python에서 treemap 트레이스를 만들기 위해서는 `add_trace()`에 `pl
 ```{python eval = FALSE}
 fig = go.Figure()
 fig.add_trace(go.Treemap(
+    ## treemap 트레이스의 labels 설정
     labels = ['전체'] + df_sunburst['대계열'].unique().tolist() + df_sunburst['중계열'].tolist(), 
+    ## treemap 트레이스의 parents 설정
     parents = [''] + ['전체'] * 7 + df_sunburst['대계열'].tolist(), 
+    ## treemap 트레이스의 values 설정
     values = [all_sum] + 계열_sum + df_sunburst['졸업자수'].values.tolist(), 
-    textinfo = 'label+value+percent parent+percent entry'
-))
+    textinfo = 'label+value+percent parent+percent entry'))
 
 ```
 
