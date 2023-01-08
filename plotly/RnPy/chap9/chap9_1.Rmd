@@ -30,6 +30,8 @@ R이든 python이든, 어떤 패키지나 라이브러리를 쓰든 데이터 �
 
 특히 최근에는 데이터 분석의 결과를 대중에게 전달할 때 이 스토리텔링을 중요하게 여긴다. 이것을 영문으로 KWYRWTS라고 표시하는데 이는 'Know What You Really Want To Say'(네가 진정 이야기하고자 하는 것을 알아라)의 준말이다.
 
+![https://medium.com/@denananda/simple-data-analysis-with-visualization-using-power-bi-8fc4498d64c4](data_viz.webp)
+
 # 청중은 누구인가?
 
 시각화의 목적을 결정했다면 그 시각화를 누구를 대상으로 보여줄지를 파악해야 한다. 시각화의 청중이 정책 입안자인지, 투자자인지, 일반 대중인지, 회사의 고위급 의사결정자인지에 따라 그 그래프의 유형, 형식, 배포 방식등이 달라진다. 
