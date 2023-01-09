@@ -1251,16 +1251,12 @@ python에서는 야후파이낸스에서 제공하는 주가 데이터를 가져
 설치가 완료되면 pandas_datareader 라이브러리를 import하고 주가 데이터를 가져올 시작일과 종료일을 설정하고 `get_data_yahoo()`를 사용하여 삼성전자 주식을 가져온다.
 
 ```{python}
-##  주가 데이터를 가져오는데 필요한 라이브러리 로딩
-import pandas_datareader as pdr
+import FinanceDataReader as fdr
 from datetime import datetime, timedelta
 
-##  오늘 날짜 설정
-end_today = datetime.today()
-##  오늘로부터 100일전 날짜 설정
-start_day = end_today - timedelta(days=100)
-##  최근 100일간 삼성전자 주가 데이터를 가져옴
-samsung_stock = pdr.get_data_yahoo("005930.KS", start=start_day, end=end_today)
+end_day = datetime.today()
+start_day = end_day - timedelta(days=100)
+samsung_stock = fdr.DataReader('005930', start_day, end_day)
 samsung_stock.head()
 ```
 
