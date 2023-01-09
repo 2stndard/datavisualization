@@ -721,7 +721,7 @@ total_deaths_5_nations_by_day |>
          yaxis = list(title = '10만명당 사망자수 누계'), 
          margin = margins_R, 
          ## 호버 모드 설정
-         hovermode="y unified")
+         hovermode="y")
 
 ##  호버모드가 x unified인 시각화
 total_deaths_5_nations_by_day |>
