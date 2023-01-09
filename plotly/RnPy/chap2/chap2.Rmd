@@ -232,7 +232,7 @@ df_covid19_100_wide.columns = ['확진자_한국', '확진자_아시아', '확�
                               '백신접종완료자_한국', '백신접종완료자_아시아', '백신접종완료자_유럽', '백신접종완료자_북미', '백신접종완료자_남미', '백신접종완료자_아프리카','백신접종완료자_오세아니아']
                               
 ## 4. covid19 데이터를 국가별로 요약한 df_covid19_stat 생성
-df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=False).agg(
+df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=True).agg(
     인구수 = ('population', 'max'),
     전체사망자수 = ('new_deaths', 'sum'), 
     백신접종자완료자수 = ('people_fully_vaccinated', 'max'),
@@ -289,7 +289,7 @@ df_covid19_100_wide = df_covid19_100_wide.pivot(index='date', columns='location'
 df_covid19_100_wide.columns = ['확진자_한국', '확진자_아시아', '확진자_유럽', '확진자_북미', '확진자_남미', '확진자_아프리카','확진자_오세아니아',
                               '백신접종완료자_한국', '백신접종완료자_아시아', '백신접종완료자_유럽', '백신접종완료자_북미', '백신접종완료자_남미', '백신접종완료자_아프리카','백신접종완료자_오세아니아']
                               
-df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=False).agg(
+df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=True).agg(
     인구수 = ('population', 'max'),
     전체사망자수 = ('new_deaths', 'sum'), 
     백신접종자완료자수 = ('people_fully_vaccinated', 'max'),
@@ -1421,7 +1421,6 @@ fig.add_trace({
 
 fig.show()
 
-
 ```
 
 ![실행결과 II-13. python의 opacity 속성 설정](./python/png/2-13.png)
@@ -1599,6 +1598,7 @@ fig_scatter.update_layout(
     title = dict(text = "<b>졸업자 대비 취업자수</b>",
     x = 0.5, xanchor = 'center', yanchor = 'top'))
 
+fig_scatter.show()
 ```
 
 ![실행결과 II-15. python의 Figure()를 사용한 title 설정](./python/png/2-15.png)
@@ -1627,6 +1627,7 @@ fig_scatter_temp = go.Figure(fig_scatter)
 fig_scatter_temp.update_layout(title = {'text' : "<span style = 'font-size:15pt'><span style = 'color:red;font-weight:bold;'> 졸업자</span><span style = 'font-size:10pt'> 대비</span> <span style = 'color:blue;font-weight:bold;'>취업률</span></span>",
                            'x' : 0.5, 'xanchor' : 'center',
                            'yanchor' : 'top'})
+fig_scatter_temp.show()
                            
 ```
 
@@ -1659,6 +1660,8 @@ R_layout_scatter
 ```{python eval = FALSE}
   ## 페이퍼 배경색과 플롯 배경색의 설정
 fig_scatter.update_layout(paper_bgcolor = 'lightgray', plot_bgcolor = 'lightgray')
+fig_scatter.show()
+
 ```
 
 ![실행결과 II-17. python의 color 속성 설정](./python/png/2-17.png)
@@ -1709,6 +1712,7 @@ fig_scatter.update_layout(
     color = 'black', zerolinecolor = 'black', zerolinewidth = 3,
     gridcolor = 'grey', gridwidth = 1))
 
+fig_scatter.show()
 ```
 
 ![실행결과 II-18. R의 axis title, zeroline, grid 속성 설정](./R/png/2-18.png)
@@ -1751,6 +1755,8 @@ fig_scatter_temp.update_layout(
                  tick0 = 100,          ## tick0 설정
                  dtick = 100)          ## dtick 설정
 )
+
+fig_scatter_temp.show()
 ```
 
 ![실행결과 II-19. python의 눈금라벨, 눈금 간격 속성 설정](./R/png/2-19.png)
@@ -1795,6 +1801,7 @@ fig_scatter_temp.update_layout(
     margin = dict(pad = 5)
     )
 
+fig_scatter_temp.show()
 ```
 
 ![실행결과 II-20. R의 축 범위 속성 설정](./R/png/2-20.png)
@@ -1917,6 +1924,7 @@ fig_line.update_layout(
                   x = 0.95, y = 0.95, xanchor = 'right'),
     showlegend = True)
 
+fig_line.show()
 ```
 
 ```{python eval=FALSE, echo = FALSE}
@@ -1993,6 +2001,7 @@ fig_line.update_layout(
     margin = dict(t = 50, b = 25, l = 25, r = 25)
 )
 
+fig_line.show()
 ```
 
 ![실행결과 II-22. R의 여백 설정](./R/png/2-22.png)
@@ -2019,6 +2028,8 @@ R_layout_scatter |>
 ```{python eval = FALSE}
   ## 플롯 사이즈 설정
 fig_scatter_temp.update_layout(width = 450, height = 700)
+
+fig_scatter_temp.show()
 ```
 
 ![실행결과 II-23. python의 플롯 크기 속성 설정](./python/png/2-23.png)
@@ -2049,6 +2060,7 @@ python에서 문자열에 대한 폰트 설정 코드는 다음과 같다. 폰�
   ## 폰트 설정
 fig_line.update_layout(font = dict(family = "나눔고딕", color = 'MidnightBlue', size = 15))
 
+fig_line.show()
 ```
 
 ![실행결과 II-24. R의 폰트 설정](./R/png/2-24.png)
@@ -2379,6 +2391,7 @@ fig_subplot.add_trace({
 fig_subplot.update_layout(title=dict(text = "최근 100일간 코로나19 확진자", 
                           x = 0.5))
 
+fig_subplot.show()
 ```
 
 ```{python eval = FALSE, echo = FALSE}
@@ -2484,6 +2497,7 @@ subplots_blue |>
   ## 범례는 제거
 fig_subplot.update_layout(showlegend = False)
 
+fig_subplot.show()
 ```
 
 ![실행결과 II-28. R의 서브 플롯 범례 설정](./R/png/2-28.png)
@@ -2649,6 +2663,7 @@ fig_subplot.update_layout(title=dict(text = "최근 100일간 코로나19 확진
                             x = 0.5))
 
 
+fig_subplot.show()
 ```
 
 ![실행결과 II-31. python의 서브 플롯의 크기와 배치 설정](./python/png/2-31.png)
@@ -2718,6 +2733,7 @@ fig_subplot.add_trace({
 fig_subplot.update_layout(title=dict(text = "최근 100일간 코로나19 확진자", 
                             x = 0.5))
 
+fig_subplot.show()
 ```
 
 ![그림 II-32. python의 spec을 사용한 서브 플롯의 크기와 배치 설정](./python/png/2-32.png)
@@ -2820,6 +2836,8 @@ fig_subplot.add_trace({
 
 fig_subplot.update_layout(title=dict(text = "최근 100일간 코로나19 확진자", 
                             x = 0.5))
+
+fig_subplot.show()
 ```
 
 ![실행결과 II-33. python의 축 공유가 설정된 서브 플롯](./python/png/2-33.png)

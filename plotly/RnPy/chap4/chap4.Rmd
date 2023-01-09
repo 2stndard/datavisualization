@@ -123,7 +123,7 @@ df_covid19_100_wide = df_covid19_100_wide.pivot(index='date', columns='location'
 df_covid19_100_wide.columns = ['확진자_한국', '확진자_아시아', '확진자_유럽', '확진자_북미', '확진자_남미', '확진자_아프리카','확진자_오세아니아',
                               '백신접종완료자_한국', '백신접종완료자_아시아', '백신접종완료자_유럽', '백신접종완료자_북미', '백신접종완료자_남미', '백신접종완료자_아프리카','백신접종완료자_오세아니아']
                               
-df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=False).agg(
+df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=True).agg(
     인구수 = ('population', 'max'),
     전체사망자수 = ('new_deaths', 'sum'), 
     백신접종자완료자수 = ('people_fully_vaccinated', 'max'),
@@ -892,6 +892,7 @@ fig.update_layout(title = dict(text = '대륙별 완전 백신 접종률 상위 
          yaxis = dict(title = '', autorange = 'reversed'), 
          margin = dict(r = 100, t = 80), height = 800)
 
+fig.show()
 ```
 
 ```{python eval = FALSE, echo = FALSE}
@@ -1018,6 +1019,8 @@ fig.update_layout(
                        range = (0, 200), ticksuffix = '명'),
          margin = margins_P, showlegend = True,
          legend = dict(orientation = 'h', y = -0.5, x = 0.5, xanchor = 'center'))
+         
+fig.show()         
 
 ```
 
@@ -1079,7 +1082,13 @@ python에서 scatterpolar 트레이스를 만들기 위해서는 `add_trace()`�
 
 ```{python eval = FALSE}
 ## 레이더 차트를 위한 데이터 전처리
-df_radar_veccine = df_covid19_stat.copy().reset_index()
+df_radar_veccine = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=False).agg(
+    인구수 = ('population', 'max'),
+    전체사망자수 = ('new_deaths', 'sum'), 
+    백신접종자완료자수 = ('people_fully_vaccinated', 'max'),
+    인구백명당백신접종완료율 = ('people_fully_vaccinated_per_hundred', 'max'),
+    인구백명당부스터접종자수 = ('total_boosters_per_hundred', 'max')
+).reset_index()
 df_radar_veccine = df_radar_veccine[(df_radar_veccine['iso_code'].isin(['OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM', 'OWID_AFR']))]
 
 fig = go.Figure()
@@ -1104,6 +1113,8 @@ fig.update_layout(polar =
                   nticks = 5, ticksuffix = '%', title = '백신 접종률')),
     title = dict(text = '대륙별 백신 접종률', x = 0.5),
     margin = margins_P)
+    
+fig.show()    
 ```
 
 ![실행결과 IV-8. python의 레이더 차트](./fig/png/4-8.png)
@@ -1319,7 +1330,15 @@ python에서 비율 스택 막대 그래프를 그릴떄도 설명한대로 막�
 
 ```{python eval = FALSE}
 ##  비율 막대 그래프를 위한 데이터 전처리
-df_covid19_stat_tmp = df_covid19_stat.loc[df_covid19_stat['iso_code'].isin(['OWID_HIC', 'OWID_LIC', 'OWID_LMC', 'OWID_UMC']), ['location', '전체확진자수', '전체사망자수', '백신접종자완료자수']].transpose().copy()
+df_covid19_stat_tmp = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=False).agg(
+    인구수 = ('population', 'max'),
+    전체사망자수 = ('new_deaths', 'sum'), 
+    백신접종자완료자수 = ('people_fully_vaccinated', 'max'),
+    인구백명당백신접종완료율 = ('people_fully_vaccinated_per_hundred', 'max'),
+    인구백명당부스터접종자수 = ('total_boosters_per_hundred', 'max')
+).reset_index()
+
+df_covid19_stat_tmp = df_covid19_stat_tmp.loc[df_covid19_stat_tmp['iso_code'].isin(['OWID_HIC', 'OWID_LIC', 'OWID_LMC', 'OWID_UMC']), ['location', '전체사망자수', '백신접종자완료자수', '인구백명당백신접종완료율']].transpose()
 df_covid19_stat_tmp = df_covid19_stat_tmp.rename(columns=df_covid19_stat_tmp.iloc[0]).drop(df_covid19_stat_tmp.index[0])
 
 df_covid19_stat_tmp['sum'] = df_covid19_stat_tmp.sum(axis = 1)
@@ -1381,12 +1400,13 @@ for index, row in df_covid19_stat_tmp.iterrows():
         showarrow = False, font = dict(color = 'white'))
 
 fig.update_layout(barmode = 'stack', 
-         title = '국가 소득급간별 코로나19 현황',
+         title = dict(text = '국가 소득급간별 코로나19 현황', x = 0.5),
          xaxis = dict(title = '', tickformat = '.0%'), 
          yaxis = dict(title = ''), 
          legend = dict(orientation = 'h', traceorder = 'normal'), 
          margin = margins_P) 
 
+fig.show()
 ```
 
 ![실행결과 IV-10. python의 비율 막대 그래프](./fig/png/4-10.png)
@@ -1444,6 +1464,7 @@ fig.add_trace(go.Pie(
     values = df_pie['졸업자수'], labels = df_pie['대계열'],
     direction = 'clockwise',  sort = True))
 
+fig.show()
 ```
 
 
@@ -1561,6 +1582,8 @@ fig.add_trace(go.Pie(
     
 fig.update_layout(title = dict(text = '대학 계열별 졸업생 분포', x = 0.5))
 
+fig.show()
+
 #####################################
 fig = go.Figure()
 
@@ -1571,6 +1594,8 @@ fig.add_trace(go.Pie(
     
 fig.update_layout(title = dict(text = '대학 계열별 졸업생 분포', x = 0.5))
 
+fig.show()
+
 #####################################
 fig = go.Figure()
 
@@ -1580,6 +1605,8 @@ fig.add_trace(go.Pie(
     direction = 'clockwise', textinfo = 'label+value'))
     
 fig.update_layout(title = dict(text = '대학 계열별 졸업생 분포', x = 0.5))
+
+fig.show()
 
 #####################################
 fig = go.Figure()
@@ -1665,6 +1692,9 @@ p_pie |>
 
 
 ```
+
+
+
 ```{r echo = FALSE}
 p_pie |>
   ## value와 labels를 매핑한 파이 trace 추가
@@ -1694,6 +1724,8 @@ fig.add_annotation(x = 0.5, y = 0.5, text = '<b>졸업생수</b>',
                   font = dict(size = 20))
 
 fig.update_layout(title = dict(text = '대학 계열별 졸업생 분포', x = 0.5))
+
+fig.show()
 
 ```
 
@@ -1738,6 +1770,8 @@ p_pie |>
          margin = margins_R)
 
 ```
+
+
 ```{r echo = FALSE}
 p_pie |>
   ## value와 labels를 매핑한 파이 trace 추가
@@ -1768,6 +1802,8 @@ fig.add_annotation(x = 0.5, y = 0.5, text = '<b>졸업생수</b>',
                   font = dict(size = 20))
                   
 fig.update_layout(title = dict(text = '대학 계열별 졸업생 분포', x = 0.5))
+
+fig.show()
 
 ```
 
@@ -1870,6 +1906,8 @@ fig.add_trace(go.Sunburst(
     ## sunburst 트레이스의 values 설정
     values = [all_sum] + 계열_sum + df_sunburst['졸업자수'].values.tolist(), 
     branchvalues = 'total'))
+    
+fig.show()
 
 ```
 
@@ -1973,6 +2011,8 @@ fig.add_annotation(x = 0.75, y = 1.1, text = "branchvalues = 'remainder'",
                   showarrow = False, xanchor = 'center', 
                   font = dict(size = 15) 
 )
+
+fig.show()
 ```
 
 ```{python echo = FALSE, eval = FALSE}
@@ -2098,6 +2138,8 @@ fig.add_annotation(x = 0.75, y = 1.1, text = "insidetextorientation = 'horizonta
                   font = dict(size = 15) 
 )
 
+fig.show()
+
 ```
 
 ```{python eval = FALSE, echo = FALSE}
@@ -2191,6 +2233,7 @@ fig.add_trace(go.Treemap(
     values = [all_sum] + 계열_sum + df_sunburst['졸업자수'].values.tolist(), 
     textinfo = 'label+value+percent parent+percent entry'))
 
+fig.show()
 ```
 
 ```{python eval = FALSE, echo = FALSE}

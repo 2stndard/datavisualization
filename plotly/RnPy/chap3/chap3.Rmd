@@ -145,7 +145,7 @@ df_covid19_100_wide = df_covid19_100_wide.pivot(index='date', columns='location'
 df_covid19_100_wide.columns = ['확진자_한국', '확진자_아시아', '확진자_유럽', '확진자_북미', '확진자_남미', '확진자_아프리카','확진자_오세아니아',
                               '백신접종완료자_한국', '백신접종완료자_아시아', '백신접종완료자_유럽', '백신접종완료자_북미', '백신접종완료자_남미', '백신접종완료자_아프리카','백신접종완료자_오세아니아']
                               
-df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=False).agg(
+df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=True).agg(
     인구수 = ('population', 'max'),
     전체사망자수 = ('new_deaths', 'sum'), 
     백신접종자완료자수 = ('people_fully_vaccinated', 'max'),
@@ -271,8 +271,6 @@ df_취업률_500 |>
 `plolty.graph_objects`로 산점도를 그리기 위해서는 `plolty.graph_objects.Scatter()`를 사용한다. 다음의 코드에서와 같이 초기화된 plotly 객체의 메쏘드로 `add_trace()`를 호출하고 `add_trace()`의 매개변수로 `plolty.graph_objects.Scatter()`를 설정한다. `plolty.graph_objects.Scatter()`는 스캐터 트레이스에 해당하는 속성들을 매개변수처럼 '='을 사용하여 속성값을 설정하는데 만약 하위 속성이 있는 경우 `{}`나 `dict()`를 사용하여 딕셔너리를 만들어 설정한다. 다음은 2장에서 만들었던 졸업자 대비 취업자수를 `plolty.graph_objects.Scatter()`를 사용한 코드인데 'color' 속성 설정을 위해 `for` 루프를 사용하였고 'colors' 딕셔너리를 만들어 대계열의 이름에 따른 정수값을 매칭해주었다. 그 이후 배경색을 검정으로 설정하고 축의 색과 그리드 컬러, 눈금 라벨등의 'layout' 속성을 설정하였다.
 
 ```{python eval = FALSE}
-import plotly.graph_objects as go
-
 fig = go.Figure()
 
 ## 색상 설정을 위한 딕셔너리 정의
@@ -564,6 +562,8 @@ fig.add_trace(go.Scatter(
     ## marker의 사이즈를 사용해 버블 차트 구현
     marker = dict(size = df_covid19_stat['십만명당사망자수'], opacity = 0.5, sizemode = 'area')
 ))
+
+fig.show()
 
 ```
 
@@ -1047,6 +1047,7 @@ fig.add_trace(go.Box(
 fig.update_layout(boxmode = 'group', 
                   title = dict(text = '학위과정별 취업률 분포', x = 0.5, xanchor = 'center'))
 
+fig.show()
 ```
 
 ```{python eval = FALSE, echo = FALSE}
@@ -1211,6 +1212,8 @@ fig.update_layout(title = dict(text = '한국 및 대륙별 일별 확진자 분
                   yaxis = dict(title = '확진자수(명)'),
                   margin = margins_P, 
                   paper_bgcolor='lightgray', plot_bgcolor='lightgray')
+                  
+fig.show()                  
 
 ```
 
@@ -1329,6 +1332,8 @@ fig.add_trace(go.Violin(
     meanline = dict(visible = True)))
 
 fig.update_layout(title = dict(text = '한국 및 대륙별 일별 확진자 분포', x = 0.5))
+
+fig.show()
 ```
 
 ![실행결과 III-16. python의 박스 플롯과 평균선이 포함된 바이올린 플롯](./python/png/3-16.png)
@@ -1406,7 +1411,9 @@ fig.add_trace(go.Violin(
     meanline = dict(visible = True, width = 1)))
 
 fig.update_layout(title = dict(text = '대학 계열별 취업률 분포', x = 0.5), 
-         margin = margin_P)
+         margin = margins_P)
+         
+fig.show()
 
 ```
 
