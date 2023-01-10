@@ -18,13 +18,17 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6.5, dpi = 130, eval = FALSE)
 library(showtext)
 showtext_auto()
-pacman::p_load("tidyverse", "readxl", "readr", "lubridate")
 
+library(tidyverse)
+library(readxl)
+library(readr)
+library(lubridate)
+library(plotly)
 ```
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE}
 df_covid19 <- read_csv(file = "D:/R/git/datavisualization/plotly/RnPy/owid-covid-data_221203.csv",
-                            col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                            col_types = cols(date = col_date(format = "%Y-%m-%d")
                                              )
                             )
 df_covid19_100 <- df_covid19 |> 
@@ -1286,7 +1290,13 @@ R에서도 앞의 python에서 그렸던 전국 시도별 대학 신입생 충�
 
 ```{r echo = FALSE}
 ##  지도를 위한 패키지 로딩
-pacman::p_load("raster", "sf")
+if (!require(raster)) {
+  install.packages('raster')
+  library(raster) }
+
+if (!require(sf)) {
+  install.packages('sf')
+  library(sf) }
 
 ####  충원율 데이터
 df_충원율 <- read_excel('D:/R/git/datavisualization/plotly/RnPy/chap6/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx', 
@@ -1425,6 +1435,8 @@ Sys.setenv("MAPBOX_TOKEN" = mapboxToken)
 ##  대학의 위경도 데이터 불러들임
 df_univ <- read_excel("D:/R/git/datavisualization/plotly/RnPy/chap6/university.xlsx", 
                       col_types = c('text', 'numeric', 'numeric'))
+
+plot_dat_seoul <- plot_dat |> filter(GID_1 == 'KOR.16_1')
 
 plot_mapbox(plot_dat_seoul) |>
   add_trace(data = df_univ, type = 'scattermapbox', mode = 'markers+text', 

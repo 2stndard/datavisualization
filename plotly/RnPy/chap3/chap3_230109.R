@@ -1,9 +1,13 @@
-pacman::p_load("tidyverse", "readxl", "readr", "lubridate", 'plotly')
+library(tidyverse)
+library(readxl)
+library(readr)
+library(lubridate)
+library(plotly)
 
 ## 1. covid19 원본 데이터 셋 로딩
 ## covid19 데이터 로딩(파일을 다운로드 받은 경우)
 df_covid19 <- read_csv(file = "D:/R/git/datavisualization/plotly/RnPy/owid-covid-data_221203.csv",
-                       col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                       col_types = cols(date = col_date(format = "%Y-%m-%d")
                        )
 )
 ## covid19 데이터 로딩(온라인에서 바로 로딩할 경우)

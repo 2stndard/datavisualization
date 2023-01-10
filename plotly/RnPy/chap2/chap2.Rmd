@@ -19,7 +19,10 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width =
 library(showtext)
 showtext_auto()
 
-pacman::p_load("tidyverse", "readxl", "readr", "lubridate", 'plotly')
+library(tidyverse)
+library(readxl)
+library(readr)
+library(lubridate)
 
 ```
 
@@ -75,17 +78,26 @@ OWID에서 제공하는 데이터를 활용하여 4개의 데이터 셋을 만�
 ```{r eval = FALSE, message = FALSE, warning = FALSE}
 ##  R code
 ## 데이터 전처리를 위한 패키지 설치 및 로딩
-if(!require(pacman)) {
-  install.packages('pacman')
-  library(pacman)
-}
+if(!require(tidyverse)) {
+  install.packages('tidyverse')
+  library(tidyverse) }
 
-p_load("tidyverse", "readxl", "readr", "lubridate")
+if(!require(readxl)) {
+  install.packages('readxl')
+  library(readxl) }
+
+if(!require(readr)) {
+  install.packages('readr')
+  library(readr) }
+
+if(!require(lubridate)) {
+  install.packages('lubridate')
+  library(lubridate) }
 
 ## 1. covid19 원본 데이터 셋 로딩
 ## covid19 데이터 로딩(파일을 다운로드 받은 경우)
 df_covid19 <- read_csv(file = "데이터파일저장경로/owid-covid-data.csv",
-                            col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                            col_types = cols(date = col_date(format = "%Y-%m-%d")
                                              )
                             )
 ## covid19 데이터 로딩(온라인에서 바로 로딩할 경우)
@@ -145,7 +157,7 @@ margins_R <- list(t = 50, b = 25, l = 25, r = 25)
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE}
 df_covid19 <- read_csv(file = "D:/R/git/datavisualization/plotly/RnPy/owid-covid-data_221203.csv",
-                            col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                            col_types = cols(date = col_date(format = "%Y-%m-%d")
                                              )
                             )
 df_covid19_100 <- df_covid19 |> 

@@ -18,13 +18,16 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6.5, dpi = 130, eval = FALSE)
 library(showtext)
 showtext_auto()
-pacman::p_load("tidyverse", "readxl", "readr", "lubridate", 'plotly')
-
+library(tidyverse)
+library(readxl)
+library(readr)
+library(lubridate)
+library(plotly)
 ```
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE}
 df_covid19 <- read_csv(file = "D:/R/git/datavisualization/plotly/RnPy/owid-covid-data_221203.csv",
-                            col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                            col_types = cols(date = col_date(format = "%Y-%m-%d")
                                              )
                             )
 df_covid19_100 <- df_covid19 |> 
@@ -122,7 +125,7 @@ df_covid19_100_wide = df_covid19_100_wide.pivot(index='date', columns='location'
 df_covid19_100_wide.columns = ['확진자_한국', '확진자_아시아', '확진자_유럽', '확진자_북미', '확진자_남미', '확진자_아프리카','확진자_오세아니아',
                               '백신접종완료자_한국', '백신접종완료자_아시아', '백신접종완료자_유럽', '백신접종완료자_북미', '백신접종완료자_남미', '백신접종완료자_아프리카','백신접종완료자_오세아니아']
                               
-df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=False).agg(
+df_covid19_stat = df_covid19.groupby(['iso_code', 'continent', 'location'], dropna=True).agg(
     인구수 = ('population', 'max'),
     전체확진자수 = ('new_cases', 'sum'),
     전체사망자수 = ('new_deaths', 'sum'), 
