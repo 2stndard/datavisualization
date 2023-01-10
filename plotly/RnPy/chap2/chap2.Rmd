@@ -19,7 +19,11 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width =
 library(showtext)
 showtext_auto()
 
-pacman::p_load("tidyverse", "readxl", "readr", "lubridate", 'plotly')
+library(tidyverse)
+library(readxl)
+library(readr)
+library(lubridate)
+library(plotly)
 
 ```
 
@@ -75,12 +79,10 @@ OWID에서 제공하는 데이터를 활용하여 4개의 데이터 셋을 만�
 ```{r eval = FALSE, message = FALSE, warning = FALSE}
 ##  R code
 ## 데이터 전처리를 위한 패키지 설치 및 로딩
-if(!require(pacman)) {
-  install.packages('pacman')
-  library(pacman)
-}
-
-p_load("tidyverse", "readxl", "readr", "lubridate")
+library(tidyverse)
+library(readxl)
+library(readr)
+library(lubridate)
 
 ## 1. covid19 원본 데이터 셋 로딩
 ## covid19 데이터 로딩(파일을 다운로드 받은 경우)
