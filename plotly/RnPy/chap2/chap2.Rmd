@@ -55,9 +55,11 @@ x1 |> plot_ly() |> #filter(package != 'ggplot2') |>
 
 ```
 
+![그림 II-3. R의 plotly 다운로드](download_r.png)
+
 plotly의 다운로드 수 증가는 python에서도 유사한 흐름을 보인다. 다음의 그림에서도 보이듯이 python에서 많이 사용되는 시각화 패키지 중 가장 다운로드수가 많은 것은 역시나 `matplotlib`이다. 하지만 `matplotlib`을 제외하면 2022년 중순까지만 해도 `seaborn` 패키지의 다운로드 수가 가장 많았으나 이 후 plotly가 `seaborn`과 대등하거나 오히려 더 다운로드가 많은 날이 상당히 눈에 띈다. 하지만 python에서 동적 시각화를 지원하는 `bokeh`나 `hvplot`보다는 월등히 많은 다운로드를 보인다. 결국 python에서도 동적 시각화에서는 plotly가 가장 많이 사용되는 패키지인 것이다.
 
-![그림 II-3. python plotly 다운로드](D:/R/git/datavisualization/plotly/chap2/python_download.png)
+![그림 II-4. python plotly 다운로드](python_download.png)
 
 # 예제 데이터 Import와 전처리
 
@@ -587,7 +589,7 @@ df_covid19_100 |>
 
 앞 코드의 'data' 속성 트리 구조를 도식화하면 다음의 그림과 같다.
 
-![그림 II-4. R 샘플 코드의 data 속성 트리 구조](data_tree_R.png)
+![그림 II-5. R 샘플 코드의 data 속성 트리 구조](data_tree_R.png)
 
 -   python
 
@@ -626,7 +628,7 @@ go.Figure(
 
 앞 python 코드로 구현한 'data' 속성의 트리 구조를 도식화하면 다음의 그림과 같다.
 
-![그림 II-5. python 샘플 코드의 data 속성 트리 구조](data_tree_P.png)
+![그림 II-6. python 샘플 코드의 data 속성 트리 구조](data_tree_P.png)
 
 ## 'layout' 속성
 
