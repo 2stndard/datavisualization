@@ -23,10 +23,6 @@ library(tidyverse)
 library(readxl)
 library(readr)
 library(lubridate)
-<<<<<<< HEAD
-=======
-library(plotly)
->>>>>>> 7764ce868726ebe244a95060c12075c58425a04a
 
 ```
 
@@ -82,7 +78,6 @@ OWID에서 제공하는 데이터를 활용하여 4개의 데이터 셋을 만�
 ```{r eval = FALSE, message = FALSE, warning = FALSE}
 ##  R code
 ## 데이터 전처리를 위한 패키지 설치 및 로딩
-<<<<<<< HEAD
 if(!require(tidyverse)) {
   install.packages('tidyverse')
   library(tidyverse) }
@@ -98,12 +93,7 @@ if(!require(readr)) {
 if(!require(lubridate)) {
   install.packages('lubridate')
   library(lubridate) }
-=======
-library(tidyverse)
-library(readxl)
-library(readr)
-library(lubridate)
->>>>>>> 7764ce868726ebe244a95060c12075c58425a04a
+
 
 ## 1. covid19 원본 데이터 셋 로딩
 ## covid19 데이터 로딩(파일을 다운로드 받은 경우)
