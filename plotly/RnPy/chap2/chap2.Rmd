@@ -26,15 +26,15 @@ library(lubridate)
 
 ```
 
-데이터 분석을 다루는 많은 교육 코스나 서적에서 데이터의 시각화는 R의 경우 R base나 `ggplot2` 패키지를 사용하여는 방법, python의 경우 `matplotlib`이나 `seaborn` 패키지를 사용하는 방법을 위주로 설명한다. 이러한 방법들은 데이터 시각화 방법이 간단하고 그 품질이 좋은 편이기 때문에 많이 사용되고 있지만, 정적(Static) 시각화라는 한계를 가진다. 정적 시각화는 대부분 이미지로 저장되며 문서나 인쇄물에 많이 사용되고 웹에 게시되는 이미지로도 사용된다. 그렇기 때문에 대부분 png, jpg, pdf 등의 벡터 혹은 픽셀 이미지 파일로 제공된다. 정적 데이터 시각화는 데이터 분석가의 의도에 맞춰 작성되기 때문에 데이터 분석가의 데이터 분석 관점에 의존적일 수 밖에 없으며, 시각화를 사용하는 사용자의 의도에 따른 해석은 매우 제한될 수 밖에 없다.
+데이터 분석을 다루는 많은 교육 코스나 서적에서 데이터의 시각화는 R의 경우 R base나 ggplot2 패키지를 사용하여는 방법, python의 경우 matplotlib이나 seaborn 패키지를 사용하는 방법을 위주로 설명한다. 이러한 방법들은 데이터 시각화 방법이 간단하고 그 품질이 좋은 편이기 때문에 많이 사용되고 있지만, 정적(Static) 시각화라는 한계를 가진다. 정적 시각화는 대부분 이미지로 저장되며 문서나 인쇄물에 많이 사용되고 웹에 게시되는 이미지로도 사용된다. 그렇기 때문에 대부분 png, jpg, pdf 등의 벡터 혹은 픽셀 이미지 파일로 제공된다. 정적 데이터 시각화는 데이터 분석가의 의도에 맞춰 작성되기 때문에 데이터 분석가의 데이터 분석 관점에 의존적일 수 밖에 없으며, 시각화를 사용하는 사용자의 의도에 따른 해석은 매우 제한될 수 밖에 없다.
 
-이러한 제한점을 극복하기 위해 사용되는 데이터 시각화 방법이 동적(Dynamic) 시각화 혹은 인터랙티브(Interactive) 시각화라고 하는 방법이다. 이 동적 시각화는 시각화를 사용하는 사용자의 의도에 따라 데이터를 다각적 관점에서 살펴볼 수 있다는 점이 특징이다. 사용자의 의도에 따라 데이터가 동적으로 변동되어야 하기 때문에 인쇄물 형태 매체에서 사용이 어렵고 웹을 통해 사용되어야 그 장점을 충실히 사용할 수 있다. R에서는 동적 시각화를 위해 `rbokeh`, `highcharter` 등이 사용되었고 python에서는 `bokeh`, `hvplot` 등을 사용되었다. 하지만 R과 python 모두에서 사용되는 plotly 패키지가 등장함으로써 R과 python의 동적 시각화 패키지 시장에서 매우 빠르게 사용자층을 넓혀가고 있다.
+이러한 제한점을 극복하기 위해 사용되는 데이터 시각화 방법이 동적(Dynamic) 시각화 혹은 인터랙티브(Interactive) 시각화라고 하는 방법이다. 이 동적 시각화는 시각화를 사용하는 사용자의 의도에 따라 데이터를 다각적 관점에서 살펴볼 수 있다는 점이 특징이다. 사용자의 의도에 따라 데이터가 동적으로 변동되어야 하기 때문에 인쇄물 형태 매체에서 사용이 어렵고 웹을 통해 사용되어야 그 장점을 충실히 사용할 수 있다. R에서는 동적 시각화를 위해 rbokeh, highcharter 등이 사용되었고 python에서는 bokeh, hvplot 등을 사용되었다. 하지만 R과 python 모두에서 사용되는 plotly 패키지가 등장함으로써 R과 python의 동적 시각화 패키지 시장에서 매우 빠르게 사용자층을 넓혀가고 있다.
 
 정적 시각화와 동적 시각화의 어느것이 더 효용성이 있는지를 단언할 수 없다. 데이터 시각화가 사용되는 매체, 데이터 시각화를 보는 대상, 데이터 시각화에서 보여주고자 하는 스토리에 따라서 정적 시각화를 사용해야 할 때와 동적 시각화를 사용해야 할 때를 적절히 선택해야 한다.
 
 # plotly란?
 
-'plotly'는 캐나다 몬트리올에 본사를 두고 있는 데이터 시각화 전문 회사의 이름이다. 이 회사는 2012년 처음 설립되었는데 데이터 전문 분석 도구와 데이터 시각화 전문 도구를 개발하여 보급한다. 'plotly'는 이 책에서 설명할 R과 python의 plotly 패키지 외에도 R, python, Julia 등의 개발도구에서 사용가능한 데이터 대시보드 플랫폼인 `dash`를 비롯해 `dash` 플랫폼으로 개발된 웹페이지를 배포하기 위한 'Dash Enterprise', plotly를 기반으로 온라인 동적 시각화를 만드는 'Chart Studio Cloud' 등의 서비스를 제공하고 있다. 이 중 가장 유명한 제품이 회사의 이름에서도 나타나듯이 plotly 시각화 패키지이다.
+'plotly'는 캐나다 몬트리올에 본사를 두고 있는 데이터 시각화 전문 회사의 이름이다. 이 회사는 2012년 처음 설립되었는데 데이터 전문 분석 도구와 데이터 시각화 전문 도구를 개발하여 보급한다. 'plotly'는 이 책에서 설명할 R과 python의 plotly 패키지 외에도 R, python, Julia 등의 개발도구에서 사용가능한 데이터 대시보드 플랫폼인 dash를 비롯해 dash 플랫폼으로 개발된 웹페이지를 배포하기 위한 'Dash Enterprise', plotly를 기반으로 온라인 동적 시각화를 만드는 'Chart Studio Cloud' 등의 서비스를 제공하고 있다. 이 중 가장 유명한 제품이 회사의 이름에서도 나타나듯이 plotly 시각화 패키지이다.
 
 ![그림 II-1. plotly 홈페이지 화면](D:/R/git/datavisualization/plotly/chap2/plotly_homepage.png)
 
@@ -42,7 +42,7 @@ plotly 패키지는 R, python, Julia, Java Script, F#, MATLAB 등의 다양한 �
 
 ![그림 II-2. plotly 패키지 홈페이지](D:/R/git/datavisualization/plotly/chap2/plotly_library.png)
 
-다음의 R 그래픽 패키지 다운로드 현황에서 보이듯이, 여전히 R에서 가장 많이 사용되고 있는 그래픽 패키지는 `ggplot2`이다. 하지만 plotly는 2021년 하반기부터 다운로드가 늘고 있고, `ggplot2`를 제외한 다른 그래픽 패키지에 비해서는 압도적인 다운로드 수를 보인다.
+다음의 R 그래픽 패키지 다운로드 현황에서 보이듯이, 여전히 R에서 가장 많이 사용되고 있는 그래픽 패키지는 ggplot2이다. 하지만 plotly는 2021년 하반기부터 다운로드가 늘고 있고, ggplot2를 제외한 다른 그래픽 패키지에 비해서는 압도적인 다운로드 수를 보인다.
 
 ```{r echo = FALSE}
 library(dlstats)
@@ -57,7 +57,7 @@ x1 |> plot_ly() |> #filter(package != 'ggplot2') |>
 
 ![그림 II-3. R의 plotly 다운로드](download_r.png)
 
-plotly의 다운로드 수 증가는 python에서도 유사한 흐름을 보인다. 다음의 그림에서도 보이듯이 python에서 많이 사용되는 시각화 패키지 중 가장 다운로드수가 많은 것은 역시나 `matplotlib`이다. 하지만 `matplotlib`을 제외하면 2022년 중순까지만 해도 `seaborn` 패키지의 다운로드 수가 가장 많았으나 이 후 plotly가 `seaborn`과 대등하거나 오히려 더 다운로드가 많은 날이 상당히 눈에 띈다. 하지만 python에서 동적 시각화를 지원하는 `bokeh`나 `hvplot`보다는 월등히 많은 다운로드를 보인다. 결국 python에서도 동적 시각화에서는 plotly가 가장 많이 사용되는 패키지인 것이다.
+plotly의 다운로드 수 증가는 python에서도 유사한 흐름을 보인다. 다음의 그림에서도 보이듯이 python에서 많이 사용되는 시각화 패키지 중 가장 다운로드수가 많은 것은 역시나 matplotlib이다. 하지만 matplotlib을 제외하면 2022년 중순까지만 해도 seaborn 패키지의 다운로드 수가 가장 많았으나 이 후 plotly가 seaborn과 대등하거나 오히려 더 다운로드가 많은 날이 상당히 눈에 띈다. 하지만 python에서 동적 시각화를 지원하는 bokeh나 hvplot보다는 월등히 많은 다운로드를 보인다. 결국 python에서도 동적 시각화에서는 plotly가 가장 많이 사용되는 패키지인 것이다.
 
 ![그림 II-4. python plotly 다운로드](python_download.png)
 
@@ -159,7 +159,7 @@ margins_R <- list(t = 50, b = 25, l = 25, r = 25)
 ```
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE}
-df_covid19 <- read_csv(file = "D:/R/git/datavisualization/plotly/RnPy/owid-covid-data_221203.csv",
+df_covid19 <- read_csv(file = "D:/R/data/Rnpy/owid-covid-data.csv",
                             col_types = cols(date = col_date(format = "%Y-%m-%d")
                                              )
                             )
@@ -209,7 +209,7 @@ from pandas.api.types import CategoricalDtype
 
 ## 1. covid19 원본 데이터 셋 로딩
 ## covid19 데이터 로딩(파일을 다운로드 받은 경우)
-df_covid19 = pd.read_csv("데이터파일저장경로/owid-covid-data_221203.csv")
+df_covid19 = pd.read_csv("데이터파일저장경로/owid-covid-data.csv")
 
 ## covid19 데이터 로딩(온라인에서 바로 로딩할 경우)
 ##df_covid19 = pd.read_csv("https://covid.ourworldindata.org/data/owid-covid-data.csv")
@@ -273,7 +273,7 @@ from pandas.api.types import CategoricalDtype
 
 ## 1. covid19 원본 데이터 셋 로딩
 ## covid19 데이터 로딩(파일을 다운로드 받은 경우)
-df_covid19 = pd.read_csv("D:/R/git/datavisualization/plotly/RnPy/owid-covid-data_221203.csv")
+df_covid19 = pd.read_csv("D:/R/data/Rnpy/owid-covid-data.csv")
 
 ## covid19 데이터 로딩(온라인에서 바로 로딩할 경우)
 ##df_covid19 = pd.read_csv("https://covid.ourworldindata.org/data/owid-covid-data.csv")
@@ -334,7 +334,7 @@ margins_P = {'t' : 50, 'b' : 25, 'l' : 25, 'r' : 25}
 
 ```{r message = FALSE, warning = FALSE}
 ##  대학 학과 취업률 데이터 로딩
-df_취업률 <- read_excel('데이터파일저장경로/2020년 학과별 고등교육기관 취업통계.xlsx', 
+df_취업률 <- read_excel('데이터파일저장경로/2021년 학과별 고등교육기관 취업통계.xlsx', 
                      ## '학과별' 시트의 데이터를 불러오는데,
                      sheet = '학과별',
                      ## 앞의 13행을 제외하고
@@ -362,7 +362,7 @@ names(df_취업률_500)[10:12] <- c('졸업자수', '취업률', '취업자수')
 ```{r message = FALSE, warning = FALSE, echo=FALSE}
 ## R 코드
 
-df_취업률 <- read_excel('d:/R/data/2020년 학과별 고등교육기관 취업통계.xlsx', 
+df_취업률 <- read_excel('D:/R/data/Rnpy/2021년 학과별 고등교육기관 취업통계.xlsx', 
                      ## '학과별' 시트의 데이터를 불러오는데,
                      sheet = '학과별',
                      ## 앞의 13행을 제외하고
@@ -393,7 +393,7 @@ names(df_취업률_500)[10:12] <- c('졸업자수', '취업률', '취업자수')
 ## python 코드
 ##  대학 학과 취업률 데이터 로딩
 
-df_취업률 = pd.read_excel("데이터파일저장경로/2020년 학과별 고등교육기관 취업통계.xlsx", 
+df_취업률 = pd.read_excel("데이터파일저장경로/2021년 학과별 고등교육기관 취업통계.xlsx", 
                      ## '학과별' 시트의 데이터를 불러오는데,
                           sheet_name = '학과별',
                      ## 앞의 13행을 제외하고
@@ -422,7 +422,7 @@ df_취업률_500 = df_취업률_500.rename(columns = {'졸업자_계':'졸업자
 ## python 코드
 ## 대학 학과 취업률 데이터 셋
 
-df_취업률 = pd.read_excel("d:/R/data/2020년 학과별 고등교육기관 취업통계.xlsx", 
+df_취업률 = pd.read_excel("d:/R/data/Rnpy/2021년 학과별 고등교육기관 취업통계.xlsx", 
                            sheet_name = '학과별',
                            skiprows=(13), 
                            header = 0)
@@ -453,13 +453,13 @@ R에서는 plotly 구조를 구성하기 위해서 먼저 `plot_ly()`를 사용�
 
 첫 번째 방법은 `add_trace()`와 `layout()`을 사용하는 방법이다. 이 두 가지 함수를 사용하기 위해서는 먼저 `plot_ly()`로 이 초기화된 plotly 객체에 `add_trace()`를 사용하여 'data'의 하위 속성들을 구성하고 `layout()`을 사용하여 'layout'의 하위 속성들을 구성한다.
 
-두 번째 방법은 이 함수들을 사용하지 않고 `plot_ly()`에 직접 'data'와 'layout' 속성들을 설정할 수 있다. 이 방법은 `plotly` 구조를 하나 하나 설정해야하기 때문에 구현하는데 어려움이 있다.
+두 번째 방법은 이 함수들을 사용하지 않고 `plot_ly()`에 직접 'data'와 'layout' 속성들을 설정할 수 있다. 이 방법은 plotly 구조를 하나 하나 설정해야하기 때문에 구현하는데 어려움이 있다.
 
 세 번째 방법은 `add_trace()` 대신 트레이스 종류에 따라 제공되는 `add_*()`(`add_markers()`, `add_lines()`, `add_bars()` 등)을 사용하여 'data' 속성들을 구성하고 `layout()`을 사용하여 'layout' 속성들을 설정한다.
 
 -   python
 
-python에서 `plotly`를 설명하기 위해서는 먼저 plotly에서 제공하는 라이브러리의 종류를 이해하여야 한다. plotly에서는 python을 위한 라이브러리로 `plotly.graph_objects`와 `plotly.express`의 두 가지 라이브러리 모듈을 제공한다. 기본적으로 `plotly.graph_objects` 모듈이 plotly에서 제공하는 모든 기능을 사용하는 정규 방법이다. 하지만 `plotly.graph_objects`에서 제공하는 수많은 속성중에 자주 사용되는 속성과 이들 속성을 설정하는 다소 쉬운 인터페이스로 설계한 함수들로 구성한 모듈이 `plotly.express` 이다.
+python에서 plotly를 설명하기 위해서는 먼저 plotly에서 제공하는 라이브러리의 종류를 이해하여야 한다. plotly에서는 python을 위한 라이브러리로 `plotly.graph_objects`와 `plotly.express`의 두 가지 라이브러리 모듈을 제공한다. 기본적으로 `plotly.graph_objects` 모듈이 plotly에서 제공하는 모든 기능을 사용하는 정규 방법이다. 하지만 `plotly.graph_objects`에서 제공하는 수많은 속성중에 자주 사용되는 속성과 이들 속성을 설정하는 다소 쉬운 인터페이스로 설계한 함수들로 구성한 모듈이 `plotly.express` 이다.
 
 `plotly.express`에서 제공하는 함수들은 `plotly.graphic_object`보다 직관적이고 사용하기 쉽다. plotly는 'data' 속성과 'layout' 속성이 루트 노드인 속성들의 트리 구조로 구현하기 때문에 이들 구조를 파악하는 것이 매우 중요하지만 그 양도 많고 구조도 복잡하다.
 
@@ -469,7 +469,7 @@ python에서 `plotly`를 설명하기 위해서는 먼저 plotly에서 제공하
 
 [^4]: 본 책에서는 `plotly.graph_objects`위주로 설명한다. `plotly.express`의 사용법은 <https://plotly.com/python-api-reference/> 을 참조하라.
 
-`plotly.graph_objects` 모듈은 `plotly` 객체를 만들기 위해서는 먼저 `plotly` 객체를 초기화해야 한다. 이를 위해 `plotly.graph_objects`의 `Figure()`를 사용하여 초기화된 plotly 객체를 생성한다.
+`plotly.graph_objects` 모듈은 plotly 객체를 만들기 위해서는 먼저 plotly 객체를 초기화해야 한다. 이를 위해 `plotly.graph_objects`의 `Figure()`를 사용하여 초기화된 plotly 객체를 생성한다.
 
 이 후 초기화된 plotly 객체에 'data', 'layout' 속성을 할당하기 위해 `plotly.graph_objects.add_trace()`와 `plotly.graph_objects.update_layout()`을 사용한다.
 
@@ -489,9 +489,9 @@ R에서 네임드 리스트를 만들기 위해서는 `list()`를 사용하는�
 
 -   python
 
-python에서 `plotly`의 속성 트리를 만드는 것은 R보다 다소 복잡하다. python에서 속성 트리를 만드는데 사용하는 데이터 타입은 딕셔너리이다. 하지만 하나의 속성에 여러개의 딕셔너리가 구성되어야 하는 경우는 다시 python의 리스트로 구성한다. 결국 속성값들의 집합을 만드는 것은 딕셔너리를 사용하지만 딕셔너리의 집합은 리스트를 사용한다는 것이다.
+python에서 plotly의 속성 트리를 만드는 것은 R보다 다소 복잡하다. python에서 속성 트리를 만드는데 사용하는 데이터 타입은 딕셔너리이다. 하지만 하나의 속성에 여러개의 딕셔너리가 구성되어야 하는 경우는 다시 python의 리스트로 구성한다. 결국 속성값들의 집합을 만드는 것은 딕셔너리를 사용하지만 딕셔너리의 집합은 리스트를 사용한다는 것이다.
 
-python에서 딕셔너리를 구성하는 방법도 두 가지인데, `plotly`에서는 이 두 가지 방법을 모두 지원한다.
+python에서 딕셔너리를 구성하는 방법도 두 가지인데, plotly에서는 이 두 가지 방법을 모두 지원한다.
 
 첫 번째 방법은 `{}` 기호를 사용하는 방법이다. 이 방법은 속성명을 지정할 때 반드시 인용부호(작은 따옴표 혹은 큰 따옴표)를 사용해야하고 할당 기호로 ':'를 사용한다.
 
@@ -501,7 +501,7 @@ python에서 딕셔너리를 구성하는 방법도 두 가지인데, `plotly`�
 
 ## plotly 설치와 로딩
 
-plotly를 사용하기 위해서는 먼저 R과 python에 `plotly` 패키지와 라이브러리를 설치하여야 한다. plotly 패키지는 자체적으로 실행가능한 HTML 파일과 시각화를 작성하는 데 필요한 많은 것이 포함되어 있다.
+plotly를 사용하기 위해서는 먼저 R과 python에 plotly 패키지와 라이브러리를 설치하여야 한다. plotly 패키지는 자체적으로 실행가능한 HTML 파일과 시각화를 작성하는 데 필요한 많은 것이 포함되어 있다.
 
 -   R
 
@@ -2057,7 +2057,7 @@ fig_scatter_temp.show()
 
 -   R
 
-전체적인 폰트의 설정은 다음과 같이 설정할 수 있다. `ggplot2`에서는 한글 폰트의 설정에 다소 어려움이 있었지만, plotly에서는 `family` type에 바로 폰트 이름을 설정하면 쉽게 한글 폰트를 사용할 수 있다.
+전체적인 폰트의 설정은 다음과 같이 설정할 수 있다. ggplot2에서는 한글 폰트의 설정에 다소 어려움이 있었지만, plotly에서는 `family` type에 바로 폰트 이름을 설정하면 쉽게 한글 폰트를 사용할 수 있다.
 
 ```{r fig.cap='R의 폰트 설정'}
 R_layout_line <- R_layout_line |> 
@@ -2094,7 +2094,7 @@ plotly에서 서브 플롯을 생성하기 위해서 사용하는 함수는 R에
 
 -   R
 
-R에서 plotly가 서브 플롯을 구현하는 방식은 먼저 서브 플롯에 사용될 각각의 plotly 객체를 생성하고 이 객체들을 `subplot()`으로 전체 플롯을 구성한다. `subplot()`에서는 plotly 객체 뿐 아니라 `ggplot2`로 만들어진 객체도 서브 플롯으로 구성할 수 있다.
+R에서 plotly가 서브 플롯을 구현하는 방식은 먼저 서브 플롯에 사용될 각각의 plotly 객체를 생성하고 이 객체들을 `subplot()`으로 전체 플롯을 구성한다. `subplot()`에서는 plotly 객체 뿐 아니라 ggplot2로 만들어진 객체도 서브 플롯으로 구성할 수 있다.
 
 또 `subplot()`에서 사용되는 매개변수들은 앞서 `add_trace()`나 `layout()`과 같이 속성들의 리스트가 아닌 함수의 매개변수 형태로 사용한다. R에서 서브 플롯을 설정할 때 중요한 것이 'nrows' 이다. 'nrows'는 서브 플롯의 행의 개수를 설정하는 매개변수인데 'nrows'가 설정되면 전체 서브 플롯의 수에 따라 자동적으로 열의 수가 결정된다.
 
@@ -2482,6 +2482,7 @@ fig_subplot.add_trace({
 fig_subplot.update_layout(title=dict(text = "최근 100일간 코로나19 확진자", 
                             x = 0.5))
 
+fig_subplot.show()
 ```
 
 ![실행결과 II-27. python의 서브 플롯 생성](./python/png/2-27.png)
