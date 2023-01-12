@@ -59,7 +59,7 @@ if(!require(tidyverse)) {
 #                             )
 
 df_covid19 <- read_csv(file = "D:/R/git/datavisualization/plotly/RnPy/owid-covid-data_221203.csv",
-                            col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                            col_types = cols(date = col_date(format = "%Y-%m-%d")
                                              )
                             )
 ## 2. 전체 데이터셋 중 최근 100일간의 데이터를 필터링한 df_covid19_100 생성

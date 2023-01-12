@@ -25,7 +25,7 @@ pacman::p_load("tidyverse", "readxl", "readr", "lubridate", 'plotly')
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 df_covid19 <- read_csv(file = "D:/R/git/datavisualization/plotly/RnPy/owid-covid-data_221203.csv",
-                            col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                            col_types = cols(date = col_date(format = "%Y-%m-%d")
                                              )
                             )
 df_covid19_100 <- df_covid19 |> 
