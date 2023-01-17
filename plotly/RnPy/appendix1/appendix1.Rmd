@@ -147,7 +147,7 @@ fig.show()
 
 ```
 
-![](appendix_01.png)
+![](./pic/fig/appendix1_01.png)
 
 #### order, map 설정
 
@@ -172,7 +172,7 @@ fig.show()
 ```
 
 
-![](appendix_02.png)
+![](./pic/fig/appendix1_02.png)
 
 #### facet
 
@@ -185,7 +185,7 @@ fig.show()
 
 ```
 
-![](appendix_03.png)
+![](./pic/fig/appendix1_03.png)
 
 #### trendline, marginal 설정
 
@@ -198,7 +198,7 @@ fig.show()
 
 ```
 
-![](appendix_04.png)
+![](./pic/fig/appendix1_04.png)
 
 ### plotly.express.scatter_polar
 
@@ -220,7 +220,7 @@ fig.show()
 
 ```
 
-![](appendix_05.png)
+![](./pic/fig/appendix1_05.png)
 
 ### plotly.express.line
 
@@ -240,7 +240,7 @@ fig.show()
 
 ```
 
-![](appendix_06.png)
+![](./pic/fig/appendix1_06.png)
 
 #### 범위 설정
 
@@ -253,7 +253,7 @@ fig.show()
 
 ```
 
-![](appendix_07.png)
+![](./pic/fig/appendix1_07.png)
 
 ### plotly.express.bar
 
@@ -275,7 +275,7 @@ fig.show()
 
 ```
 
-![](appendix_08.png)
+![](./pic/fig/appendix1_08.png)
 
 #### 넓은 형태 데이터프레임 사용
 
@@ -289,7 +289,7 @@ fig.show()
 
 ```
 
-![](appendix_09.png)
+![](./pic/fig/appendix1_09.png)
 
 #### 패턴 설정
 
@@ -303,7 +303,7 @@ fig.show()
 
 ```
 
-![](appendix_10.png)
+![](./pic/fig/appendix1_10.png)
 
 ### plotly.express.violin
 
@@ -324,7 +324,7 @@ fig.show()
 
 ```
 
-![](appendix_11.png)
+![](./pic/fig/appendix1_11.png)
 
 #### 다중 violin plot
 
@@ -338,7 +338,7 @@ fig.show()
 
 ```
 
-![](appendix_12.png)
+![](./pic/fig/appendix1_12.png)
 
 ### plotly.express.histogram
 
@@ -358,7 +358,7 @@ fig.show()
 
 ```
 
-![](appendix_13.png)
+![](./pic/fig/appendix1_13.png)
 
 #### text가 표시된 평균 histogram
 
@@ -370,7 +370,7 @@ fig.show()
 
 ```
 
-![](appendix_14.png)
+![](./pic/fig/appendix1_14.png)
 
 ### plotly.express.pie
 
@@ -390,7 +390,7 @@ fig.show()
 
 ```
 
-![](appendix_15.png)
+![](./pic/fig/appendix1_15.png)
 
 #### 도넛 pie
 
@@ -401,7 +401,7 @@ px.pie(df, values='tip', names='day', hole = 0.3)
 
 ```
 
-![](appendix_16.png)
+![](./pic/fig/appendix1_16.png)
 
 ### plotly.express.treemap
 
@@ -423,7 +423,21 @@ fig.show()
 ```
 
 
-![](appendix_18.png)
+![](./pic/fig/appendix1_17.png)
+
+#### 컬러 매핑
+
+```{python}
+import plotly.express as px
+df = px.data.tips()
+fig = px.treemap(df, path=[px.Constant("all"), 'sex', 'day', 'time'], 
+                 values='total_bill', color='time',
+                  color_discrete_map={'(?)':'lightgrey', 'Lunch':'gold', 'Dinner':'darkblue'})
+fig.show()
+
+```
+
+![](./pic/fig/appendix1_18.png)
 
 ### plotly.express.sunburst
 
@@ -441,39 +455,7 @@ fig.show()
 
 ```
 
-![](appendix_17.png)
-
-#### 컬러 매핑
-
-```{python}
-import plotly.express as px
-df = px.data.tips()
-fig = px.treemap(df, path=[px.Constant("all"), 'sex', 'day', 'time'], 
-                 values='total_bill', color='time',
-                  color_discrete_map={'(?)':'lightgrey', 'Lunch':'gold', 'Dinner':'darkblue'})
-fig.show()
-
-```
-
-![](appendix_18.png)
-
-### plotly.express.funnel
-
-:::{comment}
-plotly.express.funnel(data_frame=None, x=None, y=None, color=None, facet_row=None, facet_col=None, facet_col_wrap=0, facet_row_spacing=None, facet_col_spacing=None, hover_name=None, hover_data=None, custom_data=None, text=None, animation_frame=None, animation_group=None, category_orders=None, labels=None, color_discrete_sequence=None, color_discrete_map=None, opacity=None, orientation=None, log_x=False, log_y=False, range_x=None, range_y=None, title=None, template=None, width=None, height=None) 
-:::
-
-#### 기본 sunburst plot
-
-```{python}
-import plotly.express as px
-df = px.data.tips()
-fig = px.sunburst(df, path=['day', 'time', 'sex'], values='total_bill')
-fig.show()
-
-```
-
-![](appendix_19.png)
+![](./pic/fig/appendix1_19.png)
 
 ### plotly.express.funnel
 
@@ -493,7 +475,7 @@ fig.show()
 
 ```
 
-![](appendix_20.png)
+![](./pic/fig/appendix1_20.png)
 
 ### plotly.express.choropleth
 
@@ -513,7 +495,7 @@ fig.show()
 
 ```
 
-![](appendix_21.png)
+![](./pic/fig/appendix1_21.png)
 
 
 

@@ -76,7 +76,7 @@ df_취업률_500 |>
   add_trace(x = ~졸업자수, y = ~취업자수, showlegend = FALSE, color = I('darkblue')) |>
   add_trace(mode = 'lines', x = ~졸업자수, y = ~fitted(lm_trend), name = '선형 추세선', color = I('blue'), line = list(dash = 'dot')) |>
   add_trace(data = df_loess_trend, mode = 'lines', x = ~X, y = ~Y, name = 'loess', color = I('skyblue'), dashline = 'dash') |>
-  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/R_svg/3-2'))
+  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/fig/vector/3-2'))
 
 
 
@@ -90,7 +90,7 @@ p <- df_취업률_500 |>
   geom_smooth(method = 'loess', se= FALSE, linetype = 2)
 
 ggplotly(p) |>
-  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/R_svg/3-3'))
+  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/fig/vector/3-3'))
 
 
 
@@ -105,7 +105,7 @@ p_histogram |>
                 xbins = list(start = 0, end = 100, size = 2.5)) |>
   ## 제목과 여백 설정
   layout(title = '취업률 histogram', margin = margins_R) |>
-  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/R_svg/3-7'))
+  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/fig/vector/3-7'))
 
 
 
@@ -118,7 +118,7 @@ p_histogram |>
                 ## 누적 히스토그램 설정
                 cumulative = list(enabled=TRUE)) |>
   layout(title = '취업률 histogram', margin = margins_R) |>
-  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/R_svg/3-9'))
+  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/fig/vector/3-9'))
 
 
 
@@ -129,7 +129,7 @@ df_취업률 |>
   add_boxplot(x = ~대계열, y = ~취업률_계)|>
   layout(title = list(text = '대학 계열별 취업률 분포'), 
          margin = margins_R) |>
-  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/R_svg/3-11'))
+  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/fig/vector/3-11'))
 
 
 
@@ -144,7 +144,7 @@ p_box_group |>
   layout(boxmode = "group") |>
   layout(title = list(text = '대학 계열별 취업률 분포'), 
          margin = margins_R) |>
-  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/R_svg/3-13'))
+  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/fig/vector/3-13'))
 
 
 
@@ -155,7 +155,7 @@ df_취업률_500 |>
   add_trace(type = 'violin', x = ~대계열, y = ~취업률) |>
   layout(title = list(text = '대학 계열별 취업률 분포'), 
          margin = margins_R) |>
-  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/R_svg/3-15'))
+  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/fig/vector/3-15'))
 
 
 
@@ -178,7 +178,7 @@ df_취업률_500 |>
   layout(violinmode = "overlay", 
          title = list(text = '대학 계열별 취업률 분포'), 
          margin = margins_R) |>
-  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/R_svg/3-17'))
+  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap3/fig/vector/3-17'))
 
 
 

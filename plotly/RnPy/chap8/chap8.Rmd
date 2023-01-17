@@ -235,8 +235,8 @@ plotly가 시각화 사용자와의 상호작용을 위한 주요 기능을 제�
 
 scatter 트레이스에 나오는 'modebar'는 다음의 그림과 같이 8개의 기능을 버튼을 통해 제공한다. 트레이스 종류에 따라 제공되는 'modebar'가 달라지는데, scatter 트레이스의 'modebar'를 기본으로 설명하겠다. 
 
-![modebar 버튼과
-기능](D:/R/git/datavisualization/plotly/chap3/ployly_3_1.png)
+![그림 VIII-1. modebar 버튼과 기능](./pic/fig/fig_8-1.png)
+
 
 ### 시각화 저장 버튼 ![](download-plot-as-a-png.png)
 
@@ -260,13 +260,13 @@ plotly를 만들때 X축과 Y축의 범위를 설정하지 않으면 plotly는 �
 
 'Toggle Spike Line' 버튼은 X축, Y축으로 그려지는 보조선의 설정을 변경하는 버튼이다. 이 버튼으로 스파이크 라인을 활성화하면 X축과 Y축으로 'toaxis'가 설정된 스파이크 라인이 설정되고 다시 한번 누르면 스파이크 라인이 없어진다.
 
-![spike 기능버튼 사용 시 결과](after_spike.png)
+![그림 VIII-2. spike 기능버튼 사용 시 결과](./pic/fig/fig_8-2.png)
 
 ### Show Closet Data On Hover(![](closethover.png))/Compare Data On Hover(![](compare.png)) 기능
 
 이 두 버튼은 호버의 설정과 관련한 기능을 조절하는 버튼이다. 'Show Closet Data On Hover' 버튼은 데이터에 가장 가까운 데이터에 호버가 나타나는 기능으로 설정하는 버튼이고 'Compare Data On Hover'는 X축으로 동일한 데이터에 대한 호버가 표시되는 기능, 즉 'hovermode'를 "x"로 설정하는 버튼이다.
 
-![호버 기능 버튼을 사용한 결과](hover.png)
+![그림 VIII-3. 호버모드 설정버튼 사용 시 결과](./pic/fig/fig_8-3.png)
 
 ## 마우스의 기능
 
@@ -276,21 +276,19 @@ plotly 시각화에서 가장 쉽게 사용하는 기능은 마우스를 사용�
 
 마우스 포인터에 의해 표시되는 호버의 정보는 각 트레이스의 'hoverinfo', 'hovertemplate' 등 호버 속성 설정에 따라 표시된다.
 
-![박스 트레이스의 호버
-표시](D:/R/git/datavisualization/plotly/chap3/ployly_3_2.png)
+![그림 VIII-4. 박스 트레이스의 호버 표시](./pic/fig/fig_8-4.png)
 
 ### 드래그를 통한 Zoom In
 
 트레이스가 나타나는 플롯팅 영역(plotting area)에서 마우스 왼쪽 버튼을 클릭한 상태에서 드래그하면 다음 그림과 같이 줌 인 영역을 선택할 수 있다. 이렇게 영역을 선택한 후에 마우스 클릭을 놓으면 해당 부분이 줌인 되어 표시되게 된다. 만약 다시 처음의 상태로 돌아가려면 모드바의 집 아이콘인 'Reset Axes' 버튼을 사용한다.
 
-![마우스 드래그를 통한
-줌](D:/R/git/datavisualization/plotly/chap3/ployly_3_3.png)
+![그림 VIII-5. 마우스 드래그를 통한 줌](./pic/fig/fig_8-5.png)
 
 ### 드래그를 통한 축 이동과 압축(팽창)
 
 plolty에서 마우스 드래그를 통해 추가로 할 수 있는 기능은 축 이동과 축 압축이다. X축과 Y축의 위치에서 마우스의 왼쪽 버튼을 클릭한 상태에서 상하 또는 좌우로 드래그를 하면 축의 범위가 조절된다. 이를 통해 데이터가 표현되는 축의 범위를 변경할 수 있다. 만약 처음 눈금 라벨의 아래나 마지막 눈금 라벨의 위(Y축), 처음 눈금 라벨의 왼쪽이나 마지막 눈금 라벨의 오른쪽(X축)에서 마우스를 클릭하고 드래그하면 축의 원점이나 최종점이 고정된 채 축을 압축하거나 팽창할 수 있다.
 
-![](axis.png)
+![그림 VIII-6. 드래그를 통한 축 이동과 압축](./pic/fig/fig_8-6.png)
 
 ## 범례의 사용
 
@@ -298,7 +296,7 @@ plotly에서 범례는 단순히 트레이스 이름과 표현방식을 매핑�
 
 특히 이 기능이 더 편리한 것은 현재 표시되고 있는 데이터의 범위에 따라 X축과 Y축의 범위가 자동으로 다시 설정되어 남은 데이터의 특징이 더 잘 보인다는 장점이 있다. 다음은 범례를 사용하여 한국과 일본의 데이터만 남긴 결과이다.
 
-![범례의 토글](legend.png)
+![그림 VIII-7. 범례의 사용](./pic/fig/fig_8-7.png)
 
 # Plotly 배포
 
@@ -312,11 +310,11 @@ R에서 plotly 시각화를 정적 이미지로 다운로드 받기 위해서는
 
 R-Studio를 사용하는 사용자라면 보통 우측 하단 'Viewer' 패널에 plotly 시각화가 표현된다 'Viewer' 패널의 'Export' 기능을 사용하면 plolty 시각화를 jpg, png, bmp 파일로 저장할 수 있다. 이 기능을 사용하면 저장할 파일의 크기를 조절할 수 있다는 장점도 있다.
 
-![](save_image_r.png)
+![그림 VIII-8. R-Studio에서의 plotly 이미지 저장](./pic/fig/fig_8-8.png)
 
 또 'Viewer' 패널에서 plotly 시각화를 html 형식의 파일로도 저장이 가능하다. 파일로 저장해서 웹브라우저에서 열면 해당 시각화를 웹브라우저에서 사용할 수 있고 앞서 png, jpg, bmp 이미지 파일과는 달리 동적 시각화의 모든 기능을 사용할 수 있다는 장점이 있다.
 
-![](save_html.png)
+![그림 VIII-9. R-Studio에서의 plotly 웹 페이지 저장](./pic/fig/fig_8-9.png)
 
 이렇게 사용자가 직접 이미지나 HTML로 저장하는 방식이 아닌 코드에서 자동으로 이미지 파일을 저장하기 위해서는 plolty 패키지에서 제공하는 `export()`를 사용하거나 htmlwidgets 패키지의 `savewidget()`을 사용할 수 있다. `export()`는 plotly 시각화 객체를 매개변수로 지정하고 파일명을 지정하면 해당 파일명으로 plotly 시각화가 저장된다.
 
@@ -376,15 +374,15 @@ plolty와 같은 동적 시각화는 사실 보고서에 넣는 것 보다는 �
 
 차트 스튜디오는 자신이 생성한 plotly 객체를 업로드하고 이 파일을 블로그에 임베딩하는 기능을 제공한다. 또한 plotly 객체의 배포 외에도 웹 브라우저에서 차트를 쉽게 생성하거나 편집할 수 있는 편집기 기능도 제공한다. 차트 스튜디오는 무료 계정으로 사용이 가능한데 무료 계정은 자신이 생성한 plotly 시각화 결과를 누구나 볼 수 있는 퍼블릭 모드로만 사용할 수 있고 유료 계정의 경우 자신의 plotly 시각화 결과를 다른 사람에게 공개하지 않는 프라이빗 모드를 사용할 수 있다.
 
-![](chart_studio.png)
+![그림 VIII-10. 차트 스튜디오 홈페이지](./pic/fig/fig_8-10.png)
 
 차트 스튜디오를 사용하기 위해서는 먼저 차트 스튜디오에 가입을 해야한다.
 
-![](signup.png)
+![그림 VIII-11. 차트 스튜디오 회원가입 화면](./pic/fig/fig_8-11.png)
 
 가입을 신청하면 사용자 인증을 위한 이메일이 발송되는데 이 이메일에 인증해주면 가입이 완료된다. 이후 로그인하면 먼저 R-Studio과 Jupyter Notebook에서 업로드를 하기 위한 토큰을 받아야 한다. 로그인 후 'Setting' 메뉴의 'API Keys' 메뉴를 선택하고 패스워드를 입력하면 다음과 같은 키를 키 값이 나오는데 이 키 값을 잘 기록해 두어야 한다.
 
-![](api_setting.png)
+![그림 VIII-12. 차트 스튜디오 API 키 확인](./pic/fig/fig_8-12.png)
 
 ### 환경 설정과 업로드
 
@@ -415,7 +413,7 @@ api_create(fig, filename = "업로드할 파일 이름")
 
 ```
 
-![](upload.png)
+![그림 VIII-13. 차트 스튜디오 upload 화면](./pic/fig/fig_8-13.png)
 
 -   python
 
@@ -458,7 +456,7 @@ py.plot(fig, filename = '업로드할 파일 이름', auto_open=True)
 
 여기에 나타난 임베딩 태그를 복사하여 포스팅에 붙여 넣으면 해당 위치에 plotly 시각화가 나타난다.
 
-![](embedded_tag.png)
+![그림 VIII-14. 차트 스튜디오 임베딩 주소 확인](./pic/fig/fig_8-14.png)
 
 # 정적 시각화(ggplot, matplotlib)의 plotly 변환
 
@@ -481,7 +479,7 @@ ggplotly(ggplotly)
 
 ```
 
-```{r eval = TRUE, echo = FALSE, fig.cap='R의 ggplot2 객체의 전환'}
+```{r echo = FALSE, fig.cap='R의 ggplot2 객체의 전환'}
 ggplotly <- df_covid19_100 |> 
   ggplot(aes(x = date, y = new_cases, color = location )) +
   geom_line(aes(group = location, linetype = location)) +
@@ -494,6 +492,8 @@ ggplotly <- df_covid19_100 |>
 ggplotly(ggplotly)
 
 ```
+
+![실행결과 VIII-1. ggplot2 객체의 plotly의 전환](./pic/result/result_8-1.png)
 
 -   python
 
@@ -513,5 +513,5 @@ plotly_fig.show()
 
 ```
 
-![그림 II-30p. plotly의 seaborn 객체의
-전환](D:/R/git/datavisualization/plotly/chap2/tls.mpl_to_plotly.png)
+![실행결과 VIII-2. seaborn 객체의 plotly의 전환](./pic/result/result_8-2.png)
+

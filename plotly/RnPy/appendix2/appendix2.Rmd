@@ -167,7 +167,7 @@ Dash는 반응형 웹 기반 애플리케이션을 만들기 위한 오픈 소�
 
 Dash는 plotly 시각화를 만드는 Plotly.js, 컴포넌트 간의 핸들링을 위해 메타(구 페이스북)에서 개발한 React.js, 앱 애플리케이션 구동 엔진으로 flask를 사용하여 작성된 플랫폼으로 데이터 앱을 구축하고 배포하는 데 활용하는 다양한 기능을 제공하는 플랫폼이다.
 
-![](dash.png)
+![부록 II-1. Dash의 구조](./pic/fig/appendix2_01.png)
 
 웹 브라우저에 렌더링되고 사용되기 때문에 OS의 영향을 덜 받고 모바일에서도 사용이 가능한 데이터 전용 앱의 개발에 효과적인 플랫폼이다. Dash는 Tableau나 PowerBI와는 달리 무료 패키지로 사용할 수 있고 R과 python 코딩만으로 javascript를 제어할 수 있으며. Django와 같은 프레임워크와 비교해서도 매우 적은 코드로 웹 애플리케이션을 만들 수 있다는 장점이 있다.
 
@@ -347,7 +347,7 @@ if __name__ == '__main__':
 
 ```
 
-![](./hello_dash.png)
+![부록 II-2. 'Hello Dash!' Dash 앱의 실행 결과](./pic/fig/appendix2_02.png)
 
 # dash 앱 만들기
 
@@ -355,7 +355,7 @@ dash의 전반적인 기능을 살펴보기 위해 지금까지 사용했던 코
 
 코로나 19 데이터를 활용한 dash 앱은 크게 네 개의 부분으로 구성된다. 첫 번째 부분은 최상단의 제목이 보이는 div이고, 두 번째 부분은 두 번째 div의 좌측에 특정일의 코로나 19 데이터를 선택하기 위한 'dccDatePickerSingle' 컨트롤을 위치시킨다. 세 번째는 두 번째 div의 우측에 앞선 5장에서 그렸던 주요 5개국의 선 그래프를 위치시키고, 네 번쨰는 마지막 div로 각 국가별 게이지 인디케이터를 5개 나란히 그리는 dash 앱이다.
 
-![](result.png)
+![부록 II-3. 코로나19 Dash 앱의 실행 결과](./pic/fig/appendix2_03.png)
 
 ## 레이아웃의 구성
 
@@ -373,7 +373,7 @@ dcc 컴포넌트 모듈에는 'Graph'라고 불리는 컴포넌트가 포함되�
 
 -   R
 
-R에서 코로나 19 Dash 앱을 레이아웃을 만들기 위해 html 컴포넌트 함수로 `htmlDiv()`, `htmlH1()`, `htmlLabel()`를 사용했고 dcc 컴포넌트 함수로 `dccDatePickerSingle()`, `dccGraph()`를 사용했다.
+R에서 코로나19 Dash 앱을 레이아웃을 만들기 위해 html 컴포넌트 함수로 `htmlDiv()`, `htmlH1()`, `htmlLabel()`를 사용했고 dcc 컴포넌트 함수로 `dccDatePickerSingle()`, `dccGraph()`를 사용했다.
 
 -   `htmlDiv()` : html 5 요소중 \<div\>를 만들어주는 html 컴포넌트 함수
 
@@ -385,7 +385,7 @@ R에서 코로나 19 Dash 앱을 레이아웃을 만들기 위해 html 컴포넌
 
 -   `dccGraph()` : plotly.js 기반 데이터 시각화를 렌더링하는 dcc 컴포넌트 함수, 그래프의 호버링, 클릭, 셀렉트와 같은 사용자 상호 작용의 콜백 정의 단위로 사용됨.
 
-코로나 19 Dash 앱의 구성을 위한 R 코드는 다음과 같다.
+코로나19 Dash 앱의 구성을 위한 R 코드는 다음과 같다.
 
 ```{r}
 library(dash)
@@ -556,7 +556,7 @@ app |> run_app()
 
 -   python
 
-python에서 코로나 19 Dash 앱을 레이아웃을 만들기 위해 html 컴포넌트 함수로 `html.Div()`, `html.H1()`, `html.Label()`를 사용했고 dcc 컴포넌트 함수로 `dcc.DatePickerSingle()`, `dcc.Graph()`를 사용했다.
+python에서 코로나19 Dash 앱을 레이아웃을 만들기 위해 html 컴포넌트 함수로 `html.Div()`, `html.H1()`, `html.Label()`를 사용했고 dcc 컴포넌트 함수로 `dcc.DatePickerSingle()`, `dcc.Graph()`를 사용했다.
 
 -   `html.Div()` : html 5 요소중 \<div\>를 만들어주는 html 컴포넌트 함수
 
@@ -568,7 +568,7 @@ python에서 코로나 19 Dash 앱을 레이아웃을 만들기 위해 html 컴�
 
 -   `dcc.Graph()` : plotly.js 기반 데이터 시각화를 렌더링하는 dcc 컴포넌트 함수, 그래프의 호버링, 클릭, 셀렉트와 같은 사용자 상호 작용의 콜백 정의 단위로 사용됨.
 
-코로나 19 Dash 앱의 구성을 위한 python 코드는 다음과 같다.
+코로나19 Dash 앱의 구성을 위한 python 코드는 다음과 같다.
 
 ```{python}
 total_deaths_5_nations_by_day = df_covid19.copy()
@@ -759,7 +759,7 @@ app.run_server(debug=True, use_reloader = False)
 
 다음의 그림은 레이아웃과 콜백이 상호작용하는 과정을 도식화한 것이다. 
 
-![](callback.png)
+![부록 II-4. 코로나19 Dash 앱 콜백의 실행 순서](./pic/fig/appendix2_04.png)
 
 -   R
 

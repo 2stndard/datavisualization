@@ -169,9 +169,26 @@ plotly의 컨트롤 사용을 알아보기 위해 추가적인 데이터를 사�
 
 -    R
 
-```{r eval = TRUE}
+```{r echo = TRUE}
 ## 연도별 충원율 데이터를 불러들이고 전처리
-df_충원율_botton <- read_excel('D:/R/git/datavisualization/plotly/RnPy/chap6/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx', 
+df_충원율_botton <- read_excel('데이터저장경로/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx', 
+                     sheet = 'Sheet1', skip = 7, col_names = FALSE, 
+                     col_types = c(rep('text', 2), rep('numeric', 12)))
+
+df_충원율_botton <- df_충원율_botton |> dplyr::select(1, 2, 5)
+
+colnames(df_충원율_botton) <- c('연도', '지역', '신입생충원율')
+
+df_충원율_botton <- df_충원율_botton |> pivot_wider(names_from = '연도', values_from = '신입생충원율')
+
+df_충원율_botton <- as.data.frame(df_충원율_botton)
+
+```
+
+
+```{r echo = FALSE}
+## 연도별 충원율 데이터를 불러들이고 전처리
+df_충원율_botton <- read_excel('D:/R/data/Rnpy/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx', 
                      sheet = 'Sheet1', skip = 7, col_names = FALSE, 
                      col_types = c(rep('text', 2), rep('numeric', 12)))
 
@@ -191,7 +208,19 @@ df_충원율_botton <- as.data.frame(df_충원율_botton)
 import pandas as pd
 import plotly.graph_objects as go
 
-df_충원율_control = pd.read_excel("D:/R/git/datavisualization/plotly/RnPy/chap6/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx", 
+df_충원율_control = pd.read_excel("데이터저장경로/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx", 
+                           sheet_name = 'Sheet1', skiprows=(6), header = 0)
+df_충원율_control = df_충원율_control.iloc[:, [0, 1, 4]]
+df_충원율_control.columns = ('연도', '지역', '신입생충원율')
+df_충원율_control = df_충원율_control.pivot(index = '지역', columns = '연도', values = '신입생충원율').reset_index()
+
+```
+
+```{python echo = FALSE}
+import pandas as pd
+import plotly.graph_objects as go
+
+df_충원율_control = pd.read_excel("D:/R/data/Rnpy/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx", 
                            sheet_name = 'Sheet1', skiprows=(6), header = 0)
 df_충원율_control = df_충원율_control.iloc[:, [0, 1, 4]]
 df_충원율_control.columns = ('연도', '지역', '신입생충원율')
@@ -201,7 +230,7 @@ df_충원율_control = df_충원율_control.pivot(index = '지역', columns = '�
 
 plotly에서 제공하는 시각화 컨트롤은 마우스 클릭을 사용하여 특정 기능을 실행하는  버튼 컨트롤, 몇 가지 선택사항 중에 하나를 선택하는 드롭다운 버튼 컨트롤, 마우스 드래그를 통해 값을 설정하는 슬라이더의 세 가지 컨트롤을 사용할 수 있다. 이 중 버튼 컨트롤과 드롭다운 버튼 컨트롤은 'updatemenus'라는 같은 속성들을 사용하는데, 버튼 타입 설정 속성을 통해  버튼을 사용할지 드롭다운을 설정할지를 결정하게 된다. 하지만 슬라이더 컨트롤은 'slider' 속성을 사용하기 때문에 버튼 컨트롤, 드롭다운 컨트롤의 속성과 매우 다르다.
 
-![](control_type.png)
+![그림 VII-1. plotly 컨트롤의 종류](./pic/fig/fig_7-1.png)
 
 위의 컨트롤들은 'layout' 속성의 하위 속성인 'updatemenus' 속성으로 설정이 가능하다. 
 
@@ -211,7 +240,7 @@ plotly에서 제공하는 시각화 컨트롤은 마우스 클릭을 사용하�
 
 plotly의 크기와 위치 설정을 위해 사용하는 'domain' 속성은 'layout'의 'xaxis'와 'yaxis'의 하위 속성이다. 이 'domain' 속성은 전체 플로팅 영역에서 X축과 Y축이 그려지는 범위를 설정하는데, 좌측 하단의 시작 위치와 우측 상단의 끝 위치에 비례한 0과 1 사이의 수치값을 통해 설정한다. 다음의 그림과 같이 전체 플로팅 영역의 오른쪽 아래에 위치시키고 왼쪽과 상단에 10%씩의 공간을 남기기 위해서는 'xaxis'의 'domain'은 시작 위치를 0.1, 끝 위치를 1로 설정하고 'yaxis'의 'domain'은 시작 위치를 0, 끝 위치를 0.9로 설정하여야 한다.
 
-![](domain.png)
+![그림 VII-2. plotly의 domain 설정](./pic/fig/fig_7-2.png)
 
 # 버튼 컨트롤
 
@@ -231,7 +260,7 @@ plotly의 크기와 위치 설정을 위해 사용하는 'domain' 속성은 'lay
 
 다음은 'updatemenus'의 주요 속성들이다.
 
-![](updatemenus_attr.png)
+![표 VII-1. updatemenus 레이아웃의 주요 속성](updatemenus_attr.png)
 
 ## restyle 버튼
 
@@ -249,7 +278,7 @@ restyle 버튼이 클릭되면 갱신되어야 하는 data 속성들은 'args' �
 
 R에서 버튼을 추가하기 위해서는 `layout()`에서 설정하는데 'updatemenus' 속성의 하위 속성들을 설정함으로써 추가한다. 'updatenemus'는 앞에서 설명한 바와 같이 list의 리스트로 구성이 되기 때문에 `list()`가 두 번 중첩되어야 한다. 설정되는 버튼이 하나라고 하더라도 리스트로 묶어주어야 정상적으로 버튼이 나타난다. 'args' 속성 설정에는 갱신해야 할 속성명과 갱신되어야 할 속성값의 리스트로 구성하거나 속성명에 속성값을 '='로 설정하는 할당식을 사용하는데 여기서 주의할 것은 속성값을 다시 리스트로 묶어 주어야 한다는 것이다. 
 
-```{r eval = TRUE}
+```{r}
 fig <- df_충원율_botton |>
   plot_ly() |>
   ## 데이터가 표시되는 bar 트레이스 생성
@@ -352,6 +381,8 @@ fig.show()
 
 ```
 
+![실행결과 VII-1. restyle 버튼의 R 실행결과](./pic/result/result_7-1.png)
+
 ## relayout 버튼
 
 relayout 버튼은 해당 버튼을 클릭함으로써 layout 속성이 갱신되는 버튼을 말한다. relayout 버튼은 restyle 버튼과 대부분의 생성 방법은 동일한데, 버튼은 갱신되는 속성값이 'layout'의 하위 속성이어야 하고 'button'들의 'method'가 "relayout"으로 설정되어야 한다.
@@ -362,7 +393,7 @@ relayout 버튼은 해당 버튼을 클릭함으로써 layout 속성이 갱신�
 
 R에서 relayout 버튼을 만들기 위해서는 앞서 restyle 버튼과 동일한 방법을 사용한다. 다만 'method' 속성을 "relayout"으로 설정하고 'args'에 'layout' 관련 속성들을 갱신하도록 설정해야 한다. 
 
-```{r eval = TRUE}
+```{r}
 fig <- df_충원율_botton |>
   plot_ly() |>
   add_trace(type = 'bar', x = ~지역, y = ~`2022`, text = ~`2022`, 
@@ -451,6 +482,8 @@ fig.show()
 
 ```
 
+![실행결과 VII-2. relayout 버튼의 python 실행결과](./pic/result/result_7-2.png)
+
 ## update 버튼
 
 update 버튼은 해당 버튼을 클릭함으로써 data와 layout 속성이 모두 갱신되는 버튼을 말한다. update 버튼은 restyle이나 relayout 버튼과 대부분의 생성 방법은 동일한데, restyle에 해당하는 'args' 속성값과 relayout에 해당하는 'args' 속성을 각각 리스트로 설정하여야 한다.
@@ -462,7 +495,7 @@ update 버튼은 해당 버튼을 클릭함으로써 data와 layout 속성이 �
 R에서 update 버튼을 만들기 위해서는 앞서 restyle 버튼과 동일한 방법을 사용한다. 다만 'method' 속성을 "update"로 설정하고 'args'에 'data'에 관련한 속성으로 구성된 리스트와 'layout' 관련 속성들로 구성된 리스트로 구성하여야 한다. 
 
 
-```{r eval = TRUE}
+```{r}
 fig <- df_충원율_botton |>
   plot_ly() |>
   add_trace(type = 'bar', x = ~지역, y = ~`2022`, text = ~`2022`, 
@@ -570,6 +603,8 @@ fig.show()
 
 ```
 
+![실행결과 VII-3. update 버튼의 R 실행결과](./pic/result/result_7-3.png)
+
 # 드롭다운 컨트롤
 
 드롭다운 컨트롤은 버튼 컨트롤과 마찬가지로 plotly로 만들어진 객체의 data 속성이나 layout 속성의 속성값을 변경하여 plotly 시각화에 변경을 가하는 컨트롤을 말한다. 다만 버튼 컨트롤은 각각의 기능이 구현된 버튼을 표시하고 이를 클릭하여 실행하는 반면 드롭다운 컨트롤은 드롭다운 메뉴에서 해당 기능을 선택하면 시각화가 업데이트되는 컨트롤이다. 드롭다운 컨트롤도 버튼 컨트롤과 마찬가지로 어떤 속성을 갱신하느냐에 따라 'update', 'restle', 'relayout', 'animate'의 네가지 메쏘드 중에 하나를 설정하여야 한다.
@@ -580,7 +615,7 @@ fig.show()
 
 -   R
 
-```{r eval = TRUE}
+```{r}
 fig <- df_충원율_botton |>
   plot_ly() |>
   add_trace(type = 'bar', x = ~지역, y = ~`2022`, text = ~`2022`, 
@@ -684,13 +719,15 @@ fig.show()
 
 ```
 
+![실행결과 VII-4. 드롭다운 컨트롤의 python 실행결과](./pic/result/result_7-4.png)
+
 # 슬라이더 컨트롤
 
 슬라이더 컨트롤은 슬라이더 바의 형태로 표시된 컨트롤에서 마우스 클릭이나 마우스 드래그로 데이터를 선택함으로써 plotly 시각화의 갱신을 할 수 있는 컨트롤을 말한다. 이 컨트롤은 앞서 버튼들과는 달리 'sliders' 속성을 사용하는데 'updatemenus' 속성과 상당 부분 유사하다. 슬라이더 컨트롤도 버튼 컨트롤과 마찬가지로 로 어떤 속성을 갱신하느냐에 따라 'update', 'restle', 'relayout', 'animate'의 네 가지 메쏘드 중에 하나를 설정하여야 한다.
 
 다음은 'sliders'의 주요 속성들이다.
 
-![](sliders_attr.png) 
+![표 VII-2. sliders 레이아웃의 주요 속성](sliders_attr.png) 
 
 'sliders' 속성을 설정할 때 주의해야 하는 것은 'updatemenus'와 마찬가지로 슬라이더 컨트롤도 두 개 이상을 만들 수 있기 때문에 'sliders' 속성은 하위속성들을 리스트로 묶어 설정해야 한다는 것이다. 또 'args'의 설정도 'updatemenus'와 같이 리스트로 구성해야 하고 속성값도 리스트로 구성해야 한다.
 
@@ -703,7 +740,7 @@ fig.show()
 R에서 슬라이더를 만들기 위해서는 앞서 버튼과 비슷하게 생각할 수도 있는데, 앞서 각 버튼으로 구현했던 기능들을 'steps' 속성으로 사용한다. 이 'steps' 속성을 'sliders' 속성에 설정하는데 슬라이더가 여러 개 들어갈 수도 있으니 리스트의 리스트로 설정하여야 한다. 
 
 
-```{r eval = TRUE}
+```{r}
 fig <- df_충원율_botton |>
   plot_ly() |>
   add_trace(type = 'bar', x = ~지역, 
@@ -808,3 +845,6 @@ fig.update_layout(title = dict(text = "연도별 충원율", x = 0.5),
 fig.show()
 
 ```
+
+
+![실행결과 VII-5. 슬라이더 컨트롤의 R 실행결과](./pic/result/result_7-5.png)

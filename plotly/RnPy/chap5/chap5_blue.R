@@ -219,6 +219,22 @@ total_deaths_5_nations_by_day |>
 
 
 ################### 5-9
+library(tqk)
+library(lubridate)
+##  주가 코드를 가져옴
+code <- code_get()
+
+start_day = as.Date('2022-10-07')
+end_day = as.Date('2023-01-13')
+
+## 삼성전자 코드값을 가져옴
+sse_code <- code |> filter(name == '삼성전자') |>
+  select(code) |> pull()
+
+##  삼성전자의 최근 100일 주가를 가져옴
+samsung <- tqk_get(sse_code, from=start_day, to=end_day)
+samsung |> head()
+
 samsung |> plot_ly() |>
   add_trace(
     type="candlestick", x = ~date,
@@ -244,7 +260,7 @@ samsung |> plot_ly() |>
   layout(title = "삼성전자 Candlestick Chart", 
          xaxis = list(rangeslider = list(visible = F)), 
          margin = margins_R) |>
-  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap5/fig/5-10', 
+  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap5/fig/5-9', 
                                      height = 600, width = 900))
 
 
@@ -271,7 +287,7 @@ fig2 <- samsung %>% plot_ly() |>
 
 subplot(fig1, fig2, heights = c(0.7,0.2), nrows=2,
         shareX = TRUE) |> layout(margin = margins_R) |>
-  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap5/fig/5-11', 
+  config(toImageButtonOptions = list(format = 'svg', filename = 'D:/R/git/datavisualization/plotly/RnPy/chap5/fig/5-9', 
                                      height = 600, width = 900))
 
 
@@ -288,7 +304,7 @@ fig1 <- samsung |> plot_ly() |>
          xaxis = list(rangeslider = list(visible = F), 
                       rangebreaks=list(
                         list(bounds=list("sat", "mon")), 
-                        list(values = list("2022-09-09", "2022-09-12", "2022-10-03", "2022-10-10"))
+                        list(values = list("2022-09-09", "2022-09-12", "2022-10-03", "2022-10-10", "2022-12-30"))
                       )
          ),
          yaxis = list(title = '주가'),
@@ -299,7 +315,7 @@ fig2 <- samsung %>% plot_ly() |>
             color =I('gray'), showlegend = FALSE) |>
   layout(xaxis = list(rangebreaks=list(
     list(bounds=list("sat", "mon")), 
-    list(values = list("2022-09-09", "2022-09-12", "2022-10-03", "2022-10-10"))
+    list(values = list("2022-09-09", "2022-09-12", "2022-10-03", "2022-10-10", "2022-12-30"))
   )
   ),
   yaxis = list(title = '거래량'))
@@ -391,7 +407,7 @@ fig1 <- samsung_moving |> plot_ly() |>
          xaxis = list(rangeslider = list(visible = F), 
                       rangebreaks=list(
                         list(bounds=list("sat", "mon")), 
-                        list(values = list("2022-09-09", "2022-09-12", "2022-10-03", "2022-10-10"))
+                        list(values = list("2022-09-09", "2022-09-12", "2022-10-03", "2022-10-10", "2022-12-30"))
                       )
          ),
          yaxis = list(title = '주가'))
@@ -413,7 +429,7 @@ fig2 <- samsung %>% plot_ly() |>
             color =I('gray'), showlegend = FALSE) |>
   layout(xaxis = list(rangebreaks=list(
     list(bounds=list("sat", "mon")), 
-    list(values = list("2022-09-09", "2022-09-12", "2022-10-03", "2022-10-10"))
+    list(values = list("2022-09-09", "2022-09-12", "2022-10-03", "2022-10-10", "2022-12-30"))
   )
   ),
   yaxis = list(title = '거래량'))

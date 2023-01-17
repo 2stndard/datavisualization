@@ -98,7 +98,7 @@ from pandas.api.types import CategoricalDtype
 from matplotlib import pyplot as plt
 import plotly.graph_objects as go
 
-df_covid19 = pd.read_csv("D:/R/git/datavisualization/plotly/RnPy/owid-covid-data_221203.csv")
+df_covid19 = pd.read_csv("D:/R/data/Rnpy/owid-covid-data.csv")
 
 df_covid19['date'] = pd.to_datetime(df_covid19['date'], format="%Y-%m-%d")
 
@@ -143,7 +143,7 @@ df_covid19_stat['백신접종완료율'] = df_covid19_stat['백신접종자완�
 ## python 코드
 ## 대학 학과 취업률 데이터 셋
 
-df_취업률 = pd.read_excel("d:/R/data/2020년 학과별 고등교육기관 취업통계.xlsx", 
+df_취업률 = pd.read_excel("d:/R/data/Rnpy/2021년 학과별 고등교육기관 취업통계.xlsx", 
                            sheet_name = '학과별',
                            skiprows=(13), 
                            header = 0)
@@ -176,13 +176,13 @@ margins_P = dict(t = 50, b = 25, l = 25, r = 25)
 
 plotly에서는 인디케이터를 시각화하기 위해 indicator 트레이스를 제공한다. indicator 트레이스는 인디케이터로 표현할 수치를 수치, 델타, 게이지의 세 가지 방법을 사용하여 시각화하는 것이다. 이 세 가지 방법은 'mode' 속성을 통해 설정이 가능한데, 다음은 indicator 트레이스에서 사용하는 주요 속성이다.
 
-![](indicator_attr.png)
+![표 VI-1. indicator 트레이스의 주요 속성](indicator_attr.png)
 
 ## 수치(number) 인디케이터
 
 수치 인디케이터는 단일 수치를 시각화하는 방법이다. 이 수치 인디케이터는 indicator 트레이스 속성 중에 'number'로 설정한다. 다음은 수치 인디케이터의 설정에 사용하는 'number'의 주요 속성이다.
 
-![](indicator_number_attr.png)
+![표 VI-2. indicator 트레이스 number의 주요 속성](indicator_number_attr.png)
 
 수치 인디케이터는 전체 인디케이터에서 표현되는 부분 중에 수치를 표현하는 부분으로, 수치 인디케이터가 단독으로 사용되기보다는 뒤에 설명할 'delta'나 'guage'와 함께 전체 인디케이터를 구성하는 일부분으로 사용되는 것이 일반적이다. 하지만 단순한 현재 수치를 표현할 때는 단독으로 사용될 수 있다.
 
@@ -345,7 +345,7 @@ fig.show()
 
 다음은 델타 인디케이터의 설정에 사용하는 'delta'의 주요 속성이다.
 
-![](indicator_delta_attr.png)
+![표 VI-3. indicator 트레이스 delta의 주요 속성](indicator_delta_attr.png)
 
 -   R
 
@@ -502,7 +502,7 @@ fig.show()
 
 다음은 게이지 인디케이터의 설정에 사용하는 'gauge'의 주요 속성이다.
 
-![](indicator_gauge_attr.png)
+![표 VI-4. indicator 트레이스 gauge의 주요 속성](indicator_gauge_attr.png)
 
 다음의 코드는 게이지 인디케이터를 만드는 R과 python의 코드이다. 게이지 인디케이터의 'value'로 데이터의 마지막 날의 10만 명당 사망자 수를 표시하고, 임계치는 해당 국가의 10만 명당 사망 자수 최뎃값으로 설정하였다. 최솟값은 0, 최댓값은 임계의 1.2배 값으로 설정하고, step은 최댓값의 50%와 75%로 설정하였다.    
 -   R
@@ -993,11 +993,11 @@ scattergeo 트레이스는 plolty에서 지원하는 지형 외곽선 기반 지
 
 다음은 scattergeo 트레이스에서 사용하는 주요 속성이다. 
 
-![](scattergeo_attr.png)
+![표 VI-5. scattergeo 트레이스의 주요 속성](scattergeo_attr.png)
 
 지형 기반 지도의 layout을 설정하는데 사용하는 속성은 'geo' 속성이다. 다음은 'geo'의 주요 속성이다.
 
-![](geo_attr.png)
+![표 VI-6. scattergeo 트레이스 geo 레이아웃의 주요 속성](geo_attr.png)
 
 다음은 scattergeo 트레이스로 물리적 지도를 그리는 python 코드이다.
 
@@ -1048,7 +1048,7 @@ python에서 choropleth 트레이스를 추가하기 위해서는 `add_trace()`�
 
 다음은 choropleth 트레이스에서 사용되는 주요 속성들이다.
 
-![](choropleth_attr.png)
+![표 VI-7. choropleth 트레이스의 주요 속성](choropleth_attr.png)
 
 choropleth 트레이스에서 사용하는 layout 속성은 scattergeo 트레이스에서 설명한 'geo' 속성을 사용한다.
 
@@ -1070,7 +1070,7 @@ choropleth 트레이스에서 사용하는 layout 속성은 scattergeo 트레이
 
 choropleth 트레이스를 만들기 위한 데이터 전처리가 끝났으면 plotly를 초기화하고 `plotly.graph_objects.Choropleth()`를 사용하여 Choropleth 트레이스를 만든다. 앞에서 불러들어온 geoJSON 데이터를 'geojson' 속성에 설정하고 충원율 데이터와 매칭할 키인 "properties.CTPRVN_CD"를 'featureidkey'에 설정한다. 'featureidkey'에 매칭될 충원율 데이터의 열을 'locations'에 설정하고 색상으로 표현해 줄 데이터인 충원율 열을 'z' 속성으로 설정한다. 전체적 색상 스케일 속성인 'colorscale'을 푸른색 팔레트("blues")로 설정하고 지형의 경계선, 컬러바, 표현 텍스트, 호버를 설정하였다.
 
-```{python}
+```{python echo = TRUE}
 ##  json 파일을 읽기 위한 라이브러리 로딩
 import json
 
@@ -1114,6 +1114,57 @@ fig.update_layout(
     visible = False, center=dict(lon=126.98, lat=37.56)),
   autosize=False, 
   margin = dict(t = 50, b = 25, l = 25, r = 25, pad=4, autoexpand=True))
+  
+fig.show()
+
+```
+
+```{python echo = FALSE}
+##  json 파일을 읽기 위한 라이브러리 로딩
+import json
+
+##  지역값 매핑을 위한 함수 정의 
+def cat(row):
+    key = row['지역']
+    value = {'강원' : '42','경기' : '41','경남' : '48','경북' : '47','광주' : '29','대구' : '27','대전' : '30','부산' : '26','서울' : '11','세종' : '36','울산' : '31','인천' : '28','전남' : '46','전북' : '45','제주' : '50','충남' : '44','충북' : '43'}.get(key)
+    return value
+
+## json 파일의 데이터를 불러들임
+geometry = json.load(open('D:\\R\\git\\datavisualization\\plotly\\RnPy\\chap6\\TL_SCCO_CTPRVN.json', encoding='utf-8'))
+
+## 충원율 데이터 불러들임
+df_충원율 = pd.read_excel("D:/R/git/datavisualization/plotly/RnPy/chap6/고등 주요 01-시도별 신입생 충원율(2010-2022)_220825y.xlsx", 
+                           sheet_name = 'Sheet1', skiprows=(6), header = 0)
+                           
+df_충원율 = df_충원율.iloc[:, 0:5]
+df_충원율.columns = ('연도', '지역', '정원내모집인원', '정원내입학생수', '신입생충원율')
+df_충원율['지역코드']= df_충원율.apply(cat, axis=1)
+df_충원율 = df_충원율[(df_충원율['지역'] != '전국')&(df_충원율['연도'] == 2022)]
+
+fig = go.Figure()
+
+##  chropleth 트레이스 생성
+fig.add_trace(go.Choropleth(
+  geojson=geometry, 
+  featureidkey='properties.CTPRVN_CD', 
+  locations = df_충원율['지역코드'], 
+  z = df_충원율['신입생충원율'], 
+  colorscale="Blues", 
+  text = df_충원율['신입생충원율'],
+  marker=dict(line=dict(width=1), 
+  opacity = 0.5),
+  colorbar = dict(y = 0.5, yanchor = 'middle')))
+
+fig.update_layout(
+  title = dict(text = '22년 전국 대학 신입생 충원율', x = 0.5),
+  ## geo 속성 설정
+  geo=dict(
+    showframe = True, fitbounds = "locations",
+    visible = False, center=dict(lon=126.98, lat=37.56)),
+  autosize=False, 
+  margin = dict(t = 50, b = 25, l = 25, r = 25, pad=4, autoexpand=True))
+  
+fig.show()
 
 ```
 
@@ -1131,19 +1182,43 @@ python에서 scattermapbox 트레이스를 추가하기 위해서는 `add_trace(
 
 다음은 Scattermapbox 트레이스에서 사용되는 주요 속성들이다.
 
-![](scattermapbox_attr.png)
+![표 VI-8. Scattermapbox 트레이스의 주요 속성](scattermapbox_attr.png)
 
 Scattermapbox 트레이스에서 'layout'을 설정하기 위해서는 'mapbox' 속성을 사용하는데 다음은 'mapbox'의 주요 속성이다. 
 
-![](mapbox_attr.png)
+![표 VI-9. Scattermapbox 트레이스 mapbox 레이아웃의 주요 속성](mapbox_attr.png)
 
 다음은 맵박스의 서울 지도 위에 서울의 주요 대학의 위치를 설정하는 python 코드이다. 
 
 앞서 언급했다시피 맵박스에서 제공되는 지도를 사용하기 위해서는 맵박스 토큰이 필요하다. 이 토큰은 'layout'의 'mapbox'의 'accesstoken'에 설정해야 맵박스 지도가 열린다. 맵박스에서 표시되는 지도는 대부분 'layout'의 'mapbox' 속성으로 설정한다. scattermapbox 트레이스에는 이 맵박스 지도 위에 표시될 데이터만을 설정하는데 서울 주요 대학의 위도, 경도, 대학의 이름을 설정하였다. 
 
-```{python}
+```{python echo = TRUE}
 ##  대학 위경도 데이터 불러들임
-df_univ = pd.read_excel("D:/R/git/datavisualization/plotly/RnPy/chap6/university.xlsx")
+df_univ = pd.read_excel("파일저장경로/university.xlsx")
+
+##  scattermapbox 트레이스 추가
+fig = go.Figure(go.Scattermapbox(
+        lat=df_univ['lat'], lon=df_univ['lon'],
+        mode='markers+text',
+        marker=dict(symbol ='marker', size=15, color='blue'),
+        text=df_univ['학교명'], textposition = 'top center'))
+
+fig.update_layout(title = dict(text = '서울지역 주요 대학', x = 0.5),
+    autosize=True, hovermode='closest',
+    ##  mapbox 속성 설정
+    mapbox=dict(
+        accesstoken= mapbox_access_token,
+        bearing=0, center=dict(lon=126.98, lat=37.56),
+        pitch=0, zoom=10, style="light"))
+
+fig.show()
+
+```
+
+
+```{python echo = FALSE}
+##  대학 위경도 데이터 불러들임
+df_univ = pd.read_excel("D:/R/data/Rnpy/university.xlsx")
 
 ##  scattermapbox 트레이스 추가
 fig = go.Figure(go.Scattermapbox(
@@ -1422,7 +1497,30 @@ Sys.setenv("MAPBOX_TOKEN" = mapboxToken)
 
 이 지도 위에 scatter 트레이스로 마커와 텍스트를 사용해 각 대학의 위치를 표시하였다.
 
-```{r}
+```{r echo = TRUE}
+##  대학의 위경도 데이터 불러들임
+df_univ <- read_excel("파일저장경로/university.xlsx", 
+                      col_types = c('text', 'numeric', 'numeric'))
+
+plot_dat_seoul <- plot_dat |> filter(GID_1 == 'KOR.16_1')
+
+plot_mapbox(plot_dat_seoul) |>
+  add_trace(data = df_univ, type = 'scattermapbox', mode = 'markers+text', 
+            x = ~lon, y = ~lat,
+            marker = list(size = 10, symbol = 'marker'),
+            text = ~학교명, textposition = 'top center', 
+            textfont = list(color = 'blue')) |>
+  layout(title = '서울지역 주요 대학',
+         autosize=TRUE, hovermode='closest',
+         mapbox=list(
+           bearing=0, center=list(lon=126.98, lat=37.56),
+           pitch=0, zoom=10, style="light"),
+        margin = margins_R, 
+        showlegend = FALSE)
+
+```
+
+```{r echo = FALSE}
 ##  대학의 위경도 데이터 불러들임
 df_univ <- read_excel("D:/R/git/datavisualization/plotly/RnPy/chap6/university.xlsx", 
                       col_types = c('text', 'numeric', 'numeric'))

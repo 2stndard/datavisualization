@@ -318,12 +318,15 @@ library(lubridate)
 ##  주가 코드를 가져옴
 code <- code_get()
 
+start_day = as.Date('2022-10-07')
+end_day = as.Date('2023-01-13')
+
 ## 삼성전자 코드값을 가져옴
 sse_code <- code |> filter(name == '삼성전자') |>
   select(code) |> pull()
 
 ##  삼성전자의 최근 100일 주가를 가져옴
-samsung <- tqk_get(sse_code, from=today() - 100, to=today())
+samsung <- tqk_get(sse_code, from=start_day, to=end_day)
 samsung |> head()
 
 
@@ -400,7 +403,7 @@ fig1 <- samsung |> plot_ly() |>
                         ## 주말 제거
                         list(bounds=list("sat", "mon")), 
                         ## 특정 공휴일 제거
-                        list(values = list("2022-09-09", "2022-09-12", "2022-10-03", "2022-10-10"))
+                        list(values = list("2022-09-09", "2022-09-12", "2022-10-03", "2022-10-10", "2022-12-30"))
                       )),
          yaxis = list(title = '주가'),
          showlegend = FALSE)
@@ -412,7 +415,7 @@ fig2 <- samsung %>% plot_ly() |>
     ## 주말 제거
     list(bounds=list("sat", "mon")), 
     ## 특정 공휴일 제거
-    list(values = list("2022-09-09", "2022-09-12", "2022-10-03", "2022-10-10"))
+    list(values = list("2022-09-09", "2022-09-12", "2022-10-03", "2022-10-10", "2022-12-30"))
   )),
   yaxis = list(title = '거래량'))
 
