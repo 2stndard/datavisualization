@@ -982,7 +982,7 @@ df_lolipop |>
                                     standoff = 10), 
                        side = "right", overlaying = "y",
                        range = c(0, 200), ticksuffix = '명'),
-         margin = margins_R, 
+         margin = list(t = 50, b = 25, l = 25, r = 75), 
          legend = list(orientation = 'h', y = -0.5, x = 0.5, 
                        yref = 'container', xanchor = 'center'),
          showlegend = T)

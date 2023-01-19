@@ -34,6 +34,7 @@ library(plotly)
 정적 시각화와 동적 시각화의 어느 것이 더 효용성이 있는지를 단언할 수 없다. 데이터 시각화가 사용되는 매체, 데이터 시각화를 보는 대상, 데이터 시각화에서 보여주고자 하는 스토리에 따라서 정적 시각화를 사용해야 할 때와 동적 시각화를 사용해야 할 때를 적절히 선택해야 한다.
 
 # plotly란?
+# plotly란?
 
 plotly는 캐나다 몬트리올에 본사를 두고 있는 데이터 시각화 전문 회사의 이름이다. 이 회사는 2012년 처음 설립되었는데 데이터 전문 분석 도구와 데이터 시각화 전문 도구를 개발하여 보급한다. 'plotly'는 이 책에서 설명할 R과 python의 plotly 패키지 외에도 R, python, Julia 등의 개발도구에서 사용할 수 있는 데이터 대시보드 플랫폼인 dash를 비롯해 dash 플랫폼으로 개발된 웹페이지를 배포하기 위한 'Dash Enterprise', plotly를 기반으로 온라인 동적 시각화를 만드는 'Chart Studio Cloud' 등의 서비스를 제공하고 있다. 이 중 가장 유명한 제품이 회사의 이름에서도 나타나듯이 plotly 시각화 패키지이다.
 
@@ -266,7 +267,7 @@ margins_P = {'t' : 50, 'b' : 25, 'l' : 25, 'r' : 25}
 
 ```
 
-```{python eval = TRUE, echo = FALSE, message = FALSE, warning = FALSE}
+```{python eval = FALSE, echo = FALSE, message = FALSE, warning = FALSE}
 ## 필요한 라이브러리 로딩
 import pandas as pd
 from datetime import datetime, timedelta
@@ -711,7 +712,7 @@ df_covid19_100 |>
 
 python에서는 `print()`를 사용하여 데이터 구조를 확인할 수 있다.
 
-```{python eval = TRUE}
+```{python eval = FALSE}
 fig = go.Figure(
     data = [
       {
