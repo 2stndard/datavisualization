@@ -252,7 +252,7 @@ fig <- total_deaths_5_nations_by_day |>
 fig |>
   add_trace(type = 'indicator', mode = 'number', 
             value = number_KOR,  
-            title = list(text = paste0('<b>한국 코로나 사망자(10만명당)</b>\n', year(today()), '년', month(today()), '월', day(today()), '일'),
+            title = list(text = paste0('<b>한국 코로나 사망자(10만명당)</b>\n', year(max(total_deaths_5_nations_by_day$date)), '년', month(max(total_deaths_5_nations_by_day$date)), '월', day(max(total_deaths_5_nations_by_day$date)), '일'),
                      font = list(family = '나눔고딕', size = 15)),
             number = list(font = list(family = '나눔고딕', size = 15), 
                           suffix = '명'),
