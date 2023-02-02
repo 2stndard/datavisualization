@@ -79,6 +79,74 @@ df_spss_user |> filter(is.na(년월) != TRUE) |> mutate(연도 = lubridate::year
   pivot_wider(names_from = `사용시간_그룹`, values_from = n) |>
   clipr::write_clip()
 
+df_spss_user |> filter(is.na(년월) != TRUE) |> mutate(연도 = lubridate::year(년월)) |>
+  group_by(연도, PC명) |>
+  summarise(사용시간 = sum(사용시간), 사용횟수= sum(사용횟수)) |> ungroup() |>
+  mutate(사용횟수_그룹 = cut_width(사용횟수, width = 2, center = 1)) |>
+  count(연도, 사용횟수_그룹) |> arrange(사용횟수_그룹) |>
+  pivot_wider(names_from = `사용횟수_그룹`, values_from = n) |>
+  clipr::write_clip()
+
+df_spss_user |> filter(is.na(년월) != TRUE) |> mutate(연도 = lubridate::year(년월)) |>
+  group_by(연도, PC명) |>
+  summarise(사용시간 = sum(사용시간), 사용횟수= sum(사용횟수)) |> ungroup() |>
+  mutate(평균시간 = 사용시간/사용횟수) |>
+  plot_ly() |>
+  add_trace(type = 'box', x = ~연도, y = ~평균시간, boxmean = TRUE)
+
+df_spss_user |> filter(is.na(년월) != TRUE) |> mutate(연도 = lubridate::year(년월)) |>
+  group_by(연도, PC명) |>
+  summarise(사용시간 = sum(사용시간), 사용횟수= sum(사용횟수)) |> ungroup() |>
+  mutate(사용횟수_그룹 = cut_width(사용횟수, width = 2, center = 1)) |>
+  count(연도, 사용횟수_그룹) |> arrange(사용횟수_그룹) |>
+  pivot_wider(names_from = `사용횟수_그룹`, values_from = n) |>
+  clipr::write_clip()
+
+
+df_spss_user |> filter(is.na(년월) != TRUE) |> mutate(연도 = lubridate::year(년월)) |>
+  group_by(연도, PC명) |>
+  summarise(사용횟수= sum(사용횟수)) |> ungroup() |>
+  plot_ly() |>
+  add_trace(type = 'box', x = ~연도, y = ~사용횟수, boxmean = TRUE)
+
+
+df_spss_user |> filter(is.na(년월) != TRUE) |> mutate(연도 = lubridate::year(년월)) |>
+  group_by(연도, PC명) |>
+  summarise(사용횟수 = sum(사용횟수)) |> ungroup() |> clipr::write_clip()
+  group_by(연도) |>
+  summarise(총사용자수 = n(), 총사용횟수 = sum(사용횟수), 
+            최소 = min(사용횟수), `25%` = quantile(사용횟수, 0.25, type = 5), 
+            중간 = median(사용횟수), 평균 = mean(사용횟수), 
+            `75%` = quantile(사용횟수, 0.75, type = 5), 상한 = (`75%` - `25%`) * 1.5 + `75%`, 
+            최대 = max(사용횟수)) |>
+  arrange(연도) |>
+  clipr::write_clip()
+
+df_spss_user |> filter(is.na(년월) != TRUE) |> mutate(연도 = lubridate::year(년월)) |>
+  filter(연도 == 2022) |>
+  summarise(n = n())
+
+
+df_spss_user |> filter(is.na(년월) != TRUE) |> mutate(연도 = lubridate::year(년월)) |>
+  group_by(연도, PC명) |>
+  summarise(사용횟수 = sum(사용횟수), 사용시간 = sum(사용시간)) |> ungroup() |>
+  plot_ly() |>
+  add_trace(type = 'scatter', mode = 'markers', x = ~사용횟수, y = ~사용시간, 
+            marker = list(opacity = 1, size = 2))
+
+
+
+
+
+
+
+  mutate(사용횟수_그룹 = cut_width(사용횟수, width = 2, center = 1)) |>
+  count(연도, 사용횟수_그룹) |> arrange(사용횟수_그룹) |>
+  pivot_wider(names_from = `사용횟수_그룹`, values_from = n) |>
+  clipr::write_clip()
+
+
+
 df_spss_user |> View()
 
   library(clipr)
