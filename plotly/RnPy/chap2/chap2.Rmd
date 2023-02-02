@@ -106,16 +106,16 @@ df_covid19 <- read_csv(file = "데이터파일저장경로/owid-covid-data.csv",
                                              )
                             )
 ## covid19 데이터 로딩(온라인에서 바로 로딩할 경우)
-# df_covid19 <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-data.csv",
-#                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
-#                                              )
-#                             )
+ df_covid19 <- read_csv(file = "https://covid.ourworldindata.org/data/owid-covid-data.csv",
+                             col_types = cols(Date = col_date(format = "%Y-%m-%d")
+                                              )
+                             )
 ## 2. 전체 데이터셋 중 최근 100일간의 데이터를 필터링한 df_covid19_100 생성
-df_covid19_100 <- df_covid19 |> 
+df_covid19_100 <- df_covid19 %>% 
   ## 한국 데이터와 각 대륙별 데이터만을 필터링
-  filter(iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM', 'OWID_AFR')) |>
+  filter(iso_code %in% c('KOR', 'OWID_ASI', 'OWID_EUR', 'OWID_OCE', 'OWID_NAM', 'OWID_SAM', 'OWID_AFR')) %>%
   ## 읽은 데이터의 마지막 데이터에서 100일전 데이터까지 필터링
-  filter(date >= max(date) - 100) |>
+  filter(date >= max(date) - 100) %>%
   ## 국가명을 한글로 변환
   mutate(location = case_when(
     location == 'South Korea' ~ '한국', 
@@ -124,9 +124,9 @@ df_covid19_100 <- df_covid19 |>
     location == 'Oceania' ~ '오세아니아', 
     location == 'North America' ~ '북미', 
     location == 'South America' ~ '남미', 
-    location == 'Africa' ~ '아프리카')) |>
+    location == 'Africa' ~ '아프리카')) %>%
   ## 국가 이름의 순서를 설정 
-  mutate(location = fct_relevel(location, '한국', '아시아', '유럽', '북미', '남미', '아프리카', '오세아니아')) |>
+  mutate(location = fct_relevel(location, '한국', '아시아', '유럽', '북미', '남미', '아프리카', '오세아니아')) %>%
   ## 날짜로 정렬
   arrange(date)
 

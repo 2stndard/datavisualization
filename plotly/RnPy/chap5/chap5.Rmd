@@ -1202,7 +1202,7 @@ candlestick 트레이스를 만들기 위해서는 지금까지 사용했던 데
 R에서 재정 분석과 금융 분석에 주로 사용되는 패키지는 `tidyquant`와 `quantmod`이다. 이 패키지에서는 야후와 구글에서 주가 데이터를 가져오는데 한국의 주가 데이터를 가져오는 데에는 다소 어려움이 있다. 그래서 한국 주식 데이터를 가져오는 전문 패키지인 `tqk` 패키지를 사용하였다. 다만 `tqk` 패키지는 CRAN에 등록된 정식 패키지가 아니기 때문에 `install.packages()`를 사용할 수 없고 Github에서 설치하여야 한다.
 
 ```{r}
-if (!requireNamespace("remotes")) {
+if (!require("remotes")) {
   install.packages("remotes")
   remotes::install_github("mrchypark/tqk")
 }
@@ -1221,13 +1221,9 @@ code <- code_get()
 start_day = as.Date('2022-10-07')
 end_day = start_day + 100
 
-## 삼성전자 코드값을 가져옴
-sse_code <- code |> filter(name == '삼성전자') |>
-  select(code) |> pull()
-
 ##  삼성전자의 최근 100일 주가를 가져옴
-samsung <- tqk_get(sse_code, from=start_day, to=end_day)
-samsung |> head()
+samsung <- tqk_get('005930', from=start_day, to=end_day)
+
 ```
 
 주가 데이터를 잘 가져왔으면 이제 candlestick 트레이스를 만든다. R에서 candlestick 트레이스를 사용하기 위해서는 `add_trace(type = 'candlestick', ...)`을 사용하고, 'open', 'close', 'high', 'low' 값으로 그릴 값이 저장된 열을 매핑해주면 간단히 그려진다.
