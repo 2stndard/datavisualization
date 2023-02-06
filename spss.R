@@ -178,3 +178,9 @@ df_spss_user |> filter(is.na(년월) != TRUE, PC명 != '-', 사용횟수 != 0) |
   summarise(min = min(사용횟수), q1 = quantile(사용횟수, 0.25), median = median(사용횟수), 
             mean = mean(사용횟수), q3 = quantile(사용횟수, 0.75), max = max(사용횟수)) |>
   clipr::write_clip()
+
+
+
+library(reticulate)
+conda_list()
+miniconda_uninstall()
